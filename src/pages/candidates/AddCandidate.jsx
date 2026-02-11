@@ -72,6 +72,7 @@ const AddCandidate = () => {
                         onSubmit={onSubmit}
                         isSubmitting={isSubmitting}
                         submitLabel="Create Candidate"
+                        showPassword={true}
                     />
                 </CardContent>
             </Card>

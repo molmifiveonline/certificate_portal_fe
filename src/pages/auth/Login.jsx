@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Shield, Users, User, ArrowRight } from 'lucide-react';
+import { PasswordInput } from '../../components/ui/PasswordInput';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -11,7 +12,7 @@ const Login = () => {
     // const [role, setRole] = useState('Candidate'); // Role is now coming from backend
     const [selectedRole, setSelectedRole] = useState('Candidate');
     const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
+    // const [showPassword, setShowPassword] = useState(false); // Managed by PasswordInput
     // const [loginError, setLoginError] = useState(null); // Removed for toast
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -115,24 +116,13 @@ const Login = () => {
                                     {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email.message}</span>}
                                 </div>
 
-                                <div className="relative">
-                                    <label className="text-sm font-semibold text-gray-700 block mb-1">Password</label>
-                                    <div className="relative">
-                                        <input
-                                            type={showPassword ? 'text' : 'password'}
-                                            {...register('password', { required: 'Password is required' })}
-                                            className="w-full px-4 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-100 transition-all outline-none shadow-sm"
-                                            placeholder="Enter your password"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                        >
-                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                        </button>
-                                    </div>
-                                    {errors.password && <span className="text-red-500 text-xs mt-1 block">{errors.password.message}</span>}
+                                <div className="space-y-1">
+                                    <label className="text-sm font-semibold text-gray-700 block">Password</label>
+                                    <PasswordInput
+                                        {...register('password', { required: 'Password is required' })}
+                                        className="w-full px-4 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto"
+                                        placeholder="Enter your password"
+                                    />
                                 </div>
                             </div>
 

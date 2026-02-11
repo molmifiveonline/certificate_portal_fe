@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     Search,
     Filter,
@@ -6,30 +6,127 @@ import {
     RefreshCcw,
     UserPlus,
     Edit,
-    Trash2
+    Eye,
+    ArrowUpDown,
+    ArrowUp,
+    ArrowDown
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "../../components/ui/select";
 import { Card, CardContent } from "../../components/ui/card";
-
-// Mock Data
-const MOCK_CANDIDATES = [
-    { id: "MOL-C-001", name: "Rahul Sharma", email: "rahul.s@example.com", phone: "+91 98765 43210", role: "Candidate", status: "active", course: "Full Stack Web Dev" },
-    { id: "MOL-C-002", name: "Priya Patel", email: "priya.p@example.com", phone: "+91 98765 43211", role: "Candidate", status: "active", course: "Data Science" },
-    { id: "MOL-C-003", name: "Amit Kumar", email: "amit.k@example.com", phone: "+91 98765 43212", role: "Candidate", status: "inactive", course: "UI/UX Design" },
-    { id: "MOL-C-004", name: "Sneha Gupta", email: "sneha.g@example.com", phone: "+91 98765 43213", role: "Candidate", status: "active", course: "Full Stack Web Dev" },
-    { id: "MOL-C-005", name: "Vikram Singh", email: "vikram.s@example.com", phone: "+91 98765 43214", role: "Candidate", status: "active", course: "Cyber Security" },
-];
+import candidateService from "../../services/candidateService";
+import TablePagination from "../../components/ui/TablePagination";
+import { toast } from "sonner";
+import ConfirmationModal from "../../components/ui/ConfirmationModal";
+import DetailModal from "../../components/ui/DetailModal";
+import { debounce } from "lodash";
 
 const CandidateList = () => {
-    const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
+    const [candidates, setCandidates] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState("created_at");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [selectedCandidate, setSelectedCandidate] = useState(null);
+    const [isExporting, setIsExporting] = useState(false);
+
+    // Debounce search
+    const updateDebouncedSearch = useCallback(
+        debounce((value) => {
+            setDebouncedSearch(value);
+            setCurrentPage(1);
+        }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
+
+    const fetchCandidates = async () => {
+        setLoading(true);
+        try {
+            const result = await candidateService.getAllCandidates({
+                search: debouncedSearch,
+                page: currentPage,
+                limit: limit,
+                sort_by: sortBy,
+                sort_order: sortOrder
+            });
+            setCandidates(result.data);
+            setTotalPages(result.totalPages);
+            setTotalCount(result.totalCount);
+        } catch (error) {
+            console.error("Error fetching candidates:", error);
+            toast.error("Failed to load candidates");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCandidates();
+    }, [currentPage, debouncedSearch, limit, sortBy, sortOrder]);
+
+    const handleSort = (column) => {
+        if (sortBy === column) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortBy(column);
+            setSortOrder("asc");
+        }
+        setCurrentPage(1);
+    };
+
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            const response = await candidateService.exportCandidates();
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'candidates.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            toast.success("Candidates exported successfully");
+        } catch (error) {
+            console.error("Export error:", error);
+            toast.error("Failed to export candidates");
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+    const SortIcon = ({ column }) => {
+        if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
+        return sortOrder === "asc"
+            ? <ArrowUp className="w-3 h-3 ml-1 text-blue-600" />
+            : <ArrowDown className="w-3 h-3 ml-1 text-blue-600" />;
+    };
+
+    const SortableHeader = ({ column, label, className = "" }) => (
+        <th
+            className={`px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none ${className}`}
+            onClick={() => handleSort(column)}
+        >
+            <div className="flex items-center">
+                {label}
+                <SortIcon column={column} />
+            </div>
+        </th>
+    );
+
+    const handleViewDetails = (candidate) => {
+        setSelectedCandidate(candidate);
+        setShowDetailModal(true);
+    };
 
     return (
         <div className="flex-1 overflow-y-auto">
@@ -65,11 +162,16 @@ const CandidateList = () => {
                             <Filter className="w-4 h-4" />
                             Filter
                         </button>
-                        <button className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all">
-                            <Download className="w-4 h-4" />
+                        <button
+                            onClick={handleExport}
+                            disabled={isExporting}
+                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all disabled:opacity-50">
+                            {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                             Export
                         </button>
-                        <button className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
+                        <button
+                            onClick={fetchCandidates}
+                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
                             <RefreshCcw className="w-4 h-4" />
                         </button>
                     </div>
@@ -82,80 +184,118 @@ const CandidateList = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Candidate ID</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Course</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                <SortableHeader column="employee_id" label="Candidate ID" />
+                                <SortableHeader column="first_name" label="Name" />
+                                <SortableHeader column="registration_type" label="Role" />
+                                <SortableHeader column="rank" label="Rank" />
+                                <SortableHeader column="nationality" label="Nationality" />
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100/50">
-                            {MOCK_CANDIDATES.map((candidate) => (
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, idx) => (
+                                    <tr key={idx} className="animate-pulse">
+                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
+                                        <td className="px-6 py-4">
+                                            <div className="space-y-2">
+                                                <div className="h-4 bg-slate-200 rounded w-32"></div>
+                                                <div className="h-3 bg-slate-100 rounded w-24"></div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
+                                        <td className="px-6 py-4 text-right"><div className="h-4 bg-slate-200 rounded w-12 ml-auto"></div></td>
+                                    </tr>
+                                ))
+                            ) : candidates.map((candidate) => (
                                 <tr key={candidate.id} className="hover:bg-white/40 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{candidate.id}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{candidate.employee_id || 'N/A'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-semibold text-slate-800">{candidate.name}</span>
+                                            <span className="text-sm font-semibold text-slate-800">
+                                                {`${candidate.first_name} ${candidate.last_name}`}
+                                            </span>
                                             <span className="text-xs text-slate-500">{candidate.email}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                            {candidate.role}
+                                            {candidate.registration_type}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.course}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {candidate.status === 'active' ? (
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                                Active
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                                                Inactive
-                                            </span>
-                                        )}
-                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.rank || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.nationality || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex items-center justify-end gap-3">
                                             <button
+                                                onClick={() => handleViewDetails(candidate)}
+                                                className="p-1 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                                                title="View Details"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => navigate(`/candidates/edit/${candidate.id}`)}
                                                 className="p-1 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
                                                 title="Edit Candidate"
                                             >
                                                 <Edit className="w-4 h-4" />
                                             </button>
-                                            <button
-                                                className="p-1 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                                                title="Delete Candidate"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                             ))}
-                            {MOCK_CANDIDATES.length === 0 && (
+                            {!loading && candidates.length === 0 && (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
-                                        No candidates found.
+                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500 font-medium">
+                                        No candidates found matching your search.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
-                {/* Pagination (Static) */}
-                <div className="px-6 py-4 border-t border-slate-200/60 flex items-center justify-between bg-white/30 text-sm text-slate-500">
-                    <span>Showing 1 to 5 of 5 entries</span>
-                    <div className="flex gap-2">
-                        <button className="px-3 py-1 bg-white/50 border border-slate-200/60 rounded-lg disabled:opacity-50" disabled>Previous</button>
-                        <button className="px-3 py-1 bg-white/50 border border-slate-200/60 rounded-lg hover:bg-white/80">Next</button>
-                    </div>
-                </div>
+
+                <TablePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    onPageChange={setCurrentPage}
+                    limit={limit}
+                    onLimitChange={setLimit}
+                />
             </div>
+
+
+            <DetailModal
+                isOpen={showDetailModal}
+                onClose={() => setShowDetailModal(false)}
+                title="Candidate Details"
+                data={selectedCandidate}
+                config={[
+                    { key: 'employee_id', label: 'Candidate ID' },
+                    {
+                        key: 'name',
+                        label: 'Full Name',
+                        render: (_, candidate) => `${candidate.prefix || ''} ${candidate.first_name || ''} ${candidate.middle_name || ''} ${candidate.last_name || ''}`.trim()
+                    },
+                    { key: 'email', label: 'Email' },
+                    { key: 'mobile', label: 'Mobile' },
+                    { key: 'gender', label: 'Gender' },
+                    {
+                        key: 'dob',
+                        label: 'DOB',
+                        render: (val) => val ? new Date(val).toLocaleDateString() : "-"
+                    },
+                    { key: 'nationality', label: 'Nationality' },
+                    { key: 'passport_no', label: 'Passport No.' },
+                    { key: 'rank', label: 'Rank' },
+                    { key: 'whatsapp_number', label: 'WhatsApp' },
+                    { key: 'registration_type', label: 'Registration Type' }
+                ]}
+            />
         </div>
     );
 };

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { User, FileText, Briefcase, ArrowRight } from 'lucide-react';
+import { PasswordInput } from '../ui/PasswordInput';
 
-const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSubmitting, submitLabel = "Register Now" }) => {
+const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSubmitting, submitLabel = "Register Now", showPassword = true }) => {
     const { register, handleSubmit, watch, formState: { errors } } = useForm({
         defaultValues
     });
@@ -96,24 +97,38 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                         <SectionHeader title="Contact Info" />
                         <div className="space-y-4">
                             <InputField label="Email Address" name="email" type="email" required />
-                            <div className="grid grid-cols-2 gap-4">
-                                <InputField
-                                    label="Password"
-                                    name="password"
-                                    type="password"
-                                    required
-                                    rules={{ minLength: { value: 6, message: "Password must be at least 6 characters" } }}
-                                />
-                                <InputField
-                                    label="Confirm Password"
-                                    name="confirmPassword"
-                                    type="password"
-                                    required
-                                    rules={{
-                                        validate: (val, formValues) => val === formValues.password || "Passwords do not match"
-                                    }}
-                                />
-                            </div>
+                            {showPassword && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-sm font-medium text-gray-700 block">
+                                            Password <span className="text-red-500">*</span>
+                                        </label>
+                                        <PasswordInput
+                                            {...register("password", {
+                                                required: "Password is required",
+                                                minLength: { value: 6, message: "Password must be at least 6 characters" }
+                                            })}
+                                            className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
+                                            placeholder="Enter password"
+                                        />
+                                        {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-sm font-medium text-gray-700 block">
+                                            Confirm Password <span className="text-red-500">*</span>
+                                        </label>
+                                        <PasswordInput
+                                            {...register("confirmPassword", {
+                                                required: "Confirm Password is required",
+                                                validate: (val, formValues) => val === formValues.password || "Passwords do not match"
+                                            })}
+                                            className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
+                                            placeholder="Confirm password"
+                                        />
+                                        {errors.confirmPassword && <span className="text-red-500 text-xs">{errors.confirmPassword.message}</span>}
+                                    </div>
+                                </div>
+                            )}
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField label="WhatsApp Number" name="whatsapp" required placeholder="Primary Mobile" />
                                 <InputField label="Alternate Number" name="alternateNumber" />

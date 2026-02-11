@@ -22,7 +22,7 @@ const Register = () => {
                 last_name: data.lastName,
                 middle_name: data.middleName,
                 email: data.email,
-                password: data.password,
+                // password: data.password, // Removed for self-registration
                 mobile: data.whatsapp, // Using whatsapp as primary mobile
                 prefix: data.prefix,
                 gender: data.gender,
@@ -42,7 +42,7 @@ const Register = () => {
 
             await api.post('/auth/register/candidate', payload);
 
-            toast.success("Registration Successful! Please login.");
+            toast.success("Registration Successful! Please check your email to set your password.");
             navigate('/login');
         } catch (error) {
             console.error("Registration Error:", error);
@@ -85,7 +85,7 @@ const Register = () => {
                 </div>
 
                 <div className="p-8 md:p-12 bg-white/40 backdrop-blur-md">
-                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" />
+                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" showPassword={false} />
                 </div>
             </div>
         </div>

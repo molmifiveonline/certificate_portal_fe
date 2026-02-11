@@ -17,7 +17,7 @@ const Navbar = () => {
     const profileImage = user?.user_image;
 
     return (
-        <div className='flex justify-between items-center py-3 px-4 z-20 mt-4 mr-4 ml-4 rounded-3xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-xl'>
+        <div className='flex justify-between items-center py-2 px-3 sm:py-3 sm:px-4 z-20 mt-2 sm:mt-4 mx-2 sm:mr-4 sm:ml-4 rounded-2xl sm:rounded-3xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-xl'>
             <div className="flex items-center gap-3">
                 {/* Toggle Button */}
                 <button
@@ -29,8 +29,8 @@ const Navbar = () => {
 
                 {/* Greeting */}
                 <div className="flex flex-col">
-                    <h1 className="text-lg font-bold text-slate-700 tracking-tight flex items-center gap-2">
-                        Hi, {user?.name || user?.first_name || 'User'} <span className="animate-wave origin-[70%_70%]">👋</span>
+                    <h1 className="text-sm sm:text-lg font-bold text-slate-700 tracking-tight flex items-center gap-2">
+                        Hi, <span className="hidden xs:inline">{user?.name || user?.first_name || 'User'}</span> <span className="animate-wave origin-[70%_70%]">👋</span>
                     </h1>
                 </div>
             </div>
@@ -50,7 +50,7 @@ const Navbar = () => {
 
                     {/* Profile Photo */}
                     <div className='relative'>
-                        <div className='w-10 h-10 rounded-full bg-gradient-to-br from-[#3a5f9e] to-[#6fa8dc] flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-white'>
+                        <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#3a5f9e] to-[#6fa8dc] flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg ring-2 ring-white'>
                             {profileImage ? (
                                 <img
                                     src={profileImage}
