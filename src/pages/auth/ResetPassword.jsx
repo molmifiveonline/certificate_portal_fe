@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Lock, ArrowRight } from 'lucide-react';
+import { PasswordInput } from '../../components/ui/PasswordInput';
 import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
+import Meta from '../../components/common/Meta';
 
 const ResetPassword = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    // Managed by PasswordInput
+    // const [showPassword, setShowPassword] = useState(false);
+    // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
     const navigate = useNavigate();
@@ -45,6 +48,7 @@ const ResetPassword = () => {
 
     return (
         <div className="flex min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-blue-200 items-center justify-center p-4 relative overflow-hidden">
+            <Meta title="Reset Password" description="Reset your password" />
 
             {/* Background Decorative Blobs */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
@@ -86,25 +90,17 @@ const ResetPassword = () => {
                                 <div className="relative">
                                     <label className="text-sm font-semibold text-gray-700 block mb-1">New Password</label>
                                     <div className="relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10">
                                             <Lock size={20} />
                                         </div>
-                                        <input
-                                            type={showPassword ? 'text' : 'password'}
+                                        <PasswordInput
                                             {...register('password', {
                                                 required: 'Password is required',
                                                 minLength: { value: 6, message: 'Password must be at least 6 characters' }
                                             })}
-                                            className="w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm"
+                                            className="w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto"
                                             placeholder="Enter new password"
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                        >
-                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                        </button>
                                     </div>
                                     {errors.password && <span className="text-red-500 text-xs mt-1 block">{errors.password.message}</span>}
                                 </div>
@@ -113,27 +109,19 @@ const ResetPassword = () => {
                                 <div className="relative">
                                     <label className="text-sm font-semibold text-gray-700 block mb-1">Confirm Password</label>
                                     <div className="relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10">
                                             <Lock size={20} />
                                         </div>
-                                        <input
-                                            type={showConfirmPassword ? 'text' : 'password'}
+                                        <PasswordInput
                                             {...register('confirm_password', {
                                                 required: 'Please confirm your password',
                                                 validate: (val) => {
                                                     if (watch('password') !== val) return "Passwords do not match";
                                                 }
                                             })}
-                                            className="w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm"
+                                            className="w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto"
                                             placeholder="Confirm new password"
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                        >
-                                            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                        </button>
                                     </div>
                                     {errors.confirm_password && <span className="text-red-500 text-xs mt-1 block">{errors.confirm_password.message}</span>}
                                 </div>

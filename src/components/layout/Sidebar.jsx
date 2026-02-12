@@ -81,7 +81,9 @@ const Sidebar = () => {
             <aside
                 className={cn(
                     "fixed left-0 top-0 h-screen transition-all duration-300 z-50 flex flex-col bg-white border-r border-slate-200 shadow-sm",
-                    isOpen ? "w-64" : "w-16"
+                    isOpen
+                        ? "w-64 translate-x-0"
+                        : "w-64 -translate-x-full md:w-16 md:translate-x-0 md:overflow-hidden"
                 )}
             >
                 {/* Logo Header */}

@@ -7,6 +7,7 @@ import api from '../../lib/api';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import CandidateForm from '../../components/candidates/CandidateForm';
+import Meta from '../../components/common/Meta';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Register = () => {
                 last_name: data.lastName,
                 middle_name: data.middleName,
                 email: data.email,
-                password: data.password,
+                // password: data.password, // Removed for self-registration
                 mobile: data.whatsapp, // Using whatsapp as primary mobile
                 prefix: data.prefix,
                 gender: data.gender,
@@ -37,12 +38,22 @@ const Register = () => {
                 whatsapp_number: data.whatsapp,
                 alternate_mobile: data.alternateNumber,
                 indos_number: data.indosNo,
-                registration_type: data.employeeType
+                registration_type: data.employeeType,
+                designation: data.designation,
+                vessel_type: data.vesselType,
+                last_vessel_name: data.lastVesselName,
+                next_vessel_name: data.nextVesselName,
+                manning_company: data.manningCompany,
+                sign_on_date: data.signOnDate,
+                sign_off_date: data.signOffDate,
+                officer: data.officer,
+                seaman_book_no: data.seamanBookNo,
+                profile_image: data.profileImage
             };
 
             await api.post('/auth/register/candidate', payload);
 
-            toast.success("Registration Successful! Please login.");
+            toast.success("Registration Successful! Please check your email to set your password.");
             navigate('/login');
         } catch (error) {
             console.error("Registration Error:", error);
@@ -56,6 +67,7 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-blue-200 py-10 px-4 md:px-8 font-sans relative overflow-hidden">
+            <Meta title="Register" description="Register a new account" />
 
             {/* Background Decorative Blobs */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
@@ -85,7 +97,7 @@ const Register = () => {
                 </div>
 
                 <div className="p-8 md:p-12 bg-white/40 backdrop-blur-md">
-                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" />
+                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" showPassword={false} />
                 </div>
             </div>
         </div>

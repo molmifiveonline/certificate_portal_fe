@@ -4,22 +4,22 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import api from '../../lib/api';
 import { Users, Save, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 
-const CreateTrainer = () => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+const EditTrainer = () => {
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [previews, setPreviews] = useState({ profile_photo: null, digital_signature: null });
     const navigate = useNavigate();
+    const { id } = useParams();
 
     const handleFileChange = (name, e) => {
         const file = e.target.files[0];
         if (file) {
             const url = URL.createObjectURL(file);
             setPreviews(prev => ({ ...prev, [name]: url }));
-        } else {
-            setPreviews(prev => ({ ...prev, [name]: null }));
         }
     };
 
@@ -46,6 +46,44 @@ const CreateTrainer = () => {
         "Welsh", "Yemenite", "Zambian", "Zimbabwean"
     ];
 
+    useEffect(() => {
+        const fetchTrainer = async () => {
+            try {
+                const response = await api.get(`/trainer/${id}`);
+                const trainer = response.data;
+
+                // Combine first_name and last_name for the single trainer_name field
+                const trainerName = [trainer.first_name, trainer.last_name].filter(Boolean).join(' ');
+
+                setValue('trainer_name', trainerName);
+                setValue('prefix', trainer.prefix || '');
+                setValue('email', trainer.email || '');
+                setValue('nationality', trainer.nationality || '');
+                setValue('designation', trainer.designation || '');
+                setValue('designation', trainer.designation || '');
+                setValue('rank', trainer.rank || '');
+                setValue('officer', trainer.officer || '');
+                setValue('other_officer', trainer.other_officer || '');
+
+                // Set existing image previews
+                if (trainer.profile_photo) {
+                    setPreviews(prev => ({ ...prev, profile_photo: `http://localhost:8000/uploads/trainer/${trainer.profile_photo}` }));
+                }
+                if (trainer.digital_signature) {
+                    setPreviews(prev => ({ ...prev, digital_signature: `http://localhost:8000/uploads/trainer/${trainer.digital_signature}` }));
+                }
+            } catch (error) {
+                console.error("Error fetching trainer:", error);
+                toast.error("Failed to load trainer data.");
+                navigate('/trainers');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTrainer();
+    }, [id, setValue, navigate]);
+
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
@@ -57,36 +95,38 @@ const CreateTrainer = () => {
             const lastName = nameParts.slice(1).join(' ') || '';
 
             formData.append('first_name', firstName);
-            formData.append('last_name', lastName); // Backend expects last_name
+            formData.append('last_name', lastName);
             formData.append('email', data.email);
-            formData.append('password', data.password);
             formData.append('prefix', data.prefix);
-
-            formData.append('officer', data.officer);
-            formData.append('other_officer', data.other_officer);
             formData.append('designation', data.designation);
             formData.append('nationality', data.nationality);
             formData.append('rank', data.rank);
+            formData.append('officer', data.officer);
+            formData.append('other_officer', data.other_officer);
 
-            if (data.digital_signature[0]) {
+            // Only append password if provided
+            if (data.password) {
+                formData.append('password', data.password);
+            }
+
+            if (data.digital_signature?.[0]) {
                 formData.append('digital_signature', data.digital_signature[0]);
             }
-            if (data.profile_photo[0]) {
+            if (data.profile_photo?.[0]) {
                 formData.append('profile_photo', data.profile_photo[0]);
             }
 
-            await api.post('/trainer/create', formData, {
+            await api.put(`/trainer/update/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
 
-            toast.success('Trainer created successfully!');
-            reset();
+            toast.success('Trainer updated successfully!');
             navigate('/trainers');
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || 'Failed to create trainer.');
+            toast.error(error.response?.data?.message || 'Failed to update trainer.');
         } finally {
             setIsSubmitting(false);
         }
@@ -107,13 +147,11 @@ const CreateTrainer = () => {
         </div>
     );
 
-    const FileInput = ({ label, name, required }) => {
-        const { ref, ...rest } = register(name, { required: required ? `${label} is required` : false });
+    const FileInput = ({ label, name }) => {
+        const { ref, ...rest } = register(name);
         return (
             <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700 block">
-                    {label} {required && <span className="text-red-500">*</span>}
-                </label>
+                <label className="text-sm font-medium text-gray-700 block">{label}</label>
                 <input
                     type="file"
                     accept="image/*"
@@ -134,7 +172,6 @@ const CreateTrainer = () => {
                         />
                     </div>
                 )}
-                {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
             </div>
         );
     };
@@ -157,11 +194,19 @@ const CreateTrainer = () => {
         </div>
     );
 
+    if (loading) {
+        return (
+            <div className="p-6 max-w-4xl mx-auto flex items-center justify-center min-h-[400px]">
+                <p className="text-slate-500">Loading trainer data...</p>
+            </div>
+        );
+    }
+
 
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <Meta title="Create Trainer" description="Create New Trainer" />
+            <Meta title="Edit Trainer" description="Edit Trainer Details" />
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
                 <div className="px-8 py-4 flex items-center justify-between">
@@ -170,8 +215,8 @@ const CreateTrainer = () => {
                             <Users size={24} className="text-blue-600" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-slate-800">Create New Trainer</h1>
-                            <p className="text-sm text-slate-500">Fill in the details to register a new trainer</p>
+                            <h1 className="text-xl font-bold text-slate-800">Edit Trainer</h1>
+                            <p className="text-sm text-slate-500">Update trainer details and permissions</p>
                         </div>
                     </div>
                     <button
@@ -207,23 +252,20 @@ const CreateTrainer = () => {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <InputField label="Email Address" name="email" type="email" required />
-                                        <SelectField label="Nationality" name="nationality" options={nationalities} required />
-                                    </div>
+                                    <InputField label="Email Address" name="email" type="email" required />
 
                                     <div className="grid grid-cols-2 gap-6">
+                                        <SelectField label="Nationality" name="nationality" options={nationalities} required />
                                         <div className="space-y-1">
-                                            <label className="text-sm font-medium text-gray-700 block">
-                                                Password <span className="text-red-500">*</span>
+                                            <label className="text-sm font-medium text-gray-700 block text-xs">
+                                                New Password (leave empty to keep current)
                                             </label>
                                             <PasswordInput
                                                 {...register("password", {
-                                                    required: "Password is required",
                                                     minLength: { value: 6, message: "Min 6 characters" }
                                                 })}
                                                 className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
-                                                placeholder="Enter password"
+                                                placeholder="New password"
                                             />
                                             {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                                         </div>
@@ -238,14 +280,14 @@ const CreateTrainer = () => {
                                     Professional Details
                                 </h3>
                                 <div className="space-y-6">
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <InputField label="Designation" name="designation" required />
-                                        <InputField label="Rank" name="rank" required />
-                                    </div>
                                     {/* <div className="grid grid-cols-2 gap-6">
                                         <InputField label="Officer" name="officer" placeholder="e.g. Deck Officer" />
                                         <InputField label="Other Officer" name="other_officer" placeholder="e.g. Safety Officer" />
                                     </div> */}
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <InputField label="Designation" name="designation" required />
+                                        <InputField label="Rank" name="rank" required />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -260,10 +302,10 @@ const CreateTrainer = () => {
                                 </h3>
                                 <div className="grid grid-cols-1 gap-6">
                                     <div className="p-4 border border-dashed border-slate-300 rounded-lg bg-slate-50/50">
-                                        <FileInput label="Profile Photo" name="profile_photo" />
+                                        <FileInput label="Profile Photo (leave empty to keep current)" name="profile_photo" />
                                     </div>
                                     <div className="p-4 border border-dashed border-slate-300 rounded-lg bg-slate-50/50">
-                                        <FileInput label="Digital Signature" name="digital_signature" />
+                                        <FileInput label="Digital Signature (leave empty to keep current)" name="digital_signature" />
                                     </div>
                                 </div>
                             </div>
@@ -285,7 +327,7 @@ const CreateTrainer = () => {
                                 className={`flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-semibold shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 <Save size={18} />
-                                <span>{isSubmitting ? 'Creating...' : 'Create Trainer'}</span>
+                                <span>{isSubmitting ? 'Updating...' : 'Update Trainer'}</span>
                             </button>
                         </div>
                     </div>
@@ -295,4 +337,4 @@ const CreateTrainer = () => {
     );
 };
 
-export default CreateTrainer;
+export default EditTrainer;

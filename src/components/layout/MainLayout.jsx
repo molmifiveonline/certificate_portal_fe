@@ -39,7 +39,7 @@ const MainLayoutInner = ({ children }) => {
                     <Navbar />
                 </div>
 
-                <div className="flex-1 p-4 md:p-8">
+                <div className="flex-1 p-3 sm:p-6 md:p-8">
                     {children}
                 </div>
             </main>

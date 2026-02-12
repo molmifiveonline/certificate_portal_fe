@@ -18,6 +18,7 @@ import {
     SelectValue,
 } from "../../components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import Meta from '../../components/common/Meta';
 
 const StatsCard = ({ title, value, icon: Icon, gradient, delay }) => {
     return (
@@ -131,6 +132,7 @@ const FilterSection = () => {
 
 const SuperAdminDashboard = () => (
     <>
+        <Meta title="Super Admin Dashboard" description="Super Admin Dashboard" />
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <StatsCard
