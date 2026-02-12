@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Search, RotateCw, Trash2, History } from "lucide-react";
 import logService from "../../services/logService";
+import Meta from "../../components/common/Meta";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { Card, CardContent } from "../../components/ui/card";
@@ -112,8 +113,11 @@ const LogHistory = () => {
 
     if (loading && logs.length === 0) return <LoadingSpinner />;
 
+
+
     return (
         <div className="flex-1 overflow-y-auto">
+            <Meta title="Log History" description="View System Logs" />
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>

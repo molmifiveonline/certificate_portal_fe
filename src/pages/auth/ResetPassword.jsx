@@ -5,6 +5,7 @@ import { PasswordInput } from '../../components/ui/PasswordInput';
 import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
+import Meta from '../../components/common/Meta';
 
 const ResetPassword = () => {
     // Managed by PasswordInput
@@ -47,6 +48,7 @@ const ResetPassword = () => {
 
     return (
         <div className="flex min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-blue-200 items-center justify-center p-4 relative overflow-hidden">
+            <Meta title="Reset Password" description="Reset your password" />
 
             {/* Background Decorative Blobs */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>

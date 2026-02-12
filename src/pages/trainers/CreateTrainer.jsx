@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import api from '../../lib/api';
@@ -156,8 +157,11 @@ const CreateTrainer = () => {
         </div>
     );
 
+
+
     return (
         <div className="min-h-screen bg-slate-50">
+            <Meta title="Create Trainer" description="Create New Trainer" />
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
                 <div className="px-8 py-4 flex items-center justify-between">

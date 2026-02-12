@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
+import Meta from '../../components/common/Meta';
 
 const Login = () => {
     // const [role, setRole] = useState('Candidate'); // Role is now coming from backend
@@ -57,6 +58,7 @@ const Login = () => {
 
     return (
         <div className="flex min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-blue-200 items-center justify-center p-4 relative overflow-hidden">
+            <Meta title="Login" description="Login to Employee Management System" />
 
             {/* Background Decorative Blobs to make Glassmorphism visible */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>

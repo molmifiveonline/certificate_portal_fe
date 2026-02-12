@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,7 +36,18 @@ const EditCandidate = () => {
                     whatsapp: data.whatsapp_number,
                     alternateNumber: data.alternate_mobile,
                     indosNo: data.indos_number,
-                    employeeType: data.registration_type
+                    employeeType: data.registration_type,
+                    designation: data.designation,
+                    vesselType: data.vessel_type,
+                    lastVesselName: data.last_vessel_name,
+                    nextVesselName: data.next_vessel_name,
+                    manningCompany: data.manning_company,
+                    signOnDate: data.sign_on_date ? data.sign_on_date.split('T')[0] : '',
+                    signOffDate: data.sign_off_date ? data.sign_off_date.split('T')[0] : '',
+                    officer: data.officer,
+                    seamanBookNo: data.seaman_book_no,
+                    profileImage: data.profile_image,
+                    status: data.status === 1 // Map 1 to true, 0 to false
                 };
                 setCandidateData(mappedData);
             } catch (error) {
@@ -68,8 +80,24 @@ const EditCandidate = () => {
                 whatsapp_number: data.whatsapp,
                 alternate_mobile: data.alternateNumber,
                 indos_number: data.indosNo,
-                registration_type: data.employeeType
+                registration_type: data.employeeType,
+                designation: data.designation,
+                vessel_type: data.vesselType,
+                last_vessel_name: data.lastVesselName,
+                next_vessel_name: data.nextVesselName,
+                manning_company: data.manningCompany,
+                sign_on_date: data.signOnDate,
+                sign_off_date: data.signOffDate,
+                officer: data.officer,
+                seaman_book_no: data.seamanBookNo,
+                profile_image: data.profileImage,
+                status: data.status ? 1 : 0 // Map true to 1, false to 0
             };
+
+            // Only add password if it was reset/changed (frontend sends it only if user typed it)
+            if (data.password) {
+                payload.password = data.password;
+            }
 
             await candidateService.updateCandidate(id, payload);
             toast.success("Candidate Updated Successfully!");
@@ -84,8 +112,11 @@ const EditCandidate = () => {
 
     if (loading) return <LoadingSpinner />;
 
+
+
     return (
         <div className="space-y-6">
+            <Meta title="Edit Candidate" description="Edit Candidate Details" />
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => navigate('/candidates')}
@@ -107,6 +138,7 @@ const EditCandidate = () => {
                         isSubmitting={isSubmitting}
                         submitLabel="Update Candidate"
                         showPassword={false}
+                        isAdmin={true}
                     />
                 </CardContent>
             </Card>

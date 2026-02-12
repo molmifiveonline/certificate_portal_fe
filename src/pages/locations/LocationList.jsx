@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import Meta from "../../components/common/Meta";
 import {
     Search,
     RefreshCcw,
@@ -132,8 +133,11 @@ const LocationList = () => {
         </th>
     );
 
+
+
     return (
         <div className="flex-1 overflow-y-auto w-full">
+            <Meta title="Locations" description="Manage Locations" />
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>

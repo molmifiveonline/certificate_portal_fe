@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import Meta from "../../components/common/Meta";
 import { Shield, Check, X, Save, RefreshCcw, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
@@ -121,8 +122,11 @@ const RolePermission = () => {
         );
     }
 
+
+
     return (
         <div className="flex-1 overflow-y-auto">
+            <Meta title="Role Permissions" description="Manage Role Permissions" />
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>

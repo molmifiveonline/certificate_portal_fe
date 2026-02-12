@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import Meta from "../../components/common/Meta";
 import {
     Search,
     Download,
@@ -151,8 +152,11 @@ const TrainerList = () => {
         return pages;
     };
 
+
+
     return (
         <div className="flex-1 overflow-y-auto w-full">
+            <Meta title="Trainers" description="Manage Trainers" />
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>

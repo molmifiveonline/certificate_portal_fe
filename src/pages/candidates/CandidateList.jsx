@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
+import Meta from "../../components/common/Meta";
+import { MANAGER_OPTIONS } from "../../lib/constants";
 import {
     Search,
     Filter,
@@ -9,7 +11,9 @@ import {
     Eye,
     ArrowUpDown,
     ArrowUp,
-    ArrowDown
+    ArrowDown,
+    Upload,
+    Zap
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
@@ -35,6 +39,15 @@ const CandidateList = () => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(null);
+
+    // Filter States
+    const [filterManager, setFilterManager] = useState("");
+    const [filterRank, setFilterRank] = useState("");
+    const [filterNationality, setFilterNationality] = useState("");
+    const [filterStatus, setFilterStatus] = useState("1"); // Default Active
 
     // Debounce search
     const updateDebouncedSearch = useCallback(
@@ -57,8 +70,13 @@ const CandidateList = () => {
                 page: currentPage,
                 limit: limit,
                 sort_by: sortBy,
-                sort_order: sortOrder
+                sort_order: sortOrder,
+                manager: filterManager,
+                rank: filterRank,
+                nationality: filterNationality,
+                status: filterStatus
             });
+
             setCandidates(result.data);
             setTotalPages(result.totalPages);
             setTotalCount(result.totalCount);
@@ -72,7 +90,7 @@ const CandidateList = () => {
 
     useEffect(() => {
         fetchCandidates();
-    }, [currentPage, debouncedSearch, limit, sortBy, sortOrder]);
+    }, [currentPage, debouncedSearch, limit, sortBy, sortOrder, filterManager, filterRank, filterNationality, filterStatus]);
 
     const handleSort = (column) => {
         if (sortBy === column) {
@@ -104,6 +122,48 @@ const CandidateList = () => {
         }
     };
 
+    const handleSyncFromApi = async () => {
+        setIsSyncing(true);
+        const toastId = toast.loading("Syncing candidates from API...");
+        try {
+            const result = await candidateService.importFromApi("1970-01-01"); // Default to all
+            toast.success(`Sync completed! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
+            fetchCandidates();
+        } catch (error) {
+            console.error("Sync error:", error);
+            toast.error("Failed to sync from API", { id: toastId });
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.name.endsWith('.csv')) {
+            toast.error("Please upload a CSV file");
+            return;
+        }
+
+        setIsUploading(true);
+        const toastId = toast.loading("Uploading candidates...");
+        const formData = new FormData();
+        formData.append("csv", file);
+
+        try {
+            const result = await candidateService.uploadCandidates(formData);
+            toast.success(`Upload successful! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
+            fetchCandidates();
+        } catch (error) {
+            console.error("Upload error:", error);
+            toast.error("Failed to upload candidates", { id: toastId });
+        } finally {
+            setIsUploading(false);
+            e.target.value = ''; // Reset input
+        }
+    };
+
     const SortIcon = ({ column }) => {
         if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
         return sortOrder === "asc"
@@ -128,52 +188,121 @@ const CandidateList = () => {
         setShowDetailModal(true);
     };
 
+
+
     return (
         <div className="flex-1 overflow-y-auto">
+            <Meta title="Candidates" description="Manage Candidates" />
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Candidates</h1>
                     <p className="text-slate-500 mt-1">Manage and view all registered candidates</p>
                 </div>
-                <button
-                    onClick={() => navigate('/candidates/add')}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95">
-                    <UserPlus className="w-4 h-4" />
-                    Add Candidate
-                </button>
+                <div className="flex flex-wrap gap-3">
+                    <button
+                        onClick={handleSyncFromApi}
+                        disabled={isSyncing}
+                        className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95 disabled:opacity-50">
+                        <Zap className={`w-4 h-4 text-amber-500 ${isSyncing ? 'animate-pulse' : ''}`} />
+                        {isSyncing ? 'Syncing...' : 'Sync API'}
+                    </button>
+
+                    <label className="cursor-pointer bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95">
+                        <Upload className="w-4 h-4 text-blue-600" />
+                        Upload
+                        <input
+                            type="file"
+                            className="hidden"
+                            accept=".csv"
+                            onChange={handleFileUpload}
+                            disabled={isUploading}
+                        />
+                    </label>
+
+                    <button
+                        onClick={() => navigate('/candidates/add')}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95">
+                        <UserPlus className="w-4 h-4" />
+                        Add Candidate
+                    </button>
+                </div>
             </div>
 
-            {/* Filter Bar */}
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
-                <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div className="relative w-full md:w-96">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search candidates by name, email or ID..."
-                            className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                <CardContent className="p-4 sm:p-6 space-y-4">
+                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+                        <div className="relative w-full md:w-96">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex gap-3 w-full md:w-auto">
+                            <button
+                                onClick={handleExport}
+                                disabled={isExporting}
+                                className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all disabled:opacity-50">
+                                {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                                Export
+                            </button>
+                            <button
+                                onClick={fetchCandidates}
+                                className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
+                                <RefreshCcw className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex gap-3 w-full md:w-auto">
-                        <button className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all">
-                            <Filter className="w-4 h-4" />
-                            Filter
-                        </button>
-                        <button
-                            onClick={handleExport}
-                            disabled={isExporting}
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all disabled:opacity-50">
-                            {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                            Export
-                        </button>
-                        <button
-                            onClick={fetchCandidates}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
+
+                    {/* Additional Filters */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="relative">
+                            <select
+                                className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                value={filterManager}
+                                onChange={(e) => setFilterManager(e.target.value)}
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                            >
+                                <option value="">Last served (All)</option>
+                                {MANAGER_OPTIONS.map(opt => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <select
+                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                            value={filterRank}
+                            onChange={(e) => setFilterRank(e.target.value)}
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                        >
+                            <option value="">All Ranks</option>
+                            <option value="Captain">Captain</option>
+                            <option value="Chief Officer">Chief Officer</option>
+                        </select>
+                        <select
+                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                            value={filterNationality}
+                            onChange={(e) => setFilterNationality(e.target.value)}
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                        >
+                            <option value="">All Nationalities</option>
+                            <option value="Indian">Indian</option>
+                            <option value="Filipino">Filipino</option>
+                        </select>
+                        <select
+                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                        >
+                            <option value="all">All Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
                     </div>
                 </CardContent>
             </Card>
@@ -184,66 +313,57 @@ const CandidateList = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-white/40 border-b border-slate-200/60">
-                                <SortableHeader column="employee_id" label="Candidate ID" />
-                                <SortableHeader column="first_name" label="Name" />
-                                <SortableHeader column="registration_type" label="Role" />
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sr.No.</th>
+                                <SortableHeader column="employee_id" label="Employee ID" />
+                                <SortableHeader column="prefix" label="Title" />
+                                <SortableHeader column="first_name" label="Candidate Name" />
                                 <SortableHeader column="rank" label="Rank" />
+                                <SortableHeader column="created_at" label="Date" />
                                 <SortableHeader column="nationality" label="Nationality" />
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                                <SortableHeader column="manager" label="Manager" />
+                                <SortableHeader column="status" label="Status" />
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Edit</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100/50">
                             {loading ? (
                                 Array.from({ length: 5 }).map((_, idx) => (
                                     <tr key={idx} className="animate-pulse">
-                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
-                                        <td className="px-6 py-4">
-                                            <div className="space-y-2">
-                                                <div className="h-4 bg-slate-200 rounded w-32"></div>
-                                                <div className="h-3 bg-slate-100 rounded w-24"></div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
-                                        <td className="px-6 py-4 text-right"><div className="h-4 bg-slate-200 rounded w-12 ml-auto"></div></td>
+                                        <td colSpan="10" className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-full"></div></td>
                                     </tr>
                                 ))
-                            ) : candidates.map((candidate) => (
+                            ) : candidates.map((candidate, index) => (
                                 <tr key={candidate.id} className="hover:bg-white/40 transition-colors">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                        {(currentPage - 1) * limit + index + 1}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{candidate.employee_id || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.prefix || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold text-slate-800">
-                                                {`${candidate.first_name} ${candidate.last_name}`}
+                                                {`${candidate.first_name || ''} ${candidate.last_name || ''}`}
                                             </span>
-                                            <span className="text-xs text-slate-500">{candidate.email}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                            {candidate.registration_type}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.rank || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                        {candidate.created_at ? new Date(candidate.created_at).toLocaleDateString('en-GB') : '-'}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.nationality || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div className="flex items-center justify-end gap-3">
-                                            <button
-                                                onClick={() => handleViewDetails(candidate)}
-                                                className="p-1 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                                                title="View Details"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => navigate(`/candidates/edit/${candidate.id}`)}
-                                                className="p-1 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                                                title="Edit Candidate"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                        </div>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.manager || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${candidate.status === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {candidate.status === 1 ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button
+                                            onClick={() => navigate(`/candidates/edit/${candidate.id}`)}
+                                            className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-all font-medium text-xs"
+                                        >
+                                            Edit
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

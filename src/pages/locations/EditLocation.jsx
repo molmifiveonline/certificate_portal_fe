@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import LocationForm from './LocationForm';
@@ -59,8 +60,11 @@ const EditLocation = () => {
 
     if (loading) return <LoadingSpinner />;
 
+
+
     return (
         <div className="flex-1 overflow-y-auto w-full">
+            <Meta title="Edit Location" description="Edit Location Details" />
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">

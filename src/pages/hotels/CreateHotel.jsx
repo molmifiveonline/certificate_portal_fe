@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Meta from "../../components/common/Meta";
 import { useNavigate } from 'react-router-dom';
 import { Building, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -36,8 +37,11 @@ const CreateHotel = () => {
         }
     };
 
+
+
     return (
         <div className="flex-1 overflow-y-auto w-full">
+            <Meta title="Add Hotel" description="Add New Hotel" />
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">

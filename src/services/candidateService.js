@@ -27,6 +27,31 @@ const candidateService = {
     });
     return response;
   },
+
+  uploadCandidates: async (formData) => {
+    const response = await api.post("/candidate/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+
+  uploadProfileImage: async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await api.post(
+      "/candidate/upload-profile-image",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+    return response.data;
+  },
+
+  importFromApi: async (date) => {
+    const response = await api.post("/candidate/import-api", { date });
+    return response.data;
+  },
 };
 
 export default candidateService;

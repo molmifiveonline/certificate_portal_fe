@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Meta from "../../components/common/Meta";
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,7 +36,17 @@ const AddCandidate = () => {
                 whatsapp_number: data.whatsapp,
                 alternate_mobile: data.alternateNumber,
                 indos_number: data.indosNo,
-                registration_type: data.employeeType
+                registration_type: data.employeeType,
+                designation: data.designation,
+                vessel_type: data.vesselType,
+                last_vessel_name: data.lastVesselName,
+                next_vessel_name: data.nextVesselName,
+                manning_company: data.manningCompany,
+                sign_on_date: data.signOnDate,
+                sign_off_date: data.signOffDate,
+                officer: data.officer,
+                seaman_book_no: data.seamanBookNo,
+                profile_image: data.profileImage
             };
 
             await api.post('/auth/register/candidate', payload);
@@ -51,8 +62,11 @@ const AddCandidate = () => {
         }
     };
 
+
+
     return (
         <div className="space-y-6">
+            <Meta title="Add Candidate" description="Add New Candidate" />
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => navigate('/candidates')}
@@ -73,6 +87,7 @@ const AddCandidate = () => {
                         isSubmitting={isSubmitting}
                         submitLabel="Create Candidate"
                         showPassword={true}
+                        isAdmin={true}
                     />
                 </CardContent>
             </Card>
