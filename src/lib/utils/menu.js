@@ -31,7 +31,7 @@ export const MenuItems = [
   // Common / Shared
   {
     title: "Home",
-    url: "/",
+    url: "/dashboard",
     icon: Home,
     allowedRoles: ["admin", "superadmin", "trainer", "candidate"],
   },
@@ -49,16 +49,16 @@ export const MenuItems = [
     icon: GraduationCap,
     allowedRoles: ["admin", "superadmin"],
   },
-  // {
-  //   title: "Courses",
-  //   url: "/courses",
-  //   icon: BookOpen,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "All Courses", url: "/courses" },
-  //     { title: "Add Course", url: "/courses/add" },
-  //   ],
-  // },
+  {
+    title: "Courses",
+    url: "/courses",
+    icon: BookOpen,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Master Courses", url: "/courses" },
+      { title: "Active Courses", url: "/courses/add" },
+    ],
+  },
   {
     title: "Hotel Details",
     url: "/hotel-details",
@@ -81,13 +81,17 @@ export const MenuItems = [
   //     { title: "Create Assessment", url: "/assessment/create" },
   //   ],
   // },
-  // {
-  //   title: "Feedback",
-  //   url: "/feedback",
-  //   icon: MessageSquare,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [{ title: "All Feedback", url: "/feedback" }],
-  // },
+  {
+    title: "Feedback",
+    url: "/feedback",
+    icon: MessageSquare,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Feedback Category", url: "/feedback" },
+      { title: "Feedback Question", url: "/feedback/questions" },
+      { title: "Submitted Feedback", url: "/feedback/submitted" },
+    ],
+  },
   // {
   //   title: "Certificates",
   //   url: "/certificates",

@@ -30,6 +30,11 @@ const HotelList = lazy(() => import("./pages/hotels/HotelList"));
 const CreateHotel = lazy(() => import("./pages/hotels/CreateHotel"));
 const EditHotel = lazy(() => import("./pages/hotels/EditHotel"));
 
+// Unified Dashboard
+const UnifiedDashboard = lazy(
+  () => import("./pages/dashboard/UnifiedDashboard"),
+);
+
 // Location
 const LocationList = lazy(() => import("./pages/locations/LocationList"));
 const CreateLocation = lazy(() => import("./pages/locations/CreateLocation"));
@@ -38,6 +43,20 @@ const EditLocation = lazy(() => import("./pages/locations/EditLocation"));
 // Route Components
 const PrivateRoute = lazy(() => import("./components/routes/PrivateRoute"));
 const PublicRoute = lazy(() => import("./components/routes/PublicRoute"));
+
+// Feedback
+const FeedbackCategoryList = lazy(
+  () => import("./pages/feedback/FeedbackCategoryList"),
+);
+const FeedbackQuestionList = lazy(
+  () => import("./pages/feedback/FeedbackQuestionList"),
+);
+const SubmittedFeedbackList = lazy(
+  () => import("./pages/feedback/SubmittedFeedbackList"),
+);
+const SubmittedFeedbackDetails = lazy(
+  () => import("./pages/feedback/SubmittedFeedbackDetails"),
+);
 
 function App() {
   return (
@@ -75,12 +94,32 @@ function App() {
 
               <Route path="/" element={<Navigate to="/login" replace />} />
 
+              {/* Unified Dashboard Route */}
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute
+                    allowedRoles={[
+                      "SuperAdmin",
+                      "Admin",
+                      "admin",
+                      "Trainer",
+                      "trainer",
+                      "Candidate",
+                      "candidate",
+                    ]}
+                  >
+                    <UnifiedDashboard />
+                  </PrivateRoute>
+                }
+              />
+
               {/* SuperAdmin / Admin Routes */}
               <Route
                 path="/dashboard/super-admin"
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <SuperAdminDashboard />
+                    <UnifiedDashboard />
                   </PrivateRoute>
                 }
               />
@@ -211,12 +250,46 @@ function App() {
                 }
               />
 
+              {/* Feedback Routes */}
+              <Route
+                path="/feedback"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <FeedbackCategoryList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/questions"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <FeedbackQuestionList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/submitted"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <SubmittedFeedbackList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/submitted/:candidateId/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <SubmittedFeedbackDetails />
+                  </PrivateRoute>
+                }
+              />
+
               {/* Trainer Routes */}
               <Route
                 path="/dashboard/trainer"
                 element={
                   <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
-                    <TrainerDashboard />
+                    <UnifiedDashboard />
                   </PrivateRoute>
                 }
               />
@@ -226,7 +299,7 @@ function App() {
                 path="/dashboard/candidate"
                 element={
                   <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
-                    <CandidateDashboard />
+                    <UnifiedDashboard />
                   </PrivateRoute>
                 }
               />
