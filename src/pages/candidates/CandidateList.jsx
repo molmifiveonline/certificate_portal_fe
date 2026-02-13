@@ -362,7 +362,7 @@ const CandidateList = () => {
                                             onClick={() => navigate(`/candidates/edit/${candidate.id}`)}
                                             className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-all font-medium text-xs"
                                         >
-                                            Edit
+                                            <Edit className="w-4 h-4" />
                                         </button>
                                     </td>
                                 </tr>

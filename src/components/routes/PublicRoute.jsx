@@ -15,12 +15,7 @@ const PublicRoute = ({ children }) => {
 
     if (user) {
         // Redirect based on role if user is already logged in
-        const role = user.role?.toLowerCase();
-        if (role === 'superadmin' || role === 'admin') return <Navigate to="/dashboard/super-admin" replace />;
-        if (role === 'trainer') return <Navigate to="/dashboard/trainer" replace />;
-        if (role === 'candidate') return <Navigate to="/dashboard/candidate" replace />;
-
-        return <Navigate to="/" replace />;
+        return <Navigate to="/dashboard" replace />;
     }
 
     return children;
