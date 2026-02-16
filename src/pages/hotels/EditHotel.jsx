@@ -71,7 +71,7 @@ const EditHotel = () => {
     return (
         <div className="flex-1 overflow-y-auto w-full">
             <Meta title="Edit Hotel" description="Edit Hotel Details" />
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-[1600px] mx-auto">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                     <div className="flex items-center gap-4">
@@ -85,7 +85,7 @@ const EditHotel = () => {
                     </div>
                     <button
                         onClick={() => navigate('/hotel-details')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-white px-4 py-2 rounded-xl transition-all text-sm font-semibold border border-transparent hover:border-slate-200 shadow-sm hover:shadow-md"
+                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
                     >
                         <ArrowLeft size={18} />
                         Back to List

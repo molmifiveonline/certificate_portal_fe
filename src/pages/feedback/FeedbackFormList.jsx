@@ -1,29 +1,33 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { Search, RefreshCcw, Eye, Download, Send } from "lucide-react";
+import { Plus, Search, Edit, Trash2, RefreshCcw } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
-import { debounce } from "lodash";
-import feedbackAnswerService from "../../services/feedbackAnswerService";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import TablePagination from "../../components/ui/TablePagination";
 import { toast } from "sonner";
+import { debounce } from "lodash";
+import { Link, useNavigate } from "react-router-dom";
+import feedbackFormService from "../../services/feedbackFormService";
+import ConfirmationModal from "../../components/ui/ConfirmationModal";
+import TablePagination from "../../components/ui/TablePagination";
 
-const SubmittedFeedbackList = () => {
-    const [submissions, setSubmissions] = useState([]);
+const FeedbackFormList = () => {
+    const navigate = useNavigate();
+    const [forms, setForms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1); // Backend might not send total pages directly
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [formToDelete, setFormToDelete] = useState(null);
 
     // Debounce search
     const updateDebouncedSearch = useCallback(
         debounce((value) => {
             setDebouncedSearch(value);
-            setPage(1);
+            setCurrentPage(1);
         }, 500),
         []
     );
@@ -32,43 +36,73 @@ const SubmittedFeedbackList = () => {
         updateDebouncedSearch(searchTerm);
     }, [searchTerm, updateDebouncedSearch]);
 
-    const fetchSubmissions = useCallback(async () => {
+    const fetchForms = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await feedbackAnswerService.getSubmissions({
-                page,
-                limit,
+            const result = await feedbackFormService.getAll({
                 search: debouncedSearch,
+                page: currentPage,
+                limit: limit,
             });
-            setSubmissions(response.data);
-            setTotalPages(response.totalPages);
-            setTotalCount(response.totalCount);
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to fetch submissions.");
+
+            console.log("Forms result:", result);
+            setForms(result.data);
+            setTotalCount(result.total);
+            setTotalPages(Math.ceil(result.total / limit));
+        } catch (error) {
+            console.error("Error fetching feedback forms:", error);
+            toast.error("Failed to load feedback forms");
         } finally {
             setLoading(false);
         }
-    }, [page, limit, debouncedSearch]);
+    }, [currentPage, debouncedSearch, limit]);
 
     useEffect(() => {
-        fetchSubmissions();
-    }, [fetchSubmissions]);
+        fetchForms();
+    }, [fetchForms]);
+
+    const handleDeleteClick = (form) => {
+        setFormToDelete(form);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!formToDelete) return;
+
+        try {
+            await feedbackFormService.delete(formToDelete.id);
+            toast.success("Feedback form deleted successfully");
+            fetchForms();
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error("Failed to delete feedback form");
+        } finally {
+            setShowDeleteModal(false);
+            setFormToDelete(null);
+        }
+    };
 
     return (
         <div className="flex-1 overflow-y-auto">
-            <Meta title="Submitted Feedback" description="View Submitted Feedback" />
+            <Meta title="Feedback Forms" description="Manage Feedback Forms" />
 
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-                        Submitted Feedback
+                        Feedback Forms
                     </h1>
                     <p className="text-slate-500 mt-1">
-                        View feedback submitted by candidates
+                        Manage feedback forms and questions
                     </p>
                 </div>
+                <Link
+                    to="/feedback/forms/create"
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                >
+                    <Plus className="w-4 h-4" />
+                    Create Form
+                </Link>
             </div>
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
@@ -78,18 +112,20 @@ const SubmittedFeedbackList = () => {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder="Search by candidate name or email..."
+                                placeholder="Search forms..."
                                 className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button
-                            onClick={fetchSubmissions}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all"
-                        >
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={fetchForms}
+                                className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all"
+                            >
+                                <RefreshCcw className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -101,19 +137,16 @@ const SubmittedFeedbackList = () => {
                         <thead>
                             <tr className="bg-white/40 border-b border-slate-200/60">
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Sr. No.
+                                    Sr.No.
                                 </th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Active Course Name
+                                    Title
                                 </th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Employee ID
+                                    Type of Course
                                 </th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Employee Name
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Average Rating
+                                    Status
                                 </th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     Actions
@@ -124,54 +157,51 @@ const SubmittedFeedbackList = () => {
                             {loading ? (
                                 Array.from({ length: 5 }).map((_, idx) => (
                                     <tr key={idx} className="animate-pulse">
-                                        <td colSpan="6" className="px-6 py-4">
+                                        <td colSpan="5" className="px-6 py-4">
                                             <div className="h-4 bg-slate-200 rounded w-full"></div>
                                         </td>
                                     </tr>
                                 ))
-                            ) : submissions.length > 0 ? (
-                                submissions.map((item, index) => (
+                            ) : forms.length > 0 ? (
+                                forms.map((form, index) => (
                                     <tr
-                                        key={`${item.candidate_id}-${item.active_course_id}-${index}`}
+                                        key={form.id}
                                         className="hover:bg-white/40 transition-colors"
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {(page - 1) * limit + index + 1}
+                                            {(currentPage - 1) * limit + index + 1}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-700 font-medium">
+                                            {form.title}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {item.active_course_name}
+                                            {form.type_of_course}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {item.employee_id || "-"}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
-                                            {item.first_name} {item.last_name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {item.average_rating ? Number(item.average_rating).toFixed(1) : "-"}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                            <span
+                                                className={`px-2 py-1 rounded-full text-xs font-medium ${form.status === 1
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-700"
+                                                    }`}
+                                            >
+                                                {form.status === 1 ? "Active" : "Inactive"}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <div className="flex items-center gap-2">
                                                 <Link
-                                                    to={`/feedback/submitted/${item.candidate_id}/${item.active_course_id}`}
-                                                    className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all inline-block"
-                                                    title="View Details"
+                                                    to={`/feedback/forms/edit/${form.id}`}
+                                                    className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
+                                                    title="Edit"
                                                 >
-                                                    <Eye className="w-4 h-4" />
+                                                    <Edit className="w-4 h-4" />
                                                 </Link>
                                                 <button
-                                                    onClick={() => toast.info("Download PDF functionality pending")}
-                                                    className="p-1.5 rounded-full text-slate-600 hover:bg-slate-100 transition-all inline-block"
-                                                    title="Download PDF"
+                                                    onClick={() => handleDeleteClick(form)}
+                                                    className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
+                                                    title="Delete"
                                                 >
-                                                    <Download className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => toast.info("Resend Email functionality pending")}
-                                                    className="p-1.5 rounded-full text-slate-600 hover:bg-slate-100 transition-all inline-block"
-                                                    title="Resend Email"
-                                                >
-                                                    <Send className="w-4 h-4" />
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>
@@ -180,10 +210,10 @@ const SubmittedFeedbackList = () => {
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan="6"
+                                        colSpan="5"
                                         className="px-6 py-12 text-center text-slate-500 font-medium"
                                     >
-                                        No submissions found.
+                                        No feedback forms found.
                                     </td>
                                 </tr>
                             )}
@@ -192,16 +222,27 @@ const SubmittedFeedbackList = () => {
                 </div>
 
                 <TablePagination
-                    currentPage={page}
+                    currentPage={currentPage}
                     totalPages={totalPages}
                     totalCount={totalCount}
-                    onPageChange={setPage}
+                    onPageChange={setCurrentPage}
                     limit={limit}
                     onLimitChange={setLimit}
                 />
             </div>
+
+            <ConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={confirmDelete}
+                title="Delete Form"
+                message={`Are you sure you want to delete this form? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                isDanger={true}
+            />
         </div>
     );
 };
 
-export default SubmittedFeedbackList;
+export default FeedbackFormList;

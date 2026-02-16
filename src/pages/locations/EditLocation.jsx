@@ -65,21 +65,20 @@ const EditLocation = () => {
     return (
         <div className="flex-1 overflow-y-auto w-full">
             <Meta title="Edit Location" description="Edit Location Details" />
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-[1600px] mx-auto">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate('/location')}
-                            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm group"
-                        >
-                            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                        </button>
-                        <div>
-                            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Location</h1>
-                            <p className="text-slate-500 mt-1">Update training center information</p>
-                        </div>
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Location</h1>
+                        <p className="text-slate-500 mt-1">Update training center information</p>
                     </div>
+                    <button
+                        onClick={() => navigate('/location')}
+                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                    >
+                        <ChevronLeft size={18} />
+                        Back to List
+                    </button>
                 </div>
 
                 <LocationForm

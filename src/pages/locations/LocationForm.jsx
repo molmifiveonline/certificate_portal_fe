@@ -15,7 +15,7 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -33,6 +33,20 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                             placeholder="e.g. Mumbai Center"
                         />
                         {errors.location_name && <span className="text-xs text-red-500 ml-1">{errors.location_name.message}</span>}
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 ml-1">
+                            Type <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                            {...register('type', { required: 'Type is required' })}
+                            className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.type ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                        >
+                            <option value="Inhouse">Inhouse</option>
+                            <option value="Outhouse">Outhouse</option>
+                        </select>
+                        {errors.type && <span className="text-xs text-red-500 ml-1">{errors.type.message}</span>}
                     </div>
 
                     <div className="space-y-2">
@@ -99,7 +113,7 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 sm:gap-4 bg-white/60 backdrop-blur-xl p-4 rounded-2xl border border-slate-200/60 shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 sm:gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <button
                     type="button"
                     onClick={onCancel}

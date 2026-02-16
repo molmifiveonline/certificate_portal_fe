@@ -260,10 +260,10 @@ const CreateTrainer = () => {
                                 </h3>
                                 <div className="grid grid-cols-1 gap-6">
                                     <div className="p-4 border border-dashed border-slate-300 rounded-lg bg-slate-50/50">
-                                        <FileInput label="Profile Photo" name="profile_photo" />
+                                        <FileInput label="Profile Photo" name="profile_photo" required={true} />
                                     </div>
                                     <div className="p-4 border border-dashed border-slate-300 rounded-lg bg-slate-50/50">
-                                        <FileInput label="Digital Signature" name="digital_signature" />
+                                        <FileInput label="Digital Signature" name="digital_signature" required={true} />
                                     </div>
                                 </div>
                             </div>
