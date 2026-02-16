@@ -53,7 +53,7 @@ const EditCandidate = () => {
             } catch (error) {
                 console.error("Error fetching candidate:", error);
                 toast.error("Failed to load candidate data");
-                navigate('/candidates');
+                navigate(-1);
             } finally {
                 setLoading(false);
             }
@@ -101,7 +101,7 @@ const EditCandidate = () => {
 
             await candidateService.updateCandidate(id, payload);
             toast.success("Candidate Updated Successfully!");
-            navigate('/candidates');
+            navigate(-1);
         } catch (error) {
             console.error("Update Candidate Error:", error);
             toast.error(error.response?.data?.message || "Failed to update candidate.");
@@ -117,17 +117,18 @@ const EditCandidate = () => {
     return (
         <div className="space-y-6">
             <Meta title="Edit Candidate" description="Edit Candidate Details" />
-            <div className="flex items-center gap-4">
-                <button
-                    onClick={() => navigate('/candidates')}
-                    className="p-2 hover:bg-slate-200 rounded-full transition-colors"
-                >
-                    <ChevronLeft className="w-6 h-6 text-slate-600" />
-                </button>
+            <div className="flex items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Candidate</h1>
                     <p className="text-slate-500 mt-1">Modify candidate information</p>
                 </div>
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                >
+                    <ChevronLeft size={18} />
+                    Back to List
+                </button>
             </div>
 
             <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">

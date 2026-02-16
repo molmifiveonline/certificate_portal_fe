@@ -1,0 +1,231 @@
+import React, { useState, useEffect } from 'react';
+import Meta from "../../components/common/Meta";
+import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
+import api from '../../lib/api';
+import { Save, ArrowLeft, GraduationCap } from 'lucide-react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
+const MasterCourseForm = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(!!id);
+
+    // Fetch Course Data if Edit Mode
+    useEffect(() => {
+        if (id) {
+            const fetchCourse = async () => {
+                try {
+                    const response = await api.get(`/master-courses/${id}`);
+                    const data = response.data;
+                    reset({
+                        topic: data.topic || '',
+                        master_course_name: data.master_course_name || '',
+                        certificate_type: data.certificate_type || '',
+                        expiry_date: data.expiry_date || '',
+                        material_link: data.material_link || '',
+                        description: data.description || '',
+                        remarks: data.remarks || ''
+                    });
+                } catch (error) {
+                    console.error('Error fetching course:', error);
+                    toast.error('Failed to load course details');
+                    navigate('/courses');
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            fetchCourse();
+        }
+    }, [id, navigate, reset]);
+
+    const onSubmit = async (data) => {
+        setIsSubmitting(true);
+        try {
+            if (id) {
+                await api.put(`/master-courses/${id}`, data);
+                toast.success('Master Course updated successfully');
+            } else {
+                await api.post('/master-courses', data);
+                toast.success('Master Course created successfully');
+            }
+            navigate('/courses');
+        } catch (error) {
+            console.error('Error saving course:', error);
+            toast.error(error.response?.data?.message || 'Failed to save course');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const InputField = ({ label, name, type = "text", required, placeholder }) => (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <input
+                type={type}
+                {...register(name, { required: required ? `${label} is required` : false })}
+                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+                placeholder={placeholder}
+            />
+            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+        </div>
+    );
+
+    const SelectField = ({ label, name, children, required }) => (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <select
+                {...register(name, { required: required ? `${label} is required` : false })}
+                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 outline-none text-sm transition-all"
+            >
+                <option value="">Select {label}</option>
+                {children}
+            </select>
+            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+        </div>
+    );
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="text-slate-500 flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    Loading course details...
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-slate-50">
+            <Meta title={id ? "Edit Master Course" : "Add Master Course"} description="Manage Master Course Details" />
+
+            {/* Header */}
+            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+                <div className="px-8 py-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-blue-100 p-2 rounded-lg">
+                            <GraduationCap size={24} className="text-blue-600" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-slate-800">{id ? 'Edit Master Course' : 'Create Master Course'}</h1>
+                            <p className="text-sm text-slate-500">
+                                {id ? 'Update master course details' : 'Define a new master course template'}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => navigate('/courses')}
+                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                    >
+                        <ArrowLeft size={18} />
+                        Back to List
+                    </button>
+                </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="max-w-none">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-[1600px] mx-auto p-8">
+
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        {/* Left Column: Basic Details */}
+                        <div className="space-y-8">
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                                    Course Details
+                                </h3>
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <InputField label="Topic" name="topic" required placeholder="e.g. Navigation" />
+                                        <InputField label="Course Name" name="master_course_name" required placeholder="e.g. Advanced Navigation" />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <SelectField label="Certificate Type" name="certificate_type" required>
+                                            <option value="SIGTTO / LNG">SIGTTO / LNG</option>
+                                            <option value="DNV-ST008">DNV-ST008</option>
+                                            <option value="DNV-ST0029">DNV-ST0029</option>
+                                            <option value="Others">Others</option>
+                                        </SelectField>
+                                        <SelectField label="Expiry (Years)" name="expiry_date" required>
+                                            <option value="1">1 Year</option>
+                                            <option value="2">2 Years</option>
+                                            <option value="3">3 Years</option>
+                                            <option value="4">4 Years</option>
+                                            <option value="5">5 Years</option>
+                                        </SelectField>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <InputField label="Material Link" name="material_link" placeholder="https://example.com/materials" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column: Description & Remarks */}
+                        <div className="space-y-8">
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <span className="w-1 h-6 bg-green-600 rounded-full"></span>
+                                    Additional Information
+                                </h3>
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700 block">Description</label>
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={watch('description') || ''}
+                                            onChange={(val) => setValue('description', val)}
+                                            className="bg-white h-48 mb-12"
+                                        />
+                                    </div>
+                                    <div className="space-y-2 pt-4">
+                                        <label className="text-sm font-medium text-gray-700 block">Remarks</label>
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={watch('remarks') || ''}
+                                            onChange={(val) => setValue('remarks', val)}
+                                            className="bg-white h-32 mb-12"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 -mx-8 -mb-8 flex justify-end">
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/courses')}
+                                className="px-6 py-2.5 rounded-lg font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className={`flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-semibold shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            >
+                                <Save size={18} />
+                                <span>{isSubmitting ? 'Saving...' : 'Save Master Course'}</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default MasterCourseForm;

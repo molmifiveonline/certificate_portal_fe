@@ -30,6 +30,14 @@ const HotelList = lazy(() => import("./pages/hotels/HotelList"));
 const CreateHotel = lazy(() => import("./pages/hotels/CreateHotel"));
 const EditHotel = lazy(() => import("./pages/hotels/EditHotel"));
 
+// Master Courses
+const MasterCourseList = lazy(() => import("./pages/courses/MasterCourseList"));
+const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
+
+// Active Courses
+const ActiveCourseList = lazy(() => import("./pages/courses/ActiveCourseList"));
+const ActiveCourseForm = lazy(() => import("./pages/courses/ActiveCourseForm"));
+
 // Unified Dashboard
 const UnifiedDashboard = lazy(
   () => import("./pages/dashboard/UnifiedDashboard"),
@@ -56,6 +64,12 @@ const SubmittedFeedbackList = lazy(
 );
 const SubmittedFeedbackDetails = lazy(
   () => import("./pages/feedback/SubmittedFeedbackDetails"),
+);
+const FeedbackFormList = lazy(
+  () => import("./pages/feedback/FeedbackFormList"),
+);
+const FeedbackFormCreate = lazy(
+  () => import("./pages/feedback/FeedbackFormCreate"),
 );
 
 function App() {
@@ -114,6 +128,58 @@ function App() {
                 }
               />
 
+              {/* Master Course Routes */}
+              <Route
+                path="/courses"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <MasterCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/courses/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <MasterCourseForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/courses/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <MasterCourseForm />
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Active Course Routes */}
+              <Route
+                path="/active-courses"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ActiveCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/active-courses/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/active-courses/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+
               {/* SuperAdmin / Admin Routes */}
               <Route
                 path="/dashboard/super-admin"
@@ -152,10 +218,18 @@ function App() {
               />
 
               <Route
-                path="/candidates"
+                path="/candidates/molmi"
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <CandidateList />
+                    <CandidateList registrationType="MOLMI Employee" />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/candidates/others"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CandidateList registrationType="Others" />
                   </PrivateRoute>
                 }
               />
@@ -256,6 +330,30 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <FeedbackCategoryList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/forms"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <FeedbackFormList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/forms/create"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <FeedbackFormCreate />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/forms/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <FeedbackFormCreate />
                   </PrivateRoute>
                 }
               />

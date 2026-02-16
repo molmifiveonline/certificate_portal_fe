@@ -42,6 +42,10 @@ export const MenuItems = [
     url: "/candidates",
     icon: UserCircle,
     allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "MOLMI Candidates", url: "/candidates/molmi" },
+      { title: "Other Candidates", url: "/candidates/others" },
+    ],
   },
   {
     title: "Trainers",
@@ -56,7 +60,7 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     subItems: [
       { title: "Master Courses", url: "/courses" },
-      { title: "Active Courses", url: "/courses/add" },
+      { title: "Active Courses", url: "/active-courses" },
     ],
   },
   {
@@ -88,7 +92,7 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     subItems: [
       { title: "Feedback Category", url: "/feedback" },
-      { title: "Feedback Question", url: "/feedback/questions" },
+      { title: "Feedback Question", url: "/feedback/forms" },
       { title: "Submitted Feedback", url: "/feedback/submitted" },
     ],
   },

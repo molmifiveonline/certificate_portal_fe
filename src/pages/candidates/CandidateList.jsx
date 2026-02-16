@@ -24,7 +24,7 @@ import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
 
-const CandidateList = () => {
+const CandidateList = ({ registrationType }) => {
     const navigate = useNavigate();
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -74,7 +74,8 @@ const CandidateList = () => {
                 manager: filterManager,
                 rank: filterRank,
                 nationality: filterNationality,
-                status: filterStatus
+                status: filterStatus,
+                registration_type: registrationType
             });
 
             setCandidates(result.data);
@@ -90,7 +91,7 @@ const CandidateList = () => {
 
     useEffect(() => {
         fetchCandidates();
-    }, [currentPage, debouncedSearch, limit, sortBy, sortOrder, filterManager, filterRank, filterNationality, filterStatus]);
+    }, [currentPage, debouncedSearch, limit, sortBy, sortOrder, filterManager, filterRank, filterNationality, filterStatus, registrationType]);
 
     const handleSort = (column) => {
         if (sortBy === column) {
@@ -192,11 +193,13 @@ const CandidateList = () => {
 
     return (
         <div className="flex-1 overflow-y-auto">
-            <Meta title="Candidates" description="Manage Candidates" />
+            <Meta title={registrationType === "MOLMI Employee" ? "MOLMI Candidates" : registrationType === "Others" ? "Other Candidates" : "All Candidates"} description="Manage Candidates" />
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Candidates</h1>
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+                        {registrationType === "MOLMI Employee" ? "MOLMI Candidates" : registrationType === "Others" ? "Other Candidates" : "All Candidates"}
+                    </h1>
                     <p className="text-slate-500 mt-1">Manage and view all registered candidates</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -260,49 +263,61 @@ const CandidateList = () => {
 
                     {/* Additional Filters */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="relative">
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Manager</label>
+                            <div className="relative">
+                                <select
+                                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                    value={filterManager}
+                                    onChange={(e) => setFilterManager(e.target.value)}
+                                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                                >
+                                    <option value="">Last served (All)</option>
+                                    {MANAGER_OPTIONS.map(opt => (
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Rank</label>
                             <select
                                 className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                                value={filterManager}
-                                onChange={(e) => setFilterManager(e.target.value)}
+                                value={filterRank}
+                                onChange={(e) => setFilterRank(e.target.value)}
                                 style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
                             >
-                                <option value="">Last served (All)</option>
-                                {MANAGER_OPTIONS.map(opt => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
+                                <option value="">All Ranks</option>
+                                <option value="Captain">Captain</option>
+                                <option value="Chief Officer">Chief Officer</option>
                             </select>
                         </div>
-                        <select
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                            value={filterRank}
-                            onChange={(e) => setFilterRank(e.target.value)}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                        >
-                            <option value="">All Ranks</option>
-                            <option value="Captain">Captain</option>
-                            <option value="Chief Officer">Chief Officer</option>
-                        </select>
-                        <select
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                            value={filterNationality}
-                            onChange={(e) => setFilterNationality(e.target.value)}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                        >
-                            <option value="">All Nationalities</option>
-                            <option value="Indian">Indian</option>
-                            <option value="Filipino">Filipino</option>
-                        </select>
-                        <select
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                        >
-                            <option value="all">All Status</option>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nationality</label>
+                            <select
+                                className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                value={filterNationality}
+                                onChange={(e) => setFilterNationality(e.target.value)}
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                            >
+                                <option value="">All Nationalities</option>
+                                <option value="Indian">Indian</option>
+                                <option value="Filipino">Filipino</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</label>
+                            <select
+                                className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                            >
+                                <option value="all">All Status</option>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -314,7 +329,7 @@ const CandidateList = () => {
                         <thead>
                             <tr className="bg-white/40 border-b border-slate-200/60">
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sr.No.</th>
-                                <SortableHeader column="employee_id" label="Employee ID" />
+                                {registrationType !== "Others" && <SortableHeader column="employee_id" label="Employee ID" />}
                                 <SortableHeader column="prefix" label="Title" />
                                 <SortableHeader column="first_name" label="Candidate Name" />
                                 <SortableHeader column="rank" label="Rank" />
@@ -337,7 +352,7 @@ const CandidateList = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                         {(currentPage - 1) * limit + index + 1}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{candidate.employee_id || 'N/A'}</td>
+                                    {registrationType !== "Others" && <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{candidate.employee_id || 'N/A'}</td>}
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.prefix || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex flex-col">

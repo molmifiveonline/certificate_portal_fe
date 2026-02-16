@@ -15,7 +15,7 @@ const HotelForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -62,7 +62,7 @@ const HotelForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                 </div>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
@@ -94,7 +94,7 @@ const HotelForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 sm:gap-4 bg-white/60 backdrop-blur-xl p-4 rounded-2xl border border-slate-200/60 shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 sm:gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <button
                     type="button"
                     onClick={onCancel}
