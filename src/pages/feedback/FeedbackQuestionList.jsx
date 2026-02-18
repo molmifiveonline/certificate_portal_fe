@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
-import { Plus, Search, Edit, Trash2, RefreshCcw } from "lucide-react";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { toast } from "sonner";
 import { debounce } from "lodash";
@@ -201,16 +201,7 @@ const FeedbackQuestionList = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={fetchQuestions}
-                                className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all"
-                            >
-                                <RefreshCcw className="w-4 h-4" />
-                            </button>
-                        </div>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <select
                             className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
@@ -271,7 +262,7 @@ const FeedbackQuestionList = () => {
                 cancelText="Cancel"
                 isDanger={true}
             />
-        </div>
+        </div >
     );
 };
 

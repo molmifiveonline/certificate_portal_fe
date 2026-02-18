@@ -3,7 +3,6 @@ import Meta from "../../components/common/Meta";
 import {
     Search,
     Download,
-    RefreshCcw,
     UserPlus,
     Edit,
     Trash2,
@@ -243,14 +242,6 @@ const TrainerList = () => {
                         >
                             <Download className="w-4 h-4 mr-2" />
                             Export
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={fetchTrainers}
-                            className="h-10 w-10 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600"
-                        >
-                            <RefreshCcw className="w-4 h-4" />
                         </Button>
                     </div>
                 </CardContent>

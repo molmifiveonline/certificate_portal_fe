@@ -3,7 +3,6 @@ import Meta from "../../components/common/Meta";
 import {
     Search,
     Download,
-    RefreshCcw,
     Plus,
     Edit,
     BookOpen,
@@ -13,6 +12,8 @@ import { Card, CardContent } from "../../components/ui/card";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 
+import { Button, buttonVariants } from "../../components/ui/button";
+import { cn } from "../../lib/utils/utils";
 import api from "../../lib/api";
 import { toast } from "sonner";
 
@@ -91,7 +92,7 @@ const ActiveCourseList = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `active-courses-${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `active - courses - ${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -146,12 +147,12 @@ const ActiveCourseList = () => {
             sortable: true,
             render: (val) => (
                 <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${val === 'Initiated'
+                    className={`px - 2.5 py - 1 rounded - full text - xs font - semibold border ${val === 'Initiated'
                         ? 'bg-blue-50 text-blue-600 border-blue-100'
                         : val === 'Completed'
                             ? 'bg-green-50 text-green-600 border-green-100'
                             : 'bg-slate-50 text-slate-600 border-slate-100'
-                        }`}
+                        } `}
                 >
                     {val}
                 </span>
@@ -163,13 +164,13 @@ const ActiveCourseList = () => {
             align: "right",
             render: (_val, row) => (
                 <div className="flex items-center justify-end gap-2">
-                    <Link
-                        to={`/active-courses/edit/${row.id}`}
+                    <button
+                        onClick={() => navigate(`/active-courses/edit/${row.id}`)}
                         className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
                         title="Edit"
                     >
                         <Edit className="w-4 h-4" />
-                    </Link>
+                    </button>
                 </div>
             ),
         },
@@ -190,13 +191,13 @@ const ActiveCourseList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all active courses</p>
                 </div>
-                <Link
-                    to="/active-courses/add"
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                <Button
+                    onClick={() => navigate('/active-courses/add')}
+                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Course
-                </Link>
+                </Button>
             </div>
 
             {/* Filter Bar */}
@@ -214,17 +215,14 @@ const ActiveCourseList = () => {
                     </div>
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={handleExport}
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-bold transition-all">
-                            <Download className="w-4 h-4" />
+                            className="h-10 px-4 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600 font-bold"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
                             Export
-                        </button>
-                        <button
-                            onClick={fetchCourses}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
+                        </Button>
                     </div>
                 </CardContent>
             </Card>

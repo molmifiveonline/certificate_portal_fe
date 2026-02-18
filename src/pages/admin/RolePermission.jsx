@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Meta from "../../components/common/Meta";
-import { Shield, Check, X, Save, RefreshCcw, Users, Loader2 } from "lucide-react";
+import { Shield, Check, X, Save, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import { Card, CardContent } from "../../components/ui/card";
@@ -98,21 +98,7 @@ const RolePermission = () => {
         }
     };
 
-    const handleRefresh = async () => {
-        if (!selectedRole) return;
-        setLoadingRolePermissions(true);
-        try {
-            const res = await api.get(`/admin/role/${selectedRole.id}`);
-            const perms = res.data.data || [];
-            setRolePermissions(perms.map((p) => p.id));
-            toast.success("Permissions refreshed.");
-        } catch (error) {
-            console.error("Error refreshing permissions:", error);
-            toast.error("Failed to refresh permissions.");
-        } finally {
-            setLoadingRolePermissions(false);
-        }
-    };
+
 
     if (loading) {
         return (
@@ -140,14 +126,6 @@ const RolePermission = () => {
                 </div>
                 {selectedRole && (
                     <div className="flex gap-3">
-                        <button
-                            onClick={handleRefresh}
-                            disabled={loadingRolePermissions}
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all disabled:opacity-50"
-                        >
-                            <RefreshCcw className={`w-4 h-4 ${loadingRolePermissions ? 'animate-spin' : ''}`} />
-                            Refresh
-                        </button>
                         <button
                             onClick={handleSavePermissions}
                             disabled={saving}

@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import api from '../../lib/api';
 import questionBankService from '../../services/questionBankService';
 import { Save, ArrowLeft, BookOpen } from 'lucide-react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import BackButton from '../../components/common/BackButton';
 
 const QuestionBankForm = () => {

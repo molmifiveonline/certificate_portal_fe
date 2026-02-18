@@ -53,16 +53,16 @@ export const MenuItems = [
     icon: GraduationCap,
     allowedRoles: ["admin", "superadmin"],
   },
-  // {
-  //   title: "Courses",
-  //   url: "/courses",
-  //   icon: BookOpen,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Master Courses", url: "/courses" },
-  //     { title: "Active Courses", url: "/active-courses" },
-  //   ],
-  // },
+  {
+    title: "Courses",
+    url: "/courses",
+    icon: BookOpen,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Master Courses", url: "/courses" },
+      { title: "Active Courses", url: "/active-courses" },
+    ],
+  },
   // {
   //   title: "Hotel Details",
   //   url: "/hotel-details",
@@ -104,12 +104,12 @@ export const MenuItems = [
   //   icon: Award,
   //   allowedRoles: ["admin", "superadmin"],
   // },
-  {
-    title: "Reports",
-    url: "/reports",
-    icon: FileBarChart,
-    allowedRoles: ["admin", "superadmin"],
-  },
+  // {
+  //   title: "Reports",
+  //   url: "/reports",
+  //   icon: FileBarChart,
+  //   allowedRoles: ["admin", "superadmin"],
+  // },
   // {
   //   title: "Role Permissions",
   //   url: "/admin/role-permissions",

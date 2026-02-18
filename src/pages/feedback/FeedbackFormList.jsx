@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
-import { Plus, Search, Edit, Trash2, RefreshCcw } from "lucide-react";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button, buttonVariants } from "../../components/ui/button";
 import { cn } from "../../lib/utils/utils";
@@ -169,14 +169,6 @@ const FeedbackFormList = () => {
                             />
                         </div>
                         <div className="flex gap-3">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={fetchForms}
-                                className="h-10 w-10 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600"
-                            >
-                                <RefreshCcw className="w-4 h-4" />
-                            </Button>
                         </div>
                     </div>
                 </CardContent>

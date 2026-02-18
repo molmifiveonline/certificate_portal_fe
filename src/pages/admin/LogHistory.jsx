@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Search, RotateCw, Trash2, History } from "lucide-react";
+import { Search, Trash2, History } from "lucide-react";
 import logService from "../../services/logService";
 import Meta from "../../components/common/Meta";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
@@ -71,9 +71,7 @@ const LogHistory = () => {
         debouncedFetch(1, itemsPerPage, value);
     };
 
-    const handleRefresh = () => {
-        fetchLogs(currentPage, itemsPerPage, searchTerm);
-    };
+
 
     const handleDeleteClick = (id) => {
         setLogToDelete(id);
@@ -124,13 +122,6 @@ const LogHistory = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Log History</h1>
                     <p className="text-slate-500 mt-1">View and manage system activity logs</p>
                 </div>
-                <button
-                    onClick={handleRefresh}
-                    className="bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-2"
-                >
-                    <RotateCw className="w-4 h-4" />
-                    Refresh Logs
-                </button>
             </div>
 
             {/* Filter Bar */}

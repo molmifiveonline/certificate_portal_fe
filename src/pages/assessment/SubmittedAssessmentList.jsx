@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { Search, RefreshCcw, Eye, ClipboardList } from "lucide-react";
+import { Search, Eye, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { debounce } from "lodash";
 import assessmentService from "../../services/assessmentService";
@@ -150,12 +150,6 @@ const SubmittedAssessmentList = () => {
                             <span className="text-xs text-slate-400">
                                 {totalCount} course{totalCount !== 1 ? "s" : ""}
                             </span>
-                            <button
-                                onClick={fetchCourses}
-                                className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all"
-                            >
-                                <RefreshCcw className="w-4 h-4" />
-                            </button>
                         </div>
                     </div>
                 </CardContent>

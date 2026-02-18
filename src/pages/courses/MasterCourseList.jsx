@@ -3,7 +3,6 @@ import Meta from "../../components/common/Meta";
 import {
     Search,
     Download,
-    RefreshCcw,
     Plus,
     Edit,
     GraduationCap,
@@ -139,13 +138,13 @@ const MasterCourseList = () => {
             align: "right",
             render: (_val, row) => (
                 <div className="flex items-center justify-end gap-2">
-                    <Link
-                        to={`/courses/edit/${row.id}`}
+                    <button
+                        onClick={() => navigate(`/courses/edit/${row.id}`)}
                         className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
                         title="Edit"
                     >
                         <Edit className="w-4 h-4" />
-                    </Link>
+                    </button>
                 </div>
             ),
         },
@@ -166,13 +165,13 @@ const MasterCourseList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all master courses</p>
                 </div>
-                <Link
-                    to="/courses/add"
-                    className={cn(buttonVariants({ variant: "default" }), "px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95 h-auto")}
+                <Button
+                    onClick={() => navigate('/courses/add')}
+                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Master Course
-                </Link>
+                </Button>
             </div>
 
             {/* Filter Bar */}
@@ -197,14 +196,6 @@ const MasterCourseList = () => {
                         >
                             <Download className="w-4 h-4 mr-2" />
                             Export
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={fetchCourses}
-                            className="h-10 w-10 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600"
-                        >
-                            <RefreshCcw className="w-4 h-4" />
                         </Button>
                     </div>
                 </CardContent>

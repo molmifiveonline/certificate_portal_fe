@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { Search, RefreshCcw, Eye, Download, Send } from "lucide-react";
+import { Search, Eye, Download, Send } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { debounce } from "lodash";
 import feedbackAnswerService from "../../services/feedbackAnswerService";
@@ -138,12 +138,6 @@ const SubmittedFeedbackList = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button
-                            onClick={fetchSubmissions}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all"
-                        >
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
                     </div>
                 </CardContent>
             </Card>
@@ -167,7 +161,7 @@ const SubmittedFeedbackList = () => {
                 limit={limit}
                 onLimitChange={setLimit}
             />
-        </div>
+        </div >
     );
 };
 

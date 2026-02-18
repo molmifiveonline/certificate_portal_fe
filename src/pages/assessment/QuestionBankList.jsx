@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
 import {
     Search,
-    RefreshCcw,
     Plus,
     Edit,
     Trash2,
@@ -226,11 +225,6 @@ const QuestionBankList = () => {
                     </div>
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} question{totalCount !== 1 ? 's' : ''}</span>
-                        <button
-                            onClick={fetchQuestions}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
                     </div>
                 </CardContent>
             </Card>

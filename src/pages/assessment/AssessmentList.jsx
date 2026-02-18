@@ -4,7 +4,6 @@ import {
     Search,
     Plus,
     Edit,
-    RefreshCcw,
     ClipboardCheck,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -147,11 +146,6 @@ const AssessmentList = () => {
                     </div>
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} assessment{totalCount !== 1 ? 's' : ''}</span>
-                        <button
-                            onClick={fetchAssessments}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
                     </div>
                 </CardContent>
             </Card>

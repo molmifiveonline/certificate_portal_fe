@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../../lib/api';
 import { Save, ArrowLeft, GraduationCap } from 'lucide-react';
+import { Button } from "../../components/ui/button";
+import { cn } from "../../lib/utils/utils";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import BackButton from '../../components/common/BackButton';
@@ -204,21 +206,25 @@ const MasterCourseForm = () => {
 
                     <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 -mx-8 -mb-8 flex justify-end">
                         <div className="flex gap-4">
-                            <button
+                            <Button
                                 type="button"
+                                variant="outline"
                                 onClick={() => navigate('/courses')}
-                                className="px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all"
+                                className="px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all h-auto"
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={cn(
+                                    "flex items-center space-x-2 px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 h-auto",
+                                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                                )}
                             >
                                 <Save size={18} />
                                 <span>{isSubmitting ? 'Saving...' : 'Save Master Course'}</span>
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </form>

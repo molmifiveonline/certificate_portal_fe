@@ -318,14 +318,6 @@ const CandidateList = ({ registrationType }) => {
                                 {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                                 Export
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={fetchCandidates}
-                                className="h-10 w-10 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600"
-                            >
-                                <RefreshCcw className="w-4 h-4" />
-                            </Button>
                         </div>
                     </div>
 
