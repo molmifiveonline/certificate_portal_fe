@@ -29,8 +29,8 @@ const Navbar = () => {
 
                 {/* Greeting */}
                 <div className="flex flex-col">
-                    <h1 className="text-sm sm:text-lg font-bold text-slate-700 tracking-tight flex items-center gap-2">
-                        Hi, <span className="hidden xs:inline">{user?.name || user?.first_name || 'User'}</span> <span className="animate-wave origin-[70%_70%]">👋</span>
+                    <h1 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight flex items-center gap-1.5">
+                        Hi, <span className="hidden sm:inline">{user?.name || user?.first_name || 'User'}</span> <span className="animate-wave origin-[70%_70%]">👋</span>
                     </h1>
                 </div>
             </div>
@@ -50,7 +50,7 @@ const Navbar = () => {
 
                     {/* Profile Photo */}
                     <div className='relative'>
-                        <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#3a5f9e] to-[#6fa8dc] flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg ring-2 ring-white'>
+                        <div className='w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#3a5f9e] to-[#6fa8dc] flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg ring-2 ring-white cursor-pointer hover:scale-105 transition-transform'>
                             {profileImage ? (
                                 <img
                                     src={profileImage}

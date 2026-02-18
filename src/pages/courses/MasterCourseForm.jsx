@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../../lib/api';
 import { Save, ArrowLeft, GraduationCap } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
@@ -64,13 +64,13 @@ const MasterCourseForm = () => {
 
     const InputField = ({ label, name, type = "text", required, placeholder }) => (
         <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <input
                 type={type}
                 {...register(name, { required: required ? `${label} is required` : false })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
                 placeholder={placeholder}
             />
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
@@ -79,12 +79,12 @@ const MasterCourseForm = () => {
 
     const SelectField = ({ label, name, children, required }) => (
         <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <select
                 {...register(name, { required: required ? `${label} is required` : false })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 outline-none text-sm transition-all"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
             >
                 <option value="">Select {label}</option>
                 {children}
@@ -122,21 +122,21 @@ const MasterCourseForm = () => {
                             </p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => navigate('/courses')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                    <Link
+                        to="/courses"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
                     >
-                        <ArrowLeft size={18} />
+                        <ArrowLeft className="w-4 h-4" />
                         Back to List
-                    </button>
+                    </Link>
                 </div>
             </div>
 
             {/* Form Content */}
-            <div className="max-w-none">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-[1600px] mx-auto p-8">
+            <div className="max-w-none px-4 sm:px-8 py-8">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-[1600px] mx-auto">
 
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Left Column: Basic Details */}
                         <div className="space-y-8">
                             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
@@ -181,22 +181,26 @@ const MasterCourseForm = () => {
                                 </h3>
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700 block">Description</label>
-                                        <ReactQuill
-                                            theme="snow"
-                                            value={watch('description') || ''}
-                                            onChange={(val) => setValue('description', val)}
-                                            className="bg-white h-48 mb-12"
-                                        />
+                                        <label className="text-sm font-medium text-slate-700 block">Description</label>
+                                        <div className="editor-container">
+                                            <ReactQuill
+                                                theme="snow"
+                                                value={watch('description') || ''}
+                                                onChange={(val) => setValue('description', val)}
+                                                className="bg-white min-h-[200px]"
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="space-y-2 pt-4">
-                                        <label className="text-sm font-medium text-gray-700 block">Remarks</label>
-                                        <ReactQuill
-                                            theme="snow"
-                                            value={watch('remarks') || ''}
-                                            onChange={(val) => setValue('remarks', val)}
-                                            className="bg-white h-32 mb-12"
-                                        />
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-slate-700 block">Remarks</label>
+                                        <div className="editor-container">
+                                            <ReactQuill
+                                                theme="snow"
+                                                value={watch('remarks') || ''}
+                                                onChange={(val) => setValue('remarks', val)}
+                                                className="bg-white min-h-[120px]"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -208,14 +212,14 @@ const MasterCourseForm = () => {
                             <button
                                 type="button"
                                 onClick={() => navigate('/courses')}
-                                className="px-6 py-2.5 rounded-lg font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all"
+                                className="px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-semibold shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 <Save size={18} />
                                 <span>{isSubmitting ? 'Saving...' : 'Save Master Course'}</span>

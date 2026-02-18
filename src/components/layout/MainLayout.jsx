@@ -31,7 +31,7 @@ const MainLayoutInner = ({ children }) => {
                 className={cn(
                     "flex-1 flex flex-col transition-all duration-300 min-w-0 h-full overflow-y-auto relative", // Changed overflow-hidden to overflow-y-auto and added relative
                     // Fix margin based on new Sidebar width
-                    isOpen ? "md:pl-64" : "md:pl-16",
+                    isOpen ? "md:pl-64" : "md:pl-20",
                     "pl-0"
                 )}
             >

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Meta from "../../components/common/Meta";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../../lib/api';
@@ -52,7 +52,7 @@ const AddCandidate = () => {
             await api.post('/auth/register/candidate', payload);
 
             toast.success("Candidate Added Successfully!");
-            navigate(-1);
+            navigate('/candidates/molmi');
         } catch (error) {
             console.error("Add Candidate Error:", error);
             toast.error(error.response?.data?.message || "Failed to add candidate. Please try again.");
@@ -72,13 +72,13 @@ const AddCandidate = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Add New Candidate</h1>
                     <p className="text-slate-500 mt-1">Register a new candidate manually</p>
                 </div>
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                <Link
+                    to="/candidates/molmi"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
                 >
-                    <ChevronLeft size={18} />
+                    <ChevronLeft className="w-4 h-4" />
                     Back to List
-                </button>
+                </Link>
             </div>
 
             <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">

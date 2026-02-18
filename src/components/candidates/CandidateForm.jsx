@@ -4,7 +4,7 @@ import { User, FileText, Briefcase, ArrowRight, Upload, Image as ImageIcon } fro
 import { PasswordInput } from '../ui/PasswordInput';
 import candidateService from '../../services/candidateService';
 import { toast } from 'sonner';
-import { MANAGER_OPTIONS } from '../../lib/constants';
+import { MANAGER_OPTIONS, PREFIX_OPTIONS, GENDER_OPTIONS, CANDIDATE_NATIONALITY_OPTIONS, RANK_OPTIONS } from '../../lib/constants';
 
 const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSubmitting, submitLabel = "Register Now", showPassword = true, isAdmin = false }) => {
     // Pre-process defaultValues for Manager "Others" case
@@ -47,13 +47,13 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
 
     const InputField = ({ label, name, type = "text", required, rules, placeholder, className }) => (
         <div className={`space-y-1 ${className}`}>
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <input
                 type={type}
                 {...register(name, { required: required ? `${label} is required` : false, ...rules })}
-                className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
                 placeholder={placeholder || ""}
             />
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
@@ -62,14 +62,13 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
 
     const SelectField = ({ label, name, required, options, className }) => (
         <div className={`space-y-1 ${className}`}>
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <div className="relative">
                 <select
                     {...register(name, { required: required ? `${label} is required` : false })}
-                    className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm appearance-none"
-                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                    className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
                 >
                     <option value="">Select...</option>
                     {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -134,7 +133,7 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                         <SectionHeader title="Professional Info" icon={FileText} />
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <SelectField label="Rank On Vessel" name="rank" required options={[{ value: 'Captain', label: 'Captain' }, { value: 'Chief Officer', label: 'Chief Officer' }]} />
+                                <SelectField label="Rank On Vessel" name="rank" required options={RANK_OPTIONS} />
                                 <SelectField label="Manager" name="manager" options={MANAGER_OPTIONS} />
                                 {selectedManager === 'Others' && (
                                     <InputField label="Specify Manager" name="otherManager" required placeholder="Enter Manager Name" className="col-span-2" />
@@ -230,13 +229,13 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                     <div>
                         <SectionHeader title="Personal Details" icon={User} />
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <SelectField label="Prefix" name="prefix" required options={[{ value: 'Mr', label: 'Mr' }, { value: 'Ms', label: 'Ms' }, { value: 'Capt', label: 'Capt' }]} className="md:col-span-1" />
+                            <SelectField label="Prefix" name="prefix" required options={PREFIX_OPTIONS} className="md:col-span-1" />
                             <InputField label="First Name" name="firstName" required className="md:col-span-3" />
                             <InputField label="Middle Name" name="middleName" className="md:col-span-2" />
                             <InputField label="Last Name" name="lastName" required className="md:col-span-2" />
-                            <SelectField label="Gender" name="gender" required options={[{ value: 'Male', label: 'Male' }, { value: 'Female', label: 'Female' }]} className="md:col-span-2" />
+                            <SelectField label="Gender" name="gender" required options={GENDER_OPTIONS} className="md:col-span-2" />
                             <InputField label="Date of Birth" name="dob" type="date" required className="md:col-span-2" />
-                            <SelectField label="Nationality" name="nationality" required options={[{ value: 'Indian', label: 'Indian' }, { value: 'Filipino', label: 'Filipino' }, { value: 'Others', label: 'Others' }]} className="md:col-span-2" />
+                            <SelectField label="Nationality" name="nationality" required options={CANDIDATE_NATIONALITY_OPTIONS} className="md:col-span-2" />
                             <InputField label="Seaman Book No." name="seamanBookNo" className="md:col-span-2" />
 
                             <div className="md:col-span-4 space-y-1">

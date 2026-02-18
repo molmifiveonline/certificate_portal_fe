@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import api from '../../lib/api';
 import { Users, Save, ArrowLeft } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 
 const EditTrainer = () => {
@@ -134,13 +134,13 @@ const EditTrainer = () => {
 
     const InputField = ({ label, name, type = "text", required, rules, placeholder }) => (
         <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <input
                 type={type}
                 {...register(name, { required: required ? `${label} is required` : false, ...rules })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
                 placeholder={placeholder}
             />
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
@@ -178,12 +178,12 @@ const EditTrainer = () => {
 
     const SelectField = ({ label, name, options, required }) => (
         <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <select
                 {...register(name, { required: required ? `${label} is required` : false })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 outline-none text-sm"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
             >
                 <option value="">Select {label}</option>
                 {options.map((opt) => (
@@ -219,13 +219,13 @@ const EditTrainer = () => {
                             <p className="text-sm text-slate-500">Update trainer details and permissions</p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => navigate('/trainers')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                    <Link
+                        to="/trainers"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
                     >
-                        <ArrowLeft size={18} />
+                        <ArrowLeft className="w-4 h-4" />
                         Back to List
-                    </button>
+                    </Link>
                 </div>
             </div>
 

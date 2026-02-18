@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import feedbackFormService from "../../services/feedbackFormService";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import TablePagination from "../../components/ui/TablePagination";
+import DataTable from "../../components/ui/DataTable";
 
 const FeedbackFormList = () => {
     const navigate = useNavigate();
@@ -16,14 +17,13 @@ const FeedbackFormList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1); // Backend might not send total pages directly
+    const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [formToDelete, setFormToDelete] = useState(null);
 
-    // Debounce search
     const updateDebouncedSearch = useCallback(
         debounce((value) => {
             setDebouncedSearch(value);
@@ -82,6 +82,54 @@ const FeedbackFormList = () => {
         }
     };
 
+    const columns = [
+        {
+            key: "title",
+            label: "Title",
+            render: (val) => <span className="font-medium text-slate-700">{val}</span>,
+        },
+        {
+            key: "type_of_course",
+            label: "Type of Course",
+        },
+        {
+            key: "status",
+            label: "Status",
+            render: (val) => (
+                <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${val === 1
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                        }`}
+                >
+                    {val === 1 ? "Active" : "Inactive"}
+                </span>
+            ),
+        },
+        {
+            key: "actions",
+            label: "Actions",
+            render: (_val, row) => (
+                <div className="flex items-center gap-2">
+                    <Link
+                        to={`/feedback/forms/edit/${row.id}`}
+                        className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
+                        title="Edit"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </Link>
+                    <button
+                        onClick={() => handleDeleteClick(row)}
+                        className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
+                        title="Delete"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
     return (
         <div className="flex-1 overflow-y-auto">
             <Meta title="Feedback Forms" description="Manage Feedback Forms" />
@@ -131,105 +179,23 @@ const FeedbackFormList = () => {
             </Card>
 
             {/* Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Sr.No.
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Title
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Type of Course
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                Array.from({ length: 5 }).map((_, idx) => (
-                                    <tr key={idx} className="animate-pulse">
-                                        <td colSpan="5" className="px-6 py-4">
-                                            <div className="h-4 bg-slate-200 rounded w-full"></div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : forms.length > 0 ? (
-                                forms.map((form, index) => (
-                                    <tr
-                                        key={form.id}
-                                        className="hover:bg-white/40 transition-colors"
-                                    >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {(currentPage - 1) * limit + index + 1}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-700 font-medium">
-                                            {form.title}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {form.type_of_course}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <span
-                                                className={`px-2 py-1 rounded-full text-xs font-medium ${form.status === 1
-                                                        ? "bg-green-100 text-green-700"
-                                                        : "bg-red-100 text-red-700"
-                                                    }`}
-                                            >
-                                                {form.status === 1 ? "Active" : "Inactive"}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <Link
-                                                    to={`/feedback/forms/edit/${form.id}`}
-                                                    className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
-                                                    title="Edit"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </Link>
-                                                <button
-                                                    onClick={() => handleDeleteClick(form)}
-                                                    className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan="5"
-                                        className="px-6 py-12 text-center text-slate-500 font-medium"
-                                    >
-                                        No feedback forms found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            <DataTable
+                columns={columns}
+                data={forms}
+                loading={loading}
+                emptyMessage="No feedback forms found."
+                currentPage={currentPage}
+                limit={limit}
+            />
 
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    onPageChange={setCurrentPage}
-                    limit={limit}
-                    onLimitChange={setLimit}
-                />
-            </div>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                onPageChange={setCurrentPage}
+                limit={limit}
+                onLimitChange={setLimit}
+            />
 
             <ConfirmationModal
                 isOpen={showDeleteModal}

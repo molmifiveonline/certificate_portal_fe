@@ -3,8 +3,9 @@ import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import api from '../../lib/api';
+import { TRAINER_NATIONALITY_OPTIONS, PREFIX_OPTIONS } from '../../lib/constants';
 import { Users, Save, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 
 const CreateTrainer = () => {
@@ -23,28 +24,7 @@ const CreateTrainer = () => {
         }
     };
 
-    const nationalities = [
-        "Afghani", "Albanian", "Algerian", "American", "Andorran", "Angolan", "Antiguans", "Argentinean", "Armenian", "Australian",
-        "Austrian", "Azerbaijani", "Bahamian", "Bahraini", "Bangladeshi", "Barbadian", "Barbudans", "Batswana", "Belarusian", "Belgian",
-        "Belizean", "Beninese", "Bhutanese", "Bolivian", "Bosnian", "Brazilian", "British", "Bruneian", "Bulgarian", "Burkinabe",
-        "Burmese", "Burundian", "Cambodian", "Cameroonian", "Canadian", "Cape Verdean", "Central African", "Chadian", "Chilean", "Chinese",
-        "Colombian", "Comoran", "Congolese", "Costa Rican", "Croatian", "Cuban", "Cypriot", "Czech", "Danish", "Djibouti",
-        "Dominican", "Dutch", "East Timorese", "Ecuadorean", "Egyptian", "Emirian", "Equatorial Guinean", "Eritrean", "Estonian", "Ethiopian",
-        "Fijian", "Filipino", "Finnish", "French", "Gabonese", "Gambian", "Georgian", "German", "Ghanaian", "Greek",
-        "Grenadian", "Guatemalan", "Guinea-Bissauan", "Guinean", "Guyanese", "Haitian", "Herzegovinian", "Honduran", "Hungarian", "Icelander",
-        "Indian", "Indonesian", "Iranian", "Iraqi", "Irish", "Israeli", "Italian", "Ivorian", "Jamaican", "Japanese",
-        "Jordanian", "Kazakhstani", "Kenyan", "Kittian and Nevisian", "Kuwaiti", "Kyrgyz", "Laotian", "Latvian", "Lebanese", "Liberian",
-        "Libyan", "Liechtensteiner", "Lithuanian", "Luxembourger", "Macedonian", "Malagasy", "Malawian", "Malaysian", "Maldivian", "Malian",
-        "Maltese", "Marshallese", "Mauritanian", "Mauritian", "Mexican", "Micronesian", "Moldovan", "Monacan", "Mongolian", "Moroccan",
-        "Mosotho", "Motswana", "Mozambican", "Namibian", "Nauruan", "Nepalese", "New Zealander", "Ni-Vanuatu", "Nicaraguan", "Nigerian",
-        "Nigerien", "North Korean", "Northern Irish", "Norwegian", "Omani", "Pakistani", "Palauan", "Panamanian", "Papua New Guinean", "Paraguayan",
-        "Peruvian", "Polish", "Portuguese", "Qatari", "Romanian", "Russian", "Rwandan", "Saint Lucian", "Salvadoran", "Samoan",
-        "San Marinese", "Sao Tomean", "Saudi", "Scottish", "Senegalese", "Serbian", "Seychellois", "Sierra Leonean", "Singaporean", "Slovakian",
-        "Slovenian", "Solomon Islander", "Somali", "South African", "South Korean", "Spanish", "Sri Lankan", "Sudanese", "Surinamer",
-        "Swazi", "Swedish", "Swiss", "Syrian", "Taiwanese", "Tajik", "Tanzanian", "Thai", "Togolese", "Tongan",
-        "Trinidadian or Tobagonian", "Tunisian", "Turkish", "Tuvaluan", "Ugandan", "Ukrainian", "Uruguayan", "Uzbekistani", "Venezuelan", "Vietnamese",
-        "Welsh", "Yemenite", "Zambian", "Zimbabwean"
-    ];
+
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -94,13 +74,13 @@ const CreateTrainer = () => {
 
     const InputField = ({ label, name, type = "text", required, rules, placeholder }) => (
         <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <input
                 type={type}
                 {...register(name, { required: required ? `${label} is required` : false, ...rules })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
                 placeholder={placeholder}
             />
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
@@ -141,16 +121,18 @@ const CreateTrainer = () => {
 
     const SelectField = ({ label, name, options, required }) => (
         <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 block">
+            <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <select
                 {...register(name, { required: required ? `${label} is required` : false })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 outline-none text-sm"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
             >
                 <option value="">Select {label}</option>
                 {options.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                    <option key={opt.value || opt} value={opt.value || opt}>
+                        {opt.label || opt}
+                    </option>
                 ))}
             </select>
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
@@ -174,13 +156,13 @@ const CreateTrainer = () => {
                             <p className="text-sm text-slate-500">Fill in the details to register a new trainer</p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => navigate('/trainers')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                    <Link
+                        to="/trainers"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
                     >
-                        <ArrowLeft size={18} />
+                        <ArrowLeft className="w-4 h-4" />
                         Back to List
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -200,7 +182,7 @@ const CreateTrainer = () => {
                                 <div className="space-y-6">
                                     <div className="grid grid-cols-12 gap-6">
                                         <div className="col-span-3">
-                                            <SelectField label="Prefix" name="prefix" options={["Mr", "Mrs", "Ms", "Dr", "Capt"]} required />
+                                            <SelectField label="Prefix" name="prefix" options={PREFIX_OPTIONS} required />
                                         </div>
                                         <div className="col-span-9">
                                             <InputField label="Trainer Name" name="trainer_name" required placeholder="Full Name" />
@@ -209,7 +191,7 @@ const CreateTrainer = () => {
 
                                     <div className="grid grid-cols-2 gap-6">
                                         <InputField label="Email Address" name="email" type="email" required />
-                                        <SelectField label="Nationality" name="nationality" options={nationalities} required />
+                                        <SelectField label="Nationality" name="nationality" options={TRAINER_NATIONALITY_OPTIONS} required />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-6">

@@ -85,9 +85,9 @@ const EditHotel = () => {
                     </div>
                     <button
                         onClick={() => navigate('/hotel-details')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
                     >
-                        <ArrowLeft size={18} />
+                        <ArrowLeft className="w-4 h-4" />
                         Back to List
                     </button>
                 </div>

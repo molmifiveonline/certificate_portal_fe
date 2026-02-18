@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { Search, RefreshCcw, Eye, Download, Send } from "lucide-react";
+import { Search, RefreshCcw, Eye, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { debounce } from "lodash";
-import feedbackAnswerService from "../../services/feedbackAnswerService";
+import assessmentService from "../../services/assessmentService";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
 
-const SubmittedFeedbackList = () => {
-    const [submissions, setSubmissions] = useState([]);
+const SubmittedAssessmentList = () => {
+    const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -31,79 +31,81 @@ const SubmittedFeedbackList = () => {
         updateDebouncedSearch(searchTerm);
     }, [searchTerm, updateDebouncedSearch]);
 
-    const fetchSubmissions = useCallback(async () => {
+    const fetchCourses = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await feedbackAnswerService.getSubmissions({
+            const response = await assessmentService.getSubmittedCourses({
                 page,
                 limit,
                 search: debouncedSearch,
             });
-            setSubmissions(response.data);
-            setTotalPages(response.totalPages);
-            setTotalCount(response.totalCount);
+            setCourses(response.data || []);
+            setTotalPages(response.totalPages || 1);
+            setTotalCount(response.totalCount || 0);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to fetch submissions.");
+            toast.error("Failed to fetch submitted assessment courses.");
         } finally {
             setLoading(false);
         }
     }, [page, limit, debouncedSearch]);
 
     useEffect(() => {
-        fetchSubmissions();
-    }, [fetchSubmissions]);
+        fetchCourses();
+    }, [fetchCourses]);
+
+    const getTypeLabel = (type) => {
+        const labels = { "1": "Pre Course", "2": "Post Course", "3": "Daily" };
+        return labels[type] || type || "N/A";
+    };
+
+    const getTypeBadgeClass = (type) => {
+        if (type === "1") return "bg-blue-100 text-blue-800";
+        if (type === "2") return "bg-green-100 text-green-800";
+        return "bg-orange-100 text-orange-800";
+    };
 
     const columns = [
         {
-            key: "active_course_name",
-            label: "Active Course Name",
+            key: "course_name",
+            label: "Course Name",
+            render: (val) => (
+                <span className="font-medium text-slate-700">{val || "N/A"}</span>
+            ),
         },
         {
-            key: "employee_id",
-            label: "Employee ID",
-            render: (val) => val || "-",
-        },
-        {
-            key: "first_name",
-            label: "Employee Name",
-            render: (_val, row) => (
-                <span className="font-medium text-slate-700">
-                    {row.first_name} {row.last_name}
+            key: "type_of_test",
+            label: "Type of Assessment",
+            render: (val) => (
+                <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadgeClass(val)}`}
+                >
+                    {getTypeLabel(val)}
                 </span>
             ),
         },
         {
-            key: "average_rating",
-            label: "Average Rating",
-            render: (val) => val ? Number(val).toFixed(1) : "-",
+            key: "total_submissions",
+            label: "Submissions",
+            render: (val) => (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
+                    {val || 0}
+                </span>
+            ),
         },
         {
             key: "actions",
-            label: "Actions",
+            label: "Action",
+            align: "center",
             render: (_val, row) => (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                     <Link
-                        to={`/feedback/submitted/${row.candidate_id}/${row.active_course_id}`}
+                        to={`/assessment/submitted/${row.course_id}`}
                         className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all inline-block"
-                        title="View Details"
+                        title="View Submissions"
                     >
                         <Eye className="w-4 h-4" />
                     </Link>
-                    <button
-                        onClick={() => toast.info("Download PDF functionality pending")}
-                        className="p-1.5 rounded-full text-slate-600 hover:bg-slate-100 transition-all inline-block"
-                        title="Download PDF"
-                    >
-                        <Download className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => toast.info("Resend Email functionality pending")}
-                        className="p-1.5 rounded-full text-slate-600 hover:bg-slate-100 transition-all inline-block"
-                        title="Resend Email"
-                    >
-                        <Send className="w-4 h-4" />
-                    </button>
                 </div>
             ),
         },
@@ -111,16 +113,22 @@ const SubmittedFeedbackList = () => {
 
     return (
         <div className="flex-1 overflow-y-auto">
-            <Meta title="Submitted Feedback" description="View Submitted Feedback" />
+            <Meta
+                title="Submitted Assessments"
+                description="View Submitted Assessments"
+            />
 
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-                        Submitted Feedback
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                        <div className="bg-indigo-100 p-2 rounded-xl">
+                            <ClipboardList className="w-8 h-8 text-indigo-600" />
+                        </div>
+                        Submitted Assessments
                     </h1>
                     <p className="text-slate-500 mt-1">
-                        View feedback submitted by candidates
+                        View assessment submissions by course
                     </p>
                 </div>
             </div>
@@ -132,18 +140,23 @@ const SubmittedFeedbackList = () => {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder="Search by candidate name or email..."
+                                placeholder="Search by course name..."
                                 className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button
-                            onClick={fetchSubmissions}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all"
-                        >
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-3 w-full md:w-auto items-center">
+                            <span className="text-xs text-slate-400">
+                                {totalCount} course{totalCount !== 1 ? "s" : ""}
+                            </span>
+                            <button
+                                onClick={fetchCourses}
+                                className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all"
+                            >
+                                <RefreshCcw className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -151,12 +164,12 @@ const SubmittedFeedbackList = () => {
             {/* Table */}
             <DataTable
                 columns={columns}
-                data={submissions}
+                data={courses}
                 loading={loading}
-                emptyMessage="No submissions found."
+                emptyMessage="No submitted assessments found."
                 currentPage={page}
                 limit={limit}
-                rowKey="candidate_id"
+                rowKey="course_id"
             />
 
             <TablePagination
@@ -165,10 +178,13 @@ const SubmittedFeedbackList = () => {
                 totalCount={totalCount}
                 onPageChange={setPage}
                 limit={limit}
-                onLimitChange={setLimit}
+                onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setPage(1);
+                }}
             />
         </div>
     );
 };
 
-export default SubmittedFeedbackList;
+export default SubmittedAssessmentList;

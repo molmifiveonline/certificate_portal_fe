@@ -9,7 +9,8 @@ import feedbackCategoryService from "../../services/feedbackCategoryService";
 import FeedbackQuestionForm from "./FeedbackQuestionForm";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import TablePagination from "../../components/ui/TablePagination";
-import "react-quill-new/dist/quill.snow.css"; // Import styles for displaying HTML content
+import DataTable from "../../components/ui/DataTable";
+import "react-quill-new/dist/quill.snow.css";
 
 const FeedbackQuestionList = () => {
     const [questions, setQuestions] = useState([]);
@@ -31,7 +32,6 @@ const FeedbackQuestionList = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [questionToDelete, setQuestionToDelete] = useState(null);
 
-    // Debounce search
     const updateDebouncedSearch = useCallback(
         debounce((value) => {
             setDebouncedSearch(value);
@@ -116,6 +116,55 @@ const FeedbackQuestionList = () => {
         }
     };
 
+    const columns = [
+        {
+            key: "question",
+            label: "Question",
+            render: (val) => (
+                <div
+                    className="prose prose-sm max-h-20 overflow-hidden text-ellipsis line-clamp-2 max-w-md"
+                    dangerouslySetInnerHTML={{ __html: val }}
+                />
+            ),
+        },
+        {
+            key: "category_name",
+            label: "Category",
+            render: (val) => val || "-",
+        },
+        {
+            key: "type",
+            label: "Type",
+            render: (val) => (
+                <span className="capitalize">
+                    {val === 'rating' ? 'Rating (1-5)' : val === 'yes_no' ? 'Yes/No' : 'Text'}
+                </span>
+            ),
+        },
+        {
+            key: "actions",
+            label: "Actions",
+            render: (_val, row) => (
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => handleEdit(row)}
+                        className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
+                        title="Edit"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => handleDeleteClick(row)}
+                        className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
+                        title="Delete"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
     return (
         <div className="flex-1 overflow-y-auto">
             <Meta title="Feedback Questions" description="Manage Feedback Questions" />
@@ -187,101 +236,23 @@ const FeedbackQuestionList = () => {
             </Card>
 
             {/* Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Sr.No.
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Question
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Category
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Type
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                Array.from({ length: 5 }).map((_, idx) => (
-                                    <tr key={idx} className="animate-pulse">
-                                        <td colSpan="5" className="px-6 py-4">
-                                            <div className="h-4 bg-slate-200 rounded w-full"></div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : questions.length > 0 ? (
-                                questions.map((question, index) => (
-                                    <tr
-                                        key={question.id}
-                                        className="hover:bg-white/40 transition-colors"
-                                    >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {(currentPage - 1) * limit + index + 1}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-700 max-w-md">
-                                            <div
-                                                className="prose prose-sm max-h-20 overflow-hidden text-ellipsis line-clamp-2"
-                                                dangerouslySetInnerHTML={{ __html: question.question }}
-                                            />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {question.category_name || "-"}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 capitalize">
-                                            {question.type === 'rating' ? 'Rating (1-5)' : question.type === 'yes_no' ? 'Yes/No' : 'Text'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(question)}
-                                                    className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
-                                                    title="Edit"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(question)}
-                                                    className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan="5"
-                                        className="px-6 py-12 text-center text-slate-500 font-medium"
-                                    >
-                                        No feedback questions found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            <DataTable
+                columns={columns}
+                data={questions}
+                loading={loading}
+                emptyMessage="No feedback questions found."
+                currentPage={currentPage}
+                limit={limit}
+            />
 
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    onPageChange={setCurrentPage}
-                    limit={limit}
-                    onLimitChange={setLimit}
-                />
-            </div>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                onPageChange={setCurrentPage}
+                limit={limit}
+                onLimitChange={setLimit}
+            />
 
             <FeedbackQuestionForm
                 isOpen={showFormModal}

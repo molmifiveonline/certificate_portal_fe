@@ -80,10 +80,10 @@ const Sidebar = () => {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "fixed left-0 top-0 h-screen transition-all duration-300 z-50 flex flex-col bg-white border-r border-slate-200 shadow-sm",
+                    "fixed left-0 top-0 h-screen transition-all duration-500 ease-in-out z-50 flex flex-col bg-white border-r border-slate-200 shadow-xl md:shadow-sm",
                     isOpen
                         ? "w-64 translate-x-0"
-                        : "w-64 -translate-x-full md:w-16 md:translate-x-0 md:overflow-hidden"
+                        : "w-64 -translate-x-full md:w-20 md:translate-x-0 md:overflow-hidden"
                 )}
             >
                 {/* Logo Header */}
@@ -246,7 +246,7 @@ const Sidebar = () => {
                         />
                         {isOpen && (
                             <span className="font-medium text-sm transition-colors whitespace-nowrap">
-                                Log Out
+                                Logout
                             </span>
                         )}
                     </button>
@@ -256,7 +256,7 @@ const Sidebar = () => {
             {/* Mobile Overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
                     onClick={() => setIsOpen(false)}
                 />
             )}

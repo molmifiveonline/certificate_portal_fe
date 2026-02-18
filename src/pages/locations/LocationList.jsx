@@ -7,15 +7,13 @@ import {
     Edit,
     Trash2,
     MapPin,
-    ArrowUpDown,
-    ArrowUp,
-    ArrowDown,
     ExternalLink,
     Eye
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import TablePagination from "../../components/ui/TablePagination";
+import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import DetailModal from "../../components/ui/DetailModal";
 import locationService from "../../services/locationService";
@@ -72,7 +70,6 @@ const LocationList = () => {
         fetchLocations();
     }, [fetchLocations]);
 
-    // Debounced search: reset to page 1 when search changes
     useEffect(() => {
         const timeout = setTimeout(() => {
             setCurrentPage(1);
@@ -114,26 +111,80 @@ const LocationList = () => {
         setCurrentPage(1);
     };
 
-    const SortIcon = ({ column }) => {
-        if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
-        return sortOrder === "asc"
-            ? <ArrowUp className="w-3 h-3 ml-1 text-blue-600" />
-            : <ArrowDown className="w-3 h-3 ml-1 text-blue-600" />;
-    };
-
-    const SortableHeader = ({ column, label, className = "" }) => (
-        <th
-            className={`px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none ${className}`}
-            onClick={() => handleSort(column)}
-        >
-            <div className="flex items-center">
-                {label}
-                <SortIcon column={column} />
-            </div>
-        </th>
-    );
-
-
+    const columns = [
+        {
+            key: "location_name",
+            label: "Location Name",
+            sortable: true,
+            render: (val, row) => (
+                <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-800">{val}</span>
+                    <a href={row.google_map_link} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-500 flex items-center gap-0.5 hover:underline">
+                        View Map <ExternalLink className="w-2 h-2" />
+                    </a>
+                </div>
+            ),
+        },
+        {
+            key: "short_code",
+            label: "Code",
+            sortable: true,
+            render: (val) => (
+                <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase">
+                    {val}
+                </span>
+            ),
+        },
+        {
+            key: "phone_number",
+            label: "Contact Info",
+            render: (_val, row) => (
+                <div className="flex flex-col gap-0.5">
+                    <span className="text-sm text-slate-600">{row.phone_number}</span>
+                    <span className="text-xs text-slate-400">{row.email}</span>
+                </div>
+            ),
+        },
+        {
+            key: "address",
+            label: "Address",
+            render: (val) => (
+                <p className="text-sm text-slate-600 line-clamp-1 max-w-xs" title={val}>
+                    {val}
+                </p>
+            ),
+        },
+        {
+            key: "actions",
+            label: "Actions",
+            align: "right",
+            render: (_val, row) => (
+                <div className="flex items-center justify-end gap-2">
+                    <button
+                        onClick={() => handleView(row)}
+                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-all"
+                        title="View Details"
+                    >
+                        <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => navigate(`/location/edit/${row.id}`)}
+                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                        title="Edit Location"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => handleDelete(row.id)}
+                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                        title="Delete Location"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                </div>
+            ),
+        },
+    ];
 
     return (
         <div className="flex-1 overflow-y-auto w-full">
@@ -182,109 +233,29 @@ const LocationList = () => {
             </Card>
 
             {/* Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sr</th>
-                                <SortableHeader column="location_name" label="Location Name" />
-                                <SortableHeader column="short_code" label="Code" />
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact Info</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Address</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <RefreshCcw className="w-4 h-4 animate-spin" />
-                                            Loading...
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : locations.length === 0 ? (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
-                                        No locations found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                locations.map((loc, index) => (
-                                    <tr key={loc.id} className="hover:bg-white/40 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
-                                            {(currentPage - 1) * limit + index + 1}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-slate-800">{loc.location_name}</span>
-                                                <a href={loc.google_map_link} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-500 flex items-center gap-0.5 hover:underline">
-                                                    View Map <ExternalLink className="w-2 h-2" />
-                                                </a>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase">
-                                                {loc.short_code}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="text-sm text-slate-600">{loc.phone_number}</span>
-                                                <span className="text-xs text-slate-400">{loc.email}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm text-slate-600 line-clamp-1 max-w-xs" title={loc.address}>
-                                                {loc.address}
-                                            </p>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleView(loc)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
-                                                    title="View Details"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => navigate(`/location/edit/${loc.id}`)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                                                    title="Edit Location"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(loc.id)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                                                    title="Delete Location"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            <DataTable
+                columns={columns}
+                data={locations}
+                loading={loading}
+                emptyMessage="No locations found."
+                currentPage={currentPage}
+                limit={limit}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+            />
 
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    limit={limit}
-                    onPageChange={setCurrentPage}
-                    onLimitChange={(newLimit) => {
-                        setLimit(newLimit);
-                        setCurrentPage(1);
-                    }}
-                />
-            </div>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                limit={limit}
+                onPageChange={setCurrentPage}
+                onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setCurrentPage(1);
+                }}
+            />
 
             <ConfirmationModal
                 isOpen={deleteModalOpen}

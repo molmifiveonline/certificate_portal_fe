@@ -81,12 +81,12 @@ const FeedbackFormCreate = () => {
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
 
-    // Form State
+
     const [title, setTitle] = useState("");
     const [typeOfCourse, setTypeOfCourse] = useState("All");
     const [status, setStatus] = useState(1);
 
-    // Complex State: Dictionary of Category ID -> Array of Questions
+
     const [selectedCategories, setSelectedCategories] = useState([]); // List of category IDs
     const [categoryQuestions, setCategoryQuestions] = useState({});
 
@@ -95,12 +95,12 @@ const FeedbackFormCreate = () => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
-                // 1. Fetch Categories
+
                 const catResult = await feedbackCategoryService.getAll({ limit: 100 });
                 const allCategories = catResult.data;
                 setCategories(allCategories);
 
-                // 2. Fetch Form Data if Edit Mode
+
                 if (isEditMode) {
                     const form = await feedbackFormService.getById(id);
                     setTitle(form.title);
@@ -289,7 +289,7 @@ const FeedbackFormCreate = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6" style={{ overflow: 'visible' }}>
-                        {/* 1. Title */}
+
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">
                                 Form Title <span className="text-red-500">*</span>
@@ -303,7 +303,7 @@ const FeedbackFormCreate = () => {
                             />
                         </div>
 
-                        {/* 2. Categories (Multi-select) */}
+
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">
                                 Categories <span className="text-red-500">*</span>
@@ -320,7 +320,7 @@ const FeedbackFormCreate = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* 3. Type of Course */}
+
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">
                                     Type Of Course
@@ -337,7 +337,7 @@ const FeedbackFormCreate = () => {
                                 </select>
                             </div>
 
-                            {/* 4. Status */}
+
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">
                                     Status

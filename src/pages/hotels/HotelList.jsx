@@ -7,15 +7,13 @@ import {
     Edit,
     Trash2,
     Building,
-    ArrowUpDown,
-    ArrowUp,
-    ArrowDown,
     Eye,
     ExternalLink
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import TablePagination from "../../components/ui/TablePagination";
+import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import DetailModal from "../../components/ui/DetailModal";
 import hotelService from "../../services/hotelService";
@@ -51,7 +49,6 @@ const HotelList = () => {
             }
             const response = await hotelService.getAllHotels(params);
 
-            // Backend returns { success: true, message: "...", data: { data: [...], totalCount, page, limit, totalPages } }
             if (response.success && response.data) {
                 const result = response.data;
                 setHotels(Array.isArray(result.data) ? result.data : []);
@@ -74,7 +71,6 @@ const HotelList = () => {
         fetchHotels();
     }, [fetchHotels]);
 
-    // Debounced search: reset to page 1 when search changes
     useEffect(() => {
         const timeout = setTimeout(() => {
             setCurrentPage(1);
@@ -116,26 +112,63 @@ const HotelList = () => {
         setCurrentPage(1);
     };
 
-    const SortIcon = ({ column }) => {
-        if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
-        return sortOrder === "asc"
-            ? <ArrowUp className="w-3 h-3 ml-1 text-blue-600" />
-            : <ArrowDown className="w-3 h-3 ml-1 text-blue-600" />;
-    };
-
-    const SortableHeader = ({ column, label, className = "" }) => (
-        <th
-            className={`px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none ${className}`}
-            onClick={() => handleSort(column)}
-        >
-            <div className="flex items-center">
-                {label}
-                <SortIcon column={column} />
-            </div>
-        </th>
-    );
-
-
+    const columns = [
+        {
+            key: "venue_name",
+            label: "Hotel Name",
+            sortable: true,
+            render: (val) => <span className="font-semibold text-slate-800">{val}</span>,
+        },
+        {
+            key: "venue_address",
+            label: "Hotel Address",
+            hiddenOnMobile: true,
+            render: (val) => (
+                <p className="text-sm text-slate-600 line-clamp-1 max-w-xs" title={val}>
+                    {val}
+                </p>
+            ),
+        },
+        {
+            key: "venue_contact",
+            label: "Contact",
+        },
+        {
+            key: "email",
+            label: "Email",
+            hiddenOnTablet: true,
+        },
+        {
+            key: "actions",
+            label: "Actions",
+            align: "right",
+            render: (_val, row) => (
+                <div className="flex items-center justify-end gap-2">
+                    <button
+                        onClick={() => handleView(row)}
+                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-all"
+                        title="View Details"
+                    >
+                        <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => navigate(`/hotel-details/edit/${row.id}`)}
+                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                        title="Edit Hotel"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => handleDelete(row.id)}
+                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                        title="Delete Hotel"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                </div>
+            ),
+        },
+    ];
 
     return (
         <div className="flex-1 overflow-y-auto w-full">
@@ -183,103 +216,30 @@ const HotelList = () => {
                 </CardContent>
             </Card>
 
-            {/* Hotels Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sr</th>
-                                <SortableHeader column="venue_name" label="Hotel Name" />
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Hotel Address</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <RefreshCcw className="w-4 h-4 animate-spin" />
-                                            Loading...
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : hotels.length === 0 ? (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
-                                        No hotels found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                hotels.map((hotel, index) => (
-                                    <tr key={hotel.id} className="hover:bg-white/40 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
-                                            {(currentPage - 1) * limit + index + 1}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-sm font-semibold text-slate-800">
-                                                {hotel.venue_name}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm text-slate-600 line-clamp-1 max-w-xs" title={hotel.venue_address}>
-                                                {hotel.venue_address}
-                                            </p>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {hotel.venue_contact}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {hotel.email}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleView(hotel)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
-                                                    title="View Details"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => navigate(`/hotel-details/edit/${hotel.id}`)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                                                    title="Edit Hotel"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(hotel.id)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                                                    title="Delete Hotel"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            {/* Table */}
+            <DataTable
+                columns={columns}
+                data={hotels}
+                loading={loading}
+                emptyMessage="No hotels found."
+                currentPage={currentPage}
+                limit={limit}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+            />
 
-                {/* Pagination */}
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    limit={limit}
-                    onPageChange={setCurrentPage}
-                    onLimitChange={(newLimit) => {
-                        setLimit(newLimit);
-                        setCurrentPage(1);
-                    }}
-                />
-            </div>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                limit={limit}
+                onPageChange={setCurrentPage}
+                onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setCurrentPage(1);
+                }}
+            />
 
             <ConfirmationModal
                 isOpen={deleteModalOpen}

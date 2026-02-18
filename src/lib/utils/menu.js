@@ -47,12 +47,12 @@ export const MenuItems = [
       { title: "Other Candidates", url: "/candidates/others" },
     ],
   },
-  {
-    title: "Trainers",
-    url: "/trainers",
-    icon: GraduationCap,
-    allowedRoles: ["admin", "superadmin"],
-  },
+  // {
+  //   title: "Trainers",
+  //   url: "/trainers",
+  //   icon: GraduationCap,
+  //   allowedRoles: ["admin", "superadmin"],
+  // },
   {
     title: "Courses",
     url: "/courses",
@@ -63,39 +63,41 @@ export const MenuItems = [
       { title: "Active Courses", url: "/active-courses" },
     ],
   },
-  {
-    title: "Hotel Details",
-    url: "/hotel-details",
-    icon: Building,
-    allowedRoles: ["admin", "superadmin"],
-  },
-  {
-    title: "Location",
-    url: "/location",
-    icon: MapPin,
-    allowedRoles: ["admin", "superadmin"],
-  },
   // {
-  //   title: "Assessment",
-  //   url: "/assessment",
-  //   icon: ClipboardList,
+  //   title: "Hotel Details",
+  //   url: "/hotel-details",
+  //   icon: Building,
   //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "All Assessments", url: "/assessment" },
-  //     { title: "Create Assessment", url: "/assessment/create" },
-  //   ],
+  // },
+  // {
+  //   title: "Location",
+  //   url: "/location",
+  //   icon: MapPin,
+  //   allowedRoles: ["admin", "superadmin"],
   // },
   {
-    title: "Feedback",
-    url: "/feedback",
-    icon: MessageSquare,
+    title: "Assessment",
+    url: "/assessment",
+    icon: ClipboardList,
     allowedRoles: ["admin", "superadmin"],
     subItems: [
-      { title: "Feedback Category", url: "/feedback" },
-      { title: "Feedback Question", url: "/feedback/forms" },
-      { title: "Submitted Feedback", url: "/feedback/submitted" },
+      { title: "Question Bank", url: "/assessment/question-bank" },
+      { title: "Assessments", url: "/assessment/assessments" },
+      { title: "Submitted Assessments", url: "/assessment/submitted" },
     ],
   },
+
+  // {
+  //   title: "Feedback",
+  //   url: "/feedback",
+  //   icon: MessageSquare,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Feedback Category", url: "/feedback" },
+  //     { title: "Feedback Question", url: "/feedback/forms" },
+  //     { title: "Submitted Feedback", url: "/feedback/submitted" },
+  //   ],
+  // },
   // {
   //   title: "Certificates",
   //   url: "/certificates",
@@ -109,18 +111,18 @@ export const MenuItems = [
   //   allowedRoles: ["admin", "superadmin"],
   //   subItems: [{ title: "General Report", url: "/reports/general" }],
   // },
-  {
-    title: "Role Permissions",
-    url: "/admin/role-permissions",
-    icon: Shield,
-    allowedRoles: ["admin", "superadmin"],
-  },
-  {
-    title: "Log History",
-    url: "/admin/log-history",
-    icon: History,
-    allowedRoles: ["admin", "superadmin"],
-  },
+  // {
+  //   title: "Role Permissions",
+  //   url: "/admin/role-permissions",
+  //   icon: Shield,
+  //   allowedRoles: ["admin", "superadmin"],
+  // },
+  // {
+  //   title: "Log History",
+  //   url: "/admin/log-history",
+  //   icon: History,
+  //   allowedRoles: ["admin", "superadmin"],
+  // },
 
   // Trainer Specific
   {

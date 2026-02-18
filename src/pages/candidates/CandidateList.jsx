@@ -1,26 +1,23 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Meta from "../../components/common/Meta";
 import { MANAGER_OPTIONS } from "../../lib/constants";
 import {
     Search,
-    Filter,
     Download,
     RefreshCcw,
     UserPlus,
     Edit,
     Eye,
-    ArrowUpDown,
-    ArrowUp,
-    ArrowDown,
     Upload,
-    Zap
+    Zap,
+    Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import candidateService from "../../services/candidateService";
 import TablePagination from "../../components/ui/TablePagination";
+import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
-import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
 
@@ -41,7 +38,6 @@ const CandidateList = ({ registrationType }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(null);
 
     // Filter States
     const [filterManager, setFilterManager] = useState("");
@@ -165,31 +161,90 @@ const CandidateList = ({ registrationType }) => {
         }
     };
 
-    const SortIcon = ({ column }) => {
-        if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
-        return sortOrder === "asc"
-            ? <ArrowUp className="w-3 h-3 ml-1 text-blue-600" />
-            : <ArrowDown className="w-3 h-3 ml-1 text-blue-600" />;
-    };
-
-    const SortableHeader = ({ column, label, className = "" }) => (
-        <th
-            className={`px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none ${className}`}
-            onClick={() => handleSort(column)}
-        >
-            <div className="flex items-center">
-                {label}
-                <SortIcon column={column} />
-            </div>
-        </th>
-    );
-
     const handleViewDetails = (candidate) => {
         setSelectedCandidate(candidate);
         setShowDetailModal(true);
     };
 
+    const columns = useMemo(() => {
+        const cols = [];
 
+        if (registrationType !== "Others") {
+            cols.push({
+                key: "employee_id",
+                label: "Employee ID",
+                sortable: true,
+                render: (val) => <span className="font-medium text-slate-700">{val || 'N/A'}</span>,
+            });
+        }
+
+        cols.push(
+            {
+                key: "prefix",
+                label: "Title",
+                sortable: true,
+                render: (val) => val || '-',
+            },
+            {
+                key: "first_name",
+                label: "Candidate Name",
+                sortable: true,
+                render: (_val, row) => (
+                    <span className="font-semibold text-slate-800">
+                        {`${row.first_name || ''} ${row.last_name || ''}`}
+                    </span>
+                ),
+            },
+            {
+                key: "rank",
+                label: "Rank",
+                sortable: true,
+                render: (val) => val || '-',
+            },
+            {
+                key: "created_at",
+                label: "Date",
+                sortable: true,
+                render: (val) => val ? new Date(val).toLocaleDateString('en-GB') : '-',
+            },
+            {
+                key: "nationality",
+                label: "Nationality",
+                sortable: true,
+                render: (val) => val || '-',
+            },
+            {
+                key: "manager",
+                label: "Manager",
+                sortable: true,
+                render: (val) => val || '-',
+            },
+            {
+                key: "status",
+                label: "Status",
+                sortable: true,
+                render: (val) => (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {val === 1 ? 'Active' : 'Inactive'}
+                    </span>
+                ),
+            },
+            {
+                key: "actions",
+                label: "Edit",
+                render: (_val, row) => (
+                    <button
+                        onClick={() => navigate(`/candidates/edit/${row.id}`)}
+                        className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-all font-medium text-xs"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </button>
+                ),
+            }
+        );
+
+        return cols;
+    }, [registrationType, navigate]);
 
     return (
         <div className="flex-1 overflow-y-auto">
@@ -197,7 +252,10 @@ const CandidateList = ({ registrationType }) => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                        <div className="bg-blue-100 p-2 rounded-xl">
+                            <Users className="w-8 h-8 text-blue-600" />
+                        </div>
                         {registrationType === "MOLMI Employee" ? "MOLMI Candidates" : registrationType === "Others" ? "Other Candidates" : "All Candidates"}
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all registered candidates</p>
@@ -261,7 +319,7 @@ const CandidateList = ({ registrationType }) => {
                         </div>
                     </div>
 
-                    {/* Additional Filters */}
+
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="space-y-1">
                             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Manager</label>
@@ -322,87 +380,27 @@ const CandidateList = ({ registrationType }) => {
                 </CardContent>
             </Card>
 
-            {/* Candidates Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sr.No.</th>
-                                {registrationType !== "Others" && <SortableHeader column="employee_id" label="Employee ID" />}
-                                <SortableHeader column="prefix" label="Title" />
-                                <SortableHeader column="first_name" label="Candidate Name" />
-                                <SortableHeader column="rank" label="Rank" />
-                                <SortableHeader column="created_at" label="Date" />
-                                <SortableHeader column="nationality" label="Nationality" />
-                                <SortableHeader column="manager" label="Manager" />
-                                <SortableHeader column="status" label="Status" />
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Edit</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                Array.from({ length: 5 }).map((_, idx) => (
-                                    <tr key={idx} className="animate-pulse">
-                                        <td colSpan="10" className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-full"></div></td>
-                                    </tr>
-                                ))
-                            ) : candidates.map((candidate, index) => (
-                                <tr key={candidate.id} className="hover:bg-white/40 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                        {(currentPage - 1) * limit + index + 1}
-                                    </td>
-                                    {registrationType !== "Others" && <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{candidate.employee_id || 'N/A'}</td>}
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.prefix || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-semibold text-slate-800">
-                                                {`${candidate.first_name || ''} ${candidate.last_name || ''}`}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.rank || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                        {candidate.created_at ? new Date(candidate.created_at).toLocaleDateString('en-GB') : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.nationality || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.manager || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${candidate.status === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                            {candidate.status === 1 ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onClick={() => navigate(`/candidates/edit/${candidate.id}`)}
-                                            className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-all font-medium text-xs"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {!loading && candidates.length === 0 && (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500 font-medium">
-                                        No candidates found matching your search.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            {/* Table */}
+            <DataTable
+                columns={columns}
+                data={candidates}
+                loading={loading}
+                emptyMessage="No candidates found matching your search."
+                currentPage={currentPage}
+                limit={limit}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+            />
 
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    onPageChange={setCurrentPage}
-                    limit={limit}
-                    onLimitChange={setLimit}
-                />
-            </div>
-
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                onPageChange={setCurrentPage}
+                limit={limit}
+                onLimitChange={setLimit}
+            />
 
             <DetailModal
                 isOpen={showDetailModal}

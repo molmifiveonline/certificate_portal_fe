@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
-import { Plus, Search, Edit, Trash2, RefreshCcw } from "lucide-react";
+import { Plus, Search, Edit, Trash2, RefreshCcw, MessageSquare } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { toast } from "sonner";
 import { debounce } from "lodash";
@@ -8,6 +8,7 @@ import feedbackCategoryService from "../../services/feedbackCategoryService";
 import FeedbackCategoryForm from "./FeedbackCategoryForm";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import TablePagination from "../../components/ui/TablePagination";
+import DataTable from "../../components/ui/DataTable";
 
 const FeedbackCategoryList = () => {
     const [categories, setCategories] = useState([]);
@@ -27,7 +28,6 @@ const FeedbackCategoryList = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
 
-    // Debounce search
     const updateDebouncedSearch = useCallback(
         debounce((value) => {
             setDebouncedSearch(value);
@@ -97,6 +97,36 @@ const FeedbackCategoryList = () => {
         }
     };
 
+    const columns = [
+        {
+            key: "name",
+            label: "Name",
+            render: (val) => <span className="font-medium text-slate-700">{val}</span>,
+        },
+        {
+            key: "actions",
+            label: "Actions",
+            render: (_val, row) => (
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => handleEdit(row)}
+                        className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
+                        title="Edit"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => handleDeleteClick(row)}
+                        className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
+                        title="Delete"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
     return (
         <div className="flex-1 overflow-y-auto">
             <Meta title="Feedback Categories" description="Manage Feedback Categories" />
@@ -104,7 +134,10 @@ const FeedbackCategoryList = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                        <div className="bg-blue-100 p-2 rounded-xl">
+                            <MessageSquare className="w-8 h-8 text-blue-600" />
+                        </div>
                         Feedback Categories
                     </h1>
                     <p className="text-slate-500 mt-1">
@@ -144,88 +177,23 @@ const FeedbackCategoryList = () => {
             </Card>
 
             {/* Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Sr.No.
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Name
-                                </th>
+            <DataTable
+                columns={columns}
+                data={categories}
+                loading={loading}
+                emptyMessage="No feedback categories found."
+                currentPage={currentPage}
+                limit={limit}
+            />
 
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                Array.from({ length: 5 }).map((_, idx) => (
-                                    <tr key={idx} className="animate-pulse">
-                                        <td colSpan="3" className="px-6 py-4">
-                                            <div className="h-4 bg-slate-200 rounded w-full"></div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : categories.length > 0 ? (
-                                categories.map((category, index) => (
-                                    <tr
-                                        key={category.id}
-                                        className="hover:bg-white/40 transition-colors"
-                                    >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {(currentPage - 1) * limit + index + 1}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
-                                            {category.name}
-                                        </td>
-
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(category)}
-                                                    className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
-                                                    title="Edit"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(category)}
-                                                    className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan="3"
-                                        className="px-6 py-12 text-center text-slate-500 font-medium"
-                                    >
-                                        No feedback categories found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    onPageChange={setCurrentPage}
-                    limit={limit}
-                    onLimitChange={setLimit}
-                />
-            </div>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                onPageChange={setCurrentPage}
+                limit={limit}
+                onLimitChange={setLimit}
+            />
 
             <FeedbackCategoryForm
                 isOpen={showFormModal}
