@@ -6,6 +6,7 @@ import api from '../../lib/api';
 import { Users, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
+import BackButton from '../../components/common/BackButton';
 
 const EditTrainer = () => {
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
@@ -219,13 +220,7 @@ const EditTrainer = () => {
                             <p className="text-sm text-slate-500">Update trainer details and permissions</p>
                         </div>
                     </div>
-                    <Link
-                        to="/trainers"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to List
-                    </Link>
+                    <BackButton to="/trainers" />
                 </div>
             </div>
 

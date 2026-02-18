@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { formatDate } from "../../lib/utils/dateUtils";
+import BackButton from '../../components/common/BackButton';
 
 const SubmissionDetail = () => {
     const { resultId } = useParams();
@@ -64,12 +65,7 @@ const SubmissionDetail = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                    <Link
-                        to={backLink}
-                        className="p-2 rounded-xl bg-white/50 border border-slate-200/60 hover:bg-white/80 transition-all text-slate-600"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </Link>
+                    <BackButton to={backLink} />
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                             Submitted Assessment

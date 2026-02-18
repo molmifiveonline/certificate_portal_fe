@@ -18,6 +18,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../../components/ui/select";
+import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import Meta from '../../components/common/Meta';
 import api from "../../lib/api";
@@ -76,7 +77,7 @@ const FilterSection = ({
             <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Trainer</label>
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Trainer</label>
                         <Select
                             value={filters.trainer_id}
                             onValueChange={(val) => handleFilterChange('trainer_id', val)}
@@ -96,7 +97,7 @@ const FilterSection = ({
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Master Course</label>
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Master Course</label>
                         <Select
                             value={filters.master_course_id}
                             onValueChange={(val) => handleFilterChange('master_course_id', val)}
@@ -116,7 +117,7 @@ const FilterSection = ({
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Start Date</label>
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Start Date</label>
                         <div className="relative">
                             <input
                                 type="date"
@@ -128,7 +129,7 @@ const FilterSection = ({
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">End Date</label>
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">End Date</label>
                         <div className="relative">
                             <input
                                 type="date"
@@ -140,7 +141,7 @@ const FilterSection = ({
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</label>
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
                         <Select
                             value={filters.status}
                             onValueChange={(val) => handleFilterChange('status', val)}
@@ -159,7 +160,8 @@ const FilterSection = ({
 
                 </div>
                 <div className="mt-6 flex justify-end gap-3">
-                    <button
+                    <Button
+                        variant="ghost"
                         onClick={() => {
                             setFilters({
                                 trainer_id: '',
@@ -170,17 +172,17 @@ const FilterSection = ({
                             });
                             onSearch(); // Optional: Trigger search immediately after clearing, or let user click search
                         }}
-                        className="px-4 py-2.5 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all"
+                        className="font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100"
                     >
                         Clear Filters
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={onSearch}
-                        className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-8 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 active:scale-95 transform hover:-translate-y-0.5"
+                        className="px-8 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 flex items-center gap-2 transform hover:-translate-y-0.5"
                     >
                         <Search className="w-4 h-4" />
                         Search Records
-                    </button>
+                    </Button>
                 </div>
             </CardContent>
         </Card>
@@ -311,14 +313,14 @@ const SuperAdminDashboard = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-200">
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-left">Course Name</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center hidden sm:table-cell">Man Days</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-left">Start Date</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-left hidden md:table-cell">End Date</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-left">Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center hidden lg:table-cell">Candidates</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center hidden lg:table-cell">Rating</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center hidden lg:table-cell">Absent</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-left">Course Name</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-center hidden sm:table-cell">Man Days</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-left">Start Date</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-left hidden md:table-cell">End Date</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-left">Status</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-center hidden lg:table-cell">Candidates</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-center hidden lg:table-cell">Rating</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-center hidden lg:table-cell">Absent</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -391,12 +393,12 @@ const SuperAdminDashboard = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-200">
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Candidate ID</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-bold">Name</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Course Name</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Emp ID</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-left">Expiry Date</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Action</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider hidden md:table-cell">Candidate ID</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider font-bold">Name</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Course Name</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider hidden sm:table-cell">Emp ID</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-left">Expiry Date</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">

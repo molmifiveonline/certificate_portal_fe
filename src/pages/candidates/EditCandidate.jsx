@@ -7,6 +7,7 @@ import candidateService from '../../services/candidateService';
 import CandidateForm from '../../components/candidates/CandidateForm';
 import { Card, CardContent } from "../../components/ui/card";
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import BackButton from '../../components/common/BackButton';
 
 const EditCandidate = () => {
     const { id } = useParams();
@@ -122,13 +123,7 @@ const EditCandidate = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Candidate</h1>
                     <p className="text-slate-500 mt-1">Modify candidate information</p>
                 </div>
-                <Link
-                    to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                >
-                    <ChevronLeft className="w-4 h-4" />
-                    Back to List
-                </Link>
+                <BackButton to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'} />
             </div>
 
             <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">

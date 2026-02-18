@@ -130,7 +130,7 @@ const ResetPassword = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`w-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-3.5 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`w-full bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white font-bold py-3.5 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 <span>{isSubmitting ? 'Resetting...' : 'Reset Password'}</span>
                                 {!isSubmitting && <ArrowRight size={20} />}

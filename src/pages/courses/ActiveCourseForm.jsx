@@ -7,6 +7,7 @@ import api from '../../lib/api';
 import { Save, ArrowLeft, BookOpen, MapPin, Calendar, FileText, Video, Clock, Users, Link as LinkIcon, Check, ChevronDown } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import BackButton from '../../components/common/BackButton';
 
 const MultiSelectInput = ({ value = [], onChange, options }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -268,13 +269,7 @@ const ActiveCourseForm = () => {
                             </p>
                         </div>
                     </div>
-                    <Link
-                        to="/active-courses"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to List
-                    </Link>
+                    <BackButton to="/active-courses" />
                 </div>
             </div>
 

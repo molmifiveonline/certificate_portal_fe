@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
+import { Button, buttonVariants } from "../../components/ui/button";
+import { cn } from "../../lib/utils/utils";
 import candidateService from "../../services/candidateService";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
@@ -261,15 +263,17 @@ const CandidateList = ({ registrationType }) => {
                     <p className="text-slate-500 mt-1">Manage and view all registered candidates</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                    <button
+                    <Button
+                        variant="outline"
                         onClick={handleSyncFromApi}
                         disabled={isSyncing}
-                        className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95 disabled:opacity-50">
+                        className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                    >
                         <Zap className={`w-4 h-4 text-amber-500 ${isSyncing ? 'animate-pulse' : ''}`} />
                         {isSyncing ? 'Syncing...' : 'Sync API'}
-                    </button>
+                    </Button>
 
-                    <label className="cursor-pointer bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95">
+                    <label className={cn(buttonVariants({ variant: "outline" }), "cursor-pointer bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95 h-10")}>
                         <Upload className="w-4 h-4 text-blue-600" />
                         Upload
                         <input
@@ -281,12 +285,13 @@ const CandidateList = ({ registrationType }) => {
                         />
                     </label>
 
-                    <button
+                    <Button
                         onClick={() => navigate('/candidates/add')}
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95">
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
                         <UserPlus className="w-4 h-4" />
                         Add Candidate
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -304,25 +309,30 @@ const CandidateList = ({ registrationType }) => {
                             />
                         </div>
                         <div className="flex gap-3 w-full md:w-auto">
-                            <button
+                            <Button
+                                variant="outline"
                                 onClick={handleExport}
                                 disabled={isExporting}
-                                className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all disabled:opacity-50">
+                                className="h-10 px-4 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 font-bold"
+                            >
                                 {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                                 Export
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
                                 onClick={fetchCandidates}
-                                className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
+                                className="h-10 w-10 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600"
+                            >
                                 <RefreshCcw className="w-4 h-4" />
-                            </button>
+                            </Button>
                         </div>
                     </div>
 
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Manager</label>
+                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Manager</label>
                             <div className="relative">
                                 <select
                                     className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
@@ -338,7 +348,7 @@ const CandidateList = ({ registrationType }) => {
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Rank</label>
+                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Rank</label>
                             <select
                                 className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
                                 value={filterRank}
@@ -351,7 +361,7 @@ const CandidateList = ({ registrationType }) => {
                             </select>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nationality</label>
+                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Nationality</label>
                             <select
                                 className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
                                 value={filterNationality}
@@ -364,7 +374,7 @@ const CandidateList = ({ registrationType }) => {
                             </select>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</label>
+                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
                             <select
                                 className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
                                 value={filterStatus}

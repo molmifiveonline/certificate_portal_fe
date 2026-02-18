@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import LocationForm from './LocationForm';
 import locationService from '../../services/locationService';
 import { toast } from 'sonner';
+import BackButton from '../../components/common/BackButton';
 
 const CreateLocation = () => {
     const navigate = useNavigate();
@@ -36,13 +37,7 @@ const CreateLocation = () => {
                         <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Add Location</h1>
                         <p className="text-slate-500 mt-1">Register a new training center or venue</p>
                     </div>
-                    <button
-                        onClick={() => navigate('/location')}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                    >
-                        <ChevronLeft className="w-4 h-4" />
-                        Back to List
-                    </button>
+                    <BackButton to="/location" />
                 </div>
 
                 <LocationForm

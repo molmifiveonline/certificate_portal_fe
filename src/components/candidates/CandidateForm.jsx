@@ -324,7 +324,7 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white px-10 py-3.5 rounded-full font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 w-full md:w-auto text-lg flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        className={`bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-10 py-3.5 rounded-full font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 w-full md:w-auto text-lg flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
                         <span>{isSubmitting ? 'Processing...' : submitLabel}</span>
                         {!isSubmitting && <ArrowRight size={20} />}

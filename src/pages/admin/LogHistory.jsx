@@ -126,7 +126,7 @@ const LogHistory = () => {
                 </div>
                 <button
                     onClick={handleRefresh}
-                    className="bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-600 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2"
+                    className="bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-2"
                 >
                     <RotateCw className="w-4 h-4" />
                     Refresh Logs
@@ -161,12 +161,12 @@ const LogHistory = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date/Time</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Details</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">IP Address</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Date/Time</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Action</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Details</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">User</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">IP Address</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100/50">

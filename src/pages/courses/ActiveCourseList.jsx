@@ -216,7 +216,7 @@ const ActiveCourseList = () => {
                         <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
                         <button
                             onClick={handleExport}
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all">
+                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-bold transition-all">
                             <Download className="w-4 h-4" />
                             Export
                         </button>

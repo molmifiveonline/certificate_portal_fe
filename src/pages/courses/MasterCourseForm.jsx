@@ -7,6 +7,7 @@ import api from '../../lib/api';
 import { Save, ArrowLeft, GraduationCap } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import BackButton from '../../components/common/BackButton';
 
 const MasterCourseForm = () => {
     const { id } = useParams();
@@ -122,13 +123,7 @@ const MasterCourseForm = () => {
                             </p>
                         </div>
                     </div>
-                    <Link
-                        to="/courses"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to List
-                    </Link>
+                    <BackButton to="/courses" />
                 </div>
             </div>
 

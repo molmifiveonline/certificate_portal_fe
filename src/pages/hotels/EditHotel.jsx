@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import HotelForm from './HotelForm';
 import hotelService from '../../services/hotelService';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import BackButton from '../../components/common/BackButton';
 
 const EditHotel = () => {
     const { id } = useParams();
@@ -83,13 +84,7 @@ const EditHotel = () => {
                             <p className="text-slate-500 mt-1">Update details for {hotel?.venue_name}</p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => navigate('/hotel-details')}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to List
-                    </button>
+                    <BackButton to="/hotel-details" />
                 </div>
 
                 {/* Form Container */}

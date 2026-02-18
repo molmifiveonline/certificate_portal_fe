@@ -7,6 +7,7 @@ import { TRAINER_NATIONALITY_OPTIONS, PREFIX_OPTIONS } from '../../lib/constants
 import { Users, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
+import BackButton from '../../components/common/BackButton';
 
 const CreateTrainer = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -156,13 +157,7 @@ const CreateTrainer = () => {
                             <p className="text-sm text-slate-500">Fill in the details to register a new trainer</p>
                         </div>
                     </div>
-                    <Link
-                        to="/trainers"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to List
-                    </Link>
+                    <BackButton to="/trainers" />
                 </div>
             </div>
 
@@ -264,7 +259,7 @@ const CreateTrainer = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-semibold shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`flex items-center space-x-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-lg font-semibold shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 <Save size={18} />
                                 <span>{isSubmitting ? 'Creating...' : 'Create Trainer'}</span>

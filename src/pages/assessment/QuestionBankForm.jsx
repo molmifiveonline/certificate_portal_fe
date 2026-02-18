@@ -5,6 +5,7 @@ import api from '../../lib/api';
 import questionBankService from '../../services/questionBankService';
 import { Save, ArrowLeft, BookOpen } from 'lucide-react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import BackButton from '../../components/common/BackButton';
 
 const QuestionBankForm = () => {
     const { id } = useParams();
@@ -280,13 +281,7 @@ const QuestionBankForm = () => {
                             <p className="text-sm text-slate-500">Fill in the details to {isEditMode ? "update" : "create"} a question</p>
                         </div>
                     </div>
-                    <Link
-                        to="/assessment/question-bank"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to List
-                    </Link>
+                    <BackButton to="/assessment/question-bank" />
                 </div>
             </div>
 

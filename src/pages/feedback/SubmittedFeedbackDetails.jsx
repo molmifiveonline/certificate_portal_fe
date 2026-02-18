@@ -5,6 +5,7 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Meta from "../../components/common/Meta";
 import { ArrowLeft, User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
+import BackButton from '../../components/common/BackButton';
 
 const SubmittedFeedbackDetails = () => {
     const { candidateId, activeCourseId } = useParams();
@@ -46,12 +47,7 @@ const SubmittedFeedbackDetails = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                    <Link
-                        to="/feedback/submitted"
-                        className="p-2 rounded-xl bg-white/50 border border-slate-200/60 hover:bg-white/80 transition-all text-slate-600"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </Link>
+                    <BackButton to="/feedback/submitted" />
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                             Feedback Details

@@ -53,7 +53,7 @@ const DataTable = ({
                     <thead>
                         <tr className="bg-white/40 border-b border-slate-200/60">
                             {serialNumber && (
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-left">
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-left">
                                     Sr. No.
                                 </th>
                             )}
@@ -65,7 +65,7 @@ const DataTable = ({
                                     return (
                                         <th
                                             key={col.key}
-                                            className={cn("px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none", alignCls, responsiveCls)}
+                                            className={cn("px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none", alignCls, responsiveCls)}
                                             onClick={() => onSort(col.key)}
                                         >
                                             <div className={`flex items-center ${col.align === "right" ? "justify-end" : col.align === "center" ? "justify-center" : ""}`}>
@@ -78,7 +78,7 @@ const DataTable = ({
                                 return (
                                     <th
                                         key={col.key}
-                                        className={cn("px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider", alignCls, responsiveCls)}
+                                        className={cn("px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider", alignCls, responsiveCls)}
                                     >
                                         {col.label}
                                     </th>

@@ -47,22 +47,22 @@ export const MenuItems = [
       { title: "Other Candidates", url: "/candidates/others" },
     ],
   },
-  // {
-  //   title: "Trainers",
-  //   url: "/trainers",
-  //   icon: GraduationCap,
-  //   allowedRoles: ["admin", "superadmin"],
-  // },
   {
-    title: "Courses",
-    url: "/courses",
-    icon: BookOpen,
+    title: "Trainers",
+    url: "/trainers",
+    icon: GraduationCap,
     allowedRoles: ["admin", "superadmin"],
-    subItems: [
-      { title: "Master Courses", url: "/courses" },
-      { title: "Active Courses", url: "/active-courses" },
-    ],
   },
+  // {
+  //   title: "Courses",
+  //   url: "/courses",
+  //   icon: BookOpen,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Master Courses", url: "/courses" },
+  //     { title: "Active Courses", url: "/active-courses" },
+  //   ],
+  // },
   // {
   //   title: "Hotel Details",
   //   url: "/hotel-details",
@@ -75,17 +75,17 @@ export const MenuItems = [
   //   icon: MapPin,
   //   allowedRoles: ["admin", "superadmin"],
   // },
-  {
-    title: "Assessment",
-    url: "/assessment",
-    icon: ClipboardList,
-    allowedRoles: ["admin", "superadmin"],
-    subItems: [
-      { title: "Question Bank", url: "/assessment/question-bank" },
-      { title: "Assessments", url: "/assessment/assessments" },
-      { title: "Submitted Assessments", url: "/assessment/submitted" },
-    ],
-  },
+  // {
+  //   title: "Assessment",
+  //   url: "/assessment",
+  //   icon: ClipboardList,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Question Bank", url: "/assessment/question-bank" },
+  //     { title: "Assessments", url: "/assessment/assessments" },
+  //     { title: "Submitted Assessments", url: "/assessment/submitted" },
+  //   ],
+  // },
 
   // {
   //   title: "Feedback",
@@ -104,13 +104,12 @@ export const MenuItems = [
   //   icon: Award,
   //   allowedRoles: ["admin", "superadmin"],
   // },
-  // {
-  //   title: "Report",
-  //   url: "/reports",
-  //   icon: FileBarChart,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [{ title: "General Report", url: "/reports/general" }],
-  // },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: FileBarChart,
+    allowedRoles: ["admin", "superadmin"],
+  },
   // {
   //   title: "Role Permissions",
   //   url: "/admin/role-permissions",

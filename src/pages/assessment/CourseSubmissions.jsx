@@ -9,6 +9,7 @@ import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
 import { formatDate } from "../../lib/utils/dateUtils";
+import BackButton from '../../components/common/BackButton';
 
 const CourseSubmissions = () => {
     const { courseId } = useParams();
@@ -148,12 +149,7 @@ const CourseSubmissions = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                    <Link
-                        to="/assessment/submitted"
-                        className="p-2 rounded-xl bg-white/50 border border-slate-200/60 hover:bg-white/80 transition-all text-slate-600"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </Link>
+                    <BackButton to="/assessment/submitted" />
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                             Candidate Submissions

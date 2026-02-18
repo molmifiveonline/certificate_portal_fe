@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
+import { Button, buttonVariants } from "../../components/ui/button";
+import { cn } from "../../lib/utils/utils";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 
@@ -166,7 +168,7 @@ const MasterCourseList = () => {
                 </div>
                 <Link
                     to="/courses/add"
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    className={cn(buttonVariants({ variant: "default" }), "px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95 h-auto")}
                 >
                     <Plus className="w-4 h-4" />
                     Add Master Course
@@ -188,17 +190,22 @@ const MasterCourseList = () => {
                     </div>
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={handleExport}
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all">
-                            <Download className="w-4 h-4" />
+                            className="h-10 px-4 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600 font-bold"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
                             Export
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="icon"
                             onClick={fetchCourses}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
+                            className="h-10 w-10 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600"
+                        >
                             <RefreshCcw className="w-4 h-4" />
-                        </button>
+                        </Button>
                     </div>
                 </CardContent>
             </Card>

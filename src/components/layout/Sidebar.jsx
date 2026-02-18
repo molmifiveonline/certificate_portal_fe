@@ -137,7 +137,7 @@ const Sidebar = () => {
                                                 ? "px-4 gap-3 justify-between"
                                                 : "justify-center",
                                             (isActive || isParentActive)
-                                                ? "text-[#3a5f9e] bg-slate-50"
+                                                ? (!isOpen ? "bg-[#3a5f9e] text-white shadow-md shadow-blue-900/10" : "text-[#3a5f9e] bg-slate-50")
                                                 : "text-slate-600 hover:bg-slate-50 hover:text-[#3a5f9e]",
                                         )}
                                     >
@@ -146,7 +146,7 @@ const Sidebar = () => {
                                                 className={cn(
                                                     "transition-all duration-200 shrink-0",
                                                     (isActive || isParentActive)
-                                                        ? "text-[#3a5f9e]"
+                                                        ? (!isOpen ? "text-white" : "text-[#3a5f9e]")
                                                         : "text-slate-500 group-hover:text-[#3a5f9e]",
                                                 )}
                                                 size={22}
@@ -214,7 +214,7 @@ const Sidebar = () => {
                                                     className={cn(
                                                         "flex items-center py-2 px-3 rounded-md text-sm transition-colors",
                                                         isSubActive
-                                                            ? "text-[#3a5f9e] bg-blue-50 font-medium"
+                                                            ? "text-[#3a5f9e] bg-blue-100 font-bold shadow-sm ring-1 ring-blue-200"
                                                             : "text-slate-500 hover:text-[#3a5f9e] hover:bg-slate-50"
                                                     )}
                                                 >

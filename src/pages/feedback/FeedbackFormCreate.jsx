@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import feedbackFormService from "../../services/feedbackFormService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import BackButton from '../../components/common/BackButton';
 
 const MultiSelect = ({ options, selectedValues, onChange, placeholder = "Select..." }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -257,12 +258,7 @@ const FeedbackFormCreate = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 pt-6">
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate("/feedback/forms")}
-                            className="p-2 rounded-xl bg-white/50 border border-slate-200/60 text-slate-500 hover:text-slate-700 hover:bg-white/80 transition-all"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                        </button>
+                        <BackButton to="/feedback/forms" />
                         <div>
                             <h1 className="text-2xl font-bold text-slate-800">
                                 {isEditMode ? "Edit Feedback Form" : "Create Feedback Form"}

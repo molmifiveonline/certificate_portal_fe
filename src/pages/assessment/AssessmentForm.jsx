@@ -6,6 +6,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
 import { ASSESSMENT_TYPES, QUESTION_COUNTS, QUESTION_CHOICES } from "../../lib/constants";
+import BackButton from '../../components/common/BackButton';
 
 const AssessmentForm = () => {
     const navigate = useNavigate();
@@ -279,13 +280,7 @@ const AssessmentForm = () => {
                             {isEdit ? 'Update assessment details and configuration' : 'Configure and publish a new assessment'}
                         </p>
                     </div>
-                    <Link
-                        to="/assessment/assessments"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to List
-                    </Link>
+                    <BackButton to="/assessment/assessments" />
                 </div>
             </div>
 
@@ -511,7 +506,7 @@ const AssessmentForm = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`flex items-center space-x-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
                             <Save size={18} />
                             <span>{loading ? "Saving..." : isEdit ? "Update Assessment" : "Save Assessment"}</span>

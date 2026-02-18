@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import api from '../../lib/api';
 import CandidateForm from '../../components/candidates/CandidateForm';
 import { Card, CardContent } from "../../components/ui/card";
+import BackButton from '../../components/common/BackButton';
 
 const AddCandidate = () => {
     const navigate = useNavigate();
@@ -72,13 +73,7 @@ const AddCandidate = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Add New Candidate</h1>
                     <p className="text-slate-500 mt-1">Register a new candidate manually</p>
                 </div>
-                <Link
-                    to="/candidates/molmi"
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
-                >
-                    <ChevronLeft className="w-4 h-4" />
-                    Back to List
-                </Link>
+                <BackButton to="/candidates/molmi" />
             </div>
 
             <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">
