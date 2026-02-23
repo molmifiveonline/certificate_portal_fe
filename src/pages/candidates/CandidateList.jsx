@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button, buttonVariants } from "../../components/ui/button";
 import { cn } from "../../lib/utils/utils";
+import { formatDate } from "../../lib/utils/dateUtils";
 import candidateService from "../../services/candidateService";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
@@ -78,7 +79,7 @@ const CandidateList = ({ registrationType }) => {
 
             setCandidates(result.data);
             setTotalPages(result.totalPages);
-            setTotalCount(result.totalCount);
+            setTotalCount(result.total);
         } catch (error) {
             console.error("Error fetching candidates:", error);
             toast.error("Failed to load candidates");
@@ -207,7 +208,7 @@ const CandidateList = ({ registrationType }) => {
                 key: "created_at",
                 label: "Date",
                 sortable: true,
-                render: (val) => val ? new Date(val).toLocaleDateString('en-GB') : '-',
+                render: (val) => formatDate(val),
             },
             {
                 key: "nationality",
@@ -273,7 +274,7 @@ const CandidateList = ({ registrationType }) => {
                         {isSyncing ? 'Syncing...' : 'Sync API'}
                     </Button>
 
-                    <label className={cn(buttonVariants({ variant: "outline" }), "cursor-pointer bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95 h-10")}>
+                    {/* <label className={cn(buttonVariants({ variant: "outline" }), "cursor-pointer bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95 h-10")}>
                         <Upload className="w-4 h-4 text-blue-600" />
                         Upload
                         <input
@@ -283,7 +284,7 @@ const CandidateList = ({ registrationType }) => {
                             onChange={handleFileUpload}
                             disabled={isUploading}
                         />
-                    </label>
+                    </label> */}
 
                     <Button
                         onClick={() => navigate('/candidates/add')}
@@ -422,7 +423,7 @@ const CandidateList = ({ registrationType }) => {
                     {
                         key: 'dob',
                         label: 'DOB',
-                        render: (val) => val ? new Date(val).toLocaleDateString() : "-"
+                        render: (val) => formatDate(val)
                     },
                     { key: 'nationality', label: 'Nationality' },
                     { key: 'passport_no', label: 'Passport No.' },

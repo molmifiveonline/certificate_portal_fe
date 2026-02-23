@@ -67,7 +67,7 @@ const FeedbackQuestionList = () => {
 
             setQuestions(result.data);
             setTotalPages(result.totalPages);
-            setTotalCount(result.totalCount);
+            setTotalCount(result.total);
         } catch (error) {
             console.error("Error fetching questions:", error);
             toast.error("Failed to load feedback questions");

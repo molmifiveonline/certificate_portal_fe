@@ -45,7 +45,7 @@ const getQuestionsByCourse = async (courseId, typeOfTest = null) => {
 };
 
 // Submitted Assessment APIs
-const getSubmittedCourses = async (params = {}) => {
+const getSubmittedCourses = async (params) => {
   const response = await api.get("/assessment/submitted-courses", { params });
   return response.data;
 };
@@ -57,9 +57,32 @@ const getCourseSubmissions = async (courseId, params = {}) => {
   return response.data;
 };
 
+const getAssessmentsByCourse = async (courseId, params) => {
+  const response = await api.get(`/assessment/course/${courseId}/assessments`, {
+    params,
+  });
+  return response.data;
+};
+
+const getAssessmentSubmissions = async (assessmentId, params) => {
+  const response = await api.get(
+    `/assessment/assessment/${assessmentId}/submissions`,
+    { params },
+  );
+  return response.data;
+};
+
 const getSubmissionDetail = async (resultId) => {
   const response = await api.get(`/assessment/submission/${resultId}`);
   return response.data;
+};
+
+const exportSubmittedAssessments = async (params = {}) => {
+  const response = await api.get("/assessment/export-submitted", {
+    params,
+    responseType: "blob",
+  });
+  return response;
 };
 
 const assessmentService = {
@@ -74,6 +97,9 @@ const assessmentService = {
   getSubmittedCourses,
   getCourseSubmissions,
   getSubmissionDetail,
+  exportSubmittedAssessments,
+  getAssessmentsByCourse,
+  getAssessmentSubmissions,
 };
 
 export default assessmentService;

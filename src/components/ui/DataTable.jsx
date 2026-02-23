@@ -30,6 +30,7 @@ const DataTable = ({
     sortOrder,
     onSort,
     rowKey = "id",
+    rowClassName,
 }) => {
     const totalColumns = columns.length + (serialNumber ? 1 : 0);
 
@@ -104,7 +105,13 @@ const DataTable = ({
                             </tr>
                         ) : (
                             data.map((row, idx) => (
-                                <tr key={row[rowKey] || idx} className="hover:bg-white/40 transition-colors">
+                                <tr
+                                    key={row[rowKey] || idx}
+                                    className={cn(
+                                        "hover:bg-white/40 transition-colors border-b border-slate-100/50",
+                                        rowClassName ? rowClassName(row) : ""
+                                    )}
+                                >
                                     {serialNumber && (
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
                                             {(currentPage - 1) * limit + idx + 1}

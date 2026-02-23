@@ -29,15 +29,15 @@ const LogHistory = () => {
         setLoading(true);
         try {
             const response = await logService.getLogs({ page, limit, search });
-            // API returns { data: [], meta: { total, page, limit, totalPages } }
-            // Or if it returns just array, we need to handle that.
-            // Based on my LogDao update, it returns { data, meta }
-
-            if (response.data && response.meta) {
+            // API returns { data: [], total, page, limit, totalPages }
+            if (response.data && response.total !== undefined) {
+                setLogs(response.data);
+                setTotalLogs(response.total);
+            } else if (response.data && response.meta) {
+                // Legacy fallback
                 setLogs(response.data);
                 setTotalLogs(response.meta.total);
             } else {
-                // Fallback if API structure is different (e.g. old array format)
                 setLogs(Array.isArray(response) ? response : []);
                 setTotalLogs(Array.isArray(response) ? response.length : 0);
             }

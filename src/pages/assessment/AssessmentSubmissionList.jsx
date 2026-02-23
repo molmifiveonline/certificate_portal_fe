@@ -11,17 +11,21 @@ import { toast } from "sonner";
 import { formatDate } from "../../lib/utils/dateUtils";
 import BackButton from '../../components/common/BackButton';
 
-const CourseSubmissions = () => {
-    const { courseId } = useParams();
-    const [assessments, setAssessments] = useState([]);
+const AssessmentSubmissionList = () => {
+    const { courseId, assessmentId } = useParams();
+    const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [activeTab, setActiveTab] = useState("3"); // Default to Daily (3)
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const [limit, setLimit] = useState(10);
 
     const updateDebouncedSearch = useCallback(
         debounce((value) => {
             setDebouncedSearch(value);
+            setPage(1);
         }, 500),
         []
     );
@@ -30,36 +34,36 @@ const CourseSubmissions = () => {
         updateDebouncedSearch(searchTerm);
     }, [searchTerm, updateDebouncedSearch]);
 
-    const fetchAssessments = useCallback(async () => {
+    const fetchSubmissions = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await assessmentService.getAssessmentsByCourse(
-                courseId,
+            const response = await assessmentService.getAssessmentSubmissions(
+                assessmentId,
                 {
-                    type_of_test: activeTab,
+                    page,
+                    limit,
                     search: debouncedSearch,
                 }
             );
-            setAssessments(response.data || []);
+            setSubmissions(response.data || []);
+            setTotalPages(response.totalPages || 1);
+            setTotalCount(response.totalCount || 0);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to fetch assessments.");
+            toast.error("Failed to fetch submissions.");
         } finally {
             setLoading(false);
         }
-    }, [courseId, debouncedSearch, activeTab]);
+    }, [assessmentId, page, limit, debouncedSearch]);
 
     useEffect(() => {
-        fetchAssessments();
-    }, [fetchAssessments]);
+        fetchSubmissions();
+    }, [fetchSubmissions]);
 
+    const assessmentTitle =
+        submissions.length > 0 ? submissions[0].assessment_title : "Assessment";
     const courseName =
-        assessments.length > 0 ? assessments[0].course_name : "Course";
-
-    const getTypeLabel = (type) => {
-        const labels = { "1": "Pre Course", "2": "Post Course", "3": "Daily" };
-        return labels[type] || type || "N/A";
-    };
+        submissions.length > 0 ? submissions[0].course_name : "Course";
 
     const getScoreBadgeClass = (score) => {
         if (score >= 80) return "bg-green-100 text-green-800";
@@ -69,22 +73,43 @@ const CourseSubmissions = () => {
 
     const columns = [
         {
-            key: "title",
-            label: "Assessment Title",
-            render: (val) => val || "N/A",
-        },
-        {
-            key: "type_of_test",
-            label: "Type",
-            render: (val) => (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                    {getTypeLabel(val)}
+            key: "first_name",
+            label: "Candidate Name",
+            render: (_val, row) => (
+                <span className="font-medium text-slate-700">
+                    {row.first_name} {row.last_name}
                 </span>
             ),
         },
         {
+            key: "email",
+            label: "Email",
+            render: (val) => (
+                <span className="text-slate-500 text-sm">{val}</span>
+            ),
+        },
+        {
+            key: "score",
+            label: "Score",
+            render: (val, row) => (
+                <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${getScoreBadgeClass(parseFloat(val))}`}
+                >
+                    {val != null ? `${val}%` : "N/A"} ({row.correct_answers}/
+                    {row.total_questions})
+                </span>
+            ),
+        },
+        {
+            key: "attempt_number",
+            label: "Attempt",
+            render: (val) => (
+                <span className="text-slate-600">#{val}</span>
+            ),
+        },
+        {
             key: "created_at",
-            label: "Created On",
+            label: "Submitted On",
             render: (val) =>
                 val ? formatDate(val) : "N/A",
         },
@@ -95,9 +120,9 @@ const CourseSubmissions = () => {
             render: (_val, row) => (
                 <div className="flex items-center justify-center gap-2">
                     <Link
-                        to={`/assessment/submitted/${courseId}/${row.id}`}
+                        to={`/assessment/submission/${row.result_id}`}
                         className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all inline-block"
-                        title="View Candidates"
+                        title="View Details"
                     >
                         <Eye className="w-4 h-4" />
                     </Link>
@@ -109,53 +134,23 @@ const CourseSubmissions = () => {
     return (
         <div className="flex-1 overflow-y-auto">
             <Meta
-                title={`Submissions - ${courseName}`}
+                title={`Submissions - ${assessmentTitle}`}
                 description="View candidate submissions"
             />
 
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                    <BackButton to="/assessment/submitted" />
+                    <BackButton to={`/assessment/submitted/${courseId}`} />
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                            Submitted Assessment Candidates
+                            Candidate Submissions
                         </h1>
                         <p className="text-slate-500 text-sm mt-0.5">
-                            {courseName}
+                            {courseName} - {assessmentTitle}
                         </p>
                     </div>
                 </div>
-            </div>
-
-            <div className="mb-6 flex gap-2 border-b border-slate-200">
-                <button
-                    onClick={() => setActiveTab("3")}
-                    className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 ${activeTab === "3"
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-slate-500 hover:text-slate-700"
-                        }`}
-                >
-                    Daily assessment
-                </button>
-                <button
-                    onClick={() => setActiveTab("1")}
-                    className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 ${activeTab === "1"
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-slate-500 hover:text-slate-700"
-                        }`}
-                >
-                    Pre assessment
-                </button>
-                <button
-                    onClick={() => setActiveTab("2")}
-                    className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 ${activeTab === "2"
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-slate-500 hover:text-slate-700"
-                        }`}
-                >
-                    Post assessment
-                </button>
             </div>
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
@@ -173,8 +168,8 @@ const CourseSubmissions = () => {
                         </div>
                         <div className="flex gap-3 w-full md:w-auto items-center">
                             <span className="text-xs text-slate-400">
-                                {assessments.length} assessment
-                                {assessments.length !== 1 ? "s" : ""}
+                                {totalCount} submission
+                                {totalCount !== 1 ? "s" : ""}
                             </span>
                         </div>
                     </div>
@@ -184,13 +179,27 @@ const CourseSubmissions = () => {
             {/* Table */}
             <DataTable
                 columns={columns}
-                data={assessments}
+                data={submissions}
                 loading={loading}
-                emptyMessage="No assessments found for this course."
-                rowKey="id"
+                emptyMessage="No submissions found for this assessment."
+                currentPage={page}
+                limit={limit}
+                rowKey="result_id"
+            />
+
+            <TablePagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                onPageChange={setPage}
+                limit={limit}
+                onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setPage(1);
+                }}
             />
         </div>
     );
 };
 
-export default CourseSubmissions;
+export default AssessmentSubmissionList;

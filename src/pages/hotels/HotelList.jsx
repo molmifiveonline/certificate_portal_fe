@@ -52,7 +52,7 @@ const HotelList = () => {
                 const result = response.data;
                 setHotels(Array.isArray(result.data) ? result.data : []);
                 setTotalPages(result.totalPages || 1);
-                setTotalCount(result.totalCount || 0);
+                setTotalCount(result.total || 0);
                 setCurrentPage(result.page || 1);
             } else {
                 setHotels([]);

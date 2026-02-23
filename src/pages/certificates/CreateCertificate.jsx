@@ -1,0 +1,428 @@
+import React, { useState, useEffect } from "react";
+import Meta from "../../components/common/Meta";
+import { useNavigate } from "react-router-dom";
+import { Award, ChevronLeft, Save, Users } from "lucide-react";
+import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import BackButton from "../../components/common/BackButton";
+import CandidateSelectionModal from "./CandidateSelectionModal";
+import api from "../../lib/api";
+import candidateService from "../../services/candidateService";
+import activeCourseService from "../../services/activeCourseService";
+import certificateService from "../../services/certificateService";
+import { toast } from "sonner";
+
+const CreateCertificate = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [candidates, setCandidates] = useState([]);
+    const [masterCourses, setMasterCourses] = useState([]);
+    const [activeCourses, setActiveCourses] = useState([]);
+    const [trainers, setTrainers] = useState([]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [formData, setFormData] = useState({
+        candidate_ids: [],
+        course_id: "", // Master Course ID
+        active_course_id: "",
+        trainer_id: "",
+        type: "Others",
+        topic: "",
+        course_level: "Operational",
+        location: "",
+        course_conduct: "ONS",
+        from_date: "",
+        to_date: "",
+        issue_date: new Date().toISOString().split('T')[0],
+        days: 0,
+        remarks: "",
+        description1: "",
+        show_logo: 1,
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [candRes, mcRes, acRes, trRes] = await Promise.all([
+                    candidateService.getAllCandidates({ limit: 1000 }),
+                    api.get('/master-courses', { params: { limit: 1000 } }),
+                    activeCourseService.getAllCourses({ limit: 1000 }),
+                    api.get('/trainer', { params: { limit: 1000 } })
+                ]);
+
+                setCandidates(candRes.data || []);
+                setMasterCourses(mcRes.data?.data || []);
+                setActiveCourses(acRes.data || []);
+                setTrainers(trRes.data?.data || []);
+            } catch (err) {
+                console.error("Error fetching form data:", err);
+                toast.error("Failed to load required data.");
+            }
+        };
+        fetchData();
+    }, []);
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+
+        if (type === 'checkbox') {
+            setFormData(prev => ({ ...prev, [name]: checked }));
+            return;
+        }
+
+        setFormData(prev => {
+            const newData = { ...prev, [name]: value };
+
+            // Auto-fill topic if master course changes
+            if (name === 'course_id') {
+                const selectedCourse = masterCourses.find(c => c.id === value);
+                if (selectedCourse) {
+                    newData.topic = selectedCourse.topic;
+                    newData.type = selectedCourse.certificate_type || "Others";
+                    newData.description1 = selectedCourse.description;
+                }
+            }
+
+            // Auto-fill dates if active course changes
+            if (name === 'active_course_id') {
+                const selectedActive = activeCourses.find(c => c.id === value);
+                if (selectedActive) {
+                    newData.from_date = selectedActive.start_date?.split('T')[0] || "";
+                    newData.to_date = selectedActive.end_date?.split('T')[0] || "";
+                    newData.days = selectedActive.no_of_days || 0;
+                    newData.location = selectedActive.type_of_location || "";
+                    newData.course_conduct = selectedActive.type_of_location === "Online" ? "ONL" : "ONS";
+                    newData.trainer_id = selectedActive.primary_trainer_id || prev.trainer_id;
+                    if (!newData.course_id) newData.course_id = selectedActive.master_course_id;
+                    if (!newData.topic) newData.topic = selectedActive.topic;
+                }
+            }
+
+            return newData;
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Validation for multiple candidates
+        if (formData.candidate_ids.length === 0) {
+            toast.error("Please select at least one candidate.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // Clean up empty optional fields
+            const submitData = { ...formData };
+            if (!submitData.active_course_id) delete submitData.active_course_id;
+
+            // Map frontend candidate_ids back to candidate_id for API compatibility
+            submitData.candidate_id = submitData.candidate_ids;
+            delete submitData.candidate_ids;
+
+            // Convert booleans to 1/0 for backend
+            submitData.show_logo = submitData.show_logo ? 1 : 0;
+            submitData.sample_cert = submitData.sample_cert ? 1 : 0;
+
+            await certificateService.createManualCertificate(submitData);
+            toast.success("Certificates created successfully");
+            navigate("/certificates");
+        } catch (err) {
+            console.error("Error creating certificates:", err);
+            toast.error(err.response?.data?.message || "Failed to create certificates");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="flex-1 overflow-y-auto w-full">
+            <Meta title="Add Certificate" description="Create a manual certificate" />
+
+            <div className="flex items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                        <div className="bg-blue-100 p-2 rounded-xl">
+                            <Award className="w-8 h-8 text-blue-600" />
+                        </div>
+                        Add Certificate
+                    </h1>
+                    <p className="text-slate-500 mt-1">Create a new certificate manually</p>
+                </div>
+                <BackButton to="/certificates" />
+            </div>
+
+            <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden mb-8">
+                <CardContent className="p-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Candidate Selection array via Modal */}
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-sm font-semibold text-slate-700">Candidates <span className="text-red-500">*</span></label>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsModalOpen(true)}
+                                        className="h-11 px-6 border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl"
+                                    >
+                                        <Users className="w-4 h-4 mr-2" />
+                                        Select Candidates
+                                    </Button>
+
+                                    <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 min-h-11 flex items-center">
+                                        {formData.candidate_ids.length > 0 ? (
+                                            <span className="text-sm text-slate-700 font-medium">
+                                                {formData.candidate_ids.length} candidate(s) selected
+                                            </span>
+                                        ) : (
+                                            <span className="text-sm text-slate-500 italic">No candidates selected for batch creation</span>
+                                        )}
+                                    </div>
+                                </div>
+                                {formData.candidate_ids.length === 0 && (
+                                    <p className="text-xs text-amber-600 mt-1">Please select at least one candidate.</p>
+                                )}
+                            </div>
+
+                            {/* Active Course Selection (Optional but helpful) */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Link to Active Course (Optional)</label>
+                                <select
+                                    name="active_course_id"
+                                    value={formData.active_course_id}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                >
+                                    <option value="">Select Active Course (Auto-fills details)</option>
+                                    {activeCourses.map(c => (
+                                        <option key={c.id} value={c.id}>{c.course_id} - {c.course_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Master Course Selection */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Master Course <span className="text-red-500">*</span></label>
+                                <select
+                                    name="course_id"
+                                    value={formData.course_id}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                >
+                                    <option value="">Select Master Course</option>
+                                    {masterCourses.map(c => (
+                                        <option key={c.id} value={c.id}>{c.master_course_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Trainer Selection */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Trainer <span className="text-red-500">*</span></label>
+                                <select
+                                    name="trainer_id"
+                                    value={formData.trainer_id}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                >
+                                    <option value="">Select Trainer</option>
+                                    {trainers.map(t => (
+                                        <option key={t.id} value={t.id}>{t.prefix} {t.first_name} {t.last_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Type */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Certificate Type</label>
+                                <select
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                >
+                                    <option value="Others">Others</option>
+                                    <option value="DNV-ST0029">DNV-ST0029</option>
+                                    <option value="DNV-ST008">DNV-ST008</option>
+                                    <option value="SIGTTO / LNG">SIGTTO / LNG</option>
+                                </select>
+                            </div>
+
+                            {/* Topic */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Topic/Task <span className="text-red-500">*</span></label>
+                                <input
+                                    type="text"
+                                    name="topic"
+                                    value={formData.topic}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="e.g. Navigation, Engineering"
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                />
+                            </div>
+
+                            {/* Level */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Course Level</label>
+                                <select
+                                    name="course_level"
+                                    value={formData.course_level}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                >
+                                    <option value="Operational">Operational</option>
+                                    <option value="Management">Management</option>
+                                    <option value="Support">Support</option>
+                                </select>
+                            </div>
+
+                            {/* Conduct */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Course Conduct</label>
+                                <select
+                                    name="course_conduct"
+                                    value={formData.course_conduct}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                >
+                                    <option value="ONS">ONS (Onsite)</option>
+                                    <option value="ONL">ONL (Online)</option>
+                                </select>
+                            </div>
+
+                            {/* Dates */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">From Date</label>
+                                <input
+                                    type="date"
+                                    name="from_date"
+                                    value={formData.from_date}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">To Date</label>
+                                <input
+                                    type="date"
+                                    name="to_date"
+                                    value={formData.to_date}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Issue Date</label>
+                                <input
+                                    type="date"
+                                    name="issue_date"
+                                    value={formData.issue_date}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Days</label>
+                                <input
+                                    type="number"
+                                    name="days"
+                                    value={formData.days}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                />
+                            </div>
+
+                            {/* Options */}
+                            <div className="flex gap-6 mt-4 md:col-span-2">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        name="show_logo"
+                                        checked={formData.show_logo}
+                                        onChange={handleChange}
+                                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                    />
+                                    <span className="text-sm font-semibold text-slate-700">Display Logo</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        name="sample_cert"
+                                        checked={formData.sample_cert}
+                                        onChange={handleChange}
+                                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                    />
+                                    <span className="text-sm font-semibold text-slate-700">Sample Certificate</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Description */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700">Certificate Description</label>
+                            <textarea
+                                name="description1"
+                                value={formData.description1}
+                                onChange={handleChange}
+                                rows={4}
+                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                placeholder="Core content of the certificate..."
+                            />
+                        </div>
+
+                        {/* Remarks */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700">Remarks</label>
+                            <textarea
+                                name="remarks"
+                                value={formData.remarks}
+                                onChange={handleChange}
+                                rows={2}
+                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                placeholder="Any internal remarks..."
+                            />
+                        </div>
+
+                        <div className="flex justify-end pt-4 gap-3">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => navigate(-1)}
+                                className="px-6 rounded-xl"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={loading}
+                                className="px-8 rounded-xl shadow-lg shadow-blue-500/30 flex items-center gap-2"
+                            >
+                                <Save className="w-4 h-4" />
+                                {loading ? "Creating..." : "Create Certificate"}
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+
+            <CandidateSelectionModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                candidates={candidates}
+                selectedIds={formData.candidate_ids}
+                onSelectionChange={(ids) => setFormData(prev => ({ ...prev, candidate_ids: ids }))}
+            />
+        </div>
+    );
+};
+
+export default CreateCertificate;

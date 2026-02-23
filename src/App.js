@@ -29,6 +29,19 @@ const HotelList = lazy(() => import("./pages/hotels/HotelList"));
 const CreateHotel = lazy(() => import("./pages/hotels/CreateHotel"));
 const EditHotel = lazy(() => import("./pages/hotels/EditHotel"));
 
+const CertificateList = lazy(
+  () => import("./pages/certificates/CertificateList"),
+);
+const CreateCertificate = lazy(
+  () => import("./pages/certificates/CreateCertificate"),
+);
+const EditCertificate = lazy(
+  () => import("./pages/certificates/EditCertificate"),
+);
+const CertificatePrintView = lazy(
+  () => import("./pages/certificates/CertificatePrintView"),
+);
+
 const MasterCourseList = lazy(() => import("./pages/courses/MasterCourseList"));
 const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
 
@@ -44,6 +57,12 @@ const ReportDashboard = lazy(() => import("./pages/reports/ReportDashboard"));
 const LocationList = lazy(() => import("./pages/locations/LocationList"));
 const CreateLocation = lazy(() => import("./pages/locations/CreateLocation"));
 const EditLocation = lazy(() => import("./pages/locations/EditLocation"));
+
+const NominatorList = lazy(() => import("./pages/nominators/NominatorList"));
+const CreateNominator = lazy(
+  () => import("./pages/nominators/CreateNominator"),
+);
+const EditNominator = lazy(() => import("./pages/nominators/EditNominator"));
 
 const PrivateRoute = lazy(() => import("./components/routes/PrivateRoute"));
 const PublicRoute = lazy(() => import("./components/routes/PublicRoute"));
@@ -82,6 +101,9 @@ const SubmittedAssessmentList = lazy(
 );
 const CourseSubmissions = lazy(
   () => import("./pages/assessment/CourseSubmissions"),
+);
+const AssessmentSubmissionList = lazy(
+  () => import("./pages/assessment/AssessmentSubmissionList"),
 );
 const SubmissionDetail = lazy(
   () => import("./pages/assessment/SubmissionDetail"),
@@ -334,6 +356,32 @@ function App() {
                 }
               />
 
+              {/* Kevin - Nominator Routes */}
+              <Route
+                path="/nominators"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <NominatorList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/nominators/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CreateNominator />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/nominators/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <EditNominator />
+                  </PrivateRoute>
+                }
+              />
+
               {/* Feedback Routes */}
               <Route
                 path="/feedback"
@@ -466,6 +514,39 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <SubmissionDetail />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/certificates"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CertificateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/certificates/create"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CreateCertificate />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/certificates/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <EditCertificate />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/certificates/print/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CertificatePrintView />
                   </PrivateRoute>
                 }
               />

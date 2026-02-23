@@ -3,97 +3,96 @@ import Meta from "../../components/common/Meta";
 import {
     Search,
     Download,
-    Plus,
-    Edit,
-    BookOpen,
+    Award,
+    Printer,
+    Edit2,
+    // Trash2,
 } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
-
-import { Button, buttonVariants } from "../../components/ui/button";
-import { cn } from "../../lib/utils/utils";
+import { Button } from "../../components/ui/button";
 import { formatDate } from "../../lib/utils/dateUtils";
-import api from "../../lib/api";
-import activeCourseService from "../../services/activeCourseService";
+import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
 
-const ActiveCourseList = () => {
+const CertificateList = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [courses, setCourses] = useState([]);
+    const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
-    const [sortBy, setSortBy] = useState("course_name");
-    const [sortOrder, setSortOrder] = useState("asc");
 
     // Filters
     const [statusFilter, setStatusFilter] = useState("");
-    const [dateRange, setDateRange] = useState({ start: "", end: "" });
 
     const navigate = useNavigate();
 
-    const fetchCourses = useCallback(async () => {
+    const fetchCertificates = useCallback(async () => {
         setLoading(true);
         try {
             const params = {
                 page: currentPage,
                 limit,
-                sort_by: sortBy,
-                sort_order: sortOrder,
                 status: statusFilter,
-                from_date: dateRange.start,
-                to_date: dateRange.end
             };
             if (searchTerm.trim()) {
                 params.search = searchTerm.trim();
             }
-            const result = await activeCourseService.getAllCourses(params);
+            const result = await certificateService.getAllCertificates(params);
 
-            setCourses(Array.isArray(result.data) ? result.data : []);
-            setTotalPages(result.totalPages || Math.ceil((result.total || 0) / limit));
-            setTotalCount(result.total || 0);
+            const data = Array.isArray(result) ? result : (result.data || []);
+            const total = result.total || data.length;
+
+            setCertificates(data);
+            setTotalPages(result.totalPages || Math.ceil(total / limit));
+            setTotalCount(total);
         } catch (error) {
-            console.error("Error fetching active courses:", error);
-            toast.error("Failed to load active courses.");
-            setCourses([]);
+            console.error("Error fetching certificates:", error);
+            toast.error("Failed to load certificates.");
+            setCertificates([]);
         } finally {
             setLoading(false);
         }
 
-    }, [currentPage, limit, sortBy, sortOrder, searchTerm, statusFilter, dateRange]);
+    }, [currentPage, limit, searchTerm, statusFilter]);
 
     useEffect(() => {
-        fetchCourses();
-    }, [fetchCourses]);
+        fetchCertificates();
+    }, [fetchCertificates]);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setCurrentPage(1);
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [searchTerm]);
+    // const handleDelete = async (id) => {
+    //     if (!window.confirm("Are you sure you want to delete this certificate?")) return;
+    //     try {
+    //         await certificateService.deleteCertificate(id);
+    //         toast.success("Certificate deleted successfully");
+    //         fetchCertificates();
+    //     } catch (error) {
+    //         console.error("Error deleting certificate:", error);
+    //         toast.error("Failed to delete certificate");
+    //     }
+    // };
 
     const handleExport = async () => {
         try {
-            if (!courses.length) {
-                toast.error('No courses to export');
+            if (!certificates.length) {
+                toast.error('No certificates to export');
                 return;
             }
 
-            const headers = ['Sr No.', 'Course Name', 'Course ID', 'Start Date', 'End Date', 'Status'];
+            const headers = ['Certificate No.', 'Candidate Name', 'Task/Topic', 'Course Name', 'Issue Date', 'Status'];
             const csvContent = [
                 headers.join(','),
-                ...courses.map((course, index) => [
-                    (currentPage - 1) * limit + index + 1,
-                    `"${course.course_name}"`,
-                    course.course_id,
-                    formatDate(course.start_date),
-                    formatDate(course.end_date),
-                    course.status
+                ...certificates.map((cert) => [
+                    cert.certificate_no,
+                    `"${cert.candidate_name}"`,
+                    `"${cert.topic}"`,
+                    `"${cert.master_course_name}"`,
+                    formatDate(cert.issue_date),
+                    cert.status === 0 ? "Valid" : "Invalid"
                 ].join(','))
             ].join('\n');
 
@@ -101,7 +100,7 @@ const ActiveCourseList = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `active - courses - ${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `certificates-${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -112,54 +111,31 @@ const ActiveCourseList = () => {
         }
     };
 
-
-
-
-
-    const handleSort = (column) => {
-        if (sortBy === column) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-        } else {
-            setSortBy(column);
-            setSortOrder("asc");
-        }
-        setCurrentPage(1);
-    };
-
-    const rowClassName = (row) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const start = new Date(row.start_date);
-        const end = new Date(row.end_date);
-
-        // Check if ongoing (start <= today <= end) and status is Active or Initiated (ongoing implies not cancelled/completed usually, or just check dates as requested)
-        if (start <= today && end >= today && !['Cancelled', 'Course Completed'].includes(row.status)) {
-            return "bg-orange-50/50 hover:bg-orange-100/50 border-l-4 border-l-orange-500";
-        }
-        return "";
-    };
-
     const columns = [
         {
-            key: "course_name",
-            label: "Course Name",
+            key: "certificate_no",
+            label: "Certificate No.",
             sortable: true,
             render: (val) => <span className="font-medium text-slate-800">{val}</span>,
         },
         {
-            key: "course_id",
-            label: "Course ID",
+            key: "candidate_name",
+            label: "Candidate Name",
             sortable: true,
         },
         {
-            key: "start_date",
-            label: "Start Date",
+            key: "topic",
+            label: "Topic",
             sortable: true,
-            render: (val) => formatDate(val),
         },
         {
-            key: "end_date",
-            label: "End Date",
+            key: "master_course_name",
+            label: "Course Name",
+            sortable: true,
+        },
+        {
+            key: "issue_date",
+            label: "Issue Date",
             sortable: true,
             render: (val) => formatDate(val),
         },
@@ -169,14 +145,12 @@ const ActiveCourseList = () => {
             sortable: true,
             render: (val) => (
                 <span
-                    className={`px - 2.5 py - 1 rounded - full text - xs font - semibold border ${val === 'Initiated'
-                        ? 'bg-blue-50 text-blue-600 border-blue-100'
-                        : val === 'Completed'
-                            ? 'bg-green-50 text-green-600 border-green-100'
-                            : 'bg-slate-50 text-slate-600 border-slate-100'
-                        } `}
+                    className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${val === 0
+                        ? 'bg-green-50 text-green-600 border-green-100'
+                        : 'bg-red-50 text-red-600 border-red-100'
+                        }`}
                 >
-                    {val}
+                    {val === 0 ? "Valid" : "Invalid"}
                 </span>
             ),
         },
@@ -187,12 +161,26 @@ const ActiveCourseList = () => {
             render: (_val, row) => (
                 <div className="flex items-center justify-end gap-2">
                     <button
-                        onClick={() => navigate(`/active-courses/edit/${row.id}`)}
+                        onClick={() => window.open(`/certificates/print/${row.id}`, '_blank')}
                         className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                        title="Print"
+                    >
+                        <Printer className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => navigate(`/certificates/edit/${row.id}`)}
+                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-all"
                         title="Edit"
                     >
-                        <Edit className="w-4 h-4" />
+                        <Edit2 className="w-4 h-4" />
                     </button>
+                    {/* <button
+                        onClick={() => handleDelete(row.id)}
+                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                        title="Delete"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button> */}
                 </div>
             ),
         },
@@ -200,25 +188,25 @@ const ActiveCourseList = () => {
 
     return (
         <div className="flex-1 overflow-y-auto w-full">
-            <Meta title="Active Courses" description="Manage Active Courses" />
+            <Meta title="Certificates" description="Manage Certificates" />
 
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-xl">
-                            <BookOpen className="w-8 h-8 text-blue-600" />
+                            <Award className="w-8 h-8 text-blue-600" />
                         </div>
-                        Active Courses
+                        Certificates
                     </h1>
-                    <p className="text-slate-500 mt-1">Manage and view all active courses</p>
+                    <p className="text-slate-500 mt-1">Manage and view all generated certificates</p>
                 </div>
                 <Button
-                    onClick={() => navigate('/active-courses/add')}
+                    onClick={() => navigate("/certificates/create")}
                     className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                 >
-                    <Plus className="w-4 h-4" />
-                    Add Course
+                    <Award className="w-4 h-4" />
+                    Add Certificate
                 </Button>
             </div>
 
@@ -229,13 +217,12 @@ const ActiveCourseList = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search courses..."
+                            placeholder="Search certificates..."
                             className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-
 
                     <div className="flex flex-wrap gap-3 items-center">
                         <select
@@ -244,33 +231,13 @@ const ActiveCourseList = () => {
                             className="h-10 px-3 bg-white/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                         >
                             <option value="">All Status</option>
-                            <option value="Initiated">Initiated</option>
-                            <option value="Active">Active</option>
-                            <option value="Course Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
+                            <option value="0">Valid</option>
+                            <option value="1">Invalid</option>
                         </select>
-                        <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10">
-                            <span className="text-xs text-slate-400">From</span>
-                            <input
-                                type="date"
-                                value={dateRange.start}
-                                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                                className="bg-transparent text-sm focus:outline-none w-32"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10">
-                            <span className="text-xs text-slate-400">To</span>
-                            <input
-                                type="date"
-                                value={dateRange.end}
-                                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                                className="bg-transparent text-sm focus:outline-none w-32"
-                            />
-                        </div>
                     </div>
 
                     <div className="flex gap-3 w-full md:w-auto items-center">
-                        <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
+                        <span className="text-xs text-slate-400">{totalCount} certificate{totalCount !== 1 ? 's' : ''}</span>
                         <Button
                             variant="outline"
                             onClick={handleExport}
@@ -286,14 +253,11 @@ const ActiveCourseList = () => {
             {/* Table */}
             <DataTable
                 columns={columns}
-                data={courses}
+                data={certificates}
                 loading={loading}
-                emptyMessage="No active courses found."
+                emptyMessage="No certificates found."
                 currentPage={currentPage}
                 limit={limit}
-                sortOrder={sortOrder}
-                onSort={handleSort}
-                rowClassName={rowClassName}
             />
 
             <TablePagination
@@ -307,10 +271,8 @@ const ActiveCourseList = () => {
                     setCurrentPage(1);
                 }}
             />
-
-
-        </div >
+        </div>
     );
 };
 
-export default ActiveCourseList;
+export default CertificateList;

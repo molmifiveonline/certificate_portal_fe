@@ -48,7 +48,7 @@ const TrainerList = () => {
 
             setTrainers(Array.isArray(result.data) ? result.data : []);
             setTotalPages(result.totalPages || 1);
-            setTotalCount(result.totalCount || 0);
+            setTotalCount(result.total || 0);
             setCurrentPage(result.page || 1);
         } catch (error) {
             console.error("Error fetching trainers:", error);

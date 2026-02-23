@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { Search, Eye, ClipboardList } from "lucide-react";
+import { Search, Eye, ClipboardList, Download } from "lucide-react";
+import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { debounce } from "lodash";
 import assessmentService from "../../services/assessmentService";
@@ -18,6 +19,7 @@ const SubmittedAssessmentList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
+    const [isExporting, setIsExporting] = useState(false);
 
     const updateDebouncedSearch = useCallback(
         debounce((value) => {
@@ -57,6 +59,32 @@ const SubmittedAssessmentList = () => {
     const getTypeLabel = (type) => {
         const labels = { "1": "Pre Course", "2": "Post Course", "3": "Daily" };
         return labels[type] || type || "N/A";
+    };
+
+    const handleExport = async () => {
+        try {
+            setIsExporting(true);
+            const response = await assessmentService.exportSubmittedAssessments({
+                search: debouncedSearch,
+            });
+
+            const blob = new Blob([response.data], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "Submitted_Assessments.xlsx");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            toast.success("Submitted assessments exported successfully");
+        } catch (error) {
+            console.error("Export error:", error);
+            toast.error("Failed to export submitted assessments");
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     const getTypeBadgeClass = (type) => {
@@ -131,6 +159,14 @@ const SubmittedAssessmentList = () => {
                         View assessment submissions by course
                     </p>
                 </div>
+                <Button
+                    onClick={handleExport}
+                    disabled={isExporting}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200"
+                >
+                    <Download className="w-4 h-4 mr-2" />
+                    {isExporting ? "Exporting..." : "Export to Excel"}
+                </Button>
             </div>
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
@@ -177,7 +213,7 @@ const SubmittedAssessmentList = () => {
                     setPage(1);
                 }}
             />
-        </div>
+        </div >
     );
 };
 

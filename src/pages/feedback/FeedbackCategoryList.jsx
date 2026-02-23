@@ -53,7 +53,7 @@ const FeedbackCategoryList = () => {
 
             setCategories(result.data);
             setTotalPages(result.totalPages);
-            setTotalCount(result.totalCount);
+            setTotalCount(result.total);
         } catch (error) {
             console.error("Error fetching categories:", error);
             toast.error("Failed to load feedback categories");

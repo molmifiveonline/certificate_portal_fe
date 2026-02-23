@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/ca
 import Meta from '../../components/common/Meta';
 import api from "../../lib/api";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const StatsCard = ({ title, value, icon: Icon, gradient, loading }) => {
     return (
@@ -342,10 +342,10 @@ const SuperAdminDashboard = () => {
                                                 ) : '-'}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-slate-600">
-                                                {course.start_date ? format(new Date(course.start_date), 'dd/MM/yyyy') : '-'}
+                                                {formatDate(course.start_date)}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-slate-600 hidden md:table-cell">
-                                                {course.end_date ? format(new Date(course.end_date), 'dd/MM/yyyy') : '-'}
+                                                {formatDate(course.end_date)}
                                             </td>
                                             <td className="px-6 py-4 text-sm">
                                                 <span className={cn(
@@ -422,7 +422,7 @@ const SuperAdminDashboard = () => {
                                             <td className="px-6 py-4 text-sm text-slate-600">{alert.course_name}</td>
                                             <td className="px-6 py-4 text-sm text-slate-600 hidden sm:table-cell">{alert.employee_id || '-'}</td>
                                             <td className="px-6 py-4 text-sm text-red-600 font-semibold px-2">
-                                                {alert.certificate_expiry_date ? format(new Date(alert.certificate_expiry_date), 'dd/MM/yyyy') : '-'}
+                                                {formatDate(alert.certificate_expiry_date)}
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <button

@@ -11,6 +11,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button, buttonVariants } from "../../components/ui/button";
 import { cn } from "../../lib/utils/utils";
+import { formatDate } from "../../lib/utils/dateUtils";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 
@@ -46,7 +47,7 @@ const MasterCourseList = () => {
             const result = response.data;
 
             setCourses(Array.isArray(result.data) ? result.data : []);
-            setTotalPages(Math.ceil((result.total || 0) / limit));
+            setTotalPages(result.totalPages || Math.ceil((result.total || 0) / limit));
             setTotalCount(result.total || 0);
         } catch (error) {
             console.error("Error fetching master courses:", error);
@@ -82,7 +83,7 @@ const MasterCourseList = () => {
                     (currentPage - 1) * limit + index + 1,
                     `"${course.topic}"`,
                     `"${course.master_course_name}"`,
-                    new Date(course.created_at).toLocaleDateString()
+                    formatDate(course.created_at)
                 ].join(','))
             ].join('\n');
 
@@ -130,7 +131,7 @@ const MasterCourseList = () => {
             key: "created_at",
             label: "Created At",
             sortable: true,
-            render: (val) => new Date(val).toLocaleDateString(),
+            render: (val) => formatDate(val),
         },
         {
             key: "actions",

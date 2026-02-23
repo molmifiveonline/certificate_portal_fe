@@ -40,7 +40,7 @@ const QuestionBankList = () => {
         try {
             const result = await questionBankService.getQuestions(searchTerm, currentPage, limit);
             setQuestions(Array.isArray(result.data) ? result.data : []);
-            setTotalPages(Math.ceil((result.total || 0) / limit));
+            setTotalPages(result.totalPages || Math.ceil((result.total || 0) / limit));
             setTotalCount(result.total || 0);
         } catch (error) {
             console.error("Error fetching questions:", error);

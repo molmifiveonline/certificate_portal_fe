@@ -35,7 +35,12 @@ export const MenuItems = [
     icon: Home,
     allowedRoles: ["admin", "superadmin", "trainer", "candidate"],
   },
-
+  {
+    title: "Nominators",
+    url: "/nominators",
+    icon: Users,
+    allowedRoles: ["admin", "superadmin"],
+  },
   // Admin Specific
   {
     title: "Candidates",
@@ -53,16 +58,17 @@ export const MenuItems = [
     icon: GraduationCap,
     allowedRoles: ["admin", "superadmin"],
   },
-  {
-    title: "Courses",
-    url: "/courses",
-    icon: BookOpen,
-    allowedRoles: ["admin", "superadmin"],
-    subItems: [
-      { title: "Master Courses", url: "/courses" },
-      { title: "Active Courses", url: "/active-courses" },
-    ],
-  },
+  // {
+  //   title: "Courses",
+  //   url: "/courses",
+  //   icon: BookOpen,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Master Courses", url: "/courses" },
+  //     { title: "Active Courses", url: "/active-courses" },
+  //   ],
+  // },
+
   // {
   //   title: "Hotel Details",
   //   url: "/hotel-details",
@@ -98,30 +104,30 @@ export const MenuItems = [
   //     { title: "Submitted Feedback", url: "/feedback/submitted" },
   //   ],
   // },
-  // {
-  //   title: "Certificates",
-  //   url: "/certificates",
-  //   icon: Award,
-  //   allowedRoles: ["admin", "superadmin"],
-  // },
+  {
+    title: "Certificates",
+    url: "/certificates",
+    icon: Award,
+    allowedRoles: ["admin", "superadmin"],
+  },
   // {
   //   title: "Reports",
   //   url: "/reports",
   //   icon: FileBarChart,
   //   allowedRoles: ["admin", "superadmin"],
   // },
-  // {
-  //   title: "Role Permissions",
-  //   url: "/admin/role-permissions",
-  //   icon: Shield,
-  //   allowedRoles: ["admin", "superadmin"],
-  // },
-  // {
-  //   title: "Log History",
-  //   url: "/admin/log-history",
-  //   icon: History,
-  //   allowedRoles: ["admin", "superadmin"],
-  // },
+  {
+    title: "Role Permissions",
+    url: "/admin/role-permissions",
+    icon: Shield,
+    allowedRoles: ["admin", "superadmin"],
+  },
+  {
+    title: "Log History",
+    url: "/admin/log-history",
+    icon: History,
+    allowedRoles: ["admin", "superadmin"],
+  },
 
   // Trainer Specific
   {

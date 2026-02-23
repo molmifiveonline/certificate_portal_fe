@@ -68,11 +68,22 @@ const Sidebar = () => {
         }
     };
 
-    const isLinkActive = (url) => {
+    const isLinkActive = (url, siblings = []) => {
         if (url === '/') {
             return location.pathname === '/' || location.pathname.startsWith('/dashboard');
         }
-        return location.pathname === url || location.pathname.startsWith(`${url}/`);
+
+        const isBaseMatch = location.pathname === url || location.pathname.startsWith(`${url}/`);
+        if (!isBaseMatch) return false;
+
+        // If there's a more specific (longer) match among siblings, this one is not the "active" one
+        const hasBetterMatch = siblings.some(siblingUrl => {
+            if (!siblingUrl || siblingUrl === url) return false;
+            return siblingUrl.length > url.length &&
+                (location.pathname === siblingUrl || location.pathname.startsWith(`${siblingUrl}/`));
+        });
+
+        return !hasBetterMatch;
     };
 
     return (
@@ -113,9 +124,12 @@ const Sidebar = () => {
                         const hasSubItems = item.subItems && item.subItems.length > 0;
                         const isExpanded = expandedMenus[item.title];
 
+                        const topLevelUrls = visibleItems.map(i => i.url);
+                        const subItemUrls = item.subItems?.map(i => i.url) || [];
+
                         // Check if any subitem is active to highlight parent
-                        const isParentActive = hasSubItems && item.subItems.some(sub => isLinkActive(sub.url));
-                        const isActive = !hasSubItems && isLinkActive(item.url);
+                        const isParentActive = hasSubItems && item.subItems.some(sub => isLinkActive(sub.url, subItemUrls));
+                        const isActive = !hasSubItems && isLinkActive(item.url, topLevelUrls);
 
                         const handleNavClick = () => {
                             if (window.innerWidth < 768 && !hasSubItems) {
@@ -203,7 +217,8 @@ const Sidebar = () => {
                                 {hasSubItems && isOpen && isExpanded && (
                                     <div className="mt-1 ml-4 border-l border-slate-200 pl-2 space-y-1">
                                         {item.subItems.map((subItem) => {
-                                            const isSubActive = isLinkActive(subItem.url);
+                                            const subItemUrls = item.subItems.map(i => i.url);
+                                            const isSubActive = isLinkActive(subItem.url, subItemUrls);
                                             return (
                                                 <Link
                                                     key={subItem.title}
