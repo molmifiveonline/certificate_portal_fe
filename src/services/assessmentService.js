@@ -50,6 +50,11 @@ const getSubmittedCourses = async (params) => {
   return response.data;
 };
 
+const getAllPaginatedSubmissions = async (params) => {
+  const response = await api.get("/assessment/all-submissions", { params });
+  return response.data;
+};
+
 const getCourseSubmissions = async (courseId, params = {}) => {
   const response = await api.get(`/assessment/course/${courseId}/submissions`, {
     params,
@@ -100,6 +105,7 @@ const assessmentService = {
   exportSubmittedAssessments,
   getAssessmentsByCourse,
   getAssessmentSubmissions,
+  getAllPaginatedSubmissions,
 };
 
 export default assessmentService;

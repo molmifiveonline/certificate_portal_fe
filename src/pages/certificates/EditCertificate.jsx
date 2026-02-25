@@ -40,7 +40,8 @@ const EditCertificate = () => {
         show_logo: 1,
         sample_cert: 0,
         status: 0,
-        certificate_no: ""
+        certificate_no: "",
+        is_hidden: 0
     });
 
     useEffect(() => {
@@ -67,6 +68,7 @@ const EditCertificate = () => {
                         issue_date: certRes.issue_date?.split('T')[0] || "",
                         show_logo: certRes.show_logo === 1,
                         sample_cert: certRes.sample_cert === 1,
+                        is_hidden: certRes.is_hidden || 0
                     });
                 }
             } catch (err) {
@@ -398,6 +400,20 @@ const EditCertificate = () => {
                                     />
                                     <span className="text-sm font-semibold text-slate-700">Sample Certificate</span>
                                 </label>
+                            </div>
+
+                            {/* Hide */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Hide Certificate</label>
+                                <select
+                                    name="is_hidden"
+                                    value={formData.is_hidden}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                >
+                                    <option value={0}>No</option>
+                                    <option value={1}>Yes</option>
+                                </select>
                             </div>
                         </div>
 

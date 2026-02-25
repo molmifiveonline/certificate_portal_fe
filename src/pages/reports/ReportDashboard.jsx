@@ -1,253 +1,200 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
-import { FileDown, Calendar, FileSpreadsheet } from "lucide-react";
+import { FileSpreadsheet, Sparkles } from "lucide-react";
 import ReportService from "../../services/reportService";
+import FeedbackReportCard from "./components/FeedbackReportCard";
+import CertificateReportCard from "./components/CertificateReportCard";
+
+const TODAY = new Date().toISOString().split("T")[0];
+
+const getDateRangeError = (dates, maxDays) => {
+  const { start_date, end_date } = dates;
+
+  if (!start_date || !end_date) {
+    return "Please select both start and end dates.";
+  }
+
+  const start = new Date(`${start_date}T00:00:00`);
+  const end = new Date(`${end_date}T00:00:00`);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return "Please enter a valid date range.";
+  }
+
+  if (start > end) {
+    return "Start date cannot be after end date.";
+  }
+
+  if (maxDays) {
+    const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    if (diffDays > maxDays) {
+      return "Date range cannot exceed 3 months.";
+    }
+  }
+
+  return "";
+};
+
+const downloadReport = (data, fileName) => {
+  const url = window.URL.createObjectURL(new Blob([data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
 
 const ReportDashboard = () => {
-    const [feedbackDates, setFeedbackDates] = useState({ start_date: "", end_date: "" });
-    const [certificateDates, setCertificateDates] = useState({ start_date: "", end_date: "" });
-    const [loadingFeedback, setLoadingFeedback] = useState(false);
-    const [loadingCertificate, setLoadingCertificate] = useState(false);
+  const [feedbackDates, setFeedbackDates] = useState({ start_date: "", end_date: "" });
+  const [certificateDates, setCertificateDates] = useState({ start_date: "", end_date: "" });
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [loadingCertificate, setLoadingCertificate] = useState(false);
 
-    const handleFeedbackDateChange = (e) => {
-        setFeedbackDates({ ...feedbackDates, [e.target.name]: e.target.value });
+  const [filterOptions, setFilterOptions] = useState({ topics: [], managers: [], companies: [] });
+  const [feedbackFilters, setFeedbackFilters] = useState({ topic: "", manager: "" });
+  const [certificateFilters, setCertificateFilters] = useState({
+    topic: "",
+    manager: "",
+    company: "",
+  });
+
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        const data = await ReportService.getFilterOptions();
+        setFilterOptions(data);
+      } catch (error) {
+        console.error("Failed to load filter options:", error);
+      }
     };
 
-    const handleCertificateDateChange = (e) => {
-        setCertificateDates({ ...certificateDates, [e.target.name]: e.target.value });
-    };
+    fetchFilterOptions();
+  }, []);
 
-    const handleFeedbackExport = async (e) => {
-        e.preventDefault();
-        const { start_date, end_date } = feedbackDates;
+  const handleFeedbackDateChange = (e) => {
+    setFeedbackDates({ ...feedbackDates, [e.target.name]: e.target.value });
+  };
 
-        if (!start_date || !end_date) {
-            toast.error("Please select both start and end dates.");
-            return;
-        }
+  const handleCertificateDateChange = (e) => {
+    setCertificateDates({ ...certificateDates, [e.target.name]: e.target.value });
+  };
 
-        // Validate 3 months range
-        const start = new Date(start_date);
-        const end = new Date(end_date);
-        const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        // Approx 93 days for 3 months
-        if (diffDays > 93) {
-            toast.error("Date range cannot exceed 3 months.");
-            return;
-        }
+  const handleFeedbackExport = async (e) => {
+    e.preventDefault();
 
-        if (start > end) {
-            toast.error("Start date cannot be after end date.");
-            return;
-        }
+    const dateError = getDateRangeError(feedbackDates, 93);
+    if (dateError) {
+      toast.error(dateError);
+      return;
+    }
 
-        setLoadingFeedback(true);
-        try {
-            const response = await ReportService.exportFeedbackReport(feedbackDates);
+    setLoadingFeedback(true);
+    try {
+      const payload = { ...feedbackDates };
+      if (feedbackFilters.topic) payload.topic = feedbackFilters.topic;
+      if (feedbackFilters.manager) payload.manager = feedbackFilters.manager;
 
-            // Create Blob and download
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Feedback_Report.xlsx');
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+      const response = await ReportService.exportFeedbackReport(payload);
+      downloadReport(response.data, "Feedback_Report.xlsx");
+      toast.success("Feedback report downloaded successfully!");
+    } catch (error) {
+      console.error(error);
+      const msg =
+        error.message && typeof error.message === "string"
+          ? error.message
+          : "Failed to export report.";
+      toast.error(msg);
+    } finally {
+      setLoadingFeedback(false);
+    }
+  };
 
-            toast.success("Feedback report downloaded successfully!");
-        } catch (error) {
-            console.error(error);
-            const msg = error.message && typeof error.message === 'string'
-                ? error.message
-                : "Failed to export report.";
-            toast.error(msg);
-        } finally {
-            setLoadingFeedback(false);
-        }
-    };
+  const handleCertificateExport = async (e) => {
+    e.preventDefault();
 
-    const handleCertificateExport = async (e) => {
-        e.preventDefault();
-        const { start_date, end_date } = certificateDates;
+    const dateError = getDateRangeError(certificateDates);
+    if (dateError) {
+      toast.error(dateError);
+      return;
+    }
 
-        if (!start_date || !end_date) {
-            toast.error("Please select both start and end dates.");
-            return;
-        }
+    setLoadingCertificate(true);
+    try {
+      const payload = { ...certificateDates };
+      if (certificateFilters.topic) payload.topic = certificateFilters.topic;
+      if (certificateFilters.manager) payload.manager = certificateFilters.manager;
+      if (certificateFilters.company) payload.company = certificateFilters.company;
 
-        if (new Date(start_date) > new Date(end_date)) {
-            toast.error("Start date cannot be after end date.");
-            return;
-        }
+      const response = await ReportService.exportCertificateReport(payload);
+      downloadReport(response.data, "Certificate_Report.xlsx");
+      toast.success("Certificate report downloaded successfully!");
+    } catch (error) {
+      console.error(error);
+      const msg =
+        error.message && typeof error.message === "string"
+          ? error.message
+          : "Failed to export report.";
+      toast.error(msg);
+    } finally {
+      setLoadingCertificate(false);
+    }
+  };
 
-        setLoadingCertificate(true);
-        try {
-            const response = await ReportService.exportCertificateReport(certificateDates);
+  return (
+    <div className="relative overflow-hidden p-4 sm:p-6 lg:p-8">
+      <Helmet>
+        <title>Reports | MOLMI</title>
+      </Helmet>
 
-            // Create Blob and download
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Certificate_Report.xlsx');
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-12 -left-10 h-64 w-64 rounded-full bg-sky-200/50 blur-3xl" />
+        <div className="absolute top-20 right-0 h-72 w-72 rounded-full bg-cyan-200/40 blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-indigo-200/40 blur-3xl" />
+      </div>
 
-            toast.success("Certificate report downloaded successfully!");
-        } catch (error) {
-            console.error(error);
-            const msg = error.message && typeof error.message === 'string'
-                ? error.message
-                : "Failed to export report.";
-            toast.error(msg);
-        } finally {
-            setLoadingCertificate(false);
-        }
-    };
-
-    return (
-        <div className="p-6">
-            <Helmet>
-                <title>Reports | MOLMI</title>
-            </Helmet>
-
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
-                    <FileSpreadsheet className="w-8 h-8 text-blue-600" />
-                    Reports Dashboard
-                </h1>
-                <p className="text-gray-500 mt-1">Export detailed reports for analysis</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl">
-                {/* Feedback Report Card */}
-                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div className="p-6 bg-gradient-to-br from-blue-50 to-white border-b border-blue-100">
-                        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                            <FileDown className="w-5 h-5 text-blue-600" />
-                            Feedback Report
-                        </h2>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Export candidate feedback with ratings and comments. <span className="text-red-500 font-medium">(Max 3 months)</span>
-                        </p>
-                    </div>
-                    <div className="p-6">
-                        <form onSubmit={handleFeedbackExport} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" /> Start Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="start_date"
-                                        value={feedbackDates.start_date}
-                                        onChange={handleFeedbackDateChange}
-                                        max={new Date().toISOString().split('T')[0]}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" /> End Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="end_date"
-                                        value={feedbackDates.end_date}
-                                        onChange={handleFeedbackDateChange}
-                                        max={new Date().toISOString().split('T')[0]}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={loadingFeedback}
-                                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {loadingFeedback ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        Exporting...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FileDown className="w-4 h-4" /> Export To Excel
-                                    </>
-                                )}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                {/* Certificate Report Card */}
-                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div className="p-6 bg-gradient-to-br from-indigo-50 to-white border-b border-indigo-100">
-                        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                            <FileSpreadsheet className="w-5 h-5 text-indigo-600" />
-                            Certificate Report
-                        </h2>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Export list of certificates issued within a date range.
-                        </p>
-                    </div>
-                    <div className="p-6">
-                        <form onSubmit={handleCertificateExport} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" /> Start Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="start_date"
-                                        value={certificateDates.start_date}
-                                        onChange={handleCertificateDateChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" /> End Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="end_date"
-                                        value={certificateDates.end_date}
-                                        onChange={handleCertificateDateChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={loadingCertificate}
-                                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {loadingCertificate ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        Exporting...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FileDown className="w-4 h-4" /> Export To Excel
-                                    </>
-                                )}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+      <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <Sparkles className="h-3.5 w-3.5" />
+            Analytics Hub
+          </p>
+          <h1 className="flex items-center gap-2 text-3xl font-bold text-slate-900 sm:text-4xl">
+            <FileSpreadsheet className="h-8 w-8 text-sky-600" />
+            Reports Dashboard
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
+            Generate polished Excel exports with flexible filters for feedback and certificates.
+          </p>
         </div>
-    );
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <FeedbackReportCard
+          dates={feedbackDates}
+          onDateChange={handleFeedbackDateChange}
+          filters={feedbackFilters}
+          onFiltersChange={setFeedbackFilters}
+          filterOptions={filterOptions}
+          onSubmit={handleFeedbackExport}
+          loading={loadingFeedback}
+          today={TODAY}
+        />
+
+        <CertificateReportCard
+          dates={certificateDates}
+          onDateChange={handleCertificateDateChange}
+          filters={certificateFilters}
+          onFiltersChange={setCertificateFilters}
+          filterOptions={filterOptions}
+          onSubmit={handleCertificateExport}
+          loading={loadingCertificate}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default ReportDashboard;

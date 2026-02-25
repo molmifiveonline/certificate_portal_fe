@@ -111,7 +111,78 @@ const LogHistory = () => {
 
     if (loading && logs.length === 0) return <LoadingSpinner />;
 
+    const testExternalApi = async () => {
+        const SYNC_CONFIG = {
+            tokenUrl: "https://apim-mts-prod.azure-api.net/MOLMI-Training/api/Token",
+            apiUrl: "https://apim-mts-prod.azure-api.net/MOLMI-Training/api/ShipmateWebService",
+            username: "apiuser@sbntech.com",
+            password: "u$eR@apI123",
+            subscriptionKey: "d292c094732f423c8f5f7547aa98453a",
+            authKey: "MOLMI@AP1",
+            serviceName: "PersonnelDetails_MOLMI",
+        };
 
+        try {
+            toast.loading("Testing API: Requesting Token...", { id: "api-test" });
+
+            const params = new URLSearchParams();
+            params.append("grant_type", "password");
+            params.append("username", SYNC_CONFIG.username);
+            params.append("Password", SYNC_CONFIG.password);
+
+            const tokenRes = await fetch(SYNC_CONFIG.tokenUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Ocp-Apim-Subscription-Key": SYNC_CONFIG.subscriptionKey,
+                },
+                body: params
+            });
+
+            if (!tokenRes.ok) {
+                const errText = await tokenRes.text();
+                console.error("Token Error:", errText);
+                throw new Error(`Token Request Failed: ${tokenRes.status}`);
+            }
+
+            const tokenData = await tokenRes.json();
+            const token = tokenData.access_token;
+            const refreshToken = tokenData.refresh_token || "";
+
+            toast.loading("Testing API: Calling Data Endpoint...", { id: "api-test" });
+
+            const apiRes = await fetch(
+                `${SYNC_CONFIG.apiUrl}?grant_type=refresh_token&refresh_token=${refreshToken}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                        "Ocp-Apim-Subscription-Key": SYNC_CONFIG.subscriptionKey,
+                    },
+                    body: JSON.stringify({
+                        ServiceName: SYNC_CONFIG.serviceName,
+                        AuthorizationKey: SYNC_CONFIG.authKey,
+                        FromUTCDateTime: "1970-01-01",
+                    })
+                }
+            );
+
+            if (!apiRes.ok) {
+                const errText = await apiRes.text();
+                console.error("API Error:", errText);
+                throw new Error(`API Request Failed: ${apiRes.status}`);
+            }
+
+            const apiData = await apiRes.json();
+            console.log("✈️ API Success Data:", apiData);
+            toast.success("API Test Successful! Check console for data.", { id: "api-test" });
+
+        } catch (error) {
+            console.error("API Test Error:", error);
+            toast.error(`API Test Failed: ${error.message}. Check console for details.`, { id: "api-test" });
+        }
+    };
 
     return (
         <div className="flex-1 overflow-y-auto">
@@ -138,6 +209,12 @@ const LogHistory = () => {
                         />
                     </div>
                     <div className="flex gap-3 w-full md:w-auto">
+                        <button
+                            onClick={testExternalApi}
+                            className="h-10 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 rounded-xl flex items-center gap-2 text-sm font-medium transition-colors"
+                        >
+                            Test External API
+                        </button>
                         <div className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl flex items-center gap-2 text-slate-500 text-sm font-medium">
                             <History className="w-4 h-4" />
                             <span>Total Logs: {totalLogs}</span>

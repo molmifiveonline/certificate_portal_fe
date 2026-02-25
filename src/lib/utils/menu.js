@@ -104,12 +104,12 @@ export const MenuItems = [
   //     { title: "Submitted Feedback", url: "/feedback/submitted" },
   //   ],
   // },
-  {
-    title: "Certificates",
-    url: "/certificates",
-    icon: Award,
-    allowedRoles: ["admin", "superadmin"],
-  },
+  // {
+  //   title: "Certificates",
+  //   url: "/certificates",
+  //   icon: Award,
+  //   allowedRoles: ["admin", "superadmin"],
+  // },
   // {
   //   title: "Reports",
   //   url: "/reports",
@@ -154,7 +154,7 @@ export const MenuItems = [
   {
     title: "Certificates",
     url: "/trainer-certificates",
-    icon: Book,
+    icon: Award,
     allowedRoles: ["trainer"],
     requiredPermission: "view_certificates",
   },

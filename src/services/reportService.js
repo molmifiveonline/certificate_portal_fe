@@ -1,10 +1,19 @@
 import api from "../lib/api";
 
 const ReportService = {
+  getFilterOptions: async () => {
+    try {
+      const response = await api.get(`/reports/filter-options`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   exportFeedbackReport: async (data) => {
     try {
       const response = await api.post(`/reports/feedback/export`, data, {
-        responseType: "blob", // Important for file download
+        responseType: "blob",
       });
       return response;
     } catch (error) {

@@ -53,7 +53,8 @@ const SubmissionDetail = () => {
 
     const { result, answers } = data;
 
-    const backLink = `/assessment/submitted/${result.course_id}`;
+    // Change back link to return to the main flat listing
+    const backLink = `/assessment/submitted`;
 
     return (
         <div className="flex-1 overflow-y-auto">

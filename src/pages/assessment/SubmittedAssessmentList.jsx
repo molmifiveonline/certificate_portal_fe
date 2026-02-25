@@ -11,7 +11,7 @@ import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
 
 const SubmittedAssessmentList = () => {
-    const [courses, setCourses] = useState([]);
+    const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -33,28 +33,28 @@ const SubmittedAssessmentList = () => {
         updateDebouncedSearch(searchTerm);
     }, [searchTerm, updateDebouncedSearch]);
 
-    const fetchCourses = useCallback(async () => {
+    const fetchSubmissions = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await assessmentService.getSubmittedCourses({
+            const response = await assessmentService.getAllPaginatedSubmissions({
                 page,
                 limit,
                 search: debouncedSearch,
             });
-            setCourses(response.data || []);
+            setSubmissions(response.data || []);
             setTotalPages(response.totalPages || 1);
             setTotalCount(response.totalCount || 0);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to fetch submitted assessment courses.");
+            toast.error("Failed to fetch submitted assessments.");
         } finally {
             setLoading(false);
         }
     }, [page, limit, debouncedSearch]);
 
     useEffect(() => {
-        fetchCourses();
-    }, [fetchCourses]);
+        fetchSubmissions();
+    }, [fetchSubmissions]);
 
     const getTypeLabel = (type) => {
         const labels = { "1": "Pre Course", "2": "Post Course", "3": "Daily" };
@@ -96,14 +96,30 @@ const SubmittedAssessmentList = () => {
     const columns = [
         {
             key: "course_name",
-            label: "Course Name",
+            label: "Active Course Name",
             render: (val) => (
                 <span className="font-medium text-slate-700">{val || "N/A"}</span>
             ),
         },
         {
+            key: "employee_id",
+            label: "Employee ID",
+            render: (val) => (
+                <span className="text-slate-600">{val || "--"}</span>
+            ),
+        },
+        {
+            key: "candidate_name",
+            label: "Employee Name",
+            render: (_val, row) => (
+                <span className="font-medium text-slate-700">
+                    {row.first_name} {row.last_name}
+                </span>
+            ),
+        },
+        {
             key: "type_of_test",
-            label: "Type of Assessment",
+            label: "Type of Test",
             render: (val) => (
                 <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadgeClass(val)}`}
@@ -113,27 +129,38 @@ const SubmittedAssessmentList = () => {
             ),
         },
         {
-            key: "total_submissions",
-            label: "Submissions",
-            render: (val) => (
+            key: "score",
+            label: "Score",
+            render: (_val, row) => (
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
-                    {val || 0}
+                    {row.score} / {row.total_questions}
                 </span>
             ),
         },
         {
             key: "actions",
-            label: "Action",
+            label: "Actions",
             align: "center",
             render: (_val, row) => (
                 <div className="flex items-center justify-center gap-2">
                     <Link
-                        to={`/assessment/submitted/${row.course_id}`}
+                        to={`/assessment/submission/${row.result_id}`}
                         className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all inline-block"
-                        title="View Submissions"
+                        title="View Submission"
                     >
                         <Eye className="w-4 h-4" />
                     </Link>
+                    <button
+                        onClick={() => {
+                            // Currently we don't have a row-level PDF download, 
+                            // but we can provide a toast or link if available.
+                            toast.info("Individual download for " + row.first_name + " coming soon");
+                        }}
+                        className="p-1.5 rounded-full text-green-600 hover:bg-green-50 transition-all"
+                        title="Download Result"
+                    >
+                        <Download className="w-4 h-4" />
+                    </button>
                 </div>
             ),
         },
@@ -194,12 +221,12 @@ const SubmittedAssessmentList = () => {
             {/* Table */}
             <DataTable
                 columns={columns}
-                data={courses}
+                data={submissions}
                 loading={loading}
                 emptyMessage="No submitted assessments found."
                 currentPage={page}
                 limit={limit}
-                rowKey="course_id"
+                rowKey="result_id"
             />
 
             <TablePagination

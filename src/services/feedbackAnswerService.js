@@ -17,10 +17,25 @@ const getSubmissionDetails = async (candidateId, activeCourseId) => {
   return response.data;
 };
 
+const getFeedbackCourses = async (params) => {
+  const response = await api.get("/feedback-answers/courses", { params });
+  return response.data;
+};
+
+const downloadPDF = async (candidateId, activeCourseId) => {
+  const response = await api.get(
+    `/feedback-answers/download-pdf/${candidateId}/${activeCourseId}`,
+    { responseType: "blob" },
+  );
+  return response.data;
+};
+
 const feedbackAnswerService = {
   submitFeedback,
   getSubmissions,
   getSubmissionDetails,
+  getFeedbackCourses,
+  downloadPDF,
 };
 
 export default feedbackAnswerService;

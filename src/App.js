@@ -73,9 +73,7 @@ const FeedbackCategoryList = lazy(
 const FeedbackQuestionList = lazy(
   () => import("./pages/feedback/FeedbackQuestionList"),
 );
-const SubmittedFeedbackList = lazy(
-  () => import("./pages/feedback/SubmittedFeedbackList"),
-);
+// Remove SubmittedFeedbackList import as it is obsolete now
 const SubmittedFeedbackDetails = lazy(
   () => import("./pages/feedback/SubmittedFeedbackDetails"),
 );
@@ -107,6 +105,18 @@ const AssessmentSubmissionList = lazy(
 );
 const SubmissionDetail = lazy(
   () => import("./pages/assessment/SubmissionDetail"),
+);
+
+const TrainerCertificateList = lazy(
+  () => import("./pages/trainers/TrainerCertificateList"),
+);
+
+const FeedbackCourseList = lazy(
+  () => import("./pages/feedback/FeedbackCourseList"),
+);
+
+const FeedbackCandidateList = lazy(
+  () => import("./pages/feedback/FeedbackCandidateList"),
 );
 
 function App() {
@@ -427,7 +437,15 @@ function App() {
                 path="/feedback/submitted"
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <SubmittedFeedbackList />
+                    <FeedbackCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/submitted/candidates/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <FeedbackCandidateList />
                   </PrivateRoute>
                 }
               />
@@ -566,6 +584,38 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
                     <UnifiedDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-certificates"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <TrainerCertificateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-feedback"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <FeedbackCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-feedback/candidates/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <FeedbackCandidateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-feedback/submitted/:candidateId/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <SubmittedFeedbackDetails />
                   </PrivateRoute>
                 }
               />

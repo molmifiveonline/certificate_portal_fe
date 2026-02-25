@@ -95,9 +95,9 @@ const CourseSubmissions = () => {
             render: (_val, row) => (
                 <div className="flex items-center justify-center gap-2">
                     <Link
-                        to={`/assessment/submitted/${courseId}/${row.id}`}
+                        to={`/assessment/submission/${row.id}`} // Assuming row.id here is actually the result_id. Will need to verify if backend returns result_id as row.id.
                         className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all inline-block"
-                        title="View Candidates"
+                        title="View Submission"
                     >
                         <Eye className="w-4 h-4" />
                     </Link>
