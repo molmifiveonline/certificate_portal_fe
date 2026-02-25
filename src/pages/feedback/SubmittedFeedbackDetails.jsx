@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import feedbackAnswerService from "../../services/feedbackAnswerService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Meta from "../../components/common/Meta";
-import { ArrowLeft, User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Download } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
+import BackButton from '../../components/common/BackButton';
 
 const SubmittedFeedbackDetails = () => {
     const { candidateId, activeCourseId } = useParams();
+    const location = useLocation();
+    const isTrainerRoute = location.pathname.includes('/trainer-feedback');
+    const backUrl = isTrainerRoute ? '/trainer-feedback' : '/feedback/submitted';
+
     const [submission, setSubmission] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [downloading, setDownloading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -35,6 +41,26 @@ const SubmittedFeedbackDetails = () => {
     if (loading) return <LoadingSpinner />;
     if (error) return <div className="p-4 text-red-500 bg-red-50 rounded-lg">{error}</div>;
 
+    const handleDownloadPDF = async () => {
+        setDownloading(true);
+        try {
+            const blob = await feedbackAnswerService.downloadPDF(candidateId, activeCourseId);
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `Feedback_${submission.candidate.first_name}_${submission.candidate.last_name}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error(err);
+            alert("Failed to download PDF");
+        } finally {
+            setDownloading(false);
+        }
+    };
+
     if (!submission) return <div className="p-4 text-slate-500">No data found.</div>;
 
     const { candidate, answers } = submission;
@@ -46,12 +72,7 @@ const SubmittedFeedbackDetails = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                    <Link
-                        to="/feedback/submitted"
-                        className="p-2 rounded-xl bg-white/50 border border-slate-200/60 hover:bg-white/80 transition-all text-slate-600"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </Link>
+                    <BackButton to={backUrl} />
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                             Feedback Details
@@ -61,6 +82,15 @@ const SubmittedFeedbackDetails = () => {
                         </p>
                     </div>
                 </div>
+
+                <button
+                    onClick={handleDownloadPDF}
+                    disabled={downloading}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-sm shadow-blue-600/20"
+                >
+                    <Download className="w-4 h-4" />
+                    {downloading ? "Downloading..." : "Download PDF"}
+                </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

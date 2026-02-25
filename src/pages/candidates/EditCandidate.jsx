@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import candidateService from '../../services/candidateService';
 import CandidateForm from '../../components/candidates/CandidateForm';
 import { Card, CardContent } from "../../components/ui/card";
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import BackButton from '../../components/common/BackButton';
 
 const EditCandidate = () => {
     const { id } = useParams();
@@ -53,7 +54,7 @@ const EditCandidate = () => {
             } catch (error) {
                 console.error("Error fetching candidate:", error);
                 toast.error("Failed to load candidate data");
-                navigate(-1);
+                navigate('/candidates/molmi');
             } finally {
                 setLoading(false);
             }
@@ -101,7 +102,7 @@ const EditCandidate = () => {
 
             await candidateService.updateCandidate(id, payload);
             toast.success("Candidate Updated Successfully!");
-            navigate(-1);
+            navigate(payload.registration_type === 'Others' ? '/candidates/others' : '/candidates/molmi');
         } catch (error) {
             console.error("Update Candidate Error:", error);
             toast.error(error.response?.data?.message || "Failed to update candidate.");
@@ -122,13 +123,7 @@ const EditCandidate = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Candidate</h1>
                     <p className="text-slate-500 mt-1">Modify candidate information</p>
                 </div>
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
-                >
-                    <ChevronLeft size={18} />
-                    Back to List
-                </button>
+                <BackButton to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'} />
             </div>
 
             <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">

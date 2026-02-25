@@ -1,0 +1,177 @@
+import React from "react";
+import { FileDown, Calendar, Filter, Building2 } from "lucide-react";
+import { inputStyles, selectStyles } from "./reportFormStyles";
+
+const CertificateReportCard = ({
+  dates,
+  onDateChange,
+  filters,
+  onFiltersChange,
+  filterOptions,
+  onSubmit,
+  loading,
+}) => {
+  return (
+    <div className="group relative overflow-hidden rounded-3xl border border-emerald-100 bg-white/85 shadow-lg shadow-slate-200/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-500 via-emerald-500 to-green-500" />
+
+      <div className="border-b border-slate-100 p-6">
+        <div className="mb-3 inline-flex items-center rounded-xl bg-emerald-50 p-2 text-emerald-600">
+          <Building2 className="h-5 w-5" />
+        </div>
+        <h2 className="text-xl font-semibold text-slate-900">Certificate Report</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Export certificates issued across topics, managers, and companies.
+        </p>
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-5 p-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor="certificate-start-date"
+              className="mb-1.5 flex items-center gap-1 text-sm font-medium text-slate-700"
+            >
+              <Calendar className="h-4 w-4 text-emerald-600" />
+              Start Date
+            </label>
+            <input
+              id="certificate-start-date"
+              type="date"
+              name="start_date"
+              value={dates.start_date}
+              onChange={onDateChange}
+              className={inputStyles}
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="certificate-end-date"
+              className="mb-1.5 flex items-center gap-1 text-sm font-medium text-slate-700"
+            >
+              <Calendar className="h-4 w-4 text-emerald-600" />
+              End Date
+            </label>
+            <input
+              id="certificate-end-date"
+              type="date"
+              name="end_date"
+              value={dates.end_date}
+              onChange={onDateChange}
+              className={inputStyles}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+          <p className="mb-3 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <Filter className="h-3.5 w-3.5" />
+            Optional Filters
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <label
+                htmlFor="certificate-topic"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Topic
+              </label>
+              <select
+                id="certificate-topic"
+                value={filters.topic}
+                onChange={(e) =>
+                  onFiltersChange({
+                    ...filters,
+                    topic: e.target.value,
+                  })
+                }
+                className={selectStyles}
+              >
+                <option value="">All Topics</option>
+                {filterOptions.topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="certificate-manager"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Manager
+              </label>
+              <select
+                id="certificate-manager"
+                value={filters.manager}
+                onChange={(e) =>
+                  onFiltersChange({
+                    ...filters,
+                    manager: e.target.value,
+                  })
+                }
+                className={selectStyles}
+              >
+                <option value="">All Managers</option>
+                {filterOptions.managers.map((manager) => (
+                  <option key={manager} value={manager}>
+                    {manager}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="certificate-company"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Company
+              </label>
+              <select
+                id="certificate-company"
+                value={filters.company}
+                onChange={(e) =>
+                  onFiltersChange({
+                    ...filters,
+                    company: e.target.value,
+                  })
+                }
+                className={selectStyles}
+              >
+                <option value="">All Companies</option>
+                {filterOptions.companies.map((company) => (
+                  <option key={company} value={company}>
+                    {company}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {loading ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              Exporting...
+            </>
+          ) : (
+            <>
+              <FileDown className="h-4 w-4" />
+              Export Certificate Excel
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default CertificateReportCard;

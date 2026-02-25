@@ -3,19 +3,20 @@ import Meta from "../../components/common/Meta";
 import {
     Search,
     Download,
-    RefreshCcw,
     Plus,
     Edit,
-    Trash2,
-    ArrowUpDown,
-    ArrowUp,
-    ArrowDown
+    BookOpen,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import TablePagination from "../../components/ui/TablePagination";
-import ConfirmationModal from "../../components/ui/ConfirmationModal";
+import DataTable from "../../components/ui/DataTable";
+
+import { Button, buttonVariants } from "../../components/ui/button";
+import { cn } from "../../lib/utils/utils";
+import { formatDate } from "../../lib/utils/dateUtils";
 import api from "../../lib/api";
+import activeCourseService from "../../services/activeCourseService";
 import { toast } from "sonner";
 
 const ActiveCourseList = () => {
@@ -28,8 +29,11 @@ const ActiveCourseList = () => {
     const [limit, setLimit] = useState(10);
     const [sortBy, setSortBy] = useState("course_name");
     const [sortOrder, setSortOrder] = useState("asc");
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [courseToDelete, setCourseToDelete] = useState(null);
+
+    // Filters
+    const [statusFilter, setStatusFilter] = useState("");
+    const [dateRange, setDateRange] = useState({ start: "", end: "" });
+
     const navigate = useNavigate();
 
     const fetchCourses = useCallback(async () => {
@@ -40,17 +44,18 @@ const ActiveCourseList = () => {
                 limit,
                 sort_by: sortBy,
                 sort_order: sortOrder,
+                status: statusFilter,
+                from_date: dateRange.start,
+                to_date: dateRange.end
             };
             if (searchTerm.trim()) {
                 params.search = searchTerm.trim();
             }
-            const response = await api.get('/courses', { params });
-            const result = response.data;
+            const result = await activeCourseService.getAllCourses(params);
 
             setCourses(Array.isArray(result.data) ? result.data : []);
-            setTotalPages(Math.ceil((result.total || 0) / limit)); // result.total is likely from existing API
+            setTotalPages(result.totalPages || Math.ceil((result.total || 0) / limit));
             setTotalCount(result.total || 0);
-            // setCurrentPage(result.page || 1); // Maintain client-side page state if backend doesn't echo it effectively
         } catch (error) {
             console.error("Error fetching active courses:", error);
             toast.error("Failed to load active courses.");
@@ -58,13 +63,13 @@ const ActiveCourseList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, sortBy, sortOrder, searchTerm]);
+
+    }, [currentPage, limit, sortBy, sortOrder, searchTerm, statusFilter, dateRange]);
 
     useEffect(() => {
         fetchCourses();
     }, [fetchCourses]);
 
-    // Debounced search: reset to page 1 when search changes
     useEffect(() => {
         const timeout = setTimeout(() => {
             setCurrentPage(1);
@@ -74,16 +79,6 @@ const ActiveCourseList = () => {
 
     const handleExport = async () => {
         try {
-            // Re-implementing client-side export if backend export API is not ready,
-            // or mirroring the TrainerList approach if backend supports it.
-            // For now, let's keep the client-side export logic but adapt it to use api instance if needed,
-            // OR reuse the exact logic from previous ActiveCourseList but triggered via the new UI.
-
-            // NOTE: The previous code did client-side export. Let's stick to that for safety unless we know /courses/export exists.
-            // Using the data currently in state might be limited to current page if we don't fetch all.
-            // TrainerList used backend export. Let's try to fetch all for export or use existing logic.
-            // Sticking to client-side for now to avoid breaking changes if backend endpoint is missing.
-
             if (!courses.length) {
                 toast.error('No courses to export');
                 return;
@@ -96,8 +91,8 @@ const ActiveCourseList = () => {
                     (currentPage - 1) * limit + index + 1,
                     `"${course.course_name}"`,
                     course.course_id,
-                    new Date(course.start_date).toLocaleDateString(),
-                    new Date(course.end_date).toLocaleDateString(),
+                    formatDate(course.start_date),
+                    formatDate(course.end_date),
                     course.status
                 ].join(','))
             ].join('\n');
@@ -106,7 +101,7 @@ const ActiveCourseList = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `active-courses-${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `active - courses - ${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -117,25 +112,9 @@ const ActiveCourseList = () => {
         }
     };
 
-    const handleDelete = (id) => {
-        setCourseToDelete(id);
-        setDeleteModalOpen(true);
-    };
 
-    const confirmDelete = async () => {
-        if (!courseToDelete) return;
-        try {
-            await api.delete(`/courses/${courseToDelete}`); // Assuming standard REST endpoint
-            toast.success("Course deleted successfully.");
-            fetchCourses();
-        } catch (error) {
-            console.error('Delete error:', error);
-            toast.error("Failed to delete course.");
-        } finally {
-            setDeleteModalOpen(false);
-            setCourseToDelete(null);
-        }
-    };
+
+
 
     const handleSort = (column) => {
         if (sortBy === column) {
@@ -147,24 +126,77 @@ const ActiveCourseList = () => {
         setCurrentPage(1);
     };
 
-    const SortIcon = ({ column }) => {
-        if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
-        return sortOrder === "asc"
-            ? <ArrowUp className="w-3 h-3 ml-1 text-blue-600" />
-            : <ArrowDown className="w-3 h-3 ml-1 text-blue-600" />;
+    const rowClassName = (row) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const start = new Date(row.start_date);
+        const end = new Date(row.end_date);
+
+        // Check if ongoing (start <= today <= end) and status is Active or Initiated (ongoing implies not cancelled/completed usually, or just check dates as requested)
+        if (start <= today && end >= today && !['Cancelled', 'Course Completed'].includes(row.status)) {
+            return "bg-orange-50/50 hover:bg-orange-100/50 border-l-4 border-l-orange-500";
+        }
+        return "";
     };
 
-    const SortableHeader = ({ column, label }) => (
-        <th
-            className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none"
-            onClick={() => handleSort(column)}
-        >
-            <div className="flex items-center">
-                {label}
-                <SortIcon column={column} />
-            </div>
-        </th>
-    );
+    const columns = [
+        {
+            key: "course_name",
+            label: "Course Name",
+            sortable: true,
+            render: (val) => <span className="font-medium text-slate-800">{val}</span>,
+        },
+        {
+            key: "course_id",
+            label: "Course ID",
+            sortable: true,
+        },
+        {
+            key: "start_date",
+            label: "Start Date",
+            sortable: true,
+            render: (val) => formatDate(val),
+        },
+        {
+            key: "end_date",
+            label: "End Date",
+            sortable: true,
+            render: (val) => formatDate(val),
+        },
+        {
+            key: "status",
+            label: "Status",
+            sortable: true,
+            render: (val) => (
+                <span
+                    className={`px - 2.5 py - 1 rounded - full text - xs font - semibold border ${val === 'Initiated'
+                        ? 'bg-blue-50 text-blue-600 border-blue-100'
+                        : val === 'Completed'
+                            ? 'bg-green-50 text-green-600 border-green-100'
+                            : 'bg-slate-50 text-slate-600 border-slate-100'
+                        } `}
+                >
+                    {val}
+                </span>
+            ),
+        },
+        {
+            key: "actions",
+            label: "Actions",
+            align: "right",
+            render: (_val, row) => (
+                <div className="flex items-center justify-end gap-2">
+                    <button
+                        onClick={() => navigate(`/active-courses/edit/${row.id}`)}
+                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                        title="Edit"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </button>
+                </div>
+            ),
+        },
+    ];
 
     return (
         <div className="flex-1 overflow-y-auto w-full">
@@ -173,16 +205,21 @@ const ActiveCourseList = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Active Courses</h1>
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                        <div className="bg-blue-100 p-2 rounded-xl">
+                            <BookOpen className="w-8 h-8 text-blue-600" />
+                        </div>
+                        Active Courses
+                    </h1>
                     <p className="text-slate-500 mt-1">Manage and view all active courses</p>
                 </div>
-                <Link
-                    to="/active-courses/add"
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                <Button
+                    onClick={() => navigate('/active-courses/add')}
+                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Course
-                </Link>
+                </Button>
             </div>
 
             {/* Filter Bar */}
@@ -198,133 +235,81 @@ const ActiveCourseList = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+
+
+                    <div className="flex flex-wrap gap-3 items-center">
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="h-10 px-3 bg-white/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        >
+                            <option value="">All Status</option>
+                            <option value="Initiated">Initiated</option>
+                            <option value="Active">Active</option>
+                            <option value="Course Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10">
+                            <span className="text-xs text-slate-400">From</span>
+                            <input
+                                type="date"
+                                value={dateRange.start}
+                                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                                className="bg-transparent text-sm focus:outline-none w-32"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10">
+                            <span className="text-xs text-slate-400">To</span>
+                            <input
+                                type="date"
+                                value={dateRange.end}
+                                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                                className="bg-transparent text-sm focus:outline-none w-32"
+                            />
+                        </div>
+                    </div>
+
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={handleExport}
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all">
-                            <Download className="w-4 h-4" />
+                            className="h-10 px-4 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600 font-bold"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
                             Export
-                        </button>
-                        <button
-                            onClick={fetchCourses}
-                            className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Courses Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sr</th>
-                                <SortableHeader column="course_name" label="Course Name" />
-                                <SortableHeader column="course_id" label="Course ID" />
-                                <SortableHeader column="start_date" label="Start Date" />
-                                <SortableHeader column="end_date" label="End Date" />
-                                <SortableHeader column="status" label="Status" />
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <RefreshCcw className="w-4 h-4 animate-spin" />
-                                            Loading...
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : courses.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
-                                        No active courses found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                courses.map((course, index) => (
-                                    <tr key={course.id} className="hover:bg-white/40 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
-                                            {(currentPage - 1) * limit + index + 1}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
-                                            {course.course_name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {course.course_id}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {new Date(course.start_date).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                            {new Date(course.end_date).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <span
-                                                className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${course.status === 'Initiated'
-                                                        ? 'bg-blue-50 text-blue-600 border-blue-100'
-                                                        : course.status === 'Completed'
-                                                            ? 'bg-green-50 text-green-600 border-green-100'
-                                                            : 'bg-slate-50 text-slate-600 border-slate-100'
-                                                    }`}
-                                            >
-                                                {course.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <Link
-                                                    to={`/active-courses/edit/${course.id}`}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                                                    title="Edit"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </Link>
-                                                {/* Added delete button for completeness/standardization, though logic needs to be confirmed */}
-                                                <button
-                                                    onClick={() => handleDelete(course.id)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    limit={limit}
-                    onPageChange={setCurrentPage}
-                    onLimitChange={(newLimit) => {
-                        setLimit(newLimit);
-                        setCurrentPage(1);
-                    }}
-                />
-            </div>
-
-            <ConfirmationModal
-                isOpen={deleteModalOpen}
-                onClose={() => setDeleteModalOpen(false)}
-                onConfirm={confirmDelete}
-                title="Delete Course"
-                message="Are you sure you want to delete this course? This action cannot be undone."
-                confirmText="Delete"
-                variant="danger"
+            {/* Table */}
+            <DataTable
+                columns={columns}
+                data={courses}
+                loading={loading}
+                emptyMessage="No active courses found."
+                currentPage={currentPage}
+                limit={limit}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+                rowClassName={rowClassName}
             />
-        </div>
+
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                limit={limit}
+                onPageChange={setCurrentPage}
+                onLimitChange={(newLimit) => {
+                    setLimit(newLimit);
+                    setCurrentPage(1);
+                }}
+            />
+
+
+        </div >
     );
 };
 

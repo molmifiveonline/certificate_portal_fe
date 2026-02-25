@@ -68,11 +68,22 @@ const Sidebar = () => {
         }
     };
 
-    const isLinkActive = (url) => {
+    const isLinkActive = (url, siblings = []) => {
         if (url === '/') {
             return location.pathname === '/' || location.pathname.startsWith('/dashboard');
         }
-        return location.pathname === url || location.pathname.startsWith(`${url}/`);
+
+        const isBaseMatch = location.pathname === url || location.pathname.startsWith(`${url}/`);
+        if (!isBaseMatch) return false;
+
+        // If there's a more specific (longer) match among siblings, this one is not the "active" one
+        const hasBetterMatch = siblings.some(siblingUrl => {
+            if (!siblingUrl || siblingUrl === url) return false;
+            return siblingUrl.length > url.length &&
+                (location.pathname === siblingUrl || location.pathname.startsWith(`${siblingUrl}/`));
+        });
+
+        return !hasBetterMatch;
     };
 
     return (
@@ -80,10 +91,10 @@ const Sidebar = () => {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "fixed left-0 top-0 h-screen transition-all duration-300 z-50 flex flex-col bg-white border-r border-slate-200 shadow-sm",
+                    "fixed left-0 top-0 h-screen transition-all duration-500 ease-in-out z-50 flex flex-col bg-white border-r border-slate-200 shadow-xl md:shadow-sm",
                     isOpen
                         ? "w-64 translate-x-0"
-                        : "w-64 -translate-x-full md:w-16 md:translate-x-0 md:overflow-hidden"
+                        : "w-64 -translate-x-full md:w-20 md:translate-x-0 md:overflow-hidden"
                 )}
             >
                 {/* Logo Header */}
@@ -113,9 +124,12 @@ const Sidebar = () => {
                         const hasSubItems = item.subItems && item.subItems.length > 0;
                         const isExpanded = expandedMenus[item.title];
 
+                        const topLevelUrls = visibleItems.map(i => i.url);
+                        const subItemUrls = item.subItems?.map(i => i.url) || [];
+
                         // Check if any subitem is active to highlight parent
-                        const isParentActive = hasSubItems && item.subItems.some(sub => isLinkActive(sub.url));
-                        const isActive = !hasSubItems && isLinkActive(item.url);
+                        const isParentActive = hasSubItems && item.subItems.some(sub => isLinkActive(sub.url, subItemUrls));
+                        const isActive = !hasSubItems && isLinkActive(item.url, topLevelUrls);
 
                         const handleNavClick = () => {
                             if (window.innerWidth < 768 && !hasSubItems) {
@@ -137,7 +151,7 @@ const Sidebar = () => {
                                                 ? "px-4 gap-3 justify-between"
                                                 : "justify-center",
                                             (isActive || isParentActive)
-                                                ? "text-[#3a5f9e] bg-slate-50"
+                                                ? (!isOpen ? "bg-[#3a5f9e] text-white shadow-md shadow-blue-900/10" : "text-[#3a5f9e] bg-slate-50")
                                                 : "text-slate-600 hover:bg-slate-50 hover:text-[#3a5f9e]",
                                         )}
                                     >
@@ -146,7 +160,7 @@ const Sidebar = () => {
                                                 className={cn(
                                                     "transition-all duration-200 shrink-0",
                                                     (isActive || isParentActive)
-                                                        ? "text-[#3a5f9e]"
+                                                        ? (!isOpen ? "text-white" : "text-[#3a5f9e]")
                                                         : "text-slate-500 group-hover:text-[#3a5f9e]",
                                                 )}
                                                 size={22}
@@ -203,7 +217,8 @@ const Sidebar = () => {
                                 {hasSubItems && isOpen && isExpanded && (
                                     <div className="mt-1 ml-4 border-l border-slate-200 pl-2 space-y-1">
                                         {item.subItems.map((subItem) => {
-                                            const isSubActive = isLinkActive(subItem.url);
+                                            const subItemUrls = item.subItems.map(i => i.url);
+                                            const isSubActive = isLinkActive(subItem.url, subItemUrls);
                                             return (
                                                 <Link
                                                     key={subItem.title}
@@ -214,7 +229,7 @@ const Sidebar = () => {
                                                     className={cn(
                                                         "flex items-center py-2 px-3 rounded-md text-sm transition-colors",
                                                         isSubActive
-                                                            ? "text-[#3a5f9e] bg-blue-50 font-medium"
+                                                            ? "text-[#3a5f9e] bg-blue-100 font-bold shadow-sm ring-1 ring-blue-200"
                                                             : "text-slate-500 hover:text-[#3a5f9e] hover:bg-slate-50"
                                                     )}
                                                 >
@@ -246,7 +261,7 @@ const Sidebar = () => {
                         />
                         {isOpen && (
                             <span className="font-medium text-sm transition-colors whitespace-nowrap">
-                                Log Out
+                                Logout
                             </span>
                         )}
                     </button>
@@ -256,7 +271,7 @@ const Sidebar = () => {
             {/* Mobile Overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
                     onClick={() => setIsOpen(false)}
                 />
             )}

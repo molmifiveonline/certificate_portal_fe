@@ -3,6 +3,7 @@ import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import LocationForm from './LocationForm';
+import BackButton from '../../components/common/BackButton';
 import locationService from '../../services/locationService';
 import { toast } from 'sonner';
 
@@ -72,13 +73,7 @@ const EditLocation = () => {
                         <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Location</h1>
                         <p className="text-slate-500 mt-1">Update training center information</p>
                     </div>
-                    <button
-                        onClick={() => navigate('/location')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-medium"
-                    >
-                        <ChevronLeft size={18} />
-                        Back to List
-                    </button>
+                    <BackButton to="/location" />
                 </div>
 
                 <LocationForm

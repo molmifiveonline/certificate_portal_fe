@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import feedbackFormService from "../../services/feedbackFormService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import BackButton from '../../components/common/BackButton';
 
 const MultiSelect = ({ options, selectedValues, onChange, placeholder = "Select..." }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -81,12 +82,12 @@ const FeedbackFormCreate = () => {
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
 
-    // Form State
+
     const [title, setTitle] = useState("");
     const [typeOfCourse, setTypeOfCourse] = useState("All");
     const [status, setStatus] = useState(1);
 
-    // Complex State: Dictionary of Category ID -> Array of Questions
+
     const [selectedCategories, setSelectedCategories] = useState([]); // List of category IDs
     const [categoryQuestions, setCategoryQuestions] = useState({});
 
@@ -95,12 +96,12 @@ const FeedbackFormCreate = () => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
-                // 1. Fetch Categories
+
                 const catResult = await feedbackCategoryService.getAll({ limit: 100 });
                 const allCategories = catResult.data;
                 setCategories(allCategories);
 
-                // 2. Fetch Form Data if Edit Mode
+
                 if (isEditMode) {
                     const form = await feedbackFormService.getById(id);
                     setTitle(form.title);
@@ -257,12 +258,7 @@ const FeedbackFormCreate = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 pt-6">
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate("/feedback/forms")}
-                            className="p-2 rounded-xl bg-white/50 border border-slate-200/60 text-slate-500 hover:text-slate-700 hover:bg-white/80 transition-all"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                        </button>
+                        <BackButton to="/feedback/forms" />
                         <div>
                             <h1 className="text-2xl font-bold text-slate-800">
                                 {isEditMode ? "Edit Feedback Form" : "Create Feedback Form"}
@@ -289,7 +285,7 @@ const FeedbackFormCreate = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6" style={{ overflow: 'visible' }}>
-                        {/* 1. Title */}
+
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">
                                 Form Title <span className="text-red-500">*</span>
@@ -303,7 +299,7 @@ const FeedbackFormCreate = () => {
                             />
                         </div>
 
-                        {/* 2. Categories (Multi-select) */}
+
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">
                                 Categories <span className="text-red-500">*</span>
@@ -320,7 +316,7 @@ const FeedbackFormCreate = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* 3. Type of Course */}
+
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">
                                     Type Of Course
@@ -337,7 +333,7 @@ const FeedbackFormCreate = () => {
                                 </select>
                             </div>
 
-                            {/* 4. Status */}
+
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">
                                     Status

@@ -5,7 +5,6 @@ import { AuthProvider } from "./context/AuthContext";
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 import { HelmetProvider } from "react-helmet-async";
 
-// Lazy imports
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
 const SuperAdminDashboard = lazy(
@@ -30,38 +29,51 @@ const HotelList = lazy(() => import("./pages/hotels/HotelList"));
 const CreateHotel = lazy(() => import("./pages/hotels/CreateHotel"));
 const EditHotel = lazy(() => import("./pages/hotels/EditHotel"));
 
-// Master Courses
+const CertificateList = lazy(
+  () => import("./pages/certificates/CertificateList"),
+);
+const CreateCertificate = lazy(
+  () => import("./pages/certificates/CreateCertificate"),
+);
+const EditCertificate = lazy(
+  () => import("./pages/certificates/EditCertificate"),
+);
+const CertificatePrintView = lazy(
+  () => import("./pages/certificates/CertificatePrintView"),
+);
+
 const MasterCourseList = lazy(() => import("./pages/courses/MasterCourseList"));
 const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
 
-// Active Courses
 const ActiveCourseList = lazy(() => import("./pages/courses/ActiveCourseList"));
 const ActiveCourseForm = lazy(() => import("./pages/courses/ActiveCourseForm"));
 
-// Unified Dashboard
 const UnifiedDashboard = lazy(
   () => import("./pages/dashboard/UnifiedDashboard"),
 );
 
-// Location
+const ReportDashboard = lazy(() => import("./pages/reports/ReportDashboard"));
+
 const LocationList = lazy(() => import("./pages/locations/LocationList"));
 const CreateLocation = lazy(() => import("./pages/locations/CreateLocation"));
 const EditLocation = lazy(() => import("./pages/locations/EditLocation"));
 
-// Route Components
+const NominatorList = lazy(() => import("./pages/nominators/NominatorList"));
+const CreateNominator = lazy(
+  () => import("./pages/nominators/CreateNominator"),
+);
+const EditNominator = lazy(() => import("./pages/nominators/EditNominator"));
+
 const PrivateRoute = lazy(() => import("./components/routes/PrivateRoute"));
 const PublicRoute = lazy(() => import("./components/routes/PublicRoute"));
 
-// Feedback
 const FeedbackCategoryList = lazy(
   () => import("./pages/feedback/FeedbackCategoryList"),
 );
 const FeedbackQuestionList = lazy(
   () => import("./pages/feedback/FeedbackQuestionList"),
 );
-const SubmittedFeedbackList = lazy(
-  () => import("./pages/feedback/SubmittedFeedbackList"),
-);
+// Remove SubmittedFeedbackList import as it is obsolete now
 const SubmittedFeedbackDetails = lazy(
   () => import("./pages/feedback/SubmittedFeedbackDetails"),
 );
@@ -72,6 +84,41 @@ const FeedbackFormCreate = lazy(
   () => import("./pages/feedback/FeedbackFormCreate"),
 );
 
+const QuestionBankList = lazy(
+  () => import("./pages/assessment/QuestionBankList"),
+);
+const QuestionBankForm = lazy(
+  () => import("./pages/assessment/QuestionBankForm"),
+);
+
+const AssessmentList = lazy(() => import("./pages/assessment/AssessmentList"));
+const AssessmentForm = lazy(() => import("./pages/assessment/AssessmentForm"));
+
+const SubmittedAssessmentList = lazy(
+  () => import("./pages/assessment/SubmittedAssessmentList"),
+);
+const CourseSubmissions = lazy(
+  () => import("./pages/assessment/CourseSubmissions"),
+);
+const AssessmentSubmissionList = lazy(
+  () => import("./pages/assessment/AssessmentSubmissionList"),
+);
+const SubmissionDetail = lazy(
+  () => import("./pages/assessment/SubmissionDetail"),
+);
+
+const TrainerCertificateList = lazy(
+  () => import("./pages/trainers/TrainerCertificateList"),
+);
+
+const FeedbackCourseList = lazy(
+  () => import("./pages/feedback/FeedbackCourseList"),
+);
+
+const FeedbackCandidateList = lazy(
+  () => import("./pages/feedback/FeedbackCandidateList"),
+);
+
 function App() {
   return (
     <HelmetProvider>
@@ -80,7 +127,6 @@ function App() {
         <AuthProvider>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
-              {/* Public Routes */}
               <Route
                 path="/login"
                 element={
@@ -108,7 +154,6 @@ function App() {
 
               <Route path="/" element={<Navigate to="/login" replace />} />
 
-              {/* Unified Dashboard Route */}
               <Route
                 path="/dashboard"
                 element={
@@ -128,7 +173,6 @@ function App() {
                 }
               />
 
-              {/* Master Course Routes */}
               <Route
                 path="/courses"
                 element={
@@ -154,7 +198,6 @@ function App() {
                 }
               />
 
-              {/* Active Course Routes */}
               <Route
                 path="/active-courses"
                 element={
@@ -180,7 +223,6 @@ function App() {
                 }
               />
 
-              {/* SuperAdmin / Admin Routes */}
               <Route
                 path="/dashboard/super-admin"
                 element={
@@ -324,6 +366,32 @@ function App() {
                 }
               />
 
+              {/* Kevin - Nominator Routes */}
+              <Route
+                path="/nominators"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <NominatorList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/nominators/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CreateNominator />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/nominators/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <EditNominator />
+                  </PrivateRoute>
+                }
+              />
+
               {/* Feedback Routes */}
               <Route
                 path="/feedback"
@@ -369,7 +437,15 @@ function App() {
                 path="/feedback/submitted"
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <SubmittedFeedbackList />
+                    <FeedbackCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback/submitted/candidates/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <FeedbackCandidateList />
                   </PrivateRoute>
                 }
               />
@@ -382,12 +458,164 @@ function App() {
                 }
               />
 
+              {/* Assessment Routes */}
+              <Route
+                path="/assessment/question-bank"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <QuestionBankList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessment/question-bank/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <QuestionBankForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessment/question-bank/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <QuestionBankForm />
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Assessment - Assessment List/Add/Edit Routes */}
+              <Route
+                path="/assessment/assessments"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AssessmentList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessment/assessments/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AssessmentForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessment/assessments/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AssessmentForm />
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Submitted Assessment Routes */}
+              <Route
+                path="/assessment/submitted"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <SubmittedAssessmentList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessment/submitted/:courseId"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CourseSubmissions />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessment/submission/:resultId"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <SubmissionDetail />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/certificates"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CertificateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/certificates/create"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CreateCertificate />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/certificates/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <EditCertificate />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/certificates/print/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CertificatePrintView />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/reports"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ReportDashboard />
+                  </PrivateRoute>
+                }
+              />
+
               {/* Trainer Routes */}
               <Route
                 path="/dashboard/trainer"
                 element={
                   <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
                     <UnifiedDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-certificates"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <TrainerCertificateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-feedback"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <FeedbackCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-feedback/candidates/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <FeedbackCandidateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-feedback/submitted/:candidateId/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <SubmittedFeedbackDetails />
                   </PrivateRoute>
                 }
               />
@@ -405,7 +633,6 @@ function App() {
               {/* Public Demo Route - kept as is, or use PublicRoute if intended for unauth */}
               <Route path="/demo" element={<SuperAdminDashboard />} />
 
-              {/* Catch all */}
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </Suspense>

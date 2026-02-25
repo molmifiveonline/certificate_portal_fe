@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Search, RotateCw, Trash2, History } from "lucide-react";
+import { Search, Trash2, History } from "lucide-react";
 import logService from "../../services/logService";
 import Meta from "../../components/common/Meta";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
@@ -29,15 +29,15 @@ const LogHistory = () => {
         setLoading(true);
         try {
             const response = await logService.getLogs({ page, limit, search });
-            // API returns { data: [], meta: { total, page, limit, totalPages } }
-            // Or if it returns just array, we need to handle that.
-            // Based on my LogDao update, it returns { data, meta }
-
-            if (response.data && response.meta) {
+            // API returns { data: [], total, page, limit, totalPages }
+            if (response.data && response.total !== undefined) {
+                setLogs(response.data);
+                setTotalLogs(response.total);
+            } else if (response.data && response.meta) {
+                // Legacy fallback
                 setLogs(response.data);
                 setTotalLogs(response.meta.total);
             } else {
-                // Fallback if API structure is different (e.g. old array format)
                 setLogs(Array.isArray(response) ? response : []);
                 setTotalLogs(Array.isArray(response) ? response.length : 0);
             }
@@ -71,9 +71,7 @@ const LogHistory = () => {
         debouncedFetch(1, itemsPerPage, value);
     };
 
-    const handleRefresh = () => {
-        fetchLogs(currentPage, itemsPerPage, searchTerm);
-    };
+
 
     const handleDeleteClick = (id) => {
         setLogToDelete(id);
@@ -113,7 +111,78 @@ const LogHistory = () => {
 
     if (loading && logs.length === 0) return <LoadingSpinner />;
 
+    const testExternalApi = async () => {
+        const SYNC_CONFIG = {
+            tokenUrl: "https://apim-mts-prod.azure-api.net/MOLMI-Training/api/Token",
+            apiUrl: "https://apim-mts-prod.azure-api.net/MOLMI-Training/api/ShipmateWebService",
+            username: "apiuser@sbntech.com",
+            password: "u$eR@apI123",
+            subscriptionKey: "d292c094732f423c8f5f7547aa98453a",
+            authKey: "MOLMI@AP1",
+            serviceName: "PersonnelDetails_MOLMI",
+        };
 
+        try {
+            toast.loading("Testing API: Requesting Token...", { id: "api-test" });
+
+            const params = new URLSearchParams();
+            params.append("grant_type", "password");
+            params.append("username", SYNC_CONFIG.username);
+            params.append("Password", SYNC_CONFIG.password);
+
+            const tokenRes = await fetch(SYNC_CONFIG.tokenUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Ocp-Apim-Subscription-Key": SYNC_CONFIG.subscriptionKey,
+                },
+                body: params
+            });
+
+            if (!tokenRes.ok) {
+                const errText = await tokenRes.text();
+                console.error("Token Error:", errText);
+                throw new Error(`Token Request Failed: ${tokenRes.status}`);
+            }
+
+            const tokenData = await tokenRes.json();
+            const token = tokenData.access_token;
+            const refreshToken = tokenData.refresh_token || "";
+
+            toast.loading("Testing API: Calling Data Endpoint...", { id: "api-test" });
+
+            const apiRes = await fetch(
+                `${SYNC_CONFIG.apiUrl}?grant_type=refresh_token&refresh_token=${refreshToken}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                        "Ocp-Apim-Subscription-Key": SYNC_CONFIG.subscriptionKey,
+                    },
+                    body: JSON.stringify({
+                        ServiceName: SYNC_CONFIG.serviceName,
+                        AuthorizationKey: SYNC_CONFIG.authKey,
+                        FromUTCDateTime: "1970-01-01",
+                    })
+                }
+            );
+
+            if (!apiRes.ok) {
+                const errText = await apiRes.text();
+                console.error("API Error:", errText);
+                throw new Error(`API Request Failed: ${apiRes.status}`);
+            }
+
+            const apiData = await apiRes.json();
+            console.log("✈️ API Success Data:", apiData);
+            toast.success("API Test Successful! Check console for data.", { id: "api-test" });
+
+        } catch (error) {
+            console.error("API Test Error:", error);
+            toast.error(`API Test Failed: ${error.message}. Check console for details.`, { id: "api-test" });
+        }
+    };
 
     return (
         <div className="flex-1 overflow-y-auto">
@@ -124,13 +193,6 @@ const LogHistory = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Log History</h1>
                     <p className="text-slate-500 mt-1">View and manage system activity logs</p>
                 </div>
-                <button
-                    onClick={handleRefresh}
-                    className="bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-600 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2"
-                >
-                    <RotateCw className="w-4 h-4" />
-                    Refresh Logs
-                </button>
             </div>
 
             {/* Filter Bar */}
@@ -147,6 +209,12 @@ const LogHistory = () => {
                         />
                     </div>
                     <div className="flex gap-3 w-full md:w-auto">
+                        <button
+                            onClick={testExternalApi}
+                            className="h-10 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 rounded-xl flex items-center gap-2 text-sm font-medium transition-colors"
+                        >
+                            Test External API
+                        </button>
                         <div className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl flex items-center gap-2 text-slate-500 text-sm font-medium">
                             <History className="w-4 h-4" />
                             <span>Total Logs: {totalLogs}</span>
@@ -161,12 +229,12 @@ const LogHistory = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date/Time</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Details</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">IP Address</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Date/Time</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Action</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Details</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">User</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">IP Address</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100/50">
