@@ -6,8 +6,9 @@ import {
     Edit,
     ClipboardCheck,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 
@@ -15,6 +16,7 @@ import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
 
 const AssessmentList = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
     const [assessments, setAssessments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -122,13 +124,13 @@ const AssessmentList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all assessments</p>
                 </div>
-                <Link
-                    to="/assessment/assessments/add"
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                <Button
+                    onClick={() => navigate('/assessment/assessments/add')}
+                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Assessment
-                </Link>
+                </Button>
             </div>
 
             {/* Filter Bar */}

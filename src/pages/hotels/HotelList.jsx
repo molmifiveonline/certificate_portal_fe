@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
@@ -183,12 +184,13 @@ const HotelList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all registered hotels/venues</p>
                 </div>
-                <button
+                <Button
                     onClick={() => navigate('/hotel-details/create')}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95">
+                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                >
                     <Plus className="w-4 h-4" />
                     Add Hotel
-                </button>
+                </Button>
             </div>
 
             {/* Filter Bar */}

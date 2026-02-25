@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { ArrowLeft, Save, Plus, Trash2, X, Check, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import feedbackFormService from "../../services/feedbackFormService";
@@ -268,13 +269,13 @@ const FeedbackFormCreate = () => {
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button
                         onClick={handleSubmit}
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2"
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2"
                     >
                         <Save className="w-4 h-4" />
                         Save Form
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Main Form Area */}

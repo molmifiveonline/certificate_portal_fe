@@ -6,6 +6,7 @@ import questionBankService from '../../services/questionBankService';
 import { Save, ArrowLeft, BookOpen } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import BackButton from '../../components/common/BackButton';
+import { Button } from "../../components/ui/button";
 
 const QuestionBankForm = () => {
     const { id } = useParams();
@@ -408,14 +409,14 @@ const QuestionBankForm = () => {
                         >
                             Cancel
                         </button>
-                        <button
+                        <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className="flex items-center space-x-2 px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all"
                         >
                             <Save size={18} />
                             <span>{isSubmitting ? 'Saving...' : 'Save Question'}</span>
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

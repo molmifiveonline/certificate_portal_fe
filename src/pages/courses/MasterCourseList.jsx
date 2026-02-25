@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
 import {
     Search,
-    Download,
+    FileDown,
     Plus,
     Edit,
     GraduationCap,
@@ -191,12 +191,11 @@ const MasterCourseList = () => {
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
                         <Button
-                            variant="outline"
                             onClick={handleExport}
-                            className="h-10 px-4 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl text-slate-600 font-bold"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                            <Download className="w-4 h-4 mr-2" />
-                            Export
+                            <FileDown className="w-4 h-4" />
+                            Export Course Excel
                         </Button>
                     </div>
                 </CardContent>

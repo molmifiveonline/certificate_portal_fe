@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { Search, Eye, ClipboardList, Download } from "lucide-react";
+import { Search, Eye, ClipboardList, FileDown } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { debounce } from "lodash";
@@ -159,7 +159,7 @@ const SubmittedAssessmentList = () => {
                         className="p-1.5 rounded-full text-green-600 hover:bg-green-50 transition-all"
                         title="Download Result"
                     >
-                        <Download className="w-4 h-4" />
+                        <FileDown className="w-4 h-4" />
                     </button>
                 </div>
             ),
@@ -189,9 +189,9 @@ const SubmittedAssessmentList = () => {
                 <Button
                     onClick={handleExport}
                     disabled={isExporting}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                    <Download className="w-4 h-4 mr-2" />
+                    <FileDown className="w-4 h-4" />
                     {isExporting ? "Exporting..." : "Export to Excel"}
                 </Button>
             </div>

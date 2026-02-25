@@ -7,6 +7,7 @@ import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
 import { ASSESSMENT_TYPES, QUESTION_COUNTS, QUESTION_CHOICES } from "../../lib/constants";
 import BackButton from '../../components/common/BackButton';
+import { Button } from "../../components/ui/button";
 
 const AssessmentForm = () => {
     const navigate = useNavigate();
@@ -503,14 +504,14 @@ const AssessmentForm = () => {
                         >
                             Cancel
                         </button>
-                        <button
+                        <Button
                             type="submit"
                             disabled={loading}
-                            className={`flex items-center space-x-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className="flex items-center space-x-2 px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all"
                         >
                             <Save size={18} />
                             <span>{loading ? "Saving..." : isEdit ? "Update Assessment" : "Save Assessment"}</span>
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </form>

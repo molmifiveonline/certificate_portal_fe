@@ -4,6 +4,13 @@ import { Shield, Check, X, Save, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+
+// Define which permission groups each role can access
+const ROLE_ALLOWED_MODULES = {
+    trainer: ["Dashboard", "Course Management", "Assessments", "Feedback", "Certificates"],
+    candidate: ["Dashboard", "Course Management", "Certificates", "Reimbursement"],
+};
 
 const RolePermission = () => {
     const [roles, setRoles] = useState([]);
@@ -61,7 +68,6 @@ const RolePermission = () => {
         fetchRolePermissions();
     }, [selectedRole]);
 
-    // Group permissions by group_name
     const groupedPermissions = useMemo(() => {
         const grouped = {};
         permissions.forEach((perm) => {
@@ -126,10 +132,10 @@ const RolePermission = () => {
                 </div>
                 {selectedRole && (
                     <div className="flex gap-3">
-                        <button
+                        <Button
                             onClick={handleSavePermissions}
                             disabled={saving}
-                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95 disabled:opacity-50"
+                            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                         >
                             {saving ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -137,7 +143,7 @@ const RolePermission = () => {
                                 <Save className="w-4 h-4" />
                             )}
                             Save Changes
-                        </button>
+                        </Button>
                     </div>
                 )}
             </div>
@@ -191,8 +197,15 @@ const RolePermission = () => {
                                     )}
                                 </div>
                                 <div className="p-4 space-y-6 max-h-[calc(100vh-300px)] overflow-y-auto">
-                                    {Object.entries(groupedPermissions).map(
-                                        ([groupName, perms]) => (
+                                    {Object.entries(groupedPermissions)
+                                        .filter(([groupName]) => {
+                                            if (!selectedRole) return true;
+                                            const roleName = selectedRole.name.toLowerCase();
+                                            const allowedModules = ROLE_ALLOWED_MODULES[roleName];
+                                            if (!allowedModules) return true;
+                                            return allowedModules.includes(groupName);
+                                        })
+                                        .map(([groupName, perms]) => (
                                             <div key={groupName}>
                                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                                                     {groupName}
@@ -238,7 +251,7 @@ const RolePermission = () => {
                                                 </div>
                                             </div>
                                         )
-                                    )}
+                                        )}
                                     {Object.keys(groupedPermissions).length === 0 && (
                                         <div className="py-12 text-center text-slate-500">
                                             No permissions available.
