@@ -3,7 +3,7 @@ import Meta from "../../components/common/Meta";
 import { MANAGER_OPTIONS } from "../../lib/constants";
 import {
     Search,
-    Download,
+    FileDown,
     RefreshCcw,
     UserPlus,
     Edit,
@@ -311,13 +311,12 @@ const CandidateList = ({ registrationType }) => {
                         </div>
                         <div className="flex gap-3 w-full md:w-auto">
                             <Button
-                                variant="outline"
                                 onClick={handleExport}
                                 disabled={isExporting}
-                                className="h-10 px-4 bg-white/50 border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 font-bold"
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                                {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                                Export
+                                {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+                                Export Candidate Excel
                             </Button>
                         </div>
                     </div>
@@ -362,7 +361,7 @@ const CandidateList = ({ registrationType }) => {
                                 style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
                             >
                                 <option value="">All Nationalities</option>
-                                <option value="Indian">Indian</option>
+                                <option value="India">India</option>
                                 <option value="Filipino">Filipino</option>
                             </select>
                         </div>

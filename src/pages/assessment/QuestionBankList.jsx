@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
@@ -193,20 +194,21 @@ const QuestionBankList = () => {
                     <p className="text-slate-500 mt-1">Manage and view all questions</p>
                 </div>
                 <div className="flex gap-3">
-                    <button
+                    <Button
+                        variant="outline"
                         onClick={() => { setBulkModalOpen(true); setBulkFile(null); setBulkResult(null); }}
-                        className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2"
+                        className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-xl font-semibold shadow-sm flex items-center gap-2 active:scale-95"
                     >
                         <Upload className="w-4 h-4" />
                         Bulk Upload
-                    </button>
-                    <Link
-                        to="/assessment/question-bank/add"
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    </Button>
+                    <Button
+                        onClick={() => navigate('/assessment/question-bank/add')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                     >
                         <Plus className="w-4 h-4" />
                         Add Question
-                    </Link>
+                    </Button>
                 </div>
             </div>
 

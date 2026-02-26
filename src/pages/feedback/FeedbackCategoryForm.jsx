@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "../../components/ui/button";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
@@ -132,13 +133,13 @@ const FeedbackCategoryForm = ({ isOpen, onClose, onSuccess, initialData }) => {
                         >
                             Cancel
                         </button>
-                        <button
+                        <Button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="flex-1 px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all"
                         >
                             {loading ? "Saving..." : initialData ? "Update" : "Create"}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

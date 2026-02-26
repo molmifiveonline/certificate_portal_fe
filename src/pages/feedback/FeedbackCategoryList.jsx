@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
 import { Plus, Search, Edit, Trash2, MessageSquare } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
 import { debounce } from "lodash";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
@@ -144,13 +145,13 @@ const FeedbackCategoryList = () => {
                         Manage feedback categories for candidates
                     </p>
                 </div>
-                <button
+                <Button
                     onClick={handleCreate}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Category
-                </button>
+                </Button>
             </div>
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
