@@ -139,10 +139,10 @@ const EditTrainer = () => {
 
                 // Set existing image previews
                 if (trainer.profile_photo) {
-                    setPreviews(prev => ({ ...prev, profile_photo: `http://localhost:8000/uploads/trainer/${trainer.profile_photo}` }));
+                    setPreviews(prev => ({ ...prev, profile_photo: `${process.env.REACT_APP_API_URL}/uploads/trainer/${trainer.profile_photo}` }));
                 }
                 if (trainer.digital_signature) {
-                    setPreviews(prev => ({ ...prev, digital_signature: `http://localhost:8000/uploads/trainer/${trainer.digital_signature}` }));
+                    setPreviews(prev => ({ ...prev, digital_signature: `${process.env.REACT_APP_API_URL}/uploads/trainer/${trainer.digital_signature}` }));
                 }
             } catch (error) {
                 console.error("Error fetching trainer:", error);

@@ -124,7 +124,7 @@ const TrainerList = () => {
                 <div className="flex items-center gap-3">
                     {row.profile_photo ? (
                         <img
-                            src={`http://localhost:8000/uploads/trainer/${row.profile_photo}`}
+                            src={`${process.env.REACT_APP_API_URL}/uploads/trainer/${row.profile_photo}`}
                             alt="Profile"
                             className="w-10 h-10 rounded-full object-cover border border-slate-200"
                         />
@@ -148,7 +148,7 @@ const TrainerList = () => {
             hiddenOnMobile: true,
             render: (val, row) => val ? (
                 <img
-                    src={`http://localhost:8000/uploads/trainer/${val}`}
+                    src={`${process.env.REACT_APP_API_URL}/uploads/trainer/${val}`}
                     alt="Signature"
                     className="h-10 object-contain border border-slate-200 rounded bg-white"
                 />
