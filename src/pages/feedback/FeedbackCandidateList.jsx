@@ -126,7 +126,7 @@ const FeedbackCandidateList = () => {
                 <div className="flex items-center gap-4">
                     <BackButton to={basePath} label="Back to Courses" />
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+                        <h1 className="text-3xl font-bold tracking-tight page-title">
                             Course Candidates
                         </h1>
                         <p className="text-slate-500 mt-1">

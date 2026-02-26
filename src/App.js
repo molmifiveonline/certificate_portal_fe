@@ -53,6 +53,7 @@ const UnifiedDashboard = lazy(
 );
 
 const ReportDashboard = lazy(() => import("./pages/reports/ReportDashboard"));
+const HotelReport = lazy(() => import("./pages/reports/HotelReport"));
 
 const LocationList = lazy(() => import("./pages/locations/LocationList"));
 const CreateLocation = lazy(() => import("./pages/locations/CreateLocation"));
@@ -574,6 +575,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <ReportDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reports/hotel"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <HotelReport />
                   </PrivateRoute>
                 }
               />

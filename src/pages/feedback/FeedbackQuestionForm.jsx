@@ -15,6 +15,7 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
         type: initialData?.type || "rating",
     });
     const [loading, setLoading] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -62,6 +63,19 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const errors = {};
+        if (!formData.category_id) {
+            errors.category_id = "Category is required";
+        }
+        if (!formData.question.trim()) {
+            errors.question = "Question is required";
+        }
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+        setFormErrors({});
         setLoading(true);
 
         try {
@@ -101,17 +115,19 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                             Category <span className="text-red-500">*</span>
                         </label>
                         <select
                             name="category_id"
-                            required
                             value={formData.category_id}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-white/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                            onChange={(e) => {
+                                handleChange(e);
+                                if (formErrors.category_id) setFormErrors(prev => ({ ...prev, category_id: undefined }));
+                            }}
+                            className={`w-full px-4 py-2 bg-white/50 border ${formErrors.category_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer`}
                             style={{
                                 backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                                 backgroundPosition: `right 0.5rem center`,
@@ -127,6 +143,7 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
                                 </option>
                             ))}
                         </select>
+                        {formErrors.category_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.category_id}</span>}
                     </div>
 
                     <div>

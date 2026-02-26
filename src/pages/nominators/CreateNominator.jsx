@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -6,6 +6,26 @@ import nominatorService from '../../services/nominatorService';
 import { Users, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../../components/common/BackButton';
+
+const FormContext = createContext();
+
+const InputField = ({ label, name, type = "text", required, placeholder }) => {
+    const { register, errors } = useContext(FormContext);
+    return (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <input
+                type={type}
+                {...register(name, { required: required ? `${label} is required` : false })}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                placeholder={placeholder}
+            />
+            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+        </div>
+    );
+};
 
 const CreateNominator = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -26,23 +46,10 @@ const CreateNominator = () => {
         }
     };
 
-    const InputField = ({ label, name, type = "text", required, placeholder }) => (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 block">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <input
-                type={type}
-                {...register(name, { required: required ? `${label} is required` : false })}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-                placeholder={placeholder}
-            />
-            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
-        </div>
-    );
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <FormContext.Provider value={{ register, errors }}>
+            <div className="min-h-screen bg-slate-50">
             <Meta title="Create Nominator" description="Create New Nominator" />
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
@@ -93,7 +100,8 @@ const CreateNominator = () => {
                     </div>
                 </form>
             </div>
-        </div>
+            </div>
+        </FormContext.Provider>
     );
 };
 

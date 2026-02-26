@@ -82,6 +82,7 @@ const FeedbackFormCreate = () => {
 
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
+    const [formErrors, setFormErrors] = useState({});
 
 
     const [title, setTitle] = useState("");
@@ -221,9 +222,10 @@ const FeedbackFormCreate = () => {
         e.preventDefault();
 
         if (!title.trim()) {
-            toast.error("Title is required");
+            setFormErrors({ title: "Form title is required" });
             return;
         }
+        setFormErrors({});
 
         const payload = {
             title,
@@ -294,10 +296,14 @@ const FeedbackFormCreate = () => {
                             <input
                                 type="text"
                                 value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="w-full px-4 py-2 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                onChange={(e) => {
+                                    setTitle(e.target.value);
+                                    if (formErrors.title) setFormErrors(prev => ({ ...prev, title: undefined }));
+                                }}
+                                className={`w-full px-4 py-2 bg-white/50 border ${formErrors.title ? 'border-red-500' : 'border-slate-200/60'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all`}
                                 placeholder="e.g. Course Feedback 2024"
                             />
+                            {formErrors.title && <span className="text-red-500 text-xs mt-1 block">{formErrors.title}</span>}
                         </div>
 
 

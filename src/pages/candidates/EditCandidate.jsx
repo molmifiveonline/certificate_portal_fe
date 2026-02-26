@@ -120,7 +120,7 @@ const EditCandidate = () => {
             <Meta title="Edit Candidate" description="Edit Candidate Details" />
             <div className="flex items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Candidate</h1>
+                    <h1 className="text-3xl font-bold tracking-tight page-title">Edit Candidate</h1>
                     <p className="text-slate-500 mt-1">Modify candidate information</p>
                 </div>
                 <BackButton to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'} />

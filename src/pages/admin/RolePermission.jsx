@@ -122,7 +122,7 @@ const RolePermission = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
                         <Shield className="w-8 h-8 text-blue-600" />
                         Role Permissions
                     </h1>

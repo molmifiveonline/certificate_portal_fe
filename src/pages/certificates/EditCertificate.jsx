@@ -15,6 +15,7 @@ const EditCertificate = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
     const [fetching, setFetching] = useState(true);
     const [candidates, setCandidates] = useState([]);
     const [masterCourses, setMasterCourses] = useState([]);
@@ -122,6 +123,25 @@ const EditCertificate = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const errors = {};
+        if (!formData.candidate_id) {
+            errors.candidate_id = "Candidate is required";
+        }
+        if (!formData.course_id) {
+            errors.course_id = "Master Course is required";
+        }
+        if (!formData.trainer_id) {
+            errors.trainer_id = "Trainer is required";
+        }
+        if (!formData.topic?.trim()) {
+            errors.topic = "Topic is required";
+        }
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+        setFormErrors({});
         setLoading(true);
         try {
             const submitData = { ...formData };
@@ -155,7 +175,7 @@ const EditCertificate = () => {
 
             <div className="flex items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-xl">
                             <Award className="w-8 h-8 text-blue-600" />
                         </div>
@@ -168,7 +188,7 @@ const EditCertificate = () => {
 
             <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden mb-8">
                 <CardContent className="p-8">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} noValidate className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                             {/* Certificate Number (Read-only) */}
@@ -188,15 +208,18 @@ const EditCertificate = () => {
                                 <select
                                     name="candidate_id"
                                     value={formData.candidate_id}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        if (formErrors.candidate_id) setFormErrors(prev => ({ ...prev, candidate_id: undefined }));
+                                    }}
+                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.candidate_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                 >
                                     <option value="">Select Candidate</option>
                                     {candidates.map(c => (
                                         <option key={c.id} value={c.id}>{c.first_name} {c.last_name} ({c.empId})</option>
                                     ))}
                                 </select>
+                                {formErrors.candidate_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.candidate_id}</span>}
                             </div>
 
                             {/* Active Course Selection */}
@@ -221,15 +244,18 @@ const EditCertificate = () => {
                                 <select
                                     name="course_id"
                                     value={formData.course_id}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        if (formErrors.course_id) setFormErrors(prev => ({ ...prev, course_id: undefined }));
+                                    }}
+                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.course_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                 >
                                     <option value="">Select Master Course</option>
                                     {masterCourses.map(c => (
                                         <option key={c.id} value={c.id}>{c.master_course_name}</option>
                                     ))}
                                 </select>
+                                {formErrors.course_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.course_id}</span>}
                             </div>
 
                             {/* Trainer Selection */}
@@ -238,15 +264,18 @@ const EditCertificate = () => {
                                 <select
                                     name="trainer_id"
                                     value={formData.trainer_id}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        if (formErrors.trainer_id) setFormErrors(prev => ({ ...prev, trainer_id: undefined }));
+                                    }}
+                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.trainer_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                 >
                                     <option value="">Select Trainer</option>
                                     {trainers.map(t => (
                                         <option key={t.id} value={t.id}>{t.prefix} {t.first_name} {t.last_name}</option>
                                     ))}
                                 </select>
+                                {formErrors.trainer_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.trainer_id}</span>}
                             </div>
 
                             {/* Certificate Type */}
@@ -286,10 +315,13 @@ const EditCertificate = () => {
                                     type="text"
                                     name="topic"
                                     value={formData.topic}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        if (formErrors.topic) setFormErrors(prev => ({ ...prev, topic: undefined }));
+                                    }}
+                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.topic ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                 />
+                                {formErrors.topic && <span className="text-red-500 text-xs mt-1 block">{formErrors.topic}</span>}
                             </div>
 
                             {/* Course Level */}

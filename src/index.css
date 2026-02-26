@@ -23,6 +23,18 @@ code {
   backdrop-filter: blur(10px);
 }
 
+/* Page Title Gradient */
+.page-title {
+  background: linear-gradient(135deg, #1e3a6e 0%, #3a6fb5 50%, #5b9bd5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-title > * {
+  -webkit-text-fill-color: initial;
+}
+
 /* React Quill Global Styling */
 .quill {
   display: flex;

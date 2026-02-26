@@ -1,10 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { User, FileText, Briefcase, ArrowRight, Upload, Image as ImageIcon } from 'lucide-react';
 import { PasswordInput } from '../ui/PasswordInput';
 import candidateService from '../../services/candidateService';
 import { toast } from 'sonner';
 import { MANAGER_OPTIONS, PREFIX_OPTIONS, GENDER_OPTIONS, CANDIDATE_NATIONALITY_OPTIONS, RANK_OPTIONS } from '../../lib/constants';
+
+const FormContext = createContext();
+
+const SectionHeader = ({ title, icon: Icon }) => (
+    <div className="flex items-center space-x-2 border-b pb-2 mb-6 mt-2 relative">
+        <div className="absolute -bottom-[9px] left-0 w-12 h-0.5 bg-blue-600"></div>
+        {Icon && <Icon size={20} className="text-blue-600" />}
+        <h3 className="text-lg font-bold text-gray-800 uppercase tracking-wide">{title}</h3>
+    </div>
+);
+
+const InputField = ({ label, name, type = "text", required, rules, placeholder, className }) => {
+    const { register, errors } = useContext(FormContext);
+    return (
+        <div className={`space-y-1 ${className}`}>
+            <label className="text-sm font-medium text-slate-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <input
+                type={type}
+                {...register(name, { required: required ? `${label} is required` : false, ...rules })}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                placeholder={placeholder || ""}
+            />
+            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+        </div>
+    );
+};
+
+const SelectField = ({ label, name, required, options, className }) => {
+    const { register, errors } = useContext(FormContext);
+    return (
+        <div className={`space-y-1 ${className}`}>
+            <label className="text-sm font-medium text-slate-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <div className="relative">
+                <select
+                    {...register(name, { required: required ? `${label} is required` : false })}
+                    className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                >
+                    <option value="">Select...</option>
+                    {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                </select>
+            </div>
+            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+        </div>
+    );
+};
 
 const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSubmitting, submitLabel = "Register Now", showPassword = true, isAdmin = false }) => {
     // Pre-process defaultValues for Manager "Others" case
@@ -37,47 +86,6 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
 
     console.log("CandidateForm Debug:", { isAdmin, showPassword, showResetPassword });
 
-    const SectionHeader = ({ title, icon: Icon }) => (
-        <div className="flex items-center space-x-2 border-b pb-2 mb-6 mt-2 relative">
-            <div className="absolute -bottom-[9px] left-0 w-12 h-0.5 bg-blue-600"></div>
-            {Icon && <Icon size={20} className="text-blue-600" />}
-            <h3 className="text-lg font-bold text-gray-800 uppercase tracking-wide">{title}</h3>
-        </div>
-    );
-
-    const InputField = ({ label, name, type = "text", required, rules, placeholder, className }) => (
-        <div className={`space-y-1 ${className}`}>
-            <label className="text-sm font-medium text-slate-700 block">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <input
-                type={type}
-                {...register(name, { required: required ? `${label} is required` : false, ...rules })}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-                placeholder={placeholder || ""}
-            />
-            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
-        </div>
-    );
-
-    const SelectField = ({ label, name, required, options, className }) => (
-        <div className={`space-y-1 ${className}`}>
-            <label className="text-sm font-medium text-slate-700 block">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <div className="relative">
-                <select
-                    {...register(name, { required: required ? `${label} is required` : false })}
-                    className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-                >
-                    <option value="">Select...</option>
-                    {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
-            </div>
-            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
-        </div>
-    );
-
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -100,7 +108,8 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
     };
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
+        <FormContext.Provider value={{ register, errors }}>
+            <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
 
             {/* Employee Type Toggle */}
             <div className="flex justify-center mb-10">
@@ -332,7 +341,8 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                 </div>
             </div>
 
-        </form>
+            </form>
+        </FormContext.Provider>
     );
 };
 

@@ -70,7 +70,7 @@ const EditLocation = () => {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Location</h1>
+                        <h1 className="text-3xl font-bold tracking-tight page-title">Edit Location</h1>
                         <p className="text-slate-500 mt-1">Update training center information</p>
                     </div>
                     <BackButton to="/location" />

@@ -176,7 +176,7 @@ const SubmittedAssessmentList = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
                         <div className="bg-indigo-100 p-2 rounded-xl">
                             <ClipboardList className="w-8 h-8 text-indigo-600" />
                         </div>

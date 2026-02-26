@@ -11,6 +11,7 @@ import {
     Upload,
     Zap,
     Users,
+    SlidersHorizontal,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
@@ -43,6 +44,7 @@ const CandidateList = ({ registrationType }) => {
     const [isUploading, setIsUploading] = useState(false);
 
     // Filter States
+    const [showFilters, setShowFilters] = useState(false);
     const [filterManager, setFilterManager] = useState("");
     const [filterRank, setFilterRank] = useState("");
     const [filterNationality, setFilterNationality] = useState("");
@@ -255,7 +257,7 @@ const CandidateList = ({ registrationType }) => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-xl">
                             <Users className="w-8 h-8 text-blue-600" />
                         </div>
@@ -296,7 +298,7 @@ const CandidateList = ({ registrationType }) => {
                 </div>
             </div>
 
-            <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
+            <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
                 <CardContent className="p-4 sm:p-6 space-y-4">
                     <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                         <div className="relative w-full md:w-96">
@@ -310,6 +312,13 @@ const CandidateList = ({ registrationType }) => {
                             />
                         </div>
                         <div className="flex gap-3 w-full md:w-auto">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+                                title={showFilters ? 'Hide Filters' : 'Show Filters'}
+                            >
+                                <SlidersHorizontal className="w-5 h-5" />
+                            </button>
                             <Button
                                 onClick={handleExport}
                                 disabled={isExporting}
@@ -320,9 +329,8 @@ const CandidateList = ({ registrationType }) => {
                             </Button>
                         </div>
                     </div>
-
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {showFilters && (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Manager</label>
                             <div className="relative">
@@ -379,6 +387,7 @@ const CandidateList = ({ registrationType }) => {
                             </select>
                         </div>
                     </div>
+                    )}
                 </CardContent>
             </Card>
 

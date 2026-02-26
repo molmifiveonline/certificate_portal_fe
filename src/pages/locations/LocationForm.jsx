@@ -18,7 +18,7 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
                         Location Details
                     </h3>
                 </div>
@@ -124,7 +124,7 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-70 text-sm"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-70 text-sm"
                 >
                     {isSubmitting ? (
                         <RefreshCcw className="w-4 h-4 animate-spin" />

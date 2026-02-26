@@ -25,7 +25,7 @@ const CertificateReportCard = ({
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-5 p-6">
+      <form onSubmit={onSubmit} noValidate className="space-y-5 p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label
@@ -42,7 +42,6 @@ const CertificateReportCard = ({
               value={dates.start_date}
               onChange={onDateChange}
               className={inputStyles}
-              required
             />
           </div>
           <div>
@@ -60,7 +59,6 @@ const CertificateReportCard = ({
               value={dates.end_date}
               onChange={onDateChange}
               className={inputStyles}
-              required
             />
           </div>
         </div>

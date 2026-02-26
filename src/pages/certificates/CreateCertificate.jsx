@@ -15,6 +15,7 @@ import { toast } from "sonner";
 const CreateCertificate = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
     const [candidates, setCandidates] = useState([]);
     const [masterCourses, setMasterCourses] = useState([]);
     const [activeCourses, setActiveCourses] = useState([]);
@@ -108,11 +109,25 @@ const CreateCertificate = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation for multiple candidates
+        // Validation
+        const errors = {};
         if (formData.candidate_ids.length === 0) {
-            toast.error("Please select at least one candidate.");
+            errors.candidate_ids = "Please select at least one candidate";
+        }
+        if (!formData.course_id) {
+            errors.course_id = "Master Course is required";
+        }
+        if (!formData.trainer_id) {
+            errors.trainer_id = "Trainer is required";
+        }
+        if (!formData.topic.trim()) {
+            errors.topic = "Topic is required";
+        }
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
             return;
         }
+        setFormErrors({});
 
         setLoading(true);
         try {
@@ -145,7 +160,7 @@ const CreateCertificate = () => {
 
             <div className="flex items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-xl">
                             <Award className="w-8 h-8 text-blue-600" />
                         </div>
@@ -158,7 +173,7 @@ const CreateCertificate = () => {
 
             <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden mb-8">
                 <CardContent className="p-8">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} noValidate className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Candidate Selection array via Modal */}
                             <div className="space-y-2 md:col-span-2">
@@ -211,15 +226,18 @@ const CreateCertificate = () => {
                                 <select
                                     name="course_id"
                                     value={formData.course_id}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        if (formErrors.course_id) setFormErrors(prev => ({ ...prev, course_id: undefined }));
+                                    }}
+                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.course_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                 >
                                     <option value="">Select Master Course</option>
                                     {masterCourses.map(c => (
                                         <option key={c.id} value={c.id}>{c.master_course_name}</option>
                                     ))}
                                 </select>
+                                {formErrors.course_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.course_id}</span>}
                             </div>
 
                             {/* Trainer Selection */}
@@ -228,15 +246,18 @@ const CreateCertificate = () => {
                                 <select
                                     name="trainer_id"
                                     value={formData.trainer_id}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        if (formErrors.trainer_id) setFormErrors(prev => ({ ...prev, trainer_id: undefined }));
+                                    }}
+                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.trainer_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                 >
                                     <option value="">Select Trainer</option>
                                     {trainers.map(t => (
                                         <option key={t.id} value={t.id}>{t.prefix} {t.first_name} {t.last_name}</option>
                                     ))}
                                 </select>
+                                {formErrors.trainer_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.trainer_id}</span>}
                             </div>
 
                             {/* Type */}
@@ -262,11 +283,14 @@ const CreateCertificate = () => {
                                     type="text"
                                     name="topic"
                                     value={formData.topic}
-                                    onChange={handleChange}
-                                    required
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        if (formErrors.topic) setFormErrors(prev => ({ ...prev, topic: undefined }));
+                                    }}
                                     placeholder="e.g. Navigation, Engineering"
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.topic ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                 />
+                                {formErrors.topic && <span className="text-red-500 text-xs mt-1 block">{formErrors.topic}</span>}
                             </div>
 
                             {/* Level */}
