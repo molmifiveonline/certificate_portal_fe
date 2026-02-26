@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
 import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import api from '../../lib/api';
@@ -8,12 +8,95 @@ import { useNavigate, useParams } from 'react-router-dom';
 import BackButton from '../../components/common/BackButton';
 import { Button } from "../../components/ui/button";
 
+const FormContext = createContext();
+
+const InputField = ({ label, name, value, onChange, placeholder }) => (
+    <div className="space-y-1">
+        <label className="text-sm font-medium text-slate-700 block">
+            {label}
+        </label>
+        <input
+            type="text"
+            name={name}
+            value={value}
+            onChange={onChange}
+            className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
+            placeholder={placeholder}
+        />
+    </div>
+);
+
+const SelectField = ({ label, name, value, onChange, placeholder, options, required, error }) => {
+    const { formErrors } = useContext(FormContext);
+    return (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <select
+                name={name}
+                value={value}
+                onChange={onChange}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${error && formErrors[error] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+            >
+                <option value="">{placeholder}</option>
+                {options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+            </select>
+            {error && formErrors[error] && <span className="text-red-500 text-xs mt-1 block">{formErrors[error]}</span>}
+        </div>
+    );
+};
+
+const TextAreaField = ({ label, name, value, onChange, placeholder, required, error }) => {
+    const { formErrors } = useContext(FormContext);
+    return (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <textarea
+                name={name}
+                value={value}
+                onChange={onChange}
+                className={`w-full px-4 py-3 rounded-xl bg-slate-50/50 border ${error && formErrors[error] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm min-h-[100px]`}
+                placeholder={placeholder}
+            />
+            {error && formErrors[error] && <span className="text-red-500 text-xs mt-1 block">{formErrors[error]}</span>}
+        </div>
+    );
+};
+
+const FileInputField = ({ label, fileRef, onChange, preview, previewAlt }) => (
+    <div className="space-y-1">
+        <label className="text-sm font-medium text-slate-700 block">{label}</label>
+        <input
+            type="file"
+            accept="image/*"
+            ref={fileRef}
+            onChange={onChange}
+            className="w-full px-4 py-2 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all"
+        />
+        {preview && (
+            <div className="mt-2">
+                <img
+                    src={preview}
+                    alt={previewAlt}
+                    className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm"
+                />
+            </div>
+        )}
+    </div>
+);
+
 const QuestionBankForm = () => {
     const { id } = useParams();
     const isEditMode = !!id;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [masterCourses, setMasterCourses] = useState([]);
     const navigate = useNavigate();
+    const [formErrors, setFormErrors] = useState({});
 
     // Form fields state
     const [formValues, setFormValues] = useState({
@@ -128,18 +211,21 @@ const QuestionBankForm = () => {
         e.preventDefault();
 
         // Basic validation
+        const errors = {};
         if (!formValues.master_course_id) {
-            toast.error("Master Course is required.");
-            return;
+            errors.master_course_id = "Master Course is required";
         }
         if (!formValues.question.trim()) {
-            toast.error("Question is required.");
-            return;
+            errors.question = "Question is required";
         }
         if (formValues.correct_option.length === 0) {
-            toast.error("At least one correct option is required.");
+            errors.correct_option = "At least one correct option is required";
+        }
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
             return;
         }
+        setFormErrors({});
 
         setIsSubmitting(true);
         try {
@@ -197,77 +283,9 @@ const QuestionBankForm = () => {
         opt_img_d: optImgDRef,
     };
 
-    // Helper Components
-    const InputField = ({ label, name, value, onChange, placeholder }) => (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 block">
-                {label}
-            </label>
-            <input
-                type="text"
-                name={name}
-                value={value}
-                onChange={onChange}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-                placeholder={placeholder}
-            />
-        </div>
-    );
-
-    const SelectField = ({ label, name, value, onChange, placeholder, options, required }) => (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 block">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <select
-                name={name}
-                value={value}
-                onChange={onChange}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-            >
-                <option value="">{placeholder}</option>
-                {options.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-            </select>
-        </div>
-    );
-
-    const TextAreaField = ({ label, name, value, onChange, placeholder, required }) => (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 block">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <textarea
-                name={name}
-                value={value}
-                onChange={onChange}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm min-h-[100px]"
-                placeholder={placeholder}
-            />
-        </div>
-    );
-
-    const FileInputField = ({ label, fileRef, onChange, preview, previewAlt }) => (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 block">{label}</label>
-            <input
-                type="file"
-                accept="image/*"
-                ref={fileRef}
-                onChange={onChange}
-                className="w-full px-4 py-2 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all"
-            />
-            {preview && (
-                <div className="mt-2">
-                    <img src={preview} alt={previewAlt} className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm" />
-                </div>
-            )}
-        </div>
-    );
-
     return (
-        <div className="min-h-screen bg-slate-50">
+        <FormContext.Provider value={{ formErrors }}>
+            <div className="min-h-screen bg-slate-50">
             <Meta title={isEditMode ? "Edit Question" : "Add Question"} description={isEditMode ? "Edit Question Details" : "Add New Question"} />
 
             {/* Header */}
@@ -287,7 +305,7 @@ const QuestionBankForm = () => {
             </div>
 
             <div className="max-w-none p-8">
-                <form onSubmit={handleSubmit} className="space-y-8 max-w-[1200px] mx-auto">
+                <form onSubmit={handleSubmit} noValidate className="space-y-8 max-w-[1200px] mx-auto">
 
                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -298,6 +316,7 @@ const QuestionBankForm = () => {
                                 onChange={handleInputChange}
                                 placeholder="Select Master Course"
                                 required
+                                error="master_course_id"
                                 options={masterCourses.map(c => ({ value: c.id, label: c.master_course_name }))}
                             />
 
@@ -345,6 +364,7 @@ const QuestionBankForm = () => {
                             onChange={handleInputChange}
                             placeholder="Enter question text here..."
                             required
+                            error="question"
                         />
 
                         {/* Question Image */}
@@ -420,7 +440,8 @@ const QuestionBankForm = () => {
                     </div>
                 </form>
             </div>
-        </div>
+            </div>
+        </FormContext.Provider>
     );
 };
 

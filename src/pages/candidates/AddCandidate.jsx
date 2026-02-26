@@ -70,7 +70,7 @@ const AddCandidate = () => {
             <Meta title="Add Candidate" description="Add New Candidate" />
             <div className="flex items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Add New Candidate</h1>
+                    <h1 className="text-3xl font-bold tracking-tight page-title">Add New Candidate</h1>
                     <p className="text-slate-500 mt-1">Register a new candidate manually</p>
                 </div>
                 <BackButton to="/candidates/molmi" />

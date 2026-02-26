@@ -115,6 +115,10 @@ export const MenuItems = [
   //   url: "/reports",
   //   icon: FileBarChart,
   //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Reports", url: "/reports" },
+  //     { title: "Hotel Report", url: "/reports/hotel" },
+  //   ],
   // },
   {
     title: "Role Permissions",

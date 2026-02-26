@@ -193,7 +193,7 @@ const CertificateList = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-xl">
                             <Award className="w-8 h-8 text-blue-600" />
                         </div>
@@ -211,7 +211,7 @@ const CertificateList = () => {
             </div>
 
             {/* Filter Bar */}
-            <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
+            <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
                 <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-center">
                     <div className="relative w-full md:w-96">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />

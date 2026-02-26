@@ -111,7 +111,7 @@ const Login = () => {
                                     <input
                                         type="email"
                                         {...register('email', { required: 'Email is required' })}
-                                        className="w-full px-4 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm"
+                                        className={`w-full px-4 py-3 rounded-lg bg-white/70 border ${errors.email ? 'border-red-500' : 'border-gray-300'} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm`}
                                         placeholder="name@company.com"
                                         defaultValue="molmi.admin@molgroup.com"
                                     />
@@ -122,7 +122,7 @@ const Login = () => {
                                     <label className="text-sm font-semibold text-gray-700 block">Password</label>
                                     <PasswordInput
                                         {...register('password', { required: 'Password is required' })}
-                                        className="w-full px-4 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto"
+                                        className={`w-full px-4 py-3 rounded-lg bg-white/70 border ${errors.password ? 'border-red-500' : 'border-gray-300'} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto`}
                                         placeholder="Enter your password"
                                     />
                                 </div>

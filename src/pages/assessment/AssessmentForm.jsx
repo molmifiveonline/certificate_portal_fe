@@ -30,6 +30,7 @@ const AssessmentForm = () => {
     const [selectedCandidates, setSelectedCandidates] = useState([]);
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
     const [loadingCourses, setLoadingCourses] = useState(false);
     const [loadingCandidates, setLoadingCandidates] = useState(false);
     const [loadingQuestions, setLoadingQuestions] = useState(false);
@@ -182,13 +183,12 @@ const AssessmentForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const errors = {};
         if (!formData.title.trim()) {
-            toast.error("Please enter a title.");
-            return;
+            errors.title = "Assessment title is required";
         }
         if (!formData.course_id) {
-            toast.error("Please select a course.");
-            return;
+            errors.course_id = "Course is required";
         }
 
         if (formData.questions_choice === "manual") {
@@ -198,6 +198,12 @@ const AssessmentForm = () => {
                 return;
             }
         }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+        setFormErrors({});
 
         setLoading(true);
         try {
@@ -227,7 +233,7 @@ const AssessmentForm = () => {
     };
 
 
-    const InputField = ({ label, value, onChange, placeholder, required }) => (
+    const InputField = ({ label, value, onChange, placeholder, required, error }) => (
         <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
                 {label} {required && <span className="text-red-500">*</span>}
@@ -237,13 +243,13 @@ const AssessmentForm = () => {
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-                required={required}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${error && formErrors[error] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
             />
+            {error && formErrors[error] && <span className="text-red-500 text-xs mt-1 block">{formErrors[error]}</span>}
         </div>
     );
 
-    const SelectField = ({ label, value, onChange, options, loading, placeholder, required }) => (
+    const SelectField = ({ label, value, onChange, options, loading, placeholder, required, error }) => (
         <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
                 {label} {required && <span className="text-red-500">*</span>}
@@ -251,8 +257,7 @@ const AssessmentForm = () => {
             <select
                 value={value}
                 onChange={onChange}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-                required={required}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${error && formErrors[error] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
             >
                 <option value="">{placeholder}</option>
                 {loading ? (
@@ -265,6 +270,7 @@ const AssessmentForm = () => {
                     ))
                 )}
             </select>
+            {error && formErrors[error] && <span className="text-red-500 text-xs mt-1 block">{formErrors[error]}</span>}
         </div>
     );
 
@@ -285,7 +291,7 @@ const AssessmentForm = () => {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 max-w-[1600px] mx-auto space-y-8">
+            <form onSubmit={handleSubmit} noValidate className="p-8 max-w-[1600px] mx-auto space-y-8">
 
                 {/* 1. Basic Details Card */}
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
@@ -300,6 +306,7 @@ const AssessmentForm = () => {
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             placeholder="e.g. Final Certification Exam 2024"
                             required
+                            error="title"
                         />
                         <SelectField
                             label="Course"
@@ -308,6 +315,7 @@ const AssessmentForm = () => {
                             placeholder="Select a course..."
                             loading={loadingCourses}
                             required
+                            error="course_id"
                             options={courses.map(c => ({ value: c.id, label: `${c.course_name} (${c.course_code})` }))}
                         />
                     </div>

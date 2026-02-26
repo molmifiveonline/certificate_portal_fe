@@ -51,7 +51,7 @@ const CreateHotel = () => {
                             <Building className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Add New Hotel</h1>
+                            <h1 className="text-3xl font-bold tracking-tight page-title">Add New Hotel</h1>
                             <p className="text-slate-500 mt-1">Register a new hotel for courses and certificates</p>
                         </div>
                     </div>

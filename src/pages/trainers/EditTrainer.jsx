@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -7,6 +7,77 @@ import { Users, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import BackButton from '../../components/common/BackButton';
+
+const FormContext = createContext();
+
+const InputField = ({ label, name, type = "text", required, rules, placeholder }) => {
+    const { register, errors } = useContext(FormContext);
+    return (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <input
+                type={type}
+                {...register(name, { required: required ? `${label} is required` : false, ...rules })}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                placeholder={placeholder}
+            />
+            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+        </div>
+    );
+};
+
+const FileInput = ({ label, name }) => {
+    const { register, handleFileChange, previews } = useContext(FormContext);
+    const { ref, ...rest } = register(name);
+    return (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 block">{label}</label>
+            <input
+                type="file"
+                accept="image/*"
+                ref={ref}
+                {...rest}
+                onChange={(e) => {
+                    rest.onChange(e);
+                    handleFileChange(name, e);
+                }}
+                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 outline-none text-sm"
+            />
+            {previews[name] && (
+                <div className="mt-2">
+                    <img
+                        src={previews[name]}
+                        alt={`${label} preview`}
+                        className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm"
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+
+const SelectField = ({ label, name, options, required }) => {
+    const { register, errors } = useContext(FormContext);
+    return (
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700 block">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <select
+                {...register(name, { required: required ? `${label} is required` : false })}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+            >
+                <option value="">Select {label}</option>
+                {options.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                ))}
+            </select>
+            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+        </div>
+    );
+};
 
 const EditTrainer = () => {
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
@@ -133,67 +204,7 @@ const EditTrainer = () => {
         }
     };
 
-    const InputField = ({ label, name, type = "text", required, rules, placeholder }) => (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 block">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <input
-                type={type}
-                {...register(name, { required: required ? `${label} is required` : false, ...rules })}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-                placeholder={placeholder}
-            />
-            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
-        </div>
-    );
 
-    const FileInput = ({ label, name }) => {
-        const { ref, ...rest } = register(name);
-        return (
-            <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700 block">{label}</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    ref={ref}
-                    {...rest}
-                    onChange={(e) => {
-                        rest.onChange(e);
-                        handleFileChange(name, e);
-                    }}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 outline-none text-sm"
-                />
-                {previews[name] && (
-                    <div className="mt-2">
-                        <img
-                            src={previews[name]}
-                            alt={`${label} preview`}
-                            className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm"
-                        />
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    const SelectField = ({ label, name, options, required }) => (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 block">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <select
-                {...register(name, { required: required ? `${label} is required` : false })}
-                className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-            >
-                <option value="">Select {label}</option>
-                {options.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                ))}
-            </select>
-            {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
-        </div>
-    );
 
     if (loading) {
         return (
@@ -206,7 +217,8 @@ const EditTrainer = () => {
 
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <FormContext.Provider value={{ register, errors, handleFileChange, previews }}>
+            <div className="min-h-screen bg-slate-50">
             <Meta title="Edit Trainer" description="Edit Trainer Details" />
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
@@ -328,7 +340,8 @@ const EditTrainer = () => {
                     </div>
                 </form>
             </div>
-        </div>
+            </div>
+        </FormContext.Provider>
     );
 };
 

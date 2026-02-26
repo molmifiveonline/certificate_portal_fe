@@ -80,7 +80,7 @@ const EditHotel = () => {
                             <Building className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Hotel</h1>
+                            <h1 className="text-3xl font-bold tracking-tight page-title">Edit Hotel</h1>
                             <p className="text-slate-500 mt-1">Update details for {hotel?.venue_name}</p>
                         </div>
                     </div>

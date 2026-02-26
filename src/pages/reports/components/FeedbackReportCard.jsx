@@ -31,7 +31,7 @@ const FeedbackReportCard = ({
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-5 p-6">
+      <form onSubmit={onSubmit} noValidate className="space-y-5 p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label
@@ -49,7 +49,6 @@ const FeedbackReportCard = ({
               onChange={onDateChange}
               max={today}
               className={inputStyles}
-              required
             />
           </div>
           <div>
@@ -68,7 +67,6 @@ const FeedbackReportCard = ({
               onChange={onDateChange}
               max={today}
               className={inputStyles}
-              required
             />
           </div>
         </div>

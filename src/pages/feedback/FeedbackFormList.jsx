@@ -139,7 +139,7 @@ const FeedbackFormList = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+                    <h1 className="text-3xl font-bold tracking-tight page-title">
                         Feedback Forms
                     </h1>
                     <p className="text-slate-500 mt-1">

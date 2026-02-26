@@ -5,6 +5,7 @@ import {
     BookOpen,
     Search,
     Filter,
+    SlidersHorizontal,
     MoreVertical,
     AlertCircle,
     CheckCircle,
@@ -60,22 +61,34 @@ const FilterSection = ({
     masterCourses,
     onSearch
 }) => {
+    const [showFilters, setShowFilters] = useState(false);
+
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({ ...prev, [key]: value }));
     };
 
     return (
-        <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
-            <CardHeader className="pb-4 border-b border-slate-100/50">
-                <div className="flex items-center gap-2">
-                    <div className="p-2 bg-blue-50/80 text-blue-600 rounded-lg backdrop-blur-sm">
-                        <Filter className="w-4 h-4" />
+        <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
+            <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="p-2 bg-blue-50/80 text-blue-600 rounded-lg backdrop-blur-sm">
+                            <Filter className="w-4 h-4" />
+                        </div>
+                        <CardTitle className="text-lg font-bold text-slate-800">Filters</CardTitle>
                     </div>
-                    <CardTitle className="text-lg font-bold text-slate-800">Filters</CardTitle>
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+                        title={showFilters ? 'Hide Filters' : 'Show Filters'}
+                    >
+                        <SlidersHorizontal className="w-5 h-5" />
+                    </button>
                 </div>
             </CardHeader>
-            <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+            {showFilters && (
+            <CardContent className="p-6 pt-0 border-t border-slate-100/50">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end mt-4">
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Trainer</label>
                         <Select
@@ -170,7 +183,7 @@ const FilterSection = ({
                                 end_date: '',
                                 status: ''
                             });
-                            onSearch(); // Optional: Trigger search immediately after clearing, or let user click search
+                            onSearch();
                         }}
                         className="font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100"
                     >
@@ -185,6 +198,7 @@ const FilterSection = ({
                     </Button>
                 </div>
             </CardContent>
+            )}
         </Card>
     );
 };

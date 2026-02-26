@@ -31,6 +31,15 @@ const ReportService = {
       throw error.response?.data || error.message;
     }
   },
+
+  getHotelReport: async (params) => {
+    try {
+      const response = await api.get(`/reports/hotel`, { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default ReportService;

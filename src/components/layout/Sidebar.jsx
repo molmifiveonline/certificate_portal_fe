@@ -30,10 +30,18 @@ const Sidebar = () => {
     const [expandedMenus, setExpandedMenus] = useState({});
 
     const toggleMenu = (title) => {
-        setExpandedMenus((prev) => ({
-            ...prev,
-            [title]: !prev[title],
-        }));
+        setExpandedMenus((prev) => {
+            const isCurrentlyOpen = prev[title];
+            // Close all other menus, only keep the toggled one open
+            if (isCurrentlyOpen) {
+                // If closing the current menu, just close it
+                return { ...prev, [title]: false };
+            }
+            // If opening a new menu, close all others
+            const newState = {};
+            newState[title] = true;
+            return newState;
+        });
     };
 
     // Filter menu items based on user role and permissions
@@ -132,6 +140,10 @@ const Sidebar = () => {
                         const isActive = !hasSubItems && isLinkActive(item.url, topLevelUrls);
 
                         const handleNavClick = () => {
+                            // Close all expanded submenus when navigating to a different module
+                            if (!hasSubItems) {
+                                setExpandedMenus({});
+                            }
                             if (window.innerWidth < 768 && !hasSubItems) {
                                 setIsOpen(false);
                             }
