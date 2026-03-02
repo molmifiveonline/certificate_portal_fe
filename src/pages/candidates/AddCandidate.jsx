@@ -76,17 +76,16 @@ const AddCandidate = () => {
                 <BackButton to="/candidates/molmi" />
             </div>
 
-            <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">
-                <CardContent className="p-8">
-                    <CandidateForm
-                        onSubmit={onSubmit}
-                        isSubmitting={isSubmitting}
-                        submitLabel="Create Candidate"
-                        showPassword={true}
-                        isAdmin={true}
-                    />
-                </CardContent>
-            </Card>
+            <div className="w-full">
+                <CandidateForm
+                    onSubmit={onSubmit}
+                    isSubmitting={isSubmitting}
+                    submitLabel="Create Candidate"
+                    showPassword={true}
+                    isAdmin={true}
+                    onCancel={() => navigate('/candidates/molmi')}
+                />
+            </div>
         </div>
     );
 };

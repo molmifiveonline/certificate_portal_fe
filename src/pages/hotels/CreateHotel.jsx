@@ -41,7 +41,7 @@ const CreateHotel = () => {
 
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="w-full h-full pb-20">
             <Meta title="Add Hotel" description="Add New Hotel" />
             <div className="max-w-[1600px] mx-auto">
                 {/* Header */}

@@ -55,7 +55,7 @@ const SelectField = ({ label, name, required, options, className }) => {
     );
 };
 
-const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSubmitting, submitLabel = "Register Now", showPassword = true, isAdmin = false }) => {
+const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSubmitting, submitLabel = "Register Now", showPassword = true, isAdmin = false, onCancel }) => {
     // Pre-process defaultValues for Manager "Others" case
     const formattedDefaultValues = { ...defaultValues };
     if (formattedDefaultValues.manager && !MANAGER_OPTIONS.some(o => o.value === formattedDefaultValues.manager)) {
@@ -109,237 +109,247 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
 
     return (
         <FormContext.Provider value={{ register, errors }}>
-            <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
-
-            {/* Employee Type Toggle */}
-            <div className="flex justify-center mb-10">
-                <div className="bg-gray-100 p-1.5 rounded-lg inline-flex">
-                    <label className="cursor-pointer">
-                        <input type="radio" value="MOLMI Employee" {...register("employeeType")} defaultChecked className="peer sr-only" />
-                        <span className="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all block">MOLMI Employee</span>
-                    </label>
-                    <label className="cursor-pointer ml-1">
-                        <input type="radio" value="Others" {...register("employeeType")} className="peer sr-only" />
-                        <span className="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all block">Others</span>
-                    </label>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-
-                {/* Column 1: Personal & ID */}
-                <div className="md:col-span-6 space-y-8">
-                    <div>
-                        <SectionHeader title="Identification" icon={Briefcase} />
-                        <div className="grid grid-cols-2 gap-4">
-                            {employeeType !== 'Others' && <InputField label="Employee ID" name="employeeId" required />}
-                            <InputField label="Passport Number" name="passportNumber" required />
-                            <InputField label="INDOS No." name="indosNo" placeholder="(For Indian Seafarers)" className="col-span-2" />
+            <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 pb-20">
+                <div className="bg-white rounded-3xl border border-slate-200/60 shadow-xl p-8">
+                    {/* Employee Type Toggle */}
+                    <div className="flex justify-center mb-10">
+                        <div className="bg-gray-100 p-1.5 rounded-lg inline-flex">
+                            <label className="cursor-pointer">
+                                <input type="radio" value="MOLMI Employee" {...register("employeeType")} defaultChecked className="peer sr-only" />
+                                <span className="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all block">MOLMI Employee</span>
+                            </label>
+                            <label className="cursor-pointer ml-1">
+                                <input type="radio" value="Others" {...register("employeeType")} className="peer sr-only" />
+                                <span className="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all block">Others</span>
+                            </label>
                         </div>
                     </div>
 
-                    <div>
-                        <SectionHeader title="Professional Info" icon={FileText} />
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <SelectField label="Rank On Vessel" name="rank" required options={RANK_OPTIONS} />
-                                <SelectField label="Manager" name="manager" options={MANAGER_OPTIONS} />
-                                {selectedManager === 'Others' && (
-                                    <InputField label="Specify Manager" name="otherManager" required placeholder="Enter Manager Name" className="col-span-2" />
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <SectionHeader title="Contact Info" />
-                        <div className="space-y-4">
-                            <InputField label="Email Address" name="email" type="email" required />
-
-                            {/* Password Section */}
-                            {(showPassword || showResetPassword) && (
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                        {/* Column 1: Personal & ID */}
+                        <div className="md:col-span-6 space-y-8">
+                            <div>
+                                <SectionHeader title="Identification" icon={Briefcase} />
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="text-sm font-medium text-gray-700 block">
-                                            {showResetPassword ? "New Password" : "Password"} <span className="text-red-500">*</span>
-                                        </label>
-                                        <PasswordInput
-                                            {...register("password", {
-                                                required: (showPassword || showResetPassword) ? "Password is required" : false,
-                                                minLength: { value: 6, message: "Password must be at least 6 characters" }
-                                            })}
-                                            className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
-                                            placeholder={showResetPassword ? "Enter new password" : "Enter password"}
-                                        />
-                                        {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-sm font-medium text-gray-700 block">
-                                            Confirm Password <span className="text-red-500">*</span>
-                                        </label>
-                                        <PasswordInput
-                                            {...register("confirmPassword", {
-                                                required: (showPassword || showResetPassword) ? "Confirm Password is required" : false,
-                                                validate: (val, formValues) => {
-                                                    if (showPassword || showResetPassword) {
-                                                        return val === formValues.password || "Passwords do not match";
-                                                    }
-                                                    return true;
-                                                }
-                                            })}
-                                            className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
-                                            placeholder="Confirm password"
-                                        />
-                                        {errors.confirmPassword && <span className="text-red-500 text-xs">{errors.confirmPassword.message}</span>}
-                                    </div>
+                                    {employeeType !== 'Others' && <InputField label="Employee ID" name="employeeId" required />}
+                                    <InputField label="Passport Number" name="passportNumber" required />
+                                    <InputField label="INDOS No." name="indosNo" placeholder="(For Indian Seafarers)" className="col-span-2" />
                                 </div>
-                            )}
-
-                            {/* Reset Password Button for Admin Edit */}
-                            {isAdmin && !showPassword && !showResetPassword && (
-                                <div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowResetPassword(true)}
-                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
-                                    >
-                                        Reset Password
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Cancel Reset Password */}
-                            {isAdmin && !showPassword && showResetPassword && (
-                                <div>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowResetPassword(false);
-                                            setValue("password", "");
-                                            setValue("confirmPassword", "");
-                                        }}
-                                        className="text-red-600 hover:text-red-800 text-sm font-medium underline"
-                                    >
-                                        Cancel Password Reset
-                                    </button>
-                                </div>
-                            )}
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <InputField label="WhatsApp Number" name="whatsapp" required placeholder="Primary Mobile" />
-                                <InputField label="Alternate Number" name="alternateNumber" />
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                {/* Column 2: Personal & Contact */}
-                <div className="md:col-span-6 space-y-8">
-                    <div>
-                        <SectionHeader title="Personal Details" icon={User} />
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <SelectField label="Prefix" name="prefix" required options={PREFIX_OPTIONS} className="md:col-span-1" />
-                            <InputField label="First Name" name="firstName" required className="md:col-span-3" />
-                            <InputField label="Middle Name" name="middleName" className="md:col-span-2" />
-                            <InputField label="Last Name" name="lastName" required className="md:col-span-2" />
-                            <SelectField label="Gender" name="gender" required options={GENDER_OPTIONS} className="md:col-span-2" />
-                            <InputField label="Date of Birth" name="dob" type="date" required className="md:col-span-2" />
-                            <SelectField label="Nationality" name="nationality" required options={CANDIDATE_NATIONALITY_OPTIONS} className="md:col-span-2" />
-                            <InputField label="Seaman Book No." name="seamanBookNo" className="md:col-span-2" />
-
-                            <div className="md:col-span-4 space-y-1">
-                                <label className="text-sm font-medium text-gray-700 block">Profile Image</label>
-                                <div className="flex items-center gap-4">
-                                    <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center">
-                                        {profileImage ? (
-                                            <img src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profileImage}`} alt="Profile" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <ImageIcon className="text-gray-400 w-8 h-8" />
+                            <div>
+                                <SectionHeader title="Professional Info" icon={FileText} />
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <SelectField label="Rank On Vessel" name="rank" required options={RANK_OPTIONS} />
+                                        <SelectField label="Manager" name="manager" options={MANAGER_OPTIONS} />
+                                        {selectedManager === 'Others' && (
+                                            <InputField label="Specify Manager" name="otherManager" required placeholder="Enter Manager Name" className="col-span-2" />
                                         )}
-                                        {uploadingImage && (
-                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <SectionHeader title="Contact Info" />
+                                <div className="space-y-4">
+                                    <InputField label="Email Address" name="email" type="email" required />
+
+                                    {/* Password Section */}
+                                    {(showPassword || showResetPassword) && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-gray-700 block">
+                                                    {showResetPassword ? "New Password" : "Password"} <span className="text-red-500">*</span>
+                                                </label>
+                                                <PasswordInput
+                                                    {...register("password", {
+                                                        required: (showPassword || showResetPassword) ? "Password is required" : false,
+                                                        minLength: { value: 6, message: "Password must be at least 6 characters" }
+                                                    })}
+                                                    className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
+                                                    placeholder={showResetPassword ? "Enter new password" : "Enter password"}
+                                                />
+                                                {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                                             </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1">
-                                        <label className="cursor-pointer bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors">
-                                            <Upload size={16} />
-                                            <span>{uploadingImage ? "Uploading..." : "Upload Photo"}</span>
-                                            <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                                        </label>
-                                        <p className="text-xs text-gray-500 mt-1">Supported formats: JPG, PNG, GIF. Max size: 5MB.</p>
-                                        <input type="hidden" {...register("profileImage")} />
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-gray-700 block">
+                                                    Confirm Password <span className="text-red-500">*</span>
+                                                </label>
+                                                <PasswordInput
+                                                    {...register("confirmPassword", {
+                                                        required: (showPassword || showResetPassword) ? "Confirm Password is required" : false,
+                                                        validate: (val, formValues) => {
+                                                            if (showPassword || showResetPassword) {
+                                                                return val === formValues.password || "Passwords do not match";
+                                                            }
+                                                            return true;
+                                                        }
+                                                    })}
+                                                    className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
+                                                    placeholder="Confirm password"
+                                                />
+                                                {errors.confirmPassword && <span className="text-red-500 text-xs">{errors.confirmPassword.message}</span>}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Reset Password Button for Admin Edit */}
+                                    {isAdmin && !showPassword && !showResetPassword && (
+                                        <div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowResetPassword(true)}
+                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+                                            >
+                                                Reset Password
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Cancel Reset Password */}
+                                    {isAdmin && !showPassword && showResetPassword && (
+                                        <div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowResetPassword(false);
+                                                    setValue("password", "");
+                                                    setValue("confirmPassword", "");
+                                                }}
+                                                className="text-red-600 hover:text-red-800 text-sm font-medium underline"
+                                            >
+                                                Cancel Password Reset
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InputField label="WhatsApp Number" name="whatsapp" required placeholder="Primary Mobile" />
+                                        <InputField label="Alternate Number" name="alternateNumber" />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <SectionHeader title="Vessel & Experience" icon={Briefcase} />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <InputField label="Designation" name="designation" />
-                            <InputField label="Vessel Type" name="vesselType" />
-                            <InputField label="Last Vessel Name" name="lastVesselName" />
-                            <InputField label="Next Vessel Name" name="nextVesselName" />
-                            <InputField label="Manning Company" name="manningCompany" />
-                            <InputField label="Officer" name="officer" required />
-                            <InputField label="Sign On Date" name="signOnDate" type="date" />
-                            <InputField label="Sign Off Date" name="signOffDate" type="date" />
-                        </div>
-                    </div>
+                        {/* Column 2: Personal & Contact */}
+                        <div className="md:col-span-6 space-y-8">
+                            <div>
+                                <SectionHeader title="Personal Details" icon={User} />
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <SelectField label="Prefix" name="prefix" required options={PREFIX_OPTIONS} className="md:col-span-1" />
+                                    <InputField label="First Name" name="firstName" required className="md:col-span-3" />
+                                    <InputField label="Middle Name" name="middleName" className="md:col-span-2" />
+                                    <InputField label="Last Name" name="lastName" required className="md:col-span-2" />
+                                    <SelectField label="Gender" name="gender" required options={GENDER_OPTIONS} className="md:col-span-2" />
+                                    <InputField label="Date of Birth" name="dob" type="date" required className="md:col-span-2" />
+                                    <SelectField label="Nationality" name="nationality" required options={CANDIDATE_NATIONALITY_OPTIONS} className="md:col-span-2" />
+                                    <InputField label="Seaman Book No." name="seamanBookNo" className="md:col-span-2" />
 
-                    {/* Admin Status Section */}
-                    {isAdmin && (
-                        <div>
-                            <SectionHeader title="Account Status" />
-                            <div className="space-y-4">
-                                <label className="flex items-center space-x-3 cursor-pointer">
-                                    <span className="text-sm font-medium text-gray-700">Status:</span>
-                                    <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                                        <input
-                                            type="checkbox"
-                                            {...register("status")}
-                                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer peer checked:right-0 right-6"
-                                        />
-                                        <div className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 peer-checked:bg-green-400 cursor-pointer"></div>
+                                    <div className="md:col-span-4 space-y-1">
+                                        <label className="text-sm font-medium text-gray-700 block">Profile Image</label>
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center">
+                                                {profileImage ? (
+                                                    <img src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <ImageIcon className="text-gray-400 w-8 h-8" />
+                                                )}
+                                                {uploadingImage && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <label className="cursor-pointer bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors">
+                                                    <Upload size={16} />
+                                                    <span>{uploadingImage ? "Uploading..." : "Upload Photo"}</span>
+                                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                                                </label>
+                                                <p className="text-xs text-gray-500 mt-1">Supported formats: JPG, PNG, GIF. Max size: 5MB.</p>
+                                                <input type="hidden" {...register("profileImage")} />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="text-sm font-medium text-gray-700">
-                                        {watch("status") ? "Active" : "Inactive"}
-                                    </span>
-                                </label>
+                                </div>
                             </div>
+
+                            <div>
+                                <SectionHeader title="Vessel & Experience" icon={Briefcase} />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <InputField label="Designation" name="designation" />
+                                    <InputField label="Vessel Type" name="vesselType" />
+                                    <InputField label="Last Vessel Name" name="lastVesselName" />
+                                    <InputField label="Next Vessel Name" name="nextVesselName" />
+                                    <InputField label="Manning Company" name="manningCompany" />
+                                    <InputField label="Officer" name="officer" required />
+                                    <InputField label="Sign On Date" name="signOnDate" type="date" />
+                                    <InputField label="Sign Off Date" name="signOffDate" type="date" />
+                                </div>
+                            </div>
+
+                            {/* Admin Status Section */}
+                            {isAdmin && (
+                                <div>
+                                    <SectionHeader title="Account Status" />
+                                    <div className="space-y-4">
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <span className="text-sm font-medium text-gray-700">Status:</span>
+                                            <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                <input
+                                                    type="checkbox"
+                                                    {...register("status")}
+                                                    className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer peer checked:right-0 right-6"
+                                                />
+                                                <div className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 peer-checked:bg-green-400 cursor-pointer"></div>
+                                            </div>
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {watch("status") ? "Active" : "Inactive"}
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Footer / Declaration */}
-            <div className="mt-10 pt-6 border-t border-gray-100">
-                <label className="flex items-start gap-3 cursor-pointer group">
-                    <div className="relative flex items-center">
-                        <input type="checkbox" {...register("declaration", { required: true })} className="peer sr-only" />
-                        <div className="w-5 h-5 border-2 border-gray-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
-                        <svg className="absolute w-3 h-3 text-white left-1 opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
-                    <span className="text-sm text-gray-500 group-hover:text-gray-700 leading-relaxed">
-                        I hereby declare that all the information provided in this form is true and can be used by MOLMI for training purposes. This information will be subject to data protection as per the MOLMI data protection policy.
-                    </span>
-                </label>
-                {errors.declaration && <p className="text-red-500 text-xs mt-2">You must accept the declaration</p>}
 
-                <div className="mt-8 flex flex-col items-end">
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={`bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-10 py-3.5 rounded-full font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 w-full md:w-auto text-lg flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    >
-                        <span>{isSubmitting ? 'Processing...' : submitLabel}</span>
-                        {!isSubmitting && <ArrowRight size={20} />}
-                    </button>
+                    <div className="mt-10 pt-6 border-t border-gray-100">
+                        <label className="flex items-start gap-3 cursor-pointer group">
+                            <div className="relative flex items-center">
+                                <input type="checkbox" {...register("declaration", { required: true })} className="peer sr-only" />
+                                <div className="w-5 h-5 border-2 border-gray-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
+                                <svg className="absolute w-3 h-3 text-white left-1 opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span className="text-sm text-gray-500 group-hover:text-gray-700 leading-relaxed">
+                                I hereby declare that all the information provided in this form is true and can be used by MOLMI for training purposes. This information will be subject to data protection as per the MOLMI data protection policy.
+                            </span>
+                        </label>
+                        {errors.declaration && <p className="text-red-500 text-xs mt-2">You must accept the declaration</p>}
+                    </div>
                 </div>
-            </div>
+
+                <div className="sticky bottom-0 z-10 bg-white border-t border-slate-200 p-4 sm:p-6 flex justify-end shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] rounded-b-3xl -mt-6">
+                    <div className="flex gap-4 w-full sm:w-auto">
+                        {onCancel && (
+                            <button
+                                type="button"
+                                onClick={onCancel}
+                                className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-sm"
+                            >
+                                Cancel
+                            </button>
+                        )}
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={`w-full sm:w-auto bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all text-sm flex items-center justify-center space-x-2 active:scale-95 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            <span>{isSubmitting ? 'Processing...' : submitLabel}</span>
+                            {!isSubmitting && <ArrowRight size={20} />}
+                        </button>
+                    </div>
+                </div>
 
             </form>
         </FormContext.Provider>

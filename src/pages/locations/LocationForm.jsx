@@ -113,26 +113,28 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 sm:gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 transition-all text-sm"
-                >
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-70 text-sm"
-                >
-                    {isSubmitting ? (
-                        <RefreshCcw className="w-4 h-4 animate-spin" />
-                    ) : (
-                        <Save className="w-4 h-4" />
-                    )}
-                    <span>{initialData ? 'Update Location' : 'Create Location'}</span>
-                </button>
+            <div className="sticky bottom-0 z-10 bg-white border-t border-slate-200 p-4 sm:p-6 -mb-6 flex justify-end mt-8 rounded-b-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                <div className="flex gap-4 w-full sm:w-auto">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-sm"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-70 text-sm"
+                    >
+                        {isSubmitting ? (
+                            <RefreshCcw className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <Save className="w-4 h-4" />
+                        )}
+                        <span>{initialData ? 'Update Location' : 'Create Location'}</span>
+                    </button>
+                </div>
             </div>
         </form>
     );

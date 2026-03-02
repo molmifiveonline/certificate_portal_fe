@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
 import { useNavigate } from "react-router-dom";
-import { Award, ChevronLeft, Save, Users } from "lucide-react";
+import { Award, ChevronLeft, Save, Users, Loader2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import BackButton from "../../components/common/BackButton";
@@ -155,7 +155,7 @@ const CreateCertificate = () => {
     };
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="w-full h-full pb-20">
             <Meta title="Add Certificate" description="Create a manual certificate" />
 
             <div className="flex items-center justify-between gap-4 mb-8">
@@ -171,252 +171,254 @@ const CreateCertificate = () => {
                 <BackButton to="/certificates" />
             </div>
 
-            <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden mb-8">
-                <CardContent className="p-8">
-                    <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Candidate Selection array via Modal */}
-                            <div className="space-y-2 md:col-span-2">
-                                <label className="text-sm font-semibold text-slate-700">Candidates <span className="text-red-500">*</span></label>
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setIsModalOpen(true)}
-                                        className="h-11 px-6 border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl"
-                                    >
-                                        <Users className="w-4 h-4 mr-2" />
-                                        Select Candidates
-                                    </Button>
+            <form onSubmit={handleSubmit} noValidate>
+                <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden mb-8">
+                    <CardContent className="p-8">
+                        <div className="space-y-6 grid grid-cols-1 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Candidate Selection array via Modal */}
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-semibold text-slate-700">Candidates <span className="text-red-500">*</span></label>
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsModalOpen(true)}
+                                            className="h-11 px-6 border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl"
+                                        >
+                                            <Users className="w-4 h-4 mr-2" />
+                                            Select Candidates
+                                        </Button>
 
-                                    <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 min-h-11 flex items-center">
-                                        {formData.candidate_ids.length > 0 ? (
-                                            <span className="text-sm text-slate-700 font-medium">
-                                                {formData.candidate_ids.length} candidate(s) selected
-                                            </span>
-                                        ) : (
-                                            <span className="text-sm text-slate-500 italic">No candidates selected for batch creation</span>
-                                        )}
+                                        <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 min-h-11 flex items-center">
+                                            {formData.candidate_ids.length > 0 ? (
+                                                <span className="text-sm text-slate-700 font-medium">
+                                                    {formData.candidate_ids.length} candidate(s) selected
+                                                </span>
+                                            ) : (
+                                                <span className="text-sm text-slate-500 italic">No candidates selected for batch creation</span>
+                                            )}
+                                        </div>
                                     </div>
+                                    {formData.candidate_ids.length === 0 && (
+                                        <p className="text-xs text-amber-600 mt-1">Please select at least one candidate.</p>
+                                    )}
                                 </div>
-                                {formData.candidate_ids.length === 0 && (
-                                    <p className="text-xs text-amber-600 mt-1">Please select at least one candidate.</p>
-                                )}
-                            </div>
 
-                            {/* Active Course Selection (Optional but helpful) */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Link to Active Course (Optional)</label>
-                                <select
-                                    name="active_course_id"
-                                    value={formData.active_course_id}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                >
-                                    <option value="">Select Active Course (Auto-fills details)</option>
-                                    {activeCourses.map(c => (
-                                        <option key={c.id} value={c.id}>{c.course_id} - {c.course_name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Master Course Selection */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Master Course <span className="text-red-500">*</span></label>
-                                <select
-                                    name="course_id"
-                                    value={formData.course_id}
-                                    onChange={(e) => {
-                                        handleChange(e);
-                                        if (formErrors.course_id) setFormErrors(prev => ({ ...prev, course_id: undefined }));
-                                    }}
-                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.course_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
-                                >
-                                    <option value="">Select Master Course</option>
-                                    {masterCourses.map(c => (
-                                        <option key={c.id} value={c.id}>{c.master_course_name}</option>
-                                    ))}
-                                </select>
-                                {formErrors.course_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.course_id}</span>}
-                            </div>
-
-                            {/* Trainer Selection */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Trainer <span className="text-red-500">*</span></label>
-                                <select
-                                    name="trainer_id"
-                                    value={formData.trainer_id}
-                                    onChange={(e) => {
-                                        handleChange(e);
-                                        if (formErrors.trainer_id) setFormErrors(prev => ({ ...prev, trainer_id: undefined }));
-                                    }}
-                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.trainer_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
-                                >
-                                    <option value="">Select Trainer</option>
-                                    {trainers.map(t => (
-                                        <option key={t.id} value={t.id}>{t.prefix} {t.first_name} {t.last_name}</option>
-                                    ))}
-                                </select>
-                                {formErrors.trainer_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.trainer_id}</span>}
-                            </div>
-
-                            {/* Type */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Certificate Type</label>
-                                <select
-                                    name="type"
-                                    value={formData.type}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                >
-                                    <option value="Others">Others</option>
-                                    <option value="DNV-ST0029">DNV-ST0029</option>
-                                    <option value="DNV-ST008">DNV-ST008</option>
-                                    <option value="SIGTTO / LNG">SIGTTO / LNG</option>
-                                </select>
-                            </div>
-
-                            {/* Topic */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Topic/Task <span className="text-red-500">*</span></label>
-                                <input
-                                    type="text"
-                                    name="topic"
-                                    value={formData.topic}
-                                    onChange={(e) => {
-                                        handleChange(e);
-                                        if (formErrors.topic) setFormErrors(prev => ({ ...prev, topic: undefined }));
-                                    }}
-                                    placeholder="e.g. Navigation, Engineering"
-                                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.topic ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
-                                />
-                                {formErrors.topic && <span className="text-red-500 text-xs mt-1 block">{formErrors.topic}</span>}
-                            </div>
-
-                            {/* Level */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Course Level</label>
-                                <select
-                                    name="course_level"
-                                    value={formData.course_level}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                >
-                                    <option value="Operational">Operational</option>
-                                    <option value="Management">Management</option>
-                                    <option value="Support">Support</option>
-                                </select>
-                            </div>
-
-                            {/* Conduct */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Course Conduct</label>
-                                <select
-                                    name="course_conduct"
-                                    value={formData.course_conduct}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                >
-                                    <option value="ONS">ONS (Onsite)</option>
-                                    <option value="ONL">ONL (Online)</option>
-                                </select>
-                            </div>
-
-                            {/* Dates */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">From Date</label>
-                                <input
-                                    type="date"
-                                    name="from_date"
-                                    value={formData.from_date}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">To Date</label>
-                                <input
-                                    type="date"
-                                    name="to_date"
-                                    value={formData.to_date}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Issue Date</label>
-                                <input
-                                    type="date"
-                                    name="issue_date"
-                                    value={formData.issue_date}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Days</label>
-                                <input
-                                    type="number"
-                                    name="days"
-                                    value={formData.days}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                />
-                            </div>
-
-                            {/* Options */}
-                            <div className="flex gap-6 mt-4 md:col-span-2">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="show_logo"
-                                        checked={formData.show_logo}
+                                {/* Active Course Selection (Optional but helpful) */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Link to Active Course (Optional)</label>
+                                    <select
+                                        name="active_course_id"
+                                        value={formData.active_course_id}
                                         onChange={handleChange}
-                                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                                    />
-                                    <span className="text-sm font-semibold text-slate-700">Display Logo</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="sample_cert"
-                                        checked={formData.sample_cert}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    >
+                                        <option value="">Select Active Course (Auto-fills details)</option>
+                                        {activeCourses.map(c => (
+                                            <option key={c.id} value={c.id}>{c.course_id} - {c.course_name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Master Course Selection */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Master Course <span className="text-red-500">*</span></label>
+                                    <select
+                                        name="course_id"
+                                        value={formData.course_id}
+                                        onChange={(e) => {
+                                            handleChange(e);
+                                            if (formErrors.course_id) setFormErrors(prev => ({ ...prev, course_id: undefined }));
+                                        }}
+                                        className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.course_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
+                                    >
+                                        <option value="">Select Master Course</option>
+                                        {masterCourses.map(c => (
+                                            <option key={c.id} value={c.id}>{c.master_course_name}</option>
+                                        ))}
+                                    </select>
+                                    {formErrors.course_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.course_id}</span>}
+                                </div>
+
+                                {/* Trainer Selection */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Trainer <span className="text-red-500">*</span></label>
+                                    <select
+                                        name="trainer_id"
+                                        value={formData.trainer_id}
+                                        onChange={(e) => {
+                                            handleChange(e);
+                                            if (formErrors.trainer_id) setFormErrors(prev => ({ ...prev, trainer_id: undefined }));
+                                        }}
+                                        className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.trainer_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
+                                    >
+                                        <option value="">Select Trainer</option>
+                                        {trainers.map(t => (
+                                            <option key={t.id} value={t.id}>{t.prefix} {t.first_name} {t.last_name}</option>
+                                        ))}
+                                    </select>
+                                    {formErrors.trainer_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.trainer_id}</span>}
+                                </div>
+
+                                {/* Type */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Certificate Type</label>
+                                    <select
+                                        name="type"
+                                        value={formData.type}
                                         onChange={handleChange}
-                                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    >
+                                        <option value="Others">Others</option>
+                                        <option value="DNV-ST0029">DNV-ST0029</option>
+                                        <option value="DNV-ST008">DNV-ST008</option>
+                                        <option value="SIGTTO / LNG">SIGTTO / LNG</option>
+                                    </select>
+                                </div>
+
+                                {/* Topic */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Topic/Task <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        name="topic"
+                                        value={formData.topic}
+                                        onChange={(e) => {
+                                            handleChange(e);
+                                            if (formErrors.topic) setFormErrors(prev => ({ ...prev, topic: undefined }));
+                                        }}
+                                        placeholder="e.g. Navigation, Engineering"
+                                        className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.topic ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                     />
-                                    <span className="text-sm font-semibold text-slate-700">Sample Certificate</span>
-                                </label>
-                            </div>
+                                    {formErrors.topic && <span className="text-red-500 text-xs mt-1 block">{formErrors.topic}</span>}
+                                </div>
 
-                            {/* Status */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Status</label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                >
-                                    <option value={0}>Valid</option>
-                                    <option value={1}>Invalid</option>
-                                </select>
-                            </div>
+                                {/* Level */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Course Level</label>
+                                    <select
+                                        name="course_level"
+                                        value={formData.course_level}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    >
+                                        <option value="Operational">Operational</option>
+                                        <option value="Management">Management</option>
+                                        <option value="Support">Support</option>
+                                    </select>
+                                </div>
 
-                            {/* Hide */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Hide Certificate</label>
-                                <select
-                                    name="is_hidden"
-                                    value={formData.is_hidden}
-                                    onChange={handleChange}
-                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                >
-                                    <option value={0}>No</option>
-                                    <option value={1}>Yes</option>
-                                </select>
+                                {/* Conduct */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Course Conduct</label>
+                                    <select
+                                        name="course_conduct"
+                                        value={formData.course_conduct}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    >
+                                        <option value="ONS">ONS (Onsite)</option>
+                                        <option value="ONL">ONL (Online)</option>
+                                    </select>
+                                </div>
+
+                                {/* Dates */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">From Date</label>
+                                    <input
+                                        type="date"
+                                        name="from_date"
+                                        value={formData.from_date}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">To Date</label>
+                                    <input
+                                        type="date"
+                                        name="to_date"
+                                        value={formData.to_date}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Issue Date</label>
+                                    <input
+                                        type="date"
+                                        name="issue_date"
+                                        value={formData.issue_date}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Days</label>
+                                    <input
+                                        type="number"
+                                        name="days"
+                                        value={formData.days}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    />
+                                </div>
+
+                                {/* Options */}
+                                <div className="flex gap-6 mt-4 md:col-span-2">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            name="show_logo"
+                                            checked={formData.show_logo}
+                                            onChange={handleChange}
+                                            className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm font-semibold text-slate-700">Display Logo</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            name="sample_cert"
+                                            checked={formData.sample_cert}
+                                            onChange={handleChange}
+                                            className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm font-semibold text-slate-700">Sample Certificate</span>
+                                    </label>
+                                </div>
+
+                                {/* Status */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Status</label>
+                                    <select
+                                        name="status"
+                                        value={formData.status}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    >
+                                        <option value={0}>Valid</option>
+                                        <option value={1}>Invalid</option>
+                                    </select>
+                                </div>
+
+                                {/* Hide */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700">Hide Certificate</label>
+                                    <select
+                                        name="is_hidden"
+                                        value={formData.is_hidden}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    >
+                                        <option value={0}>No</option>
+                                        <option value={1}>Yes</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -445,28 +447,28 @@ const CreateCertificate = () => {
                                 placeholder="Any internal remarks..."
                             />
                         </div>
+                    </CardContent>
+                </Card>
 
-                        <div className="flex justify-end pt-4 gap-3">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => navigate(-1)}
-                                className="px-6 rounded-xl"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className="px-8 rounded-xl shadow-lg shadow-blue-500/30 flex items-center gap-2"
-                            >
-                                <Save className="w-4 h-4" />
-                                {loading ? "Creating..." : "Create Certificate"}
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+                <div className="sticky bottom-0 z-10 bg-white border-t border-slate-200 p-4 sm:p-6 flex justify-end mt-8 rounded-b-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] gap-4">
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        className="px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-sm"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all text-sm"
+                    >
+                        {loading && <Loader2 className="w-4 h-4 animate-spin text-white" />}
+                        {!loading && <Save className="w-4 h-4" />}
+                        <span>{loading ? "Creating..." : "Create Certificate"}</span>
+                    </button>
+                </div>
+            </form>
 
             <CandidateSelectionModal
                 isOpen={isModalOpen}

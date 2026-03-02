@@ -69,18 +69,26 @@ export const MenuItems = [
   //   ],
   // },
 
+  {
+    title: "Hotel Details",
+    url: "/hotel-details",
+    icon: Building,
+    allowedRoles: ["admin", "superadmin"],
+    code: "hotel_details",
+  },
   // {
-  //   title: "Hotel Details",
-  //   url: "/hotel-details",
-  //   icon: Building,
-  //   allowedRoles: ["admin", "superadmin"],
+  //   title: "System Manual",
+  //   icon: FileText,
+  //   url: "/system-manual",
+  //   allowedRoles: ["admin", "superadmin"], // Assuming it's for admin/superadmin based on placement
+  //   code: "system_manual",
   // },
-  // {
-  //   title: "Location",
-  //   url: "/location",
-  //   icon: MapPin,
-  //   allowedRoles: ["admin", "superadmin"],
-  // },
+  {
+    title: "Location",
+    url: "/location",
+    icon: MapPin,
+    allowedRoles: ["admin", "superadmin"],
+  },
   // {
   //   title: "Assessment",
   //   url: "/assessment",
@@ -130,6 +138,18 @@ export const MenuItems = [
     title: "Log History",
     url: "/admin/log-history",
     icon: History,
+    allowedRoles: ["admin", "superadmin"],
+  },
+  {
+    title: "Admin Roles",
+    url: "/admin/admin-roles",
+    icon: Shield,
+    allowedRoles: ["admin", "superadmin"],
+  },
+  {
+    title: "Admin Users",
+    url: "/admin/users",
+    icon: UserCheck,
     allowedRoles: ["admin", "superadmin"],
   },
 
