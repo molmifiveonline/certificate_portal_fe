@@ -59,12 +59,31 @@ const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
 const ActiveCourseList = lazy(() => import("./pages/courses/ActiveCourseList"));
 const ActiveCourseForm = lazy(() => import("./pages/courses/ActiveCourseForm"));
 
+const PreActiveCourseList = lazy(
+  () => import("./pages/pre-active-courses/PreActiveCourseList"),
+);
+const PreActiveCourseForm = lazy(
+  () => import("./pages/pre-active-courses/PreActiveCourseForm"),
+);
+const AdminPreActiveApprovals = lazy(
+  () => import("./pages/pre-active-courses/AdminPreActiveApprovals"),
+);
+const NominatorPortal = lazy(
+  () => import("./pages/pre-active-courses/NominatorPortal"),
+);
+const CandidateApprovalPortal = lazy(
+  () => import("./pages/pre-active-courses/CandidateApprovalPortal"),
+);
+
 const UnifiedDashboard = lazy(
   () => import("./pages/dashboard/UnifiedDashboard"),
 );
 
 const ReportDashboard = lazy(() => import("./pages/reports/ReportDashboard"));
 const HotelReport = lazy(() => import("./pages/reports/HotelReport"));
+const AdminRemarksReport = lazy(
+  () => import("./pages/reports/AdminRemarksReport"),
+);
 
 const LocationList = lazy(() => import("./pages/locations/LocationList"));
 const CreateLocation = lazy(() => import("./pages/locations/CreateLocation"));
@@ -174,6 +193,12 @@ function App() {
                 }
               />
 
+              <Route path="/nominate/:token" element={<NominatorPortal />} />
+              <Route
+                path="/candidate-approval/:token"
+                element={<CandidateApprovalPortal />}
+              />
+
               <Route path="/" element={<Navigate to="/login" replace />} />
 
               <Route
@@ -241,6 +266,39 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <ActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/pre-active-courses"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <PreActiveCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/pre-active-courses/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <PreActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/pre-active-courses/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <PreActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/pre-active-courses/:id/approvals"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminPreActiveApprovals />
                   </PrivateRoute>
                 }
               />
@@ -677,6 +735,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <HotelReport />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reports/admin-remarks"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminRemarksReport />
                   </PrivateRoute>
                 }
               />

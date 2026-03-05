@@ -16,8 +16,10 @@ import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import api from "../../lib/api";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const TrainerList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [trainers, setTrainers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -171,31 +173,38 @@ const TrainerList = () => {
             key: "nationality",
             label: "Nationality",
             hiddenOnTablet: true,
-        },
-        {
+        }
+    ];
+
+    if (hasPermission('edit_trainer') || hasPermission('delete_trainer')) {
+        columns.push({
             key: "actions",
             label: "Actions",
             align: "right",
             render: (_val, row) => (
                 <div className="flex items-center justify-end gap-2">
-                    <button
-                        onClick={() => navigate(`/trainer/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit Trainer"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete Trainer"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission('edit_trainer') && (
+                        <button
+                            onClick={() => navigate(`/trainer/edit/${row.id}`)}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                            title="Edit Trainer"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
+                    {hasPermission('delete_trainer') && (
+                        <button
+                            onClick={() => handleDelete(row.id)}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                            title="Delete Trainer"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             ),
-        },
-    ];
+        });
+    }
 
     return (
         <div className="flex-1 overflow-y-auto w-full">
@@ -211,13 +220,15 @@ const TrainerList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all registered trainers</p>
                 </div>
-                <Button
-                    onClick={() => navigate('/trainer/create')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <UserPlus className="w-4 h-4" />
-                    Add Trainer
-                </Button>
+                {hasPermission('create_trainer') && (
+                    <Button
+                        onClick={() => navigate('/trainer/create')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <UserPlus className="w-4 h-4" />
+                        Add Trainer
+                    </Button>
+                )}
             </div>
 
             {/* Filter Bar */}
@@ -235,13 +246,15 @@ const TrainerList = () => {
                     </div>
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} trainer{totalCount !== 1 ? 's' : ''}</span>
-                        <Button
-                            onClick={handleExport}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                            <FileDown className="w-4 h-4" />
-                            Export Trainer Excel
-                        </Button>
+                        {hasPermission('export_trainers') && (
+                            <Button
+                                onClick={handleExport}
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                                <FileDown className="w-4 h-4" />
+                                Export Trainer Excel
+                            </Button>
+                        )}
                     </div>
                 </CardContent>
             </Card>

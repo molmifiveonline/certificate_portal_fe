@@ -15,8 +15,10 @@ import DataTable from "../../../components/ui/DataTable";
 import ConfirmationModal from "../../../components/ui/ConfirmationModal";
 import api from "../../../lib/api";
 import { toast } from "sonner";
+import { useAuth } from "../../../context/AuthContext";
 
 const AdminRolesList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -139,20 +141,24 @@ const AdminRolesList = () => {
             align: "right",
             render: (_val, row) => (
                 <div className="flex items-center justify-end gap-2">
-                    <button
-                        onClick={() => navigate(`/admin/admin-roles/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit Admin Role"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete Admin Role"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission('edit_admin_role') && (
+                        <button
+                            onClick={() => navigate(`/admin/admin-roles/edit/${row.id}`)}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                            title="Edit Admin Role"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
+                    {hasPermission('delete_admin_role') && (
+                        <button
+                            onClick={() => handleDelete(row.id)}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                            title="Delete Admin Role"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             ),
         },
@@ -171,13 +177,15 @@ const AdminRolesList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage roles for admin users</p>
                 </div>
-                <Button
-                    onClick={() => navigate('/admin/admin-roles/create')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Admin Role
-                </Button>
+                {hasPermission('create_admin_role') && (
+                    <Button
+                        onClick={() => navigate('/admin/admin-roles/create')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Admin Role
+                    </Button>
+                )}
             </div>
 
             <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">

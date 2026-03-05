@@ -41,8 +41,24 @@ export const AuthProvider = ({ children }) => {
         // Optional: Call backend logout if needed
     };
 
+    const hasPermission = (permissionSlug) => {
+        if (!user) return false;
+        const userRole = (user.role || '').toLowerCase();
+
+        if (userRole === 'superadmin') return true;
+        if (userRole === 'admin') {
+            if (user.adminRolePermissions === null || user.adminRolePermissions === undefined) {
+                return true; // Admin without a restricted role has full access
+            }
+            return user.adminRolePermissions.includes(permissionSlug);
+        }
+
+        // For other roles (trainer, candidate) check the base permissions array
+        return (user.permissions || []).includes(permissionSlug);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, token: user?.token, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, token: user?.token, login, logout, loading, hasPermission }}>
             {!loading && children}
         </AuthContext.Provider>
     );

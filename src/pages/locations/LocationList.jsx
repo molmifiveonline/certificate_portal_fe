@@ -18,8 +18,10 @@ import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import DetailModal from "../../components/ui/DetailModal";
 import locationService from "../../services/locationService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const LocationList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -167,20 +169,24 @@ const LocationList = () => {
                     >
                         <Eye className="w-4 h-4" />
                     </button>
-                    <button
-                        onClick={() => navigate(`/location/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit Location"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete Location"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission('edit_location') && (
+                        <button
+                            onClick={() => navigate(`/location/edit/${row.id}`)}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                            title="Edit Location"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
+                    {hasPermission('delete_location') && (
+                        <button
+                            onClick={() => handleDelete(row.id)}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                            title="Delete Location"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             ),
         },
@@ -200,13 +206,15 @@ const LocationList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage training centers and course locations</p>
                 </div>
-                <Button
-                    onClick={() => navigate('/location/create')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Location
-                </Button>
+                {hasPermission('create_location') && (
+                    <Button
+                        onClick={() => navigate('/location/create')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Location
+                    </Button>
+                )}
             </div>
 
             {/* Filter Bar */}

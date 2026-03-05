@@ -167,18 +167,24 @@ const ActiveCourseList = () => {
             key: "status",
             label: "Status",
             sortable: true,
-            render: (val) => (
-                <span
-                    className={`px - 2.5 py - 1 rounded - full text - xs font - semibold border ${val === 'Initiated'
-                        ? 'bg-blue-50 text-blue-600 border-blue-100'
-                        : val === 'Completed'
-                            ? 'bg-green-50 text-green-600 border-green-100'
-                            : 'bg-slate-50 text-slate-600 border-slate-100'
-                        } `}
-                >
-                    {val}
-                </span>
-            ),
+            render: (val) => {
+                const badgeColors = {
+                    'Initiated': 'bg-blue-50 text-blue-600 border-blue-100',
+                    'Course Started': 'bg-orange-50 text-orange-600 border-orange-100',
+                    'Assessment Initiated': 'bg-purple-50 text-purple-600 border-purple-100',
+                    'Feedback Generated': 'bg-indigo-50 text-indigo-600 border-indigo-100',
+                    'Certificate Generated': 'bg-emerald-50 text-emerald-600 border-emerald-100',
+                    'Course Completed': 'bg-green-50 text-green-600 border-green-100',
+                    'Cancelled': 'bg-red-50 text-red-600 border-red-100'
+                };
+                return (
+                    <span
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeColors[val] || 'bg-slate-50 text-slate-600 border-slate-100'}`}
+                    >
+                        {val}
+                    </span>
+                );
+            },
         },
         {
             key: "actions",
@@ -224,8 +230,8 @@ const ActiveCourseList = () => {
 
             {/* Filter Bar */}
             <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
-                <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div className="relative w-full md:w-96">
+                <CardContent className="p-4 sm:p-6 flex flex-wrap lg:flex-nowrap gap-3 items-center">
+                    <div className="relative w-full lg:w-64 shrink">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
@@ -236,44 +242,45 @@ const ActiveCourseList = () => {
                         />
                     </div>
 
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="h-10 px-3 bg-white/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 shrink-0"
+                    >
+                        <option value="">All Status</option>
+                        <option value="Initiated">Initiated</option>
+                        <option value="Course Started">Course Started</option>
+                        <option value="Assessment Initiated">Assessment Initiated</option>
+                        <option value="Feedback Generated">Feedback Generated</option>
+                        <option value="Certificate Generated">Certificate Generated</option>
+                        <option value="Course Completed">Course Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
 
-                    <div className="flex flex-wrap gap-3 items-center">
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="h-10 px-3 bg-white/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        >
-                            <option value="">All Status</option>
-                            <option value="Initiated">Initiated</option>
-                            <option value="Active">Active</option>
-                            <option value="Course Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                        <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10">
-                            <span className="text-xs text-slate-400">From</span>
-                            <input
-                                type="date"
-                                value={dateRange.start}
-                                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                                className="bg-transparent text-sm focus:outline-none w-32"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10">
-                            <span className="text-xs text-slate-400">To</span>
-                            <input
-                                type="date"
-                                value={dateRange.end}
-                                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                                className="bg-transparent text-sm focus:outline-none w-32"
-                            />
-                        </div>
+                    <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10 shrink-0">
+                        <span className="text-xs text-slate-400">From</span>
+                        <input
+                            type="date"
+                            value={dateRange.start}
+                            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                            className="bg-transparent text-sm focus:outline-none w-32"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10 shrink-0">
+                        <span className="text-xs text-slate-400">To</span>
+                        <input
+                            type="date"
+                            value={dateRange.end}
+                            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                            className="bg-transparent text-sm focus:outline-none w-32"
+                        />
                     </div>
 
-                    <div className="flex gap-3 w-full md:w-auto items-center">
-                        <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
+                    <div className="flex gap-3 items-center ml-auto shrink-0">
+                        <span className="text-xs text-slate-400 whitespace-nowrap">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
                         <Button
                             onClick={handleExport}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70 whitespace-nowrap"
                         >
                             <FileDown className="w-4 h-4" />
                             Export Active Excel

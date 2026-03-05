@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Search, Filter, Phone, Mail, MoreVertical } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Filter, Phone, Mail, MoreVertical } from 'lucide-react';
 import Meta from "../../../components/common/Meta";
 import adminUserService from '../../../services/adminUserService';
 import { toast } from 'sonner';
+import { useAuth } from '../../../context/AuthContext';
 
 const AdminUserList = () => {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [admins, setAdmins] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -101,13 +103,15 @@ const AdminUserList = () => {
                         </div>
 
                         {/* Add Button */}
-                        <button
-                            onClick={() => navigate('/admin/users/create')}
-                            className="flex items-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:bg-[#004E8A] text-white px-4 py-2 rounded-xl transition-all shadow-sm shadow-[#0060AA]/20 font-medium text-sm ml-auto sm:ml-0 active:scale-95"
-                        >
-                            <Plus className="w-4 h-4" />
-                            <span className="hidden sm:inline">Add Admin</span>
-                        </button>
+                        {hasPermission('create_admin_user') && (
+                            <button
+                                onClick={() => navigate('/admin/users/create')}
+                                className="flex items-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:bg-[#004E8A] text-white px-4 py-2 rounded-xl transition-all shadow-sm shadow-[#0060AA]/20 font-medium text-sm ml-auto sm:ml-0 active:scale-95"
+                            >
+                                <Plus className="w-4 h-4" />
+                                <span className="hidden sm:inline">Add Admin</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -146,7 +150,11 @@ const AdminUserList = () => {
                                         <tr
                                             key={admin.id}
                                             className="hover:bg-slate-50/50 transition-colors group cursor-context-menu"
-                                            onContextMenu={(e) => handleContextMenu(e, admin.id)}
+                                            onContextMenu={(e) => {
+                                                if (hasPermission('edit_admin_user') || hasPermission('delete_admin_user')) {
+                                                    handleContextMenu(e, admin.id)
+                                                }
+                                            }}
                                         >
                                             <td className="px-6 py-4">
                                                 <span className="text-sm text-slate-600 font-medium">
@@ -190,26 +198,32 @@ const AdminUserList = () => {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2 transition-opacity">
-                                                    <button
-                                                        onClick={() => navigate(`/admin/users/edit/${admin.id}`)}
-                                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors tooltip-trigger relative"
-                                                        aria-label="Edit"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(admin.id)}
-                                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors tooltip-trigger relative"
-                                                        aria-label="Delete"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => handleContextMenu(e, admin.id)}
-                                                        className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors lg:hidden"
-                                                    >
-                                                        <MoreVertical className="w-4 h-4" />
-                                                    </button>
+                                                    {hasPermission('edit_admin_user') && (
+                                                        <button
+                                                            onClick={() => navigate(`/admin/users/edit/${admin.id}`)}
+                                                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                                                            title="Edit Admin"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    {hasPermission('delete_admin_user') && (
+                                                        <button
+                                                            onClick={() => handleDelete(admin.id)}
+                                                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                                                            title="Delete Admin"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    {(hasPermission('edit_admin_user') || hasPermission('delete_admin_user')) && (
+                                                        <button
+                                                            onClick={(e) => handleContextMenu(e, admin.id)}
+                                                            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors lg:hidden"
+                                                        >
+                                                            <MoreVertical className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -256,27 +270,33 @@ const AdminUserList = () => {
                     style={{ top: contextMenu.y, left: contextMenu.x }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <button
-                        onClick={() => {
-                            navigate(`/admin/users/edit/${contextMenu.adminId}`);
-                            setContextMenu({ ...contextMenu, visible: false });
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-medium flex items-center gap-2 transition-colors"
-                    >
-                        <Edit2 className="w-4 h-4" />
-                        Edit Admin
-                    </button>
-                    <div className="h-px bg-slate-100 my-1 mx-2"></div>
-                    <button
-                        onClick={() => {
-                            handleDelete(contextMenu.adminId);
-                            setContextMenu({ ...contextMenu, visible: false });
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 font-medium flex items-center gap-2 transition-colors"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        Delete Admin
-                    </button>
+                    {hasPermission('edit_admin_user') && (
+                        <button
+                            onClick={() => {
+                                navigate(`/admin/users/edit/${contextMenu.adminId}`);
+                                setContextMenu({ ...contextMenu, visible: false });
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-medium flex items-center gap-2 transition-colors"
+                        >
+                            <Edit className="w-4 h-4" />
+                            Edit Admin
+                        </button>
+                    )}
+                    {(hasPermission('edit_admin_user') && hasPermission('delete_admin_user')) && (
+                        <div className="h-px bg-slate-100 my-1 mx-2"></div>
+                    )}
+                    {hasPermission('delete_admin_user') && (
+                        <button
+                            onClick={() => {
+                                handleDelete(contextMenu.adminId);
+                                setContextMenu({ ...contextMenu, visible: false });
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 font-medium flex items-center gap-2 transition-colors"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Delete Admin
+                        </button>
+                    )}
                 </div>
             )}
         </div>

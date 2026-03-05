@@ -53,18 +53,32 @@ const Sidebar = () => {
         // Check if user's role is in the allowedRoles array
         if (!user?.role) return false;
 
-        // Use simpler check to handle various cases if needed
         const userRole = user.role.toLowerCase();
         const hasRole = item.allowedRoles.some(role => role.toLowerCase() === userRole);
+        if (!hasRole) return false;
 
-        // If there's a requiredPermission, also check if user has that permission
+        // For admin users with an assigned admin_role (adminRolePermissions is an array, not null):
+        // only show items where their slug is in the adminRolePermissions list.
+        // SuperAdmins (adminRolePermissions === null) always see everything.
+        // Admins without an assigned role (adminRolePermissions === null) also see everything.
+        const adminRolePermissions = user.adminRolePermissions; // null = unrestricted, array = restricted
+        if (adminRolePermissions !== null && adminRolePermissions !== undefined && userRole === 'admin') {
+            if (item.permissionSlug) {
+                // Home has no permissionSlug — always visible
+                return adminRolePermissions.includes(item.permissionSlug);
+            }
+            // Items without permissionSlug (e.g. Home) are always shown
+            return true;
+        }
+
+        // Legacy: trainer/candidate permission check
         if (item.requiredPermission) {
             const userPermissions = user.permissions || [];
             const hasPermission = userPermissions.includes(item.requiredPermission);
-            return hasRole && hasPermission;
+            return hasPermission;
         }
 
-        return hasRole;
+        return true;
     });
 
     const handleLogout = () => {

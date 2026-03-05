@@ -24,9 +24,11 @@ import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
 import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
+import { useAuth } from "../../context/AuthContext";
 
 const CandidateList = ({ registrationType }) => {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -233,8 +235,11 @@ const CandidateList = ({ registrationType }) => {
                         {val === 1 ? 'Active' : 'Inactive'}
                     </span>
                 ),
-            },
-            {
+            }
+        );
+
+        if (hasPermission('edit_candidate')) {
+            cols.push({
                 key: "actions",
                 label: "Edit",
                 render: (_val, row) => (
@@ -245,11 +250,11 @@ const CandidateList = ({ registrationType }) => {
                         <Edit className="w-4 h-4" />
                     </button>
                 ),
-            }
-        );
+            });
+        }
 
         return cols;
-    }, [registrationType, navigate]);
+    }, [registrationType, navigate, hasPermission]);
 
     return (
         <div className="flex-1 overflow-y-auto">
@@ -288,13 +293,15 @@ const CandidateList = ({ registrationType }) => {
                         />
                     </label> */}
 
-                    <Button
-                        onClick={() => navigate('/candidates/add')}
-                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                    >
-                        <UserPlus className="w-4 h-4" />
-                        Add Candidate
-                    </Button>
+                    {hasPermission('create_candidate') && (
+                        <Button
+                            onClick={() => navigate('/candidates/add')}
+                            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                        >
+                            <UserPlus className="w-4 h-4" />
+                            Add Candidate
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -319,74 +326,76 @@ const CandidateList = ({ registrationType }) => {
                             >
                                 <SlidersHorizontal className="w-5 h-5" />
                             </button>
-                            <Button
-                                onClick={handleExport}
-                                disabled={isExporting}
-                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-                            >
-                                {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
-                                Export Candidate Excel
-                            </Button>
+                            {hasPermission('export_candidates') && (
+                                <Button
+                                    onClick={handleExport}
+                                    disabled={isExporting}
+                                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                                >
+                                    {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+                                    Export Candidate Excel
+                                </Button>
+                            )}
                         </div>
                     </div>
                     {showFilters && (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Manager</label>
-                            <div className="relative">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Manager</label>
+                                <div className="relative">
+                                    <select
+                                        className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                        value={filterManager}
+                                        onChange={(e) => setFilterManager(e.target.value)}
+                                        style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                                    >
+                                        <option value="">Last served (All)</option>
+                                        {MANAGER_OPTIONS.map(opt => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Rank</label>
                                 <select
                                     className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                                    value={filterManager}
-                                    onChange={(e) => setFilterManager(e.target.value)}
+                                    value={filterRank}
+                                    onChange={(e) => setFilterRank(e.target.value)}
                                     style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
                                 >
-                                    <option value="">Last served (All)</option>
-                                    {MANAGER_OPTIONS.map(opt => (
-                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                    ))}
+                                    <option value="">All Ranks</option>
+                                    <option value="Captain">Captain</option>
+                                    <option value="Chief Officer">Chief Officer</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Nationality</label>
+                                <select
+                                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                    value={filterNationality}
+                                    onChange={(e) => setFilterNationality(e.target.value)}
+                                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                                >
+                                    <option value="">All Nationalities</option>
+                                    <option value="India">India</option>
+                                    <option value="Filipino">Filipino</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
+                                <select
+                                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                    value={filterStatus}
+                                    onChange={(e) => setFilterStatus(e.target.value)}
+                                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
+                                >
+                                    <option value="all">All Status</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
                                 </select>
                             </div>
                         </div>
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Rank</label>
-                            <select
-                                className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                                value={filterRank}
-                                onChange={(e) => setFilterRank(e.target.value)}
-                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                            >
-                                <option value="">All Ranks</option>
-                                <option value="Captain">Captain</option>
-                                <option value="Chief Officer">Chief Officer</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Nationality</label>
-                            <select
-                                className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                                value={filterNationality}
-                                onChange={(e) => setFilterNationality(e.target.value)}
-                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                            >
-                                <option value="">All Nationalities</option>
-                                <option value="India">India</option>
-                                <option value="Filipino">Filipino</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
-                            <select
-                                className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                            >
-                                <option value="all">All Status</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
                     )}
                 </CardContent>
             </Card>

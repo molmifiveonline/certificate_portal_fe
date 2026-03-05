@@ -1,17 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, RefreshCcw } from 'lucide-react';
+import api from '../../../lib/api';
 
 const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
-    const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
         defaultValues: initialData || { status: 1 }
     });
+    const [adminRoles, setAdminRoles] = useState([]);
 
     useEffect(() => {
         if (initialData) {
             reset({ ...initialData, password: '' });
         }
     }, [initialData, reset]);
+
+    useEffect(() => {
+        api.get('/admin-roles').then(res => {
+            const data = res.data?.data;
+            const rows = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
+            const activeRoles = rows.filter(r => r.status === 1);
+            setAdminRoles(activeRoles);
+            // Re-apply value after options load so dropdown shows correct selection in edit mode
+            if (initialData?.admin_role_id) {
+                setValue('admin_role_id', initialData.admin_role_id);
+            }
+        }).catch(() => setAdminRoles([]));
+    }, [initialData, setValue]);
 
     const isEditMode = !!initialData?.id;
 
@@ -101,6 +116,22 @@ const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                             placeholder={isEditMode ? "Leave blank to keep current password" : "Password"}
                         />
                         {errors.password && <span className="text-xs text-red-500 ml-1">{errors.password.message}</span>}
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 ml-1">
+                            Admin Role
+                        </label>
+                        <select
+                            {...register('admin_role_id')}
+                            className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.admin_role_id ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                        >
+                            <option value="">-- No Admin Role --</option>
+                            {adminRoles.map(role => (
+                                <option key={role.id} selected={role.id === initialData?.admin_role_id} value={role.id}>{role.role_name}</option>
+                            ))}
+                        </select>
+                        {errors.admin_role_id && <span className="text-xs text-red-500 ml-1">{errors.admin_role_id.message}</span>}
                     </div>
 
                     <div className="space-y-2">

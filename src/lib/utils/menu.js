@@ -40,6 +40,7 @@ export const MenuItems = [
     url: "/nominators",
     icon: Users,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_nominators",
   },
   // Admin Specific
   {
@@ -47,6 +48,7 @@ export const MenuItems = [
     url: "/candidates",
     icon: UserCircle,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_candidates",
     subItems: [
       { title: "MOLMI Candidates", url: "/candidates/molmi" },
       { title: "Other Candidates", url: "/candidates/others" },
@@ -57,14 +59,17 @@ export const MenuItems = [
     url: "/trainers",
     icon: GraduationCap,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_trainers",
   },
   // {
   //   title: "Courses",
   //   url: "/courses",
   //   icon: BookOpen,
   //   allowedRoles: ["admin", "superadmin"],
+  //   permissionSlug: "view_master_courses",
   //   subItems: [
   //     { title: "Master Courses", url: "/courses" },
+  //     { title: "Pre-Active Courses", url: "/pre-active-courses" },
   //     { title: "Active Courses", url: "/active-courses" },
   //   ],
   // },
@@ -75,6 +80,7 @@ export const MenuItems = [
     icon: Building,
     allowedRoles: ["admin", "superadmin"],
     code: "hotel_details",
+    permissionSlug: "view_hotels",
   },
   // {
   //   title: "System Manual",
@@ -88,18 +94,19 @@ export const MenuItems = [
     url: "/location",
     icon: MapPin,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_locations",
   },
-  // {
-  //   title: "Assessment",
-  //   url: "/assessment",
-  //   icon: ClipboardList,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Question Bank", url: "/assessment/question-bank" },
-  //     { title: "Assessments", url: "/assessment/assessments" },
-  //     { title: "Submitted Assessments", url: "/assessment/submitted" },
-  //   ],
-  // },
+  {
+    title: "Assessment",
+    url: "/assessment",
+    icon: ClipboardList,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Question Bank", url: "/assessment/question-bank" },
+      // { title: "Assessments", url: "/assessment/assessments" },
+      // { title: "Submitted Assessments", url: "/assessment/submitted" },
+    ],
+  },
 
   // {
   //   title: "Feedback",
@@ -126,6 +133,7 @@ export const MenuItems = [
   //   subItems: [
   //     { title: "Reports", url: "/reports" },
   //     { title: "Hotel Report", url: "/reports/hotel" },
+  //     { title: "Admin Remarks", url: "/reports/admin-remarks" },
   //   ],
   // },
   {
@@ -133,24 +141,28 @@ export const MenuItems = [
     url: "/admin/role-permissions",
     icon: Shield,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "manage_permissions",
   },
   {
     title: "Log History",
     url: "/admin/log-history",
     icon: History,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_logs",
   },
   {
     title: "Admin Roles",
     url: "/admin/admin-roles",
     icon: Shield,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "manage_admin_roles",
   },
   {
     title: "Admin Users",
     url: "/admin/users",
     icon: UserCheck,
     allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "manage_admin_users",
   },
 
   // Trainer Specific
