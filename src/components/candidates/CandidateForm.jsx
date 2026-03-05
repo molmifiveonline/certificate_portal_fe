@@ -115,7 +115,7 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                     <div className="flex justify-center mb-10">
                         <div className="bg-gray-100 p-1.5 rounded-lg inline-flex">
                             <label className="cursor-pointer">
-                                <input type="radio" value="MOLMI Employee" {...register("employeeType")} defaultChecked className="peer sr-only" />
+                                <input type="radio" value="MOLMI Employee" {...register("employeeType")} className="peer sr-only" />
                                 <span className="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all block">MOLMI Employee</span>
                             </label>
                             <label className="cursor-pointer ml-1">
