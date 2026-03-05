@@ -272,7 +272,7 @@ const LogHistory = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                             <button
                                                 onClick={() => handleDeleteClick(log.id)}
-                                                className="p-1 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                                                className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
                                                 title="Delete Log"
                                             >
                                                 <Trash2 className="w-4 h-4" />

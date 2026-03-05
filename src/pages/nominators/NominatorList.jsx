@@ -15,8 +15,10 @@ import TablePagination from "../../components/ui/TablePagination";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import nominatorService from "../../services/nominatorService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const NominatorList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [nominators, setNominators] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -102,23 +104,27 @@ const NominatorList = () => {
             align: "right",
             render: (_val, row) => (
                 <div className="flex items-center justify-end gap-2">
-                    <button
-                        onClick={() => navigate(`/nominators/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit Nominator"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete Nominator"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission('edit_nominator') && (
+                        <button
+                            onClick={() => navigate(`/nominators/edit/${row.id}`)}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                            title="Edit Nominator"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
+                    {hasPermission('delete_nominator') && (
+                        <button
+                            onClick={() => handleDelete(row.id)}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                            title="Delete Nominator"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             ),
-        },
+        }
     ];
 
     return (
@@ -135,13 +141,15 @@ const NominatorList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage all nominators</p>
                 </div>
-                <Button
-                    onClick={() => navigate('/nominators/add')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <UserPlus className="w-4 h-4" />
-                    Add Nominator
-                </Button>
+                {hasPermission('create_nominator') && (
+                    <Button
+                        onClick={() => navigate('/nominators/add')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <UserPlus className="w-4 h-4" />
+                        Add Nominator
+                    </Button>
+                )}
             </div>
 
             {/* Filter Bar */}

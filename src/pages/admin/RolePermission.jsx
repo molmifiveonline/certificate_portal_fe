@@ -6,11 +6,6 @@ import api from "../../lib/api";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 
-// Define which permission groups each role can access
-const ROLE_ALLOWED_MODULES = {
-    trainer: ["Dashboard", "Course Management", "Assessments", "Feedback", "Certificates"],
-    candidate: ["Dashboard", "Course Management", "Certificates", "Reimbursement"],
-};
 
 const RolePermission = () => {
     const [roles, setRoles] = useState([]);
@@ -32,8 +27,7 @@ const RolePermission = () => {
                 ]);
                 // Filter out 'admin' role from the list
                 const allRoles = rolesRes.data.data || [];
-                const filteredRoles = allRoles.filter(role => role.name.toLowerCase() !== 'admin');
-                setRoles(filteredRoles);
+                setRoles(allRoles);
                 setPermissions(permissionsRes.data.data || []);
             } catch (error) {
                 console.error("Error fetching initial data:", error);
@@ -168,7 +162,7 @@ const RolePermission = () => {
                                         : "text-slate-600 hover:bg-slate-50"
                                         }`}
                                 >
-                                    <span className="text-sm capitalize">{role.name}</span>
+                                    <span className="text-sm capitalize">{role.role_name || role.name}</span>
                                 </button>
                             ))}
                             {roles.length === 0 && (
@@ -189,7 +183,7 @@ const RolePermission = () => {
                                     <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
                                         Permissions for{" "}
                                         <span className="text-blue-600 capitalize">
-                                            {selectedRole.name}
+                                            {selectedRole.role_name || selectedRole.name}
                                         </span>
                                     </h2>
                                     {loadingRolePermissions && (
@@ -198,13 +192,6 @@ const RolePermission = () => {
                                 </div>
                                 <div className="p-4 space-y-6 max-h-[calc(100vh-300px)] overflow-y-auto">
                                     {Object.entries(groupedPermissions)
-                                        .filter(([groupName]) => {
-                                            if (!selectedRole) return true;
-                                            const roleName = selectedRole.name.toLowerCase();
-                                            const allowedModules = ROLE_ALLOWED_MODULES[roleName];
-                                            if (!allowedModules) return true;
-                                            return allowedModules.includes(groupName);
-                                        })
                                         .map(([groupName, perms]) => (
                                             <div key={groupName}>
                                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">

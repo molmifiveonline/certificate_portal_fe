@@ -18,8 +18,10 @@ import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import DetailModal from "../../components/ui/DetailModal";
 import hotelService from "../../services/hotelService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const HotelList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [hotels, setHotels] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -151,20 +153,24 @@ const HotelList = () => {
                     >
                         <Eye className="w-4 h-4" />
                     </button>
-                    <button
-                        onClick={() => navigate(`/hotel-details/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit Hotel"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete Hotel"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission('edit_hotel') && (
+                        <button
+                            onClick={() => navigate(`/hotel-details/edit/${row.id}`)}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                            title="Edit Hotel"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
+                    {hasPermission('delete_hotel') && (
+                        <button
+                            onClick={() => handleDelete(row.id)}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                            title="Delete Hotel"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             ),
         },
@@ -184,13 +190,15 @@ const HotelList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all registered hotels/venues</p>
                 </div>
-                <Button
-                    onClick={() => navigate('/hotel-details/create')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Hotel
-                </Button>
+                {hasPermission('create_hotel') && (
+                    <Button
+                        onClick={() => navigate('/hotel-details/create')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Hotel
+                    </Button>
+                )}
             </div>
 
             {/* Filter Bar */}

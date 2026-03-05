@@ -6,6 +6,7 @@ import {
     Plus,
     Edit,
     GraduationCap,
+    ExternalLink,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
@@ -76,13 +77,16 @@ const MasterCourseList = () => {
         }
 
         try {
-            const headers = ['Sr No.', 'Topic', 'Course Name', 'Created At'];
+            const headers = ['Sr No.', 'Topic', 'Course Name', 'Certificate Type', 'Expiry (Years)', 'Material Link', 'Created At'];
             const csvContent = [
                 headers.join(','),
                 ...courses.map((course, index) => [
                     (currentPage - 1) * limit + index + 1,
                     `"${course.topic}"`,
                     `"${course.master_course_name}"`,
+                    `"${course.certificate_type || ''}"`,
+                    `"${course.expiry_date ? course.expiry_date + ' Year(s)' : ''}"`,
+                    `"${course.material_link || ''}"`,
                     formatDate(course.created_at)
                 ].join(','))
             ].join('\n');
@@ -126,6 +130,38 @@ const MasterCourseList = () => {
             key: "master_course_name",
             label: "Course Name",
             sortable: true,
+        },
+        {
+            key: "certificate_type",
+            label: "Certificate Type",
+            sortable: true,
+            render: (val) => val ? (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                    {val}
+                </span>
+            ) : <span className="text-slate-400">—</span>,
+        },
+        {
+            key: "expiry_date",
+            label: "Expiry (Years)",
+            sortable: true,
+            render: (val) => val ? `${val} Year(s)` : <span className="text-slate-400">—</span>,
+        },
+        {
+            key: "material_link",
+            label: "Material Link",
+            render: (val) => val ? (
+                <a
+                    href={val}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors text-sm"
+                    title={val}
+                >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Open</span>
+                </a>
+            ) : <span className="text-slate-400">—</span>,
         },
         {
             key: "created_at",

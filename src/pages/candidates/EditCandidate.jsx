@@ -48,7 +48,8 @@ const EditCandidate = () => {
                     officer: data.officer,
                     seamanBookNo: data.seaman_book_no,
                     profileImage: data.profile_image,
-                    status: data.status === 1 // Map 1 to true, 0 to false
+                    status: data.status === 1, // Map 1 to true, 0 to false
+                    declaration: true // Pre-check since candidate already accepted during registration
                 };
                 setCandidateData(mappedData);
             } catch (error) {
