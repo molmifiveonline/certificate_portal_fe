@@ -126,18 +126,17 @@ const EditCandidate = () => {
                 <BackButton to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'} />
             </div>
 
-            <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">
-                <CardContent className="p-8">
-                    <CandidateForm
-                        onSubmit={onSubmit}
-                        defaultValues={candidateData}
-                        isSubmitting={isSubmitting}
-                        submitLabel="Update Candidate"
-                        showPassword={false}
-                        isAdmin={true}
-                    />
-                </CardContent>
-            </Card>
+            <div className="w-full">
+                <CandidateForm
+                    onSubmit={onSubmit}
+                    defaultValues={candidateData}
+                    isSubmitting={isSubmitting}
+                    submitLabel="Update Candidate"
+                    showPassword={false}
+                    isAdmin={true}
+                    onCancel={() => navigate(candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi')}
+                />
+            </div>
         </div>
     );
 };

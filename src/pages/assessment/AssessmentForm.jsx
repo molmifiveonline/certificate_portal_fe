@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
-import { ArrowLeft, Save, Check } from "lucide-react";
+import { ArrowLeft, Save, Check, RefreshCcw } from "lucide-react";
 
 import { useNavigate, useParams, Link } from "react-router-dom";
 import assessmentService from "../../services/assessmentService";
@@ -503,22 +503,26 @@ const AssessmentForm = () => {
                     )}
                 </div>
 
-                <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 -mx-8 -mb-8 flex justify-end shadow-lg">
-                    <div className="flex gap-4">
+                <div className="sticky bottom-0 z-10 bg-white border-t border-slate-200 p-4 sm:p-6 -mx-8 -mb-8 flex justify-end shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] mt-8 rounded-b-xl">
+                    <div className="flex gap-4 w-full sm:w-auto">
                         <button
                             type="button"
                             onClick={() => navigate('/assessment/assessments')}
-                            className="px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all"
+                            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-sm"
                         >
                             Cancel
                         </button>
                         <Button
                             type="submit"
                             disabled={loading}
-                            className="flex items-center space-x-2 px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-70 text-sm"
                         >
-                            <Save size={18} />
-                            <span>{loading ? "Saving..." : isEdit ? "Update Assessment" : "Save Assessment"}</span>
+                            {loading ? (
+                                <RefreshCcw className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <Save className="w-4 h-4" />
+                            )}
+                            <span>{isEdit ? "Update Assessment" : "Save Assessment"}</span>
                         </Button>
                     </div>
                 </div>

@@ -64,7 +64,7 @@ const EditLocation = () => {
 
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="w-full h-full pb-20">
             <Meta title="Edit Location" description="Edit Location Details" />
             <div className="max-w-[1600px] mx-auto">
                 {/* Header */}

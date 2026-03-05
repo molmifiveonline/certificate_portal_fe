@@ -3,7 +3,7 @@ import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import api from '../../lib/api';
 import questionBankService from '../../services/questionBankService';
-import { Save, ArrowLeft, BookOpen } from 'lucide-react';
+import { Save, ArrowLeft, BookOpen, RefreshCcw } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import BackButton from '../../components/common/BackButton';
 import { Button } from "../../components/ui/button";
@@ -286,160 +286,166 @@ const QuestionBankForm = () => {
     return (
         <FormContext.Provider value={{ formErrors }}>
             <div className="min-h-screen bg-slate-50">
-            <Meta title={isEditMode ? "Edit Question" : "Add Question"} description={isEditMode ? "Edit Question Details" : "Add New Question"} />
+                <Meta title={isEditMode ? "Edit Question" : "Add Question"} description={isEditMode ? "Edit Question Details" : "Add New Question"} />
 
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-                <div className="px-8 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                            <BookOpen size={24} className="text-blue-600" />
+                {/* Header */}
+                <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+                    <div className="px-8 py-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="bg-blue-100 p-2 rounded-lg">
+                                <BookOpen size={24} className="text-blue-600" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold text-slate-800">{isEditMode ? "Edit Question" : "Add New Question"}</h1>
+                                <p className="text-sm text-slate-500">Fill in the details to {isEditMode ? "update" : "create"} a question</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-800">{isEditMode ? "Edit Question" : "Add New Question"}</h1>
-                            <p className="text-sm text-slate-500">Fill in the details to {isEditMode ? "update" : "create"} a question</p>
-                        </div>
+                        <BackButton to="/assessment/question-bank" />
                     </div>
-                    <BackButton to="/assessment/question-bank" />
                 </div>
-            </div>
 
-            <div className="max-w-none p-8">
-                <form onSubmit={handleSubmit} noValidate className="space-y-8 max-w-[1200px] mx-auto">
+                <div className="max-w-none p-8">
+                    <form onSubmit={handleSubmit} noValidate className="space-y-8 max-w-[1200px] mx-auto">
 
-                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <SelectField
-                                label="Master Course"
-                                name="master_course_id"
-                                value={formValues.master_course_id}
+                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <SelectField
+                                    label="Master Course"
+                                    name="master_course_id"
+                                    value={formValues.master_course_id}
+                                    onChange={handleInputChange}
+                                    placeholder="Select Master Course"
+                                    required
+                                    error="master_course_id"
+                                    options={masterCourses.map(c => ({ value: c.id, label: c.master_course_name }))}
+                                />
+
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium text-gray-700 block">Type of Test</label>
+                                    <div className="flex gap-4 mt-2">
+                                        <label className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                value="1"
+                                                checked={formValues.type_of_test.includes('1')}
+                                                onChange={handleCheckboxChange}
+                                                className="rounded text-blue-600"
+                                            />
+                                            <span className="text-sm text-gray-700">Pre Course</span>
+                                        </label>
+                                        <label className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                value="2"
+                                                checked={formValues.type_of_test.includes('2')}
+                                                onChange={handleCheckboxChange}
+                                                className="rounded text-blue-600"
+                                            />
+                                            <span className="text-sm text-gray-700">Post Course</span>
+                                        </label>
+                                        <label className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                value="3"
+                                                checked={formValues.type_of_test.includes('3')}
+                                                onChange={handleCheckboxChange}
+                                                className="rounded text-blue-600"
+                                            />
+                                            <span className="text-sm text-gray-700">Daily</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <TextAreaField
+                                label="Question"
+                                name="question"
+                                value={formValues.question}
                                 onChange={handleInputChange}
-                                placeholder="Select Master Course"
+                                placeholder="Enter question text here..."
                                 required
-                                error="master_course_id"
-                                options={masterCourses.map(c => ({ value: c.id, label: c.master_course_name }))}
+                                error="question"
                             />
 
+                            {/* Question Image */}
+                            <FileInputField
+                                label="Question Image"
+                                fileRef={imageRef}
+                                onChange={(e) => handleFileChange('image', e)}
+                                preview={previews.image}
+                                previewAlt="Question preview"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {['a', 'b', 'c', 'd'].map((opt) => (
+                                <div key={opt} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                                    <h4 className="font-semibold text-gray-800 uppercase">Option {opt.toUpperCase()}</h4>
+                                    <InputField
+                                        label="Text"
+                                        name={`option_${opt}`}
+                                        value={formValues[`option_${opt}`]}
+                                        onChange={handleInputChange}
+                                        placeholder={`Option ${opt.toUpperCase()} text`}
+                                    />
+                                    <FileInputField
+                                        label={`Option ${opt.toUpperCase()} Image`}
+                                        fileRef={fileRefs[`opt_img_${opt}`]}
+                                        onChange={(e) => handleFileChange(`opt_img_${opt}`, e)}
+                                        preview={previews[`opt_img_${opt}`]}
+                                        previewAlt={`Option ${opt.toUpperCase()} preview`}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700 block">Type of Test</label>
-                                <div className="flex gap-4 mt-2">
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            value="1"
-                                            checked={formValues.type_of_test.includes('1')}
-                                            onChange={handleCheckboxChange}
-                                            className="rounded text-blue-600"
-                                        />
-                                        <span className="text-sm text-gray-700">Pre Course</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            value="2"
-                                            checked={formValues.type_of_test.includes('2')}
-                                            onChange={handleCheckboxChange}
-                                            className="rounded text-blue-600"
-                                        />
-                                        <span className="text-sm text-gray-700">Post Course</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            value="3"
-                                            checked={formValues.type_of_test.includes('3')}
-                                            onChange={handleCheckboxChange}
-                                            className="rounded text-blue-600"
-                                        />
-                                        <span className="text-sm text-gray-700">Daily</span>
-                                    </label>
+                                <label className="text-sm font-medium text-gray-700 block">
+                                    Correct Option(s) <span className="text-red-500">*</span>
+                                </label>
+                                <div className="flex gap-6 mt-2">
+                                    {[{ value: 'opt_a', label: 'Option A' }, { value: 'opt_b', label: 'Option B' }, { value: 'opt_c', label: 'Option C' }, { value: 'opt_d', label: 'Option D' }].map(opt => (
+                                        <label key={opt.value} className="flex items-center space-x-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                value={opt.value}
+                                                checked={formValues.correct_option.includes(opt.value)}
+                                                onChange={handleCorrectOptionChange}
+                                                className="rounded text-blue-600 w-4 h-4"
+                                            />
+                                            <span className="text-sm text-gray-700">{opt.label}</span>
+                                        </label>
+                                    ))}
                                 </div>
                             </div>
                         </div>
 
-                        <TextAreaField
-                            label="Question"
-                            name="question"
-                            value={formValues.question}
-                            onChange={handleInputChange}
-                            placeholder="Enter question text here..."
-                            required
-                            error="question"
-                        />
-
-                        {/* Question Image */}
-                        <FileInputField
-                            label="Question Image"
-                            fileRef={imageRef}
-                            onChange={(e) => handleFileChange('image', e)}
-                            preview={previews.image}
-                            previewAlt="Question preview"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {['a', 'b', 'c', 'd'].map((opt) => (
-                            <div key={opt} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                                <h4 className="font-semibold text-gray-800 uppercase">Option {opt.toUpperCase()}</h4>
-                                <InputField
-                                    label="Text"
-                                    name={`option_${opt}`}
-                                    value={formValues[`option_${opt}`]}
-                                    onChange={handleInputChange}
-                                    placeholder={`Option ${opt.toUpperCase()} text`}
-                                />
-                                <FileInputField
-                                    label={`Option ${opt.toUpperCase()} Image`}
-                                    fileRef={fileRefs[`opt_img_${opt}`]}
-                                    onChange={(e) => handleFileChange(`opt_img_${opt}`, e)}
-                                    preview={previews[`opt_img_${opt}`]}
-                                    previewAlt={`Option ${opt.toUpperCase()} preview`}
-                                />
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700 block">
-                                Correct Option(s) <span className="text-red-500">*</span>
-                            </label>
-                            <div className="flex gap-6 mt-2">
-                                {[{ value: 'opt_a', label: 'Option A' }, { value: 'opt_b', label: 'Option B' }, { value: 'opt_c', label: 'Option C' }, { value: 'opt_d', label: 'Option D' }].map(opt => (
-                                    <label key={opt.value} className="flex items-center space-x-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            value={opt.value}
-                                            checked={formValues.correct_option.includes(opt.value)}
-                                            onChange={handleCorrectOptionChange}
-                                            className="rounded text-blue-600 w-4 h-4"
-                                        />
-                                        <span className="text-sm text-gray-700">{opt.label}</span>
-                                    </label>
-                                ))}
+                        <div className="sticky bottom-0 z-10 bg-white border-t border-slate-200 p-4 sm:p-6 -mx-8 -mb-8 flex justify-end shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] mt-8 rounded-b-xl">
+                            <div className="flex gap-4 w-full sm:w-auto">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/assessment/question-bank')}
+                                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-70 text-sm"
+                                >
+                                    {isSubmitting ? (
+                                        <RefreshCcw className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Save className="w-4 h-4" />
+                                    )}
+                                    <span>{isEditMode ? 'Update Question' : 'Save Question'}</span>
+                                </Button>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="flex justify-end gap-4">
-                        <button
-                            type="button"
-                            onClick={() => navigate('/assessment/question-bank')}
-                            className="px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all"
-                        >
-                            Cancel
-                        </button>
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="flex items-center space-x-2 px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all"
-                        >
-                            <Save size={18} />
-                            <span>{isSubmitting ? 'Saving...' : 'Save Question'}</span>
-                        </Button>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
             </div>
         </FormContext.Provider>
     );

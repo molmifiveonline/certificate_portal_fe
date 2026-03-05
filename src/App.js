@@ -25,9 +25,20 @@ const EditCandidate = lazy(() => import("./pages/candidates/EditCandidate"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const RolePermission = lazy(() => import("./pages/admin/RolePermission"));
 const LogHistory = lazy(() => import("./pages/admin/LogHistory"));
+const AdminUserList = lazy(() => import("./pages/admin/users/AdminUserList"));
+const CreateAdminUser = lazy(
+  () => import("./pages/admin/users/CreateAdminUser"),
+);
+const EditAdminUser = lazy(() => import("./pages/admin/users/EditAdminUser"));
 const HotelList = lazy(() => import("./pages/hotels/HotelList"));
 const CreateHotel = lazy(() => import("./pages/hotels/CreateHotel"));
 const EditHotel = lazy(() => import("./pages/hotels/EditHotel"));
+const AdminRolesList = lazy(
+  () => import("./pages/admin/admin-roles/AdminRolesList"),
+);
+const AdminRolesForm = lazy(
+  () => import("./pages/admin/admin-roles/AdminRolesForm"),
+);
 
 const CertificateList = lazy(
   () => import("./pages/certificates/CertificateList"),
@@ -58,6 +69,16 @@ const HotelReport = lazy(() => import("./pages/reports/HotelReport"));
 const LocationList = lazy(() => import("./pages/locations/LocationList"));
 const CreateLocation = lazy(() => import("./pages/locations/CreateLocation"));
 const EditLocation = lazy(() => import("./pages/locations/EditLocation"));
+
+const SystemManualList = lazy(
+  () => import("./pages/system-manual/SystemManualList"),
+);
+const CreateSystemManual = lazy(
+  () => import("./pages/system-manual/CreateSystemManual"),
+);
+const EditSystemManual = lazy(
+  () => import("./pages/system-manual/EditSystemManual"),
+);
 
 const NominatorList = lazy(() => import("./pages/nominators/NominatorList"));
 const CreateNominator = lazy(
@@ -311,6 +332,54 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/admin/users"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminUserList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/admin-roles"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminRolesList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/admin-roles/create"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminRolesForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/admin-roles/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminRolesForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/users/create"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CreateAdminUser />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/users/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <EditAdminUser />
+                  </PrivateRoute>
+                }
+              />
 
               <Route
                 path="/hotel-details"
@@ -335,6 +404,31 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <EditHotel />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/system-manual"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <SystemManualList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/system-manual/create"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CreateSystemManual />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/system-manual/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <EditSystemManual />
                   </PrivateRoute>
                 }
               />
