@@ -418,6 +418,11 @@ const QuestionBankForm = () => {
                                         </label>
                                     ))}
                                 </div>
+                                {formErrors.correct_option && (
+                                    <span className="text-red-500 text-xs mt-1 block">
+                                        {formErrors.correct_option}
+                                    </span>
+                                )}
                             </div>
                         </div>
 
