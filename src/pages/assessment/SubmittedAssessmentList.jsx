@@ -20,6 +20,10 @@ const SubmittedAssessmentList = () => {
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
     const [isExporting, setIsExporting] = useState(false);
+    const [downloadingId, setDownloadingId] = useState(null);
+    const [courseFilter, setCourseFilter] = useState("");
+    const [typeFilter, setTypeFilter] = useState("");
+    const [courses, setCourses] = useState([]);
 
     const updateDebouncedSearch = useCallback(
         debounce((value) => {
@@ -36,11 +40,10 @@ const SubmittedAssessmentList = () => {
     const fetchSubmissions = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await assessmentService.getAllPaginatedSubmissions({
-                page,
-                limit,
-                search: debouncedSearch,
-            });
+            const params = { page, limit, search: debouncedSearch };
+            if (courseFilter) params.course_id = courseFilter;
+            if (typeFilter) params.type_of_test = typeFilter;
+            const response = await assessmentService.getAllPaginatedSubmissions(params);
             setSubmissions(response.data || []);
             setTotalPages(response.totalPages || 1);
             setTotalCount(response.totalCount || 0);
@@ -50,7 +53,14 @@ const SubmittedAssessmentList = () => {
         } finally {
             setLoading(false);
         }
-    }, [page, limit, debouncedSearch]);
+    }, [page, limit, debouncedSearch, courseFilter, typeFilter]);
+
+    // Fetch courses for filter dropdown
+    useEffect(() => {
+        assessmentService.getActiveCourses().then((res) => {
+            setCourses(res.data || []);
+        }).catch(() => { });
+    }, []);
 
     useEffect(() => {
         fetchSubmissions();
@@ -84,6 +94,23 @@ const SubmittedAssessmentList = () => {
             toast.error("Failed to export submitted assessments");
         } finally {
             setIsExporting(false);
+        }
+    };
+
+    const handleDownloadPdf = async (row) => {
+        try {
+            setDownloadingId(row.result_id);
+            const response = await assessmentService.downloadSubmissionPdf(row.result_id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, "_blank");
+            setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+            toast.success("PDF opened in new tab");
+        } catch (error) {
+            console.error("PDF open error:", error);
+            toast.error("Failed to open PDF");
+        } finally {
+            setDownloadingId(null);
         }
     };
 
@@ -150,17 +177,25 @@ const SubmittedAssessmentList = () => {
                     >
                         <Eye className="w-4 h-4" />
                     </Link>
-                    <button
-                        onClick={() => {
-                            // Currently we don't have a row-level PDF download, 
-                            // but we can provide a toast or link if available.
-                            toast.info("Individual download for " + row.first_name + " coming soon");
-                        }}
-                        className="p-1.5 rounded-full text-green-600 hover:bg-green-50 transition-all"
-                        title="Download Result"
-                    >
-                        <FileDown className="w-4 h-4" />
-                    </button>
+                    {(row.type_of_test == 2 || row.type_of_test == "2") ? (
+                        <button
+                            onClick={() => handleDownloadPdf(row)}
+                            disabled={downloadingId === row.result_id}
+                            className="p-1.5 rounded-full text-green-600 hover:bg-green-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Download PDF"
+                        >
+                            {downloadingId === row.result_id ? (
+                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                </svg>
+                            ) : (
+                                <FileDown className="w-4 h-4" />
+                            )}
+                        </button>
+                    ) : (
+                        <span className="p-1.5 w-7 h-7 inline-block" aria-hidden="true" />
+                    )}
                 </div>
             ),
         },
@@ -186,32 +221,69 @@ const SubmittedAssessmentList = () => {
                         View assessment submissions by course
                     </p>
                 </div>
-                <Button
+                {/* <Button
                     onClick={handleExport}
                     disabled={isExporting}
                     className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                     <FileDown className="w-4 h-4" />
                     {isExporting ? "Exporting..." : "Export to Excel"}
-                </Button>
+                </Button> */}
             </div>
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
                 <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-                        <div className="relative w-full md:w-96">
+                    <div className="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center">
+                        {/* Search */}
+                        <div className="relative w-full md:w-80">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder="Search by course name..."
+                                placeholder="Search by name, course, employee ID..."
                                 className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="flex gap-3 w-full md:w-auto items-center">
+
+                        {/* Filters */}
+                        <div className="flex flex-wrap gap-3 items-center">
+                            {/* Course filter */}
+                            <select
+                                value={courseFilter}
+                                onChange={(e) => { setCourseFilter(e.target.value); setPage(1); }}
+                                className="h-10 pl-3 pr-8 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-600 min-w-[180px]"
+                            >
+                                <option value="">All Courses</option>
+                                {courses.map((c) => (
+                                    <option key={c.id} value={c.id}>{c.course_name}</option>
+                                ))}
+                            </select>
+
+                            {/* Type of Test filter */}
+                            <select
+                                value={typeFilter}
+                                onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
+                                className="h-10 pl-3 pr-8 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-600 min-w-[160px]"
+                            >
+                                <option value="">All Types</option>
+                                <option value="1">Pre Course</option>
+                                <option value="2">Post Course</option>
+                                <option value="3">Daily</option>
+                            </select>
+
+                            {/* Clear filters */}
+                            {(courseFilter || typeFilter || searchTerm) && (
+                                <button
+                                    onClick={() => { setCourseFilter(""); setTypeFilter(""); setSearchTerm(""); setPage(1); }}
+                                    className="h-10 px-3 text-sm text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
+                                >
+                                    Clear
+                                </button>
+                            )}
+
                             <span className="text-xs text-slate-400">
-                                {totalCount} course{totalCount !== 1 ? "s" : ""}
+                                {totalCount} result{totalCount !== 1 ? "s" : ""}
                             </span>
                         </div>
                     </div>

@@ -25,8 +25,10 @@ const deleteAssessment = async (id) => {
   return response.data;
 };
 
-const getActiveCourses = async (typeOfTest = null) => {
-  const params = typeOfTest ? { type_of_test: typeOfTest } : {};
+const getActiveCourses = async (typeOfTest = null, assessmentId = null) => {
+  const params = {};
+  if (typeOfTest) params.type_of_test = typeOfTest;
+  if (assessmentId) params.assessment_id = assessmentId;
   const response = await api.get("/assessment/courses", { params });
   return response.data;
 };
@@ -90,6 +92,14 @@ const exportSubmittedAssessments = async (params = {}) => {
   return response;
 };
 
+const downloadSubmissionPdf = async (resultId) => {
+  const response = await api.get(
+    `/assessment/submission/${resultId}/download`,
+    { responseType: "blob" },
+  );
+  return response;
+};
+
 const assessmentService = {
   getAssessments,
   getAssessmentById,
@@ -103,6 +113,7 @@ const assessmentService = {
   getCourseSubmissions,
   getSubmissionDetail,
   exportSubmittedAssessments,
+  downloadSubmissionPdf,
   getAssessmentsByCourse,
   getAssessmentSubmissions,
   getAllPaginatedSubmissions,

@@ -10,12 +10,12 @@ const Register = lazy(() => import("./pages/auth/Register"));
 const SuperAdminDashboard = lazy(
   () => import("./pages/dashboard/SuperAdminDashboard"),
 );
-const TrainerDashboard = lazy(
-  () => import("./pages/dashboard/TrainerDashboard"),
-);
-const CandidateDashboard = lazy(
-  () => import("./pages/dashboard/CandidateDashboard"),
-);
+// const TrainerDashboard = lazy(
+//   () => import("./pages/dashboard/TrainerDashboard"),
+// );
+// const CandidateDashboard = lazy(
+//   () => import("./pages/dashboard/CandidateDashboard"),
+// );
 const CandidateList = lazy(() => import("./pages/candidates/CandidateList"));
 const CreateTrainer = lazy(() => import("./pages/trainers/CreateTrainer"));
 const EditTrainer = lazy(() => import("./pages/trainers/EditTrainer"));
@@ -141,9 +141,9 @@ const SubmittedAssessmentList = lazy(
 const CourseSubmissions = lazy(
   () => import("./pages/assessment/CourseSubmissions"),
 );
-const AssessmentSubmissionList = lazy(
-  () => import("./pages/assessment/AssessmentSubmissionList"),
-);
+// const AssessmentSubmissionList = lazy(
+//   () => import("./pages/assessment/AssessmentSubmissionList"),
+// );
 const SubmissionDetail = lazy(
   () => import("./pages/assessment/SubmissionDetail"),
 );

@@ -98,15 +98,8 @@ const AdminRemarksReport = () => {
         fetchReports();
     };
 
-    // Frontend filtering for search term
-    const filteredReports = reports.filter(r => {
-        const searchStr = filters.search.toLowerCase();
-        return (
-            (r.first_name + " " + (r.last_name || '')).toLowerCase().includes(searchStr) ||
-            r.email.toLowerCase().includes(searchStr) ||
-            r.course_name.toLowerCase().includes(searchStr)
-        );
-    });
+    // Using backend filtering for search term, so we just use the fetched reports
+    const filteredReports = reports;
 
     const totalPages = Math.ceil(filteredReports.length / limit);
     const paginatedReports = filteredReports.slice((currentPage - 1) * limit, currentPage * limit);

@@ -9,6 +9,46 @@ import { ASSESSMENT_TYPES, QUESTION_COUNTS, QUESTION_CHOICES } from "../../lib/c
 import BackButton from '../../components/common/BackButton';
 import { Button } from "../../components/ui/button";
 
+const InputField = ({ label, value, onChange, placeholder, required, errorMessage }) => (
+    <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-2">
+            {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <input
+            type="text"
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errorMessage ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+        />
+        {errorMessage && <span className="text-red-500 text-xs mt-1 block">{errorMessage}</span>}
+    </div>
+);
+
+const SelectField = ({ label, value, onChange, options, loading, placeholder, required, errorMessage }) => (
+    <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-2">
+            {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <select
+            value={value}
+            onChange={onChange}
+            className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errorMessage ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+        >
+            <option value="">{placeholder}</option>
+            {loading ? (
+                <option disabled>Loading...</option>
+            ) : (
+                options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                    </option>
+                ))
+            )}
+        </select>
+        {errorMessage && <span className="text-red-500 text-xs mt-1 block">{errorMessage}</span>}
+    </div>
+);
 const AssessmentForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -36,10 +76,10 @@ const AssessmentForm = () => {
     const [loadingQuestions, setLoadingQuestions] = useState(false);
 
 
-    const loadCourses = useCallback(async (typeOfTest) => {
+    const loadCourses = useCallback(async (typeOfTest, assessmentId = null) => {
         setLoadingCourses(true);
         try {
-            const response = await assessmentService.getActiveCourses(typeOfTest);
+            const response = await assessmentService.getActiveCourses(typeOfTest, assessmentId);
             setCourses(response.data || []);
         } catch (error) {
             console.error("Failed to load courses:", error);
@@ -84,8 +124,10 @@ const AssessmentForm = () => {
 
 
     useEffect(() => {
-        loadCourses(formData.type_of_test);
-    }, []);
+        if (!isEdit) {
+            loadCourses(formData.type_of_test);
+        }
+    }, [isEdit, formData.type_of_test, loadCourses]);
 
 
     useEffect(() => {
@@ -105,7 +147,7 @@ const AssessmentForm = () => {
                     });
 
 
-                    await loadCourses(data.type_of_test);
+                    await loadCourses(data.type_of_test, id);
                     if (data.course_id) {
                         await loadCandidates(data.course_id);
                         await loadQuestions(data.course_id, data.type_of_test);
@@ -141,7 +183,7 @@ const AssessmentForm = () => {
         setSelectedQuestions([]);
         setCandidates([]);
         setQuestions([]);
-        loadCourses(value);
+        loadCourses(value, isEdit ? id : null);
     };
 
     const handleCourseChange = (courseId) => {
@@ -232,48 +274,6 @@ const AssessmentForm = () => {
         }
     };
 
-
-    const InputField = ({ label, value, onChange, placeholder, required, error }) => (
-        <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <input
-                type="text"
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${error && formErrors[error] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
-            />
-            {error && formErrors[error] && <span className="text-red-500 text-xs mt-1 block">{formErrors[error]}</span>}
-        </div>
-    );
-
-    const SelectField = ({ label, value, onChange, options, loading, placeholder, required, error }) => (
-        <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            <select
-                value={value}
-                onChange={onChange}
-                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${error && formErrors[error] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
-            >
-                <option value="">{placeholder}</option>
-                {loading ? (
-                    <option disabled>Loading...</option>
-                ) : (
-                    options.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                        </option>
-                    ))
-                )}
-            </select>
-            {error && formErrors[error] && <span className="text-red-500 text-xs mt-1 block">{formErrors[error]}</span>}
-        </div>
-    );
-
     return (
         <div className="flex-1 overflow-y-auto w-full bg-slate-50">
             <Meta title={isEdit ? "Edit Assessment" : "Add Assessment"} />
@@ -306,7 +306,7 @@ const AssessmentForm = () => {
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             placeholder="e.g. Final Certification Exam 2024"
                             required
-                            error="title"
+                            errorMessage={formErrors.title}
                         />
                         <SelectField
                             label="Course"
@@ -315,7 +315,7 @@ const AssessmentForm = () => {
                             placeholder="Select a course..."
                             loading={loadingCourses}
                             required
-                            error="course_id"
+                            errorMessage={formErrors.course_id}
                             options={courses.map(c => ({ value: c.id, label: `${c.course_name} (${c.course_code})` }))}
                         />
                     </div>
