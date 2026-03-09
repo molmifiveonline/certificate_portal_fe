@@ -324,6 +324,24 @@ const AssessmentTab = ({ courseId }) => {
         }
     };
 
+    const handleGenerateReport = async () => {
+        try {
+            const response = await api.get(`/active-courses/${courseId}/training-report`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Training_Report.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            toast.success("Training report downloaded successfully!");
+        } catch (error) {
+            toast.error("Failed to generate training report");
+        }
+    };
+
     if (loading)
         return (
             <div className="flex justify-center py-12 text-slate-500">Loading...</div>
