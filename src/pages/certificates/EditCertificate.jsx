@@ -312,8 +312,7 @@ const EditCertificate = () => {
                                 {/* Topic */}
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700">Topic/Task <span className="text-red-500">*</span></label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="topic"
                                         value={formData.topic}
                                         onChange={(e) => {
@@ -321,7 +320,12 @@ const EditCertificate = () => {
                                             if (formErrors.topic) setFormErrors(prev => ({ ...prev, topic: undefined }));
                                         }}
                                         className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.topic ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
-                                    />
+                                    >
+                                        <option value="">Select Topic</option>
+                                        {[...new Set(masterCourses.map(c => c.topic).filter(Boolean))].map((topic, idx) => (
+                                            <option key={idx} value={topic}>{topic}</option>
+                                        ))}
+                                    </select>
                                     {formErrors.topic && <span className="text-red-500 text-xs mt-1 block">{formErrors.topic}</span>}
                                 </div>
 

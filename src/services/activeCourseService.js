@@ -186,6 +186,14 @@ const activeCourseService = {
     );
     return response.data;
   },
+
+  updateCertificateHide: async (id, certificateId, value) => {
+    const response = await api.put(
+      `/active-courses/${id}/certificates/${certificateId}/hide`,
+      { value },
+    );
+    return response.data;
+  },
 };
 
 export default activeCourseService;
