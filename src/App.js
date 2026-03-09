@@ -75,6 +75,8 @@ const CandidateApprovalPortal = lazy(
   () => import("./pages/pre-active-courses/CandidateApprovalPortal"),
 );
 
+const Acknowledge = lazy(() => import("./pages/Acknowledge"));
+
 const UnifiedDashboard = lazy(
   () => import("./pages/dashboard/UnifiedDashboard"),
 );
@@ -198,6 +200,8 @@ function App() {
                 path="/candidate-approval/:token"
                 element={<CandidateApprovalPortal />}
               />
+
+              <Route path="/acknowledge" element={<Acknowledge />} />
 
               <Route path="/" element={<Navigate to="/login" replace />} />
 

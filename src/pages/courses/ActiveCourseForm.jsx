@@ -286,6 +286,7 @@ const FeedbackTab = ({ courseId }) => {
 // ASSESSMENT TAB
 // ==========================================
 const AssessmentTab = ({ courseId }) => {
+    const navigate = useNavigate();
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [sendingEmail, setSendingEmail] = useState(null);
@@ -330,10 +331,21 @@ const AssessmentTab = ({ courseId }) => {
 
     return (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                     <FileText size={20} className="text-blue-600" /> Assessment Scores
                 </h3>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => navigate(`/assessments/new?course_id=${courseId}`)}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm"
+                    >
+                        Create Assessment
+                    </Button>
+                    <Button onClick={handleGenerateReport} className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm">
+                        Generate Training Report
+                    </Button>
+                </div>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -760,7 +772,12 @@ const CertificateTab = ({ courseId }) => {
     const isEligible = (candidate) => {
         const attendance = calcAttendance(candidate);
         const score = candidate.post_score || 0;
-        return attendance >= 100 && score >= 60 && !!candidate.feedback_completed;
+        const attempt = candidate.post_score_attempt || 1;
+
+        // >60% post score for 1st attempt, >70% for retest
+        const requiredScore = attempt > 1 ? 70 : 60;
+
+        return attendance >= 100 && score >= requiredScore && !!candidate.feedback_completed;
     };
 
     const handleGenerateCertificate = async (candidateId) => {
@@ -795,6 +812,26 @@ const CertificateTab = ({ courseId }) => {
         }
     };
 
+    const handleToggleHide = async (certificateId, currentValue) => {
+        try {
+            await activeCourseService.updateCertificateHide(
+                courseId,
+                certificateId,
+                currentValue ? 0 : 1,
+            );
+            setCandidates((prev) =>
+                prev.map((c) =>
+                    c.certificate_id === certificateId
+                        ? { ...c, is_hidden: currentValue ? 0 : 1 }
+                        : c,
+                ),
+            );
+            toast.success("Certificate visibility updated");
+        } catch (err) {
+            toast.error("Failed to update certificate visibility");
+        }
+    };
+
     if (loading)
         return (
             <div className="flex justify-center py-12 text-slate-500">Loading...</div>
@@ -807,7 +844,7 @@ const CertificateTab = ({ courseId }) => {
                     <FileText size={20} className="text-blue-600" /> Certificates
                 </h3>
                 <p className="text-sm text-slate-500 mt-1">
-                    Eligible: 100% attendance + ≥60 post score + feedback completed
+                    Eligible: 100% attendance + (≥60% 1st test OR ≥70% retest) + feedback completed
                 </p>
             </div>
             <div className="overflow-x-auto">
@@ -821,7 +858,7 @@ const CertificateTab = ({ courseId }) => {
                             <th className="px-4 py-3 font-semibold text-slate-600">
                                 Candidate Name
                             </th>
-                            <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                            <th className="px-4 py-3 font-semibold text-slate-600 text-center" title="Post Score (Attempt)">
                                 Assessment
                             </th>
                             <th className="px-4 py-3 font-semibold text-slate-600 text-center">
@@ -838,6 +875,12 @@ const CertificateTab = ({ courseId }) => {
                             </th>
                             <th className="px-4 py-3 font-semibold text-slate-600 text-center">
                                 Date
+                            </th>
+                            <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                                View
+                            </th>
+                            <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                                Hide
                             </th>
                         </tr>
                     </thead>
@@ -929,6 +972,36 @@ const CertificateTab = ({ courseId }) => {
                                         </td>
                                         <td className="px-4 py-3 text-center text-slate-500 text-xs">
                                             {c.generated_date ? formatDateDMY(c.generated_date) : "-"}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            {c.certficate_generated && c.certificate_id ? (
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => window.open(`/certificates/print/${c.certificate_id}`, '_blank')}
+                                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                >
+                                                    <FileText size={16} />
+                                                </Button>
+                                            ) : (
+                                                <span className="text-slate-300">-</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            {c.certficate_generated && c.certificate_id ? (
+                                                <button
+                                                    onClick={() =>
+                                                        handleToggleHide(c.certificate_id, c.is_hidden)
+                                                    }
+                                                    className={`w-10 h-5 rounded-full relative transition-colors ${c.is_hidden ? "bg-red-500" : "bg-slate-300"}`}
+                                                >
+                                                    <span
+                                                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${c.is_hidden ? "left-5" : "left-0.5"}`}
+                                                    />
+                                                </button>
+                                            ) : (
+                                                <span className="text-slate-300">-</span>
+                                            )}
                                         </td>
                                     </tr>
                                 );
@@ -1026,6 +1099,14 @@ const ActiveCourseForm = () => {
     };
 
     const progress = calculateProgress();
+
+    const isPastEndDate = () => {
+        if (!endDate) return false;
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        return new Date() > end;
+    };
+    const courseEnded = isPastEndDate();
 
     // Fetch Dependencies
     useEffect(() => {
@@ -1807,7 +1888,7 @@ const ActiveCourseForm = () => {
                                         <Users size={20} className="text-blue-600" />
                                         <h3>Enrolled Candidates</h3>
                                     </div>
-                                    <Button onClick={openCandidateModal}>+ Add Candidates</Button>
+                                    <Button onClick={openCandidateModal} disabled={courseEnded}>+ Add Candidates</Button>
                                 </div>
 
                                 <div className="overflow-x-auto">
@@ -1924,7 +2005,8 @@ const ActiveCourseForm = () => {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="sm"
-                                                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                                disabled={courseEnded}
+                                                                className="text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
                                                                 onClick={() =>
                                                                     setDeleteModal({
                                                                         isOpen: true,
@@ -2057,6 +2139,9 @@ const ActiveCourseForm = () => {
                                         <th className="px-4 py-2">Name</th>
                                         <th className="px-4 py-2">Emp ID</th>
                                         <th className="px-4 py-2">Rank</th>
+                                        <th className="px-4 py-2">Passport</th>
+                                        <th className="px-4 py-2">Seaman No.</th>
+                                        <th className="px-4 py-2">Manager</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2103,6 +2188,15 @@ const ActiveCourseForm = () => {
                                                 </td>
                                                 <td className="px-4 py-3 text-slate-500">
                                                     {candidate.rank}
+                                                </td>
+                                                <td className="px-4 py-3 text-slate-500">
+                                                    {candidate.cdc_passport || "-"}
+                                                </td>
+                                                <td className="px-4 py-3 text-slate-500">
+                                                    {candidate.seaman_book_no || "-"}
+                                                </td>
+                                                <td className="px-4 py-3 text-slate-500">
+                                                    {candidate.manager || "-"}
                                                 </td>
                                             </tr>
                                         ))}
