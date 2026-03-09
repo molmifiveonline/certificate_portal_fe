@@ -103,22 +103,22 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     subItems: [
       { title: "Question Bank", url: "/assessment/question-bank" },
-      { title: "Assessments", url: "/assessment/assessments" },
-      { title: "Submitted Assessments", url: "/assessment/submitted" },
+      // { title: "Assessments", url: "/assessment/assessments" },
+      // { title: "Submitted Assessments", url: "/assessment/submitted" },
     ],
   },
 
-  {
-    title: "Feedback",
-    url: "/feedback",
-    icon: MessageSquare,
-    allowedRoles: ["admin", "superadmin"],
-    subItems: [
-      { title: "Feedback Category", url: "/feedback" },
-      { title: "Feedback Question", url: "/feedback/forms" },
-      { title: "Submitted Feedback", url: "/feedback/submitted" },
-    ],
-  },
+  // {
+  //   title: "Feedback",
+  //   url: "/feedback",
+  //   icon: MessageSquare,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Feedback Category", url: "/feedback" },
+  //     { title: "Feedback Question", url: "/feedback/forms" },
+  //     { title: "Submitted Feedback", url: "/feedback/submitted" },
+  //   ],
+  // },
   // {
   //   title: "Certificates",
   //   url: "/certificates",
