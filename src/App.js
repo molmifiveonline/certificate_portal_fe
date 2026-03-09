@@ -720,7 +720,10 @@ function App() {
               <Route
                 path="/certificates/print/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={["SuperAdmin", "Admin", "admin"]}
+                    noLayout={true}
+                  >
                     <CertificatePrintView />
                   </PrivateRoute>
                 }

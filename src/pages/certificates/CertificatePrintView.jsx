@@ -1,189 +1,1339 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import certificateService from "../../services/certificateService";
-import { formatDate } from "../../lib/utils/dateUtils";
 import { Loader2, Printer } from "lucide-react";
 
-// Mocking some legacy styles or using modern ones for better look
+export const formatCustomDate = (date) => {
+  if (!date) return "-";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "-";
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = d.toLocaleString("en-GB", { month: "long" });
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
 const CertificatePrintView = () => {
-    const { id } = useParams();
-    const [certificate, setCertificate] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const [certificate, setCertificate] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchCertificate = async () => {
-            try {
-                const data = await certificateService.getCertificateById(id);
-                setCertificate(data);
-            } catch (err) {
-                console.error("Error fetching certificate for print:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchCertificate();
-    }, [id]);
-
-    const handlePrint = () => {
-        window.print();
+  useEffect(() => {
+    const fetchCertificate = async () => {
+      try {
+        const data = await certificateService.getCertificateById(id);
+        setCertificate(data);
+      } catch (err) {
+        console.error("Error fetching certificate for print:", err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchCertificate();
+  }, [id]);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
-                <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-            </div>
-        );
-    }
+  const handlePrint = () => {
+    window.print();
+  };
 
-    if (!certificate) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
-                <p className="text-xl font-semibold text-slate-800">Certificate not found.</p>
-            </div>
-        );
-    }
-
+  if (loading) {
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-8 flex flex-col items-center select-none">
-            {/* Print Button - Hidden during print */}
-            <div className="print:hidden mb-8 w-full max-w-[1000px] flex justify-end">
-                <button
-                    onClick={handlePrint}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all active:scale-95"
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!certificate) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-xl font-semibold text-slate-800">
+          Certificate not found.
+        </p>
+      </div>
+    );
+  }
+
+  // Prepare Name format logic (Prefix + Name)
+  const canPrefix = certificate.caprefix ? `${certificate.caprefix}. ` : "";
+  const candidateFullName = `${canPrefix}${certificate.candidate_name || ""}`;
+
+  const trPrefix = certificate.tprefix ? `${certificate.tprefix}. ` : "";
+  const trainerFullName = `${trPrefix}${certificate.trainer_name || ""}`;
+
+  // Verify Link for QR Code
+  const verifyLink = `${window.location.origin}/authenticity-verification/${certificate.id || id}`;
+  const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(verifyLink)}&size=150`;
+
+  // Signatures
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+  // The PHP code used `upload/trainer/`
+  const signatureUrl = certificate.digital_signature
+    ? `${apiUrl.replace("/api", "")}/uploads/trainer/${certificate.digital_signature}`
+    : null;
+
+  return (
+    <>
+      <style>
+        {`
+                    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap');
+                    
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        background: #f0f0f0;
+                    }
+                    
+                    .cert-container {
+                        font-family: 'Jost', sans-serif;
+                    }
+                    
+                    @media print {
+                        body { background: white !important; }
+                        @page {
+                            margin-left: 0.4in;
+                            margin-right: 0.5in;
+                            margin-top: ${certificate.show_logo === 1 ? "0.05in" : "0.2in"};
+                            margin-bottom: 0;
+                            size: A4 portrait;
+                        }
+                        #printBtn {
+                            display: none !important;
+                        }
+                    }
+                `}
+      </style>
+
+      <div
+        className="cert-container pb-8"
+        style={{ height: "auto", paddingTop: "0px" }}
+      >
+        <button
+          id="printBtn"
+          onClick={handlePrint}
+          style={{
+            cursor: "pointer",
+            position: "absolute",
+            right: "4%",
+            top: "20px",
+            backgroundColor: "#0060aa",
+            color: "#ffffff",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "5px",
+            zIndex: 100,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontWeight: "bold",
+            }}
+          >
+            <Printer size={18} /> Print
+          </div>
+        </button>
+
+        <table
+          align="center"
+          border="0"
+          cellPadding="0"
+          cellSpacing="0"
+          style={{
+            width: "1000px",
+            border: "1px solid #333",
+            backgroundImage: "url(/images/navy.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            marginTop: "40px",
+            backgroundColor: "#fff",
+          }}
+        >
+          <tbody>
+            <tr>
+              <td>
+                {/* Header with Logo and QR Code */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "1000px", margin: "0 auto" }}
                 >
-                    <Printer className="w-5 h-5" />
-                    Print Certificate
-                </button>
-            </div>
+                  <tbody>
+                    <tr>
+                      <td height="40" style={{ fontSize: "0px" }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "900px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td valign="top">
+                                <table
+                                  align="left"
+                                  border="0"
+                                  cellPadding="0"
+                                  cellSpacing="0"
+                                  style={{
+                                    width: "700px",
+                                    overflow: "hidden",
+                                    borderRadius: "4px",
+                                  }}
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td
+                                        height="40"
+                                        style={{ fontSize: "0px" }}
+                                      >
+                                        &nbsp;
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td>
+                                        <img
+                                          width="188"
+                                          src="/images/certificate-logo.jpg"
+                                          alt="MOL Logo"
+                                          style={{
+                                            width: "100%",
+                                            display: "block",
+                                            lineHeight: "0px",
+                                            fontSize: "0px",
+                                            border: "0px",
+                                          }}
+                                        />
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
 
-            {/* Certificate Layout */}
-            <div className="w-full max-w-[1000px] bg-white shadow-2xl relative border-[12px] border-slate-800 p-12 sm:p-20 overflow-hidden min-h-[1400px] flex flex-col items-center">
+                                <table
+                                  align="right"
+                                  border="0"
+                                  cellPadding="0"
+                                  cellSpacing="0"
+                                  style={{
+                                    width: "150px",
+                                    overflow: "hidden",
+                                    borderRadius: "4px",
+                                  }}
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td>
+                                        <img
+                                          src={qrCodeUrl}
+                                          alt="QR Code"
+                                          style={{
+                                            display: "block",
+                                            border: "0px",
+                                          }}
+                                        />
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                {/* Decorative Borders */}
-                <div className="absolute top-4 left-4 right-4 bottom-4 border-2 border-slate-200 pointer-events-none"></div>
-
-                {/* Header with Logo */}
-                {certificate.show_logo === 1 && (
-                    <div className="w-full flex justify-between items-start mb-16">
-                        <img src="/mol-logo.png" alt="MOL Logo" className="h-24 w-auto" />
-
-                        {/* QR Code Placeholder (In real scenario, would be generated from URL) */}
-                        <div className="bg-slate-100 p-2 border border-slate-200">
-                            <div className="w-32 h-32 flex items-center justify-center text-[10px] text-center text-slate-400">
-                                QR CODE<br />{certificate.id}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Title */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 uppercase tracking-[0.2em] mb-4">
+                {/* Title & Name */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "1000px", margin: "0 auto" }}
+                >
+                  <tbody>
+                    <tr>
+                      <td height="10" style={{ fontSize: "0px" }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="13" style={{ fontSize: "0px" }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style={{
+                          textAlign: "center",
+                          color: "#1b1b1b",
+                          fontSize: "32px",
+                          letterSpacing: "0.7px",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                          wordBreak: "break-word",
+                          padding: "0 50px",
+                        }}
+                      >
                         {certificate.master_course_name}
-                    </h1>
-                    <div className="w-64 h-1 bg-slate-400 mx-auto"></div>
-                </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="10" style={{ fontSize: "0px" }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "900px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td
+                                style={{
+                                  textAlign: "center",
+                                  color: "#1b1b1b",
+                                  textTransform: "uppercase",
+                                  fontSize: "25px",
+                                  letterSpacing: "0.7px",
+                                  wordBreak: "break-word",
+                                  borderBottom: "1px solid #b7b7b7",
+                                  lineHeight: "55px",
+                                }}
+                              >
+                                {candidateFullName}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td
+                                style={{
+                                  textAlign: "center",
+                                  color: "#202020",
+                                  fontSize: "18px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.4px",
+                                  lineHeight: "23px",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                Name and Last Name
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="15" style={{ fontSize: "0px" }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                {/* Recipient */}
-                <div className="text-center mb-16 w-full">
-                    <p className="text-xl text-slate-500 uppercase tracking-widest mb-8 italic">This is to certify that</p>
-                    <h2 className="text-5xl sm:text-6xl font-bold text-slate-800 border-b-2 border-slate-200 pb-4 inline-block px-12 uppercase min-w-[50%]">
-                        {certificate.candidate_name}
-                    </h2>
-                    <p className="text-lg text-slate-400 mt-4 uppercase tracking-widest font-semibold">Name and Last Name</p>
-                </div>
+                {/* DOB & Nationality Grid */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "850px", margin: "0 auto" }}
+                >
+                  <tbody>
+                    <tr>
+                      <td height="0" style={{ fontSize: "0px" }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "900px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td valign="top">
+                                <table
+                                  align="left"
+                                  border="0"
+                                  cellPadding="0"
+                                  cellSpacing="0"
+                                  style={{ width: "395px" }}
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td width="190">
+                                        <table
+                                          align="center"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{
+                                            width: "100%",
+                                            padding: "5px",
+                                            lineHeight: "27px",
+                                          }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  color: "#1b1b1b",
+                                                  textTransform: "uppercase",
+                                                  fontSize: "18px",
+                                                  letterSpacing: "0.7px",
+                                                  wordBreak: "break-word",
+                                                  borderBottom:
+                                                    "1px solid #b7b7b7",
+                                                  lineHeight: "40px",
+                                                  fontWeight: "600",
+                                                }}
+                                              >
+                                                {certificate.dob
+                                                  ? formatCustomDate(
+                                                      certificate.dob,
+                                                      "dd-MMMM-yyyy",
+                                                    )
+                                                  : "-"}
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  color: "#202020",
+                                                  textTransform: "uppercase",
+                                                  fontSize: "17px",
+                                                  letterSpacing: "0.4px",
+                                                  lineHeight: "23px",
+                                                  wordBreak: "break-word",
+                                                }}
+                                              >
+                                                Date Of Birth
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                      <td width="190">
+                                        <table
+                                          align="center"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{ width: "100%" }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  textTransform: "uppercase",
+                                                  color: "#1b1b1b",
+                                                  fontSize: "18px",
+                                                  letterSpacing: "0.7px",
+                                                  wordBreak: "break-word",
+                                                  borderBottom:
+                                                    "1px solid #b7b7b7",
+                                                  lineHeight: "40px",
+                                                  fontWeight: "600",
+                                                }}
+                                              >
+                                                {certificate.nationality ||
+                                                  "UNKNOWN"}
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  color: "#202020",
+                                                  textTransform: "uppercase",
+                                                  fontSize: "17px",
+                                                  letterSpacing: "0.4px",
+                                                  lineHeight: "23px",
+                                                  wordBreak: "break-word",
+                                                }}
+                                              >
+                                                Nationality
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="20" style={{ fontSize: "0px" }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-12 w-full mb-16">
-                    <div className="text-center border-b border-slate-200 pb-4">
-                        <p className="text-2xl font-bold text-slate-800 uppercase">
-                            {/* Assuming DOB is available or placeholders for now */}
-                            -
-                        </p>
-                        <p className="text-sm text-slate-500 uppercase tracking-wider font-semibold">Date of Birth</p>
-                    </div>
-                    <div className="text-center border-b border-slate-200 pb-4">
-                        <p className="text-2xl font-bold text-slate-800 uppercase">
-                            {certificate.nationality || "UN"}
-                        </p>
-                        <p className="text-sm text-slate-500 uppercase tracking-wider font-semibold">Nationality</p>
-                    </div>
-                </div>
+                {/* Dates and Conducted Text */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "1050px", margin: "0 auto" }}
+                >
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "1050px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td>
+                                <table
+                                  align="center"
+                                  border="0"
+                                  cellPadding="0"
+                                  cellSpacing="0"
+                                  style={{ width: "100%" }}
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td
+                                        valign="top"
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "center",
+                                          gap: "40px",
+                                        }}
+                                      >
+                                        <table
+                                          align="left"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{
+                                            width: "300px",
+                                            overflow: "hidden",
+                                            borderRadius: "4px",
+                                          }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  textTransform: "uppercase",
+                                                  color: "#202020",
+                                                  fontSize: "15px",
+                                                  letterSpacing: "0.4px",
+                                                  lineHeight: "23px",
+                                                  wordBreak: "break-word",
+                                                }}
+                                              >
+                                                Conducted from:
+                                              </td>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  textTransform: "uppercase",
+                                                  color: "#1b1b1b",
+                                                  fontSize: "15px",
+                                                  letterSpacing: "0.7px",
+                                                  wordBreak: "break-word",
+                                                  fontWeight: "600",
+                                                }}
+                                              >
+                                                &nbsp;
+                                                {formatCustomDate(
+                                                  certificate.from_date,
+                                                  "dd-MMMM-yyyy",
+                                                )}
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
 
-                {/* Dates */}
-                <div className="text-center mb-16">
-                    <p className="text-xl text-slate-700 font-medium mb-4">
-                        Conducted from <span className="font-bold border-b border-slate-300 px-2">{formatDate(certificate.from_date)}</span> to <span className="font-bold border-b border-slate-300 px-2">{formatDate(certificate.to_date)}</span>
-                    </p>
-                    <p className="text-lg text-slate-800 font-bold uppercase tracking-widest">
-                        Has successfully completed the following course.
-                    </p>
-                </div>
+                                        <table
+                                          align="left"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{
+                                            width: "200px",
+                                            overflow: "hidden",
+                                            borderRadius: "4px",
+                                          }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  textTransform: "uppercase",
+                                                  color: "#202020",
+                                                  fontSize: "15px",
+                                                  letterSpacing: "0.4px",
+                                                  lineHeight: "23px",
+                                                  wordBreak: "break-word",
+                                                }}
+                                              >
+                                                To:
+                                              </td>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  textTransform: "uppercase",
+                                                  color: "#1b1b1b",
+                                                  fontSize: "15px",
+                                                  letterSpacing: "0.7px",
+                                                  wordBreak: "break-word",
+                                                  fontWeight: "600",
+                                                }}
+                                              >
+                                                &nbsp;
+                                                {formatCustomDate(
+                                                  certificate.to_date,
+                                                  "dd-MMMM-yyyy",
+                                                )}
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Success message */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "750px", margin: "0 auto" }}
+                >
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "600px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td height="15" style={{ fontSize: "0px" }}>
+                                &nbsp;
+                              </td>
+                            </tr>
+                            <tr>
+                              <td
+                                style={{
+                                  textAlign: "center",
+                                  textTransform: "uppercase",
+                                  color: "#181818",
+                                  fontSize: "18px",
+                                  letterSpacing: "0.4px",
+                                  fontWeight: "600",
+                                  lineHeight: "23px",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                Has sucessfully completed the following course.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td height="10" style={{ fontSize: "0px" }}>
+                                &nbsp;
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
                 {/* Description */}
-                <div className="text-left w-full flex-grow mb-20 px-4">
-                    <h3 className="text-xl font-bold text-slate-800 uppercase mb-6 border-l-4 border-slate-800 pl-4">
-                        The training program consisted of detailed instructions on the following:
-                    </h3>
-                    <div
-                        className="text-lg text-slate-700 leading-relaxed uppercase whitespace-pre-line"
-                        dangerouslySetInnerHTML={{ __html: certificate.description1 }}
-                    />
-                </div>
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "750px", margin: "0 auto" }}
+                >
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "900px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td height="20" style={{ fontSize: "0px" }}>
+                                &nbsp;
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <table
+                                  align="left"
+                                  border="0"
+                                  cellPadding="0"
+                                  cellSpacing="0"
+                                  style={{ width: "100%" }}
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td>
+                                        <table
+                                          align="center"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "left",
+                                                  textTransform: "uppercase",
+                                                  color: "#383838",
+                                                  fontSize: "19px",
+                                                  letterSpacing: "0.4px",
+                                                  lineHeight: "23px",
+                                                  wordBreak: "break-word",
+                                                  fontWeight: "600",
+                                                }}
+                                              >
+                                                The training program consisted
+                                                of detailed instructions on the
+                                                following:
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td
+                                style={{
+                                  textAlign: "left",
+                                  color: "#202020",
+                                  textTransform: "uppercase",
+                                  fontSize: "18px",
+                                  letterSpacing: "0.4px",
+                                  height: "550px",
+                                  verticalAlign: "baseline",
+                                }}
+                                dangerouslySetInnerHTML={{
+                                  __html: certificate.description1,
+                                }}
+                              />
+                            </tr>
+                            <tr>
+                              <td height="40" style={{ fontSize: "0px" }}>
+                                &nbsp;
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                {/* Footer Section */}
-                <div className="w-full mt-auto flex justify-between items-end border-t-2 border-slate-200 pt-12">
-                    <div className="space-y-3">
-                        <p className="text-sm text-slate-500 uppercase font-bold">
-                            Certificate No: <span className="text-slate-800">{certificate.certificate_no}</span>
-                        </p>
-                        <p className="text-sm text-slate-500 uppercase font-bold">
-                            Course Conducted: <span className="text-slate-800">{certificate.course_conduct} / {certificate.location}</span>
-                        </p>
-                        <p className="text-sm text-slate-500 uppercase font-bold">
-                            Issued On: <span className="text-slate-800">{formatDate(certificate.issue_date)}</span>
-                        </p>
-                    </div>
+                {/* Footer Data Grid - Part 1 */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "950px", margin: "0 auto" }}
+                >
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "900px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td>
+                                <table
+                                  align="center"
+                                  border="0"
+                                  cellPadding="0"
+                                  cellSpacing="0"
+                                  style={{ width: "900px" }}
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td valign="top">
+                                        {/* Certificate No */}
+                                        <table
+                                          align="left"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{ width: "350px" }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td>
+                                                <table
+                                                  align="center"
+                                                  border="0"
+                                                  cellPadding="0"
+                                                  cellSpacing="0"
+                                                  style={{
+                                                    borderRadius: "0px",
+                                                  }}
+                                                >
+                                                  <tbody>
+                                                    <tr>
+                                                      <td width="130">
+                                                        <table
+                                                          align="left"
+                                                          border="0"
+                                                          cellPadding="0"
+                                                          cellSpacing="0"
+                                                          style={{
+                                                            width: "100%",
+                                                          }}
+                                                        >
+                                                          <tbody>
+                                                            <tr>
+                                                              <td>
+                                                                <table
+                                                                  align="center"
+                                                                  border="0"
+                                                                  cellPadding="0"
+                                                                  cellSpacing="0"
+                                                                >
+                                                                  <tbody>
+                                                                    <tr>
+                                                                      <td
+                                                                        style={{
+                                                                          textAlign:
+                                                                            "left",
+                                                                          textTransform:
+                                                                            "uppercase",
+                                                                          color:
+                                                                            "#202020",
+                                                                          fontSize:
+                                                                            "14px",
+                                                                          letterSpacing:
+                                                                            "0.4px",
+                                                                          lineHeight:
+                                                                            "23px",
+                                                                          wordBreak:
+                                                                            "break-word",
+                                                                        }}
+                                                                      >
+                                                                        Certificate
+                                                                        No. :
+                                                                      </td>
+                                                                    </tr>
+                                                                  </tbody>
+                                                                </table>
+                                                              </td>
+                                                            </tr>
+                                                          </tbody>
+                                                        </table>
+                                                      </td>
+                                                      <td>
+                                                        <table
+                                                          align="center"
+                                                          border="0"
+                                                          cellPadding="0"
+                                                          cellSpacing="0"
+                                                          style={{
+                                                            width: "100%",
+                                                          }}
+                                                        >
+                                                          <tbody>
+                                                            <tr>
+                                                              <td
+                                                                style={{
+                                                                  textAlign:
+                                                                    "center",
+                                                                  color:
+                                                                    "#1b1b1b",
+                                                                  textTransform:
+                                                                    "uppercase",
+                                                                  fontSize:
+                                                                    "14px",
+                                                                  letterSpacing:
+                                                                    "0.7px",
+                                                                  wordBreak:
+                                                                    "break-word",
+                                                                  fontWeight:
+                                                                    "600",
+                                                                }}
+                                                              >
+                                                                {
+                                                                  certificate.certificate_no
+                                                                }
+                                                              </td>
+                                                            </tr>
+                                                          </tbody>
+                                                        </table>
+                                                      </td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
 
-                    <div className="text-center space-y-4">
-                        <div className="w-64 h-px bg-slate-400 mx-auto"></div>
-                        <div>
-                            <p className="text-xl font-bold text-slate-800 uppercase">
-                                {certificate.trainer_first_name} {certificate.trainer_last_name}
-                            </p>
-                            <p className="text-sm text-slate-400 uppercase font-bold">(Course Faculty)</p>
-                        </div>
-                    </div>
-                </div>
+                                        {/* Course Conducted & Issue Date */}
+                                        <table
+                                          align="right"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{ width: "350px" }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "right",
+                                                  color: "#202020",
+                                                  textTransform: "uppercase",
+                                                  fontSize: "14px",
+                                                  letterSpacing: "0.4px",
+                                                  lineHeight: "23px",
+                                                  wordBreak: "break-word",
+                                                }}
+                                              >
+                                                Course conducted :{" "}
+                                                <strong>
+                                                  {certificate.course_conduct
+                                                    ? `${certificate.course_conduct} / ${certificate.location}`
+                                                    : certificate.location}
+                                                </strong>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td
+                                                height="4"
+                                                style={{ fontSize: "0px" }}
+                                              >
+                                                &nbsp;
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "right",
+                                                  color: "#202020",
+                                                  textTransform: "uppercase",
+                                                  fontSize: "14px",
+                                                  letterSpacing: "0.4px",
+                                                  lineHeight: "23px",
+                                                  wordBreak: "break-word",
+                                                }}
+                                              >
+                                                Issued On :{" "}
+                                                <strong>
+                                                  {formatCustomDate(
+                                                    certificate.issue_date,
+                                                    "dd-MMMM-yyyy",
+                                                  )}
+                                                </strong>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td height="50" style={{ fontSize: "0px" }}>
+                                &nbsp;
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                {/* Stamp/DNV Image Placeholder */}
-                {certificate.type === 'DNV-ST0029' && (
-                    <div className="absolute bottom-12 right-72 opacity-50">
-                        <div className="border-4 border-slate-100 p-2 text-slate-100 font-black text-4xl rotate-[-25deg]">
-                            DNV APPROVED
-                        </div>
-                    </div>
-                )}
-            </div>
+                {/* Footer Data Grid - Part 2 */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{ width: "950px", margin: "0 auto" }}
+                >
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "900px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td>
+                                <table
+                                  align="center"
+                                  border="0"
+                                  cellPadding="0"
+                                  cellSpacing="0"
+                                  style={{ width: "900px" }}
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td valign="top">
+                                        {/* Trainer Info */}
+                                        <table
+                                          align="left"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{ width: "290px" }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td>
+                                                <table
+                                                  align="left"
+                                                  border="0"
+                                                  cellPadding="0"
+                                                  cellSpacing="0"
+                                                  style={{ width: "100%" }}
+                                                >
+                                                  <tbody>
+                                                    <tr>
+                                                      <td>
+                                                        <table
+                                                          align="center"
+                                                          border="0"
+                                                          cellPadding="0"
+                                                          cellSpacing="0"
+                                                          style={{
+                                                            borderRadius: "0px",
+                                                          }}
+                                                        >
+                                                          <tbody>
+                                                            <tr>
+                                                              <td>
+                                                                <table
+                                                                  align="center"
+                                                                  border="0"
+                                                                  cellPadding="0"
+                                                                  cellSpacing="0"
+                                                                >
+                                                                  <tbody>
+                                                                    <tr>
+                                                                      <td
+                                                                        style={{
+                                                                          textAlign:
+                                                                            "center",
+                                                                          textTransform:
+                                                                            "uppercase",
+                                                                          color:
+                                                                            "#1b1b1b",
+                                                                          fontSize:
+                                                                            "18px",
+                                                                          letterSpacing:
+                                                                            "0.7px",
+                                                                          wordBreak:
+                                                                            "break-word",
+                                                                          borderBottom:
+                                                                            "1px solid #b7b7b7",
+                                                                          lineHeight:
+                                                                            "40px",
+                                                                          fontWeight:
+                                                                            "600",
+                                                                        }}
+                                                                      >
+                                                                        {
+                                                                          trainerFullName
+                                                                        }
+                                                                      </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                      <td
+                                                                        style={{
+                                                                          textAlign:
+                                                                            "center",
+                                                                          color:
+                                                                            "#202020",
+                                                                          textTransform:
+                                                                            "uppercase",
+                                                                          fontSize:
+                                                                            "18px",
+                                                                          letterSpacing:
+                                                                            "0.4px",
+                                                                          lineHeight:
+                                                                            "23px",
+                                                                          wordBreak:
+                                                                            "break-word",
+                                                                        }}
+                                                                      >
+                                                                        (Course
+                                                                        Faculty)
+                                                                      </td>
+                                                                    </tr>
+                                                                  </tbody>
+                                                                </table>
+                                                              </td>
+                                                            </tr>
+                                                          </tbody>
+                                                        </table>
+                                                      </td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
 
-            {/* Print specific CSS */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @media print {
-                    body { background: white !important; margin: 0 !important; }
-                    .print\\:hidden { display: none !important; }
-                    .min-h-screen { min-height: 0 !important; background: white !important; }
-                    .shadow-2xl { shadow: none !important; }
-                    .border-slate-800 { border-color: black !important; }
-                    @page {
-                        size: A4;
-                        margin: 0;
-                    }
-                }
-            ` }} />
-        </div>
-    );
+                                        {/* DNV Stamp (If active) */}
+                                        <table
+                                          align="left"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{
+                                            margin: "0 0 0 40px",
+                                          }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              {certificate.show_logo === 1 && (
+                                                <td>
+                                                  <img
+                                                    src={`/images/${certificate.type === "DNV-ST0029" ? "DNV-ST0029.png" : "img0.jpg"}`}
+                                                    alt="Stamp Logo"
+                                                    style={{
+                                                      width: "130px",
+                                                      maxWidth: "none",
+                                                      display: "block",
+                                                    }}
+                                                  />
+                                                </td>
+                                              )}
+                                            </tr>
+                                          </tbody>
+                                        </table>
+
+                                        {/* Digital Signature */}
+                                        <table
+                                          align="right"
+                                          border="0"
+                                          cellPadding="0"
+                                          cellSpacing="0"
+                                          style={{ width: "290px" }}
+                                        >
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                style={{
+                                                  textAlign: "center",
+                                                  color: "#1b1b1b",
+                                                  fontSize: "18px",
+                                                  letterSpacing: "0.7px",
+                                                  wordBreak: "break-word",
+                                                  borderBottom:
+                                                    "1px solid #b7b7b7",
+                                                  fontWeight: "600",
+                                                  height: "85px",
+                                                  verticalAlign: "middle",
+                                                }}
+                                              >
+                                                {signatureUrl && (
+                                                  <img
+                                                    src={signatureUrl}
+                                                    height="20px"
+                                                    width="80px"
+                                                    alt="Trainer Signature"
+                                                    style={{
+                                                      display: "block",
+                                                      margin: "0 auto",
+                                                    }}
+                                                  />
+                                                )}
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td
+                                        height="50"
+                                        style={{ fontSize: "0px" }}
+                                      >
+                                        &nbsp;
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Copyright & Verification Info */}
+                <table
+                  align="center"
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  style={{
+                    width: "750px",
+                    margin: "0 auto",
+                    borderRadius: "0 0 6px 6px",
+                  }}
+                >
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table
+                          align="center"
+                          border="0"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          style={{ width: "700px" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td>
+                                <img
+                                  src="/images/GlobalMET-Logo.jpg"
+                                  alt="GlobalMET"
+                                  style={{
+                                    width: "300px",
+                                    verticalAlign: "middle",
+                                    border: "0",
+                                    marginLeft: "-50px",
+                                  }}
+                                />
+                              </td>
+                              <td
+                                style={{
+                                  textAlign: "center",
+                                  textTransform: "uppercase",
+                                  color: "#202020",
+                                  fontSize: "12px",
+                                  letterSpacing: "0.4px",
+                                  lineHeight: "23px",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                The Quality management system of MOL Maritime
+                                (India) Pvt. Ltd. Has been certified to comply
+                                with ISO 9001:2015 standards by LRQA
+                              </td>
+                            </tr>
+                            <tr>
+                              <td></td>
+                              <td
+                                style={{
+                                  textAlign: "center",
+                                  textTransform: "uppercase",
+                                  color: "#202020",
+                                  fontSize: "10px",
+                                  letterSpacing: "0.4px",
+                                  lineHeight: "23px",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                *This is an Electronically generated certificate
+                                for Validity Verification Scan QR CODE on the
+                                certificate.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td height="20" style={{ fontSize: "0px" }}>
+                                &nbsp;
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
 };
 
 export default CertificatePrintView;

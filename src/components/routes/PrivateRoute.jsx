@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import MainLayout from '../layout/MainLayout';
 
-const PrivateRoute = ({ children, allowedRoles }) => {
+const PrivateRoute = ({ children, allowedRoles, noLayout = false }) => {
     const { user, loading } = useAuth();
     const location = useLocation();
 
@@ -22,6 +22,10 @@ const PrivateRoute = ({ children, allowedRoles }) => {
     // Case insensitive role check
     if (allowedRoles && !allowedRoles.some(role => role.toLowerCase() === user.role.toLowerCase())) {
         return <Navigate to="/" replace />;
+    }
+
+    if (noLayout) {
+        return <>{children}</>;
     }
 
     return <MainLayout>{children}</MainLayout>;

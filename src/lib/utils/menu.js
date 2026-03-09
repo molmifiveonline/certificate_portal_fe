@@ -22,7 +22,7 @@ import {
   // School,
   Building,
   // ClipboardCheck,
-  // FileBarChart,
+  FileBarChart,
   Shield,
   History,
 } from "lucide-react";
@@ -103,39 +103,39 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     subItems: [
       { title: "Question Bank", url: "/assessment/question-bank" },
-      // { title: "Assessments", url: "/assessment/assessments" },
-      // { title: "Submitted Assessments", url: "/assessment/submitted" },
+      { title: "Assessments", url: "/assessment/assessments" },
+      { title: "Submitted Assessments", url: "/assessment/submitted" },
     ],
   },
 
-  // {
-  //   title: "Feedback",
-  //   url: "/feedback",
-  //   icon: MessageSquare,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Feedback Category", url: "/feedback" },
-  //     { title: "Feedback Question", url: "/feedback/forms" },
-  //     { title: "Submitted Feedback", url: "/feedback/submitted" },
-  //   ],
-  // },
-  // {
-  //   title: "Certificates",
-  //   url: "/certificates",
-  //   icon: Award,
-  //   allowedRoles: ["admin", "superadmin"],
-  // },
-  // {
-  //   title: "Reports",
-  //   url: "/reports",
-  //   icon: FileBarChart,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Reports", url: "/reports" },
-  //     { title: "Hotel Report", url: "/reports/hotel" },
-  //     { title: "Admin Remarks", url: "/reports/admin-remarks" },
-  //   ],
-  // },
+  {
+    title: "Feedback",
+    url: "/feedback",
+    icon: MessageSquare,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Feedback Category", url: "/feedback" },
+      { title: "Feedback Question", url: "/feedback/forms" },
+      { title: "Submitted Feedback", url: "/feedback/submitted" },
+    ],
+  },
+  {
+    title: "Certificates",
+    url: "/certificates",
+    icon: Award,
+    allowedRoles: ["admin", "superadmin"],
+  },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: FileBarChart,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Reports", url: "/reports" },
+      { title: "Hotel Report", url: "/reports/hotel" },
+      { title: "Admin Remarks", url: "/reports/admin-remarks" },
+    ],
+  },
   {
     title: "Role Permissions",
     url: "/admin/role-permissions",

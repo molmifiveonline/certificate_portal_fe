@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
-import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button, buttonVariants } from "../../components/ui/button";
 import { cn } from "../../lib/utils/utils";
@@ -139,20 +139,23 @@ const FeedbackFormList = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title">
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
+                        <div className="bg-blue-100 p-2 rounded-xl">
+                            <ClipboardList className="w-8 h-8 text-blue-600" />
+                        </div>
                         Feedback Forms
                     </h1>
                     <p className="text-slate-500 mt-1">
                         Manage feedback forms and questions
                     </p>
                 </div>
-                <Link
-                    to="/feedback/forms/create"
-                    className={cn(buttonVariants({ variant: "default" }), "px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95 h-auto")}
+                <Button
+                    onClick={() => navigate("/feedback/forms/create")}
+                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95 h-auto text-white"
                 >
                     <Plus className="w-4 h-4" />
-                    Create Form
-                </Link>
+                    Add New Form
+                </Button>
             </div>
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
