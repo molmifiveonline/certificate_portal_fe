@@ -1,20 +1,19 @@
-# Build stage
-FROM node:18 AS build
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 COPY . .
 
-RUN npm run build
+ENV GENERATE_SOURCEMAP=false
+RUN NODE_OPTIONS=--max-old-space-size=1024 npm run build
 
-# Production stage
 FROM nginx:alpine
 
-COPY --from=build /app/build /usr/share/nginx/html
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/build /usr/share/nginx/html
 
 EXPOSE 80
 
