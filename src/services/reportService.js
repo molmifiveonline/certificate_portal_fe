@@ -40,6 +40,21 @@ const ReportService = {
       throw error.response?.data || error.message;
     }
   },
+
+  bulkDownloadFeedbackPDFs: async (data) => {
+    try {
+      const response = await api.post(
+        `/reports/feedback/bulk-download-pdf`,
+        data,
+        {
+          responseType: "blob",
+        },
+      );
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default ReportService;
