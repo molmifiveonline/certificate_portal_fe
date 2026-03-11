@@ -1,20 +1,50 @@
-import React, { useState } from "react";
-import { X, CheckCircle2, AlertCircle, Loader2, Info } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from "react";
+import { X, CheckCircle2, AlertCircle, Loader2, Info, Calendar, RefreshCcw } from 'lucide-react';
 import { Button } from "../ui/button";
 import DataTable from "../ui/DataTable";
+import TablePagination from "../ui/TablePagination";
 import { toast } from "sonner";
 import candidateService from "../../services/candidateService";
 
-const CandidateImportPreviewModal = ({ isOpen, onClose, data, onImportSuccess }) => {
+const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
+    const [previewData, setPreviewData] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [importing, setImporting] = useState(false);
+    const [syncDate, setSyncDate] = useState(new Date().toISOString().split('T')[0]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [limit, setLimit] = useState(10);
 
-    if (!isOpen) return null;
+    const fetchPreview = async (date) => {
+        setLoading(true);
+        try {
+            const result = await candidateService.fetchExternalPreview(date);
+            setPreviewData(result.data || []);
+            setCurrentPage(1); // Reset to first page on new fetch
+        } catch (error) {
+            console.error("Preview fetch error:", error);
+            toast.error("Failed to fetch data from API. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchPreview(syncDate);
+        }
+    }, [isOpen]);
+
+    const handleDateChange = (e) => {
+        const newDate = e.target.value;
+        setSyncDate(newDate);
+        fetchPreview(newDate);
+    };
 
     const handleImport = async () => {
         setImporting(true);
         const toastId = toast.loading("Importing candidates...");
         try {
-            const result = await candidateService.confirmBulkImport(data);
+            const result = await candidateService.confirmBulkImport(previewData);
             toast.success(
                 `Import successful! ${result.stats.inserted} new, ${result.stats.updated} updated.`,
                 { id: toastId }
@@ -28,6 +58,15 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, data, onImportSuccess })
             setImporting(false);
         }
     };
+
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * limit;
+        return previewData.slice(startIndex, startIndex + limit);
+    }, [previewData, currentPage, limit]);
+
+    const totalPages = Math.ceil(previewData.length / limit) || 1;
+
+    if (!isOpen) return null;
 
     const columns = [
         {
@@ -73,20 +112,42 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, data, onImportSuccess })
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-slate-900">Preview API Import</h3>
-                            <p className="text-sm text-slate-500 font-medium">{data?.length || 0} candidates found in external system</p>
+                            <p className="text-sm text-slate-500 font-medium">{previewData.length} candidates found</p>
                         </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        disabled={importing}
-                        className="text-slate-400 hover:text-slate-600 transition-all p-2 rounded-full hover:bg-slate-100 active:scale-90"
-                    >
-                        <X size={24} />
-                    </button>
+
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                            <Calendar className="w-4 h-4 text-slate-400" />
+                            <label className="text-xs font-bold text-slate-500 uppercase">Sync From:</label>
+                            <input 
+                                type="date" 
+                                value={syncDate}
+                                onChange={handleDateChange}
+                                className="text-sm font-semibold text-slate-700 focus:outline-none border-none p-0 cursor-pointer"
+                            />
+                            <button 
+                                onClick={() => fetchPreview(syncDate)}
+                                disabled={loading}
+                                className="ml-2 text-blue-600 hover:text-blue-700 disabled:opacity-50"
+                                title="Refresh data"
+                            >
+                                <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={onClose}
+                            disabled={importing}
+                            className="text-slate-400 hover:text-slate-600 transition-all p-2 rounded-full hover:bg-slate-100 active:scale-90"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Body */}
-                <div className="p-8 flex-1 overflow-y-auto bg-white/50">
+                <div className="px-8 py-6 flex-1 overflow-y-auto bg-white/50">
                     <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                         <p className="text-sm text-amber-800 leading-relaxed font-medium">
@@ -94,13 +155,26 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, data, onImportSuccess })
                         </p>
                     </div>
                     
-                    <DataTable
-                        columns={columns}
-                        data={data}
-                        loading={false}
-                        rowKey="email"
-                        limit={data?.length}
-                    />
+                    <div className="mb-4">
+                        <DataTable
+                            columns={columns}
+                            data={paginatedData}
+                            loading={loading}
+                            rowKey="email"
+                            limit={limit}
+                        />
+                    </div>
+
+                    {!loading && previewData.length > 0 && (
+                        <TablePagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalCount={previewData.length}
+                            onPageChange={setCurrentPage}
+                            limit={limit}
+                            onLimitChange={setLimit}
+                        />
+                    )}
                 </div>
 
                 {/* Footer */}
@@ -108,21 +182,21 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, data, onImportSuccess })
                     <Button 
                         variant="outline" 
                         onClick={onClose} 
-                        disabled={importing}
+                        disabled={importing || loading}
                         className="px-6 py-2.5 rounded-xl font-bold border-slate-200 text-slate-600 hover:bg-white active:scale-95"
                     >
                         Discard
                     </Button>
                     <div className="flex items-center gap-4">
-                        {importing && (
+                        {(importing || loading) && (
                             <div className="flex items-center gap-2 text-blue-600 font-semibold animate-pulse">
                                 <Loader2 className="w-5 h-5 animate-spin" />
-                                Processing Import...
+                                {loading ? "Fetching data..." : "Processing Import..."}
                             </div>
                         )}
                         <Button
                             onClick={handleImport}
-                            disabled={importing || !data?.length}
+                            disabled={importing || loading || !previewData.length}
                             className="px-10 py-3 rounded-xl font-extrabold shadow-xl shadow-blue-500/30 bg-gradient-to-r from-blue-600 to-indigo-600 hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 text-white border-none"
                         >
                             Confirm & Import Candidates
