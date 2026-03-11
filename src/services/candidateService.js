@@ -52,6 +52,16 @@ const candidateService = {
     const response = await api.post("/candidate/import-api", { date });
     return response.data;
   },
+
+  fetchExternalPreview: async (date) => {
+    const response = await api.post("/candidate/fetch-external-preview", { date });
+    return response.data;
+  },
+
+  confirmBulkImport: async (candidates) => {
+    const response = await api.post("/candidate/confirm-bulk-import", { candidates });
+    return response.data;
+  },
 };
 
 export default candidateService;

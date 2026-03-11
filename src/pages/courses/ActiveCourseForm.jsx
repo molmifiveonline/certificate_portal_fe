@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
 import { toast } from "sonner";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import api from "../../lib/api";
 import activeCourseService from "../../services/activeCourseService";
 // import candidateService from '../../services/candidateService'; // Not used directly, using activeCourseService
@@ -37,6 +37,7 @@ import {
     CardTitle,
 } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
+import { useAuth } from "../../context/AuthContext";
 
 // Custom MultiSelect Component
 const MultiSelectInput = ({ value = [], onChange, options }) => {
@@ -1035,6 +1036,8 @@ const CertificateTab = ({ courseId }) => {
 const ActiveCourseForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
     const {
         register,
         handleSubmit,
@@ -1083,6 +1086,10 @@ const ActiveCourseForm = () => {
         candidateId: null,
         remark: "",
     });
+
+    const isTrainerRole = (user?.role || "").toLowerCase() === "trainer";
+    const isTrainerCourseRoute = location.pathname.startsWith("/my-courses");
+    const backRoute = isTrainerCourseRoute ? "/my-courses" : "/active-courses";
 
     const typeOfLocation = watch("type_of_location");
     const selectedTopic = watch("topic");
@@ -1141,8 +1148,9 @@ const ActiveCourseForm = () => {
                     if (res.data && Array.isArray(res.data.data)) return res.data.data;
                     return [];
                 };
+
                 setMasterCourses(getArrayData(mcRes));
-                setLocations(locRes.data.data.data || getArrayData(locRes));
+                setLocations(locRes.data?.data?.data || getArrayData(locRes));
                 setTrainers(getArrayData(trRes));
             } catch (error) {
                 console.error("Error fetching dependencies:", error);
@@ -1190,14 +1198,14 @@ const ActiveCourseForm = () => {
                 } catch (error) {
                     console.error("Error fetching data:", error);
                     toast.error("Failed to load course data");
-                    navigate("/active-courses");
+                    navigate(backRoute);
                 } finally {
                     setIsLoading(false);
                 }
             };
             fetchData();
         }
-    }, [id, navigate, reset]);
+    }, [id, navigate, reset, backRoute]);
 
     // Auto-populate from Master Course
     useEffect(() => {
@@ -1511,7 +1519,7 @@ const ActiveCourseForm = () => {
                     )}
                 </div>
                 <div className="flex items-center gap-4">
-                    <BackButton to="/active-courses" />
+                    <BackButton to={backRoute} />
                 </div>
             </div>
 
@@ -1838,25 +1846,29 @@ const ActiveCourseForm = () => {
                             <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 sm:p-6 -mx-8 -mb-8 flex justify-between items-center z-10 mt-8 rounded-b-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                                 {id ? (
                                     <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={handleEmailPrimaryTrainer}
-                                            className="gap-2"
-                                        >
-                                            <Mail size={16} /> Email Primary Trainer
-                                        </Button>
+                                        {!isTrainerRole && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={handleEmailPrimaryTrainer}
+                                                className="gap-2"
+                                            >
+                                                <Mail size={16} /> Email Primary Trainer
+                                            </Button>
+                                        )}
                                     </div>
                                 ) : <div />}
                                 <div className="flex gap-4 w-full sm:w-auto items-center">
                                     <button
                                         type="button"
-                                        onClick={() => navigate("/active-courses")}
+                                        onClick={() => navigate(backRoute)}
                                         className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-sm"
                                     >
                                         Cancel
                                     </button>
-                                    {id && !["Cancelled", "Course Completed"].includes(courseData?.status) && (
+                                    {id &&
+                                        !isTrainerRole &&
+                                        !["Cancelled", "Course Completed"].includes(courseData?.status) && (
                                         <>
                                             <Button
                                                 type="button"
@@ -2020,21 +2032,23 @@ const ActiveCourseForm = () => {
                                                                     </svg>
                                                                 </Button>
                                                             )}
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                disabled={courseEnded}
-                                                                className="text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
-                                                                onClick={() =>
-                                                                    setDeleteModal({
-                                                                        isOpen: true,
-                                                                        candidateId: candidate.candidate_id,
-                                                                        remark: "",
-                                                                    })
-                                                                }
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </Button>
+                                                            {!isTrainerRole && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    disabled={courseEnded}
+                                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
+                                                                    onClick={() =>
+                                                                        setDeleteModal({
+                                                                            isOpen: true,
+                                                                            candidateId: candidate.candidate_id,
+                                                                            remark: "",
+                                                                        })
+                                                                    }
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </Button>
+                                                            )}
                                                         </td>
                                                     </tr>
                                                 ))

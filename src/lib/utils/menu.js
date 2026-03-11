@@ -10,7 +10,7 @@ import {
   // FolderKanban,
   GraduationCap,
   UserCircle,
-  // BookOpen,
+  BookOpen,
   MapPin,
   ClipboardList,
   MessageSquare,
@@ -61,18 +61,18 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_trainers",
   },
-  // {
-  //   title: "Courses",
-  //   url: "/courses",
-  //   icon: BookOpen,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   permissionSlug: "view_master_courses",
-  //   subItems: [
-  //     { title: "Master Courses", url: "/courses" },
-  //     // { title: "Pre-Active Courses", url: "/pre-active-courses" },
-  //     // { title: "Active Courses", url: "/active-courses" },
-  //   ],
-  // },
+  {
+    title: "Courses",
+    url: "/courses",
+    icon: BookOpen,
+    allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_master_courses",
+    subItems: [
+      { title: "Master Courses", url: "/courses" },
+      // { title: "Pre-Active Courses", url: "/pre-active-courses" },
+      // { title: "Active Courses", url: "/active-courses" },
+    ],
+  },
 
   {
     title: "Hotel Details",
@@ -104,38 +104,38 @@ export const MenuItems = [
     subItems: [
       { title: "Question Bank", url: "/assessment/question-bank" },
       { title: "Assessments", url: "/assessment/assessments" },
-      { title: "Submitted Assessments", url: "/assessment/submitted" },
+      // { title: "Submitted Assessments", url: "/assessment/submitted" },
     ],
   },
 
-  {
-    title: "Feedback",
-    url: "/feedback",
-    icon: MessageSquare,
-    allowedRoles: ["admin", "superadmin"],
-    subItems: [
-      { title: "Feedback Category", url: "/feedback" },
-      { title: "Feedback Question", url: "/feedback/forms" },
-      { title: "Submitted Feedback", url: "/feedback/submitted" },
-    ],
-  },
-  {
-    title: "Certificates",
-    url: "/certificates",
-    icon: Award,
-    allowedRoles: ["admin", "superadmin"],
-  },
-  {
-    title: "Reports",
-    url: "/reports",
-    icon: FileBarChart,
-    allowedRoles: ["admin", "superadmin"],
-    subItems: [
-      { title: "Reports", url: "/reports" },
-      { title: "Hotel Report", url: "/reports/hotel" },
-      { title: "Admin Remarks", url: "/reports/admin-remarks" },
-    ],
-  },
+  // {
+  //   title: "Feedback",
+  //   url: "/feedback",
+  //   icon: MessageSquare,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Feedback Category", url: "/feedback" },
+  //     { title: "Feedback Question", url: "/feedback/forms" },
+  //     { title: "Submitted Feedback", url: "/feedback/submitted" },
+  //   ],
+  // },
+  // {
+  //   title: "Certificates",
+  //   url: "/certificates",
+  //   icon: Award,
+  //   allowedRoles: ["admin", "superadmin"],
+  // },
+  // {
+  //   title: "Reports",
+  //   url: "/reports",
+  //   icon: FileBarChart,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   subItems: [
+  //     { title: "Reports", url: "/reports" },
+  //     { title: "Hotel Report", url: "/reports/hotel" },
+  //     { title: "Admin Remarks", url: "/reports/admin-remarks" },
+  //   ],
+  // },
   {
     title: "Role Permissions",
     url: "/admin/role-permissions",
