@@ -14,7 +14,7 @@ import BackButton from '../../components/common/BackButton';
 
 const SelectField = ({ label, name, options, value, onChange, error, required, ...props }) => (
     <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-700 block">
+        <label className="text-sm font-medium text-slate-700 block text-left">
             {label} {required && <span className="text-red-500">*</span>}
         </label>
         <select
@@ -30,6 +30,21 @@ const SelectField = ({ label, name, options, value, onChange, error, required, .
                 </option>
             ))}
         </select>
+        {error && <span className="text-red-500 text-xs">{error}</span>}
+    </div>
+);
+
+const InputField = ({ label, name, error, required, ...props }) => (
+    <div className="space-y-1">
+        <label className="text-sm font-medium text-slate-700 block text-left">
+            {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <Input
+            name={name}
+            error={error}
+            className={error ? 'border-red-500' : 'border-slate-200'}
+            {...props}
+        />
         {error && <span className="text-red-500 text-xs">{error}</span>}
     </div>
 );
@@ -258,7 +273,7 @@ const PreActiveCourseForm = () => {
                                             required
                                         />
 
-                                        <Input
+                                        <InputField
                                             label="Master Course Name"
                                             name="course_name"
                                             value={formData.course_name}
@@ -296,7 +311,7 @@ const PreActiveCourseForm = () => {
                                 </div>
                                 <div className="space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <Input
+                                        <InputField
                                             label="Start Date"
                                             type="date"
                                             name="start_date"
@@ -306,7 +321,7 @@ const PreActiveCourseForm = () => {
                                             required
                                         />
 
-                                        <Input
+                                        <InputField
                                             label="End Date"
                                             type="date"
                                             name="end_date"
@@ -318,8 +333,8 @@ const PreActiveCourseForm = () => {
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <Input
-                                            label="No. of Days"
+                                        <InputField
+                                            label="Duration (Days)"
                                             type="number"
                                             name="days"
                                             value={formData.days}
@@ -327,7 +342,7 @@ const PreActiveCourseForm = () => {
                                             className="bg-slate-50"
                                         />
                                         <SelectField
-                                            label="Venue / Location Type"
+                                            label="Location of Training"
                                             name="type_of_location"
                                             value={formData.type_of_location}
                                             onChange={handleChange}
@@ -342,7 +357,7 @@ const PreActiveCourseForm = () => {
                                     {formData.type_of_location === 'Offline' && (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <SelectField
-                                                label="Location"
+                                                label="Training Venue"
                                                 name="location_id"
                                                 value={formData.location_id}
                                                 onChange={handleChange}
@@ -357,7 +372,7 @@ const PreActiveCourseForm = () => {
                                             />
 
                                             {formData.location_id === 'other' && (
-                                                <Input
+                                                <InputField
                                                     label="Enter Other Location"
                                                     name="other_location"
                                                     value={formData.other_location}

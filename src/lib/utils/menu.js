@@ -36,6 +36,20 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin", "trainer", "candidate"],
   },
   {
+    title: "Admin Roles",
+    url: "/admin/admin-roles",
+    icon: Shield,
+    allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "manage_admin_roles",
+  },
+  {
+    title: "Admin Users",
+    url: "/admin/users",
+    icon: UserCheck,
+    allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "manage_admin_users",
+  },
+  {
     title: "Nominators",
     url: "/nominators",
     icon: Users,
@@ -149,20 +163,6 @@ export const MenuItems = [
     icon: History,
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_logs",
-  },
-  {
-    title: "Admin Roles",
-    url: "/admin/admin-roles",
-    icon: Shield,
-    allowedRoles: ["admin", "superadmin"],
-    permissionSlug: "manage_admin_roles",
-  },
-  {
-    title: "Admin Users",
-    url: "/admin/users",
-    icon: UserCheck,
-    allowedRoles: ["admin", "superadmin"],
-    permissionSlug: "manage_admin_users",
   },
 
   // Trainer Specific

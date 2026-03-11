@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Mail, Send, CheckCircle, RefreshCw, Calendar, BookOpen } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Plus, Search, Edit, Trash2, Mail, Send, CheckCircle, RefreshCw, Calendar, BookOpen, zap, Zap, Clock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import TablePagination from "../../components/ui/TablePagination";
+import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { useAuth } from "../../context/AuthContext";
 import Meta from "../../components/common/Meta";
 import CourseImportPreviewModal from "../../components/pre-active-courses/CourseImportPreviewModal";
-import { Zap } from "lucide-react";
+import { Card, CardContent } from "../../components/ui/card";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const PreActiveCourseList = () => {
     const [courses, setCourses] = useState([]);
@@ -18,6 +20,11 @@ const PreActiveCourseList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState("start_date");
+    const [sortOrder, setSortOrder] = useState("desc");
+
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [courseToDelete, setCourseToDelete] = useState(null);
     const [notifyModalOpen, setNotifyModalOpen] = useState(false);
@@ -29,35 +36,39 @@ const PreActiveCourseList = () => {
 
     const navigate = useNavigate();
     const { user } = useAuth();
-    const limit = 10;
 
-    const breadcrumbItems = [
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "Pre-Active Courses", href: "/pre-active-courses" },
-    ];
-
-    const fetchCourses = async () => {
+    const fetchCourses = useCallback(async () => {
         try {
             setLoading(true);
             const response = await preActiveCourseService.getAll({
                 page: currentPage,
                 limit,
                 search: searchTerm,
+                sort_by: sortBy,
+                sort_order: sortOrder
             });
             setCourses(response.data || []);
             if (response.meta) {
                 setTotalPages(response.meta.totalPages);
+                setTotalCount(response.meta.total || 0);
             }
         } catch (error) {
             toast.error("Failed to fetch pre-active courses");
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentPage, limit, searchTerm, sortBy, sortOrder]);
 
     useEffect(() => {
         fetchCourses();
-    }, [currentPage, searchTerm]);
+    }, [fetchCourses]);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setCurrentPage(1);
+        }, 400);
+        return () => clearTimeout(timeout);
+    }, [searchTerm]);
 
     const handleDeleteClick = (course) => {
         setCourseToDelete(course);
@@ -113,208 +124,232 @@ const PreActiveCourseList = () => {
         }
     };
 
+    const handleSort = (column) => {
+        if (sortBy === column) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortBy(column);
+            setSortOrder("asc");
+        }
+        setCurrentPage(1);
+    };
+
+    const columns = [
+        {
+            key: "course_id",
+            label: "Course ID",
+            sortable: true,
+            render: (val) => (
+                <div className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded w-fit border border-blue-100/50">
+                    {val}
+                </div>
+            )
+        },
+        {
+            key: "course_name",
+            label: "Course Details",
+            sortable: true,
+            render: (val, row) => (
+                <div>
+                    <div className="font-semibold text-slate-800">{val}</div>
+                    <div className="text-xs text-slate-500 capitalize flex items-center gap-1 mt-0.5">
+                        <BookOpen size={10} className="text-slate-400" />
+                        {row.topic}
+                    </div>
+                </div>
+            )
+        },
+        {
+            key: "start_date",
+            label: "Schedule",
+            sortable: true,
+            align: "center",
+            render: (val, row) => (
+                <div className="inline-flex flex-col items-center gap-1 text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-2xl text-xs font-medium min-w-[160px]">
+                    <div className="flex items-center gap-2">
+                        <Calendar size={12} className="text-blue-500" />
+                        <span>{formatDate(row.start_date)} - {formatDate(row.end_date)}</span>
+                    </div>
+                </div>
+            )
+        },
+        {
+            key: "actions",
+            label: "Actions",
+            align: "right",
+            render: (_val, row) => (
+                <div className="flex justify-end gap-1.5">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleNotifyClick(row, 'nominator')}
+                        className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50 rounded-lg"
+                        title="Notify Nominators"
+                    >
+                        <Mail className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleNotifyClick(row, 'candidate')}
+                        className="h-8 w-8 p-0 text-purple-600 hover:bg-purple-50 rounded-lg"
+                        title="Notify Candidates"
+                    >
+                        <Send className="h-4 w-4" />
+                    </Button>
+                    <Link to={`/pre-active-courses/${row.id}/approvals`}>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-green-600 hover:bg-green-50 rounded-lg"
+                            title="View Candidate Approvals"
+                        >
+                            <CheckCircle className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleConvertClick(row)}
+                        className="h-8 px-2 border-orange-200 text-orange-600 hover:bg-orange-50 gap-1.5 font-bold text-[10px] uppercase tracking-wider rounded-lg"
+                        title="Convert to Active Course"
+                    >
+                        <RefreshCw className="h-3 w-3" />
+                        <span>Convert</span>
+                    </Button>
+                    <div className="w-px h-6 bg-slate-200 mx-1 self-center" />
+                    <Link to={`/pre-active-courses/edit/${row.id}`}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        onClick={() => handleDeleteClick(row)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            )
+        }
+    ];
+
     return (
-        <div className="min-h-screen bg-slate-50 pb-8">
+        <div className="flex-1 overflow-y-auto w-full pb-8">
             <Meta title="Pre-Active Courses" description="Manage courses before they become active" />
 
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 flex items-center justify-between shadow-sm">
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-800">Pre-Active Courses</h1>
-                    <p className="text-sm text-slate-500">Manage courses before they become active</p>
+                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
+                        <div className="bg-amber-100 p-2 rounded-xl shadow-inner">
+                            <Clock className="w-8 h-8 text-amber-600" />
+                        </div>
+                        Pre-Active Courses
+                    </h1>
+                    <p className="text-slate-500 mt-1">Manage courses before they become active</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button
                         variant="outline"
                         onClick={() => setShowPreviewModal(true)}
-                        className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                        className="h-11 px-6 rounded-xl border-white bg-white/60 backdrop-blur-md shadow-sm hover:bg-white text-slate-700 font-bold flex items-center gap-2 active:scale-95 transition-all"
                     >
-                        <Zap className="w-4 h-4 text-amber-500" />
+                        <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
                         Sync API
                     </Button>
                     <Link to="/pre-active-courses/add">
-                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 transition-all active:scale-95">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add New Course
+                        <Button className="h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
+                            <Plus className="w-5 h-5" />
+                            Add Pre-Active Course
                         </Button>
                     </Link>
                 </div>
             </div>
 
-            <div className="max-w-[1600px] mx-auto p-8 space-y-6">
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="p-4 border-b border-slate-100 bg-white flex justify-between items-center">
-                        <div className="relative w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                            <Input
-                                type="text"
-                                placeholder="Search courses..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 h-10 rounded-lg border-slate-200 focus:ring-blue-500/10 focus:border-blue-500"
-                            />
-                        </div>
-                        <div className="text-sm text-slate-500 font-medium">
-                            Total: {courses.length} Courses
-                        </div>
+            {/* Filter Bar */}
+            <Card className="rounded-2xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10 border">
+                <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Search name or ID..."
+                            className="w-full h-11 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-sm font-medium placeholder:text-slate-400"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="bg-slate-50/50 border-b border-slate-100">
-                                <tr className="text-slate-600 font-semibold">
-                                    <th className="px-6 py-4">Course ID</th>
-                                    <th className="px-6 py-4">Course Name</th>
-                                    <th className="px-6 py-4 text-center">Dates</th>
-                                    <th className="px-6 py-4 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {loading ? (
-                                    <tr>
-                                        <td colSpan="4" className="px-6 py-12 text-center text-slate-400">
-                                            <div className="flex flex-col items-center gap-3">
-                                                <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
-                                                <span>Loading courses...</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : courses.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="4" className="px-6 py-12 text-center text-slate-400">
-                                            No pre-active courses found
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    courses.map((course) => (
-                                        <tr key={course.id} className="hover:bg-slate-50/50 transition-colors group">
-                                            <td className="px-6 py-4">
-                                                <div className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded w-fit">
-                                                    {course.course_id}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="font-medium text-slate-800">{course.course_name}</div>
-                                                <div className="text-xs text-slate-500 capitalize">{course.topic}</div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <div className="inline-flex items-center gap-2 text-slate-600 bg-slate-100 px-3 py-1 rounded-full text-xs font-medium">
-                                                    <Calendar size={12} className="text-slate-400" />
-                                                    {new Date(course.start_date).toLocaleDateString()} - {new Date(course.end_date).toLocaleDateString()}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handleNotifyClick(course, 'nominator')}
-                                                        className="h-9 w-9 p-0 border-blue-100 text-blue-600 hover:bg-blue-50"
-                                                        title="Notify Nominators"
-                                                    >
-                                                        <Mail className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handleNotifyClick(course, 'candidate')}
-                                                        className="h-9 w-9 p-0 border-purple-100 text-purple-600 hover:bg-purple-50"
-                                                        title="Notify Candidates"
-                                                    >
-                                                        <Send className="h-4 w-4" />
-                                                    </Button>
-                                                    <Link to={`/pre-active-courses/${course.id}/approvals`}>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="h-9 w-9 p-0 border-green-100 text-green-600 hover:bg-green-50"
-                                                            title="View Candidate Approvals"
-                                                        >
-                                                            <CheckCircle className="h-4 w-4" />
-                                                        </Button>
-                                                    </Link>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handleConvertClick(course)}
-                                                        className="h-9 px-3 border-orange-100 text-orange-600 hover:bg-orange-50 gap-2 font-semibold"
-                                                        title="Convert to Active Course"
-                                                    >
-                                                        <RefreshCw className="h-3.5 w-3.5" />
-                                                        <span>Convert</span>
-                                                    </Button>
-                                                    <div className="w-px h-6 bg-slate-200 mx-1 self-center" />
-                                                    <Link to={`/pre-active-courses/edit/${course.id}`}>
-                                                        <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50">
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                    </Link>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-9 w-9 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50"
-                                                        onClick={() => handleDeleteClick(course)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                    <div className="flex gap-4 w-full md:w-auto items-center">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{totalCount} Record{totalCount !== 1 ? 's' : ''} found</span>
                     </div>
-                    {!loading && courses.length > 0 && (
-                        <div className="p-4 border-t border-gray-100">
-                            <TablePagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                                totalCount={courses.length * totalPages} // Approximation or precise if available
-                                limit={limit}
-                            />
-                        </div>
-                    )}
-                </div>
+                </CardContent>
+            </Card>
 
-                <ConfirmationModal
-                    isOpen={deleteModalOpen}
-                    onClose={() => setDeleteModalOpen(false)}
-                    onConfirm={handleConfirmDelete}
-                    title="Delete Pre-Active Course"
-                    message={`Are you sure you want to delete the course "${courseToDelete?.course_name}"? This action cannot be undone.`}
-                    confirmText="Delete"
-                    variant="danger"
+            {/* Content Area */}
+            <DataTable
+                columns={columns}
+                data={courses}
+                loading={loading}
+                emptyMessage="No pre-active courses found."
+                currentPage={currentPage}
+                limit={limit}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+            />
+
+            {!loading && courses.length > 0 && (
+                <TablePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    limit={limit}
+                    onPageChange={setCurrentPage}
+                    onLimitChange={(newLimit) => {
+                        setLimit(newLimit);
+                        setCurrentPage(1);
+                    }}
                 />
+            )}
 
-                <ConfirmationModal
-                    isOpen={notifyModalOpen}
-                    onClose={() => setNotifyModalOpen(false)}
-                    onConfirm={handleConfirmNotify}
-                    title={`Notify ${notifyType === 'nominator' ? 'Nominators' : 'Candidates'}`}
-                    message={`Are you sure you want to send email notifications to all ${notifyType === 'nominator' ? 'nominators' : 'pending candidates'} for "${courseToNotify?.course_name}"?`}
-                    confirmText="Send Emails"
-                    variant="primary"
-                />
+            <ConfirmationModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Delete Pre-Active Course"
+                message={`Are you sure you want to delete the course "${courseToDelete?.course_name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                variant="danger"
+            />
 
-                <ConfirmationModal
-                    isOpen={convertModalOpen}
-                    onClose={() => setConvertModalOpen(false)}
-                    onConfirm={handleConfirmConvert}
-                    title="Convert to Active Course"
-                    message={`Are you sure you want to convert "${courseToConvert?.course_name}" to an Active Course? This action cannot be reversed.`}
-                    confirmText="Convert"
-                    variant="primary"
-                />
+            <ConfirmationModal
+                isOpen={notifyModalOpen}
+                onClose={() => setNotifyModalOpen(false)}
+                onConfirm={handleConfirmNotify}
+                title={`Notify ${notifyType === 'nominator' ? 'Nominators' : 'Candidates'}`}
+                message={`Are you sure you want to send email notifications to all ${notifyType === 'nominator' ? 'nominators' : 'pending candidates'} for "${courseToNotify?.course_name}"?`}
+                confirmText="Send Emails"
+                variant="primary"
+            />
 
-                <CourseImportPreviewModal
-                    isOpen={showPreviewModal}
-                    onClose={() => setShowPreviewModal(false)}
-                    onImportSuccess={fetchCourses}
-                />
+            <ConfirmationModal
+                isOpen={convertModalOpen}
+                onClose={() => setConvertModalOpen(false)}
+                onConfirm={handleConfirmConvert}
+                title="Convert to Active Course"
+                message={`Are you sure you want to convert "${courseToConvert?.course_name}" to an Active Course? This action cannot be reversed.`}
+                confirmText="Convert"
+                variant="primary"
+            />
 
-            </div>
+            <CourseImportPreviewModal
+                isOpen={showPreviewModal}
+                onClose={() => setShowPreviewModal(false)}
+                onImportSuccess={fetchCourses}
+            />
         </div>
     );
 };
