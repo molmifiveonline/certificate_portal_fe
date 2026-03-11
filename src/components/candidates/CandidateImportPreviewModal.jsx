@@ -14,10 +14,10 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
 
-    const fetchPreview = async (date) => {
+    const fetchPreview = React.useCallback(async (dateToFetch) => {
         setLoading(true);
         try {
-            const result = await candidateService.fetchExternalPreview(date);
+            const result = await candidateService.fetchExternalPreview(dateToFetch);
             setPreviewData(result.data || []);
             setCurrentPage(1); // Reset to first page on new fetch
         } catch (error) {
@@ -26,18 +26,16 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
             fetchPreview(syncDate);
         }
-    }, [isOpen]);
+    }, [isOpen, syncDate, fetchPreview]);
 
     const handleDateChange = (e) => {
-        const newDate = e.target.value;
-        setSyncDate(newDate);
-        fetchPreview(newDate);
+        setSyncDate(e.target.value);
     };
 
     const handleImport = async () => {

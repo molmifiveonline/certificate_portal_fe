@@ -22,7 +22,7 @@ import {
   // School,
   Building,
   // ClipboardCheck,
-  FileBarChart,
+  // FileBarChart,
   Shield,
   History,
 } from "lucide-react";

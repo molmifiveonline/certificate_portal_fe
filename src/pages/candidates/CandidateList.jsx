@@ -44,6 +44,7 @@ const CandidateList = ({ registrationType }) => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     // Two-Step Sync States
     const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -262,6 +263,7 @@ const CandidateList = ({ registrationType }) => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all registered candidates</p>
                 </div>
+                <div className="flex flex-wrap gap-3">
                     <Button
                         variant="outline"
                         onClick={handleSyncFromApi}
