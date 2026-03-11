@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+// TWO-STEP IMPORT FLOW IMPLEMENTED
 import Meta from "../../components/common/Meta";
 import { MANAGER_OPTIONS } from "../../lib/constants";
 import {
@@ -25,7 +26,6 @@ import { toast } from "sonner";
 import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
 import { useAuth } from "../../context/AuthContext";
-import DateSelectionModal from "../../components/candidates/DateSelectionModal";
 import CandidateImportPreviewModal from "../../components/candidates/CandidateImportPreviewModal";
 
 const CandidateList = ({ registrationType }) => {
@@ -44,14 +44,10 @@ const CandidateList = ({ registrationType }) => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
-    const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
     // Two-Step Sync States
-    const [showDateModal, setShowDateModal] = useState(false);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
-    const [previewData, setPreviewData] = useState([]);
-    const [isFetchingPreview, setIsFetchingPreview] = useState(false);
 
     // Filter States
     const [showFilters, setShowFilters] = useState(false);
@@ -135,28 +131,7 @@ const CandidateList = ({ registrationType }) => {
     };
 
     const handleSyncFromApi = () => {
-        setShowDateModal(true);
-    };
-
-    const handleDateConfirm = async (date) => {
-        setShowDateModal(false);
-        setIsFetchingPreview(true);
-        const toastId = toast.loading("Checking for updates from API...");
-        try {
-            const result = await candidateService.fetchExternalPreview(date);
-            if (result.data.length === 0) {
-                toast.info("No new updates found for the selected date.", { id: toastId });
-            } else {
-                setPreviewData(result.data);
-                setShowPreviewModal(true);
-                toast.dismiss(toastId);
-            }
-        } catch (error) {
-            console.error("Preview fetch error:", error);
-            toast.error("Failed to fetch data from API. Please try again later.", { id: toastId });
-        } finally {
-            setIsFetchingPreview(false);
-        }
+        setShowPreviewModal(true);
     };
 
     const handleFileUpload = async (e) => {
@@ -292,11 +267,10 @@ const CandidateList = ({ registrationType }) => {
                     <Button
                         variant="outline"
                         onClick={handleSyncFromApi}
-                        disabled={isSyncing || isFetchingPreview}
                         className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
                     >
-                        <Zap className={`w-4 h-4 text-amber-500 ${(isSyncing || isFetchingPreview) ? 'animate-pulse' : ''}`} />
-                        {(isSyncing || isFetchingPreview) ? 'Syncing...' : 'Sync API'}
+                        <Zap className="w-4 h-4 text-amber-500" />
+                        Sync API
                     </Button>
 
                     {hasPermission('create_candidate') && (
@@ -456,16 +430,9 @@ const CandidateList = ({ registrationType }) => {
                 ]}
             />
 
-            <DateSelectionModal
-                isOpen={showDateModal}
-                onClose={() => setShowDateModal(false)}
-                onConfirm={handleDateConfirm}
-            />
-
             <CandidateImportPreviewModal
                 isOpen={showPreviewModal}
                 onClose={() => setShowPreviewModal(false)}
-                data={previewData}
                 onImportSuccess={fetchCandidates}
             />
         </div>
