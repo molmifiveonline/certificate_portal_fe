@@ -51,6 +51,7 @@ const ReportDashboard = () => {
   const [feedbackDates, setFeedbackDates] = useState({ start_date: "", end_date: "" });
   const [certificateDates, setCertificateDates] = useState({ start_date: "", end_date: "" });
   const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [loadingBulkFeedback, setLoadingBulkFeedback] = useState(false);
   const [loadingCertificate, setLoadingCertificate] = useState(false);
 
   const [filterOptions, setFilterOptions] = useState({ topics: [], managers: [], companies: [] });
@@ -109,6 +110,36 @@ const ReportDashboard = () => {
       toast.error(msg);
     } finally {
       setLoadingFeedback(false);
+    }
+  };
+
+  const handleFeedbackBulkDownload = async (e) => {
+    if (e) e.preventDefault();
+
+    const dateError = getDateRangeError(feedbackDates, 93);
+    if (dateError) {
+      toast.error(dateError);
+      return;
+    }
+
+    setLoadingBulkFeedback(true);
+    try {
+      const payload = { ...feedbackDates };
+      if (feedbackFilters.topic) payload.topic = feedbackFilters.topic;
+      if (feedbackFilters.manager) payload.manager = feedbackFilters.manager;
+
+      const response = await ReportService.bulkDownloadFeedbackPDFs(payload);
+      downloadReport(response.data, "Feedback_PDFs.zip");
+      toast.success("Feedback PDFs downloaded successfully!");
+    } catch (error) {
+      console.error(error);
+      const msg =
+        error.message && typeof error.message === "string"
+          ? error.message
+          : "Failed to download PDFs.";
+      toast.error(msg);
+    } finally {
+      setLoadingBulkFeedback(false);
     }
   };
 
@@ -179,7 +210,9 @@ const ReportDashboard = () => {
           onFiltersChange={setFeedbackFilters}
           filterOptions={filterOptions}
           onSubmit={handleFeedbackExport}
+          onBulkDownload={handleFeedbackBulkDownload}
           loading={loadingFeedback}
+          loadingBulk={loadingBulkFeedback}
           today={TODAY}
         />
 

@@ -20,6 +20,7 @@ const CreateCertificate = () => {
     const [masterCourses, setMasterCourses] = useState([]);
     const [activeCourses, setActiveCourses] = useState([]);
     const [trainers, setTrainers] = useState([]);
+    const [locations, setLocations] = useState([]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,17 +48,23 @@ const CreateCertificate = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [candRes, mcRes, acRes, trRes] = await Promise.all([
+                const [candRes, mcRes, acRes, trRes, locRes] = await Promise.all([
                     candidateService.getAllCandidates({ limit: 1000 }),
                     api.get('/master-courses', { params: { limit: 1000 } }),
                     activeCourseService.getAllCourses({ limit: 1000 }),
-                    api.get('/trainer', { params: { limit: 1000 } })
+                    api.get('/trainer', { params: { limit: 1000 } }),
+                    api.get('/locations', { params: { limit: 1000 } })
                 ]);
 
                 setCandidates(candRes.data || []);
                 setMasterCourses(mcRes.data?.data || []);
                 setActiveCourses(acRes.data || []);
                 setTrainers(trRes.data?.data || []);
+
+                // Location API returns data in slightly different nested structures sometimes
+                let locs = locRes.data?.data?.data || locRes.data?.data || [];
+                if (!Array.isArray(locs)) locs = [];
+                setLocations(locs);
             } catch (err) {
                 console.error("Error fetching form data:", err);
                 toast.error("Failed to load required data.");
@@ -65,6 +72,19 @@ const CreateCertificate = () => {
         };
         fetchData();
     }, []);
+
+    // Auto-calculate days based on from/to dates
+    useEffect(() => {
+        if (formData.from_date && formData.to_date) {
+            const start = new Date(formData.from_date);
+            const end = new Date(formData.to_date);
+            if (end >= start) {
+                const diffMs = end - start;
+                const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+                setFormData(prev => ({ ...prev, days: diffDays }));
+            }
+        }
+    }, [formData.from_date, formData.to_date]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -83,7 +103,26 @@ const CreateCertificate = () => {
                 if (selectedCourse) {
                     newData.topic = selectedCourse.topic;
                     newData.type = selectedCourse.certificate_type || "Others";
-                    newData.description1 = selectedCourse.description;
+                    newData.description1 = selectedCourse.description || "";
+                    newData.remarks = selectedCourse.remarks || "";
+                }
+            }
+
+            // Auto-select type, course name if topic changes
+            if (name === 'topic') {
+                const matchingCourses = masterCourses.filter(c => c.topic === value);
+                if (matchingCourses.length > 0) {
+                    // Taking the first course for that topic to auto-fill
+                    const selectedCourse = matchingCourses[0];
+                    newData.course_id = selectedCourse.id;
+                    newData.type = selectedCourse.certificate_type || "Others";
+                    newData.description1 = selectedCourse.description || "";
+                    newData.remarks = selectedCourse.remarks || "";
+                } else {
+                    newData.course_id = "";
+                    newData.type = "Others";
+                    newData.description1 = "";
+                    newData.remarks = "";
                 }
             }
 
@@ -221,9 +260,9 @@ const CreateCertificate = () => {
                                     </select>
                                 </div>
 
-                                {/* Master Course Selection */}
+                                {/* Master Course Selection / Course Name */}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700">Master Course <span className="text-red-500">*</span></label>
+                                    <label className="text-sm font-semibold text-slate-700">Course Name <span className="text-red-500">*</span></label>
                                     <select
                                         name="course_id"
                                         value={formData.course_id}
@@ -233,10 +272,12 @@ const CreateCertificate = () => {
                                         }}
                                         className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.course_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
                                     >
-                                        <option value="">Select Master Course</option>
-                                        {masterCourses.map(c => (
-                                            <option key={c.id} value={c.id}>{c.master_course_name}</option>
-                                        ))}
+                                        <option value="">Select Course Name</option>
+                                        {masterCourses
+                                            .filter(c => !formData.topic || c.topic === formData.topic)
+                                            .map(c => (
+                                                <option key={c.id} value={c.id}>{c.master_course_name}</option>
+                                            ))}
                                     </select>
                                     {formErrors.course_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.course_id}</span>}
                                 </div>
@@ -308,7 +349,6 @@ const CreateCertificate = () => {
                                     >
                                         <option value="Operational">Operational</option>
                                         <option value="Management">Management</option>
-                                        <option value="Support">Support</option>
                                     </select>
                                 </div>
 
@@ -323,6 +363,22 @@ const CreateCertificate = () => {
                                     >
                                         <option value="ONS">ONS (Onsite)</option>
                                         <option value="ONL">ONL (Online)</option>
+                                    </select>
+                                </div>
+
+                                {/* Location */}
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-semibold text-slate-700">Location</label>
+                                    <select
+                                        name="location"
+                                        value={formData.location}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    >
+                                        <option value="">Select Location</option>
+                                        {locations.map(loc => (
+                                            <option key={loc.id} value={loc.location_name}>{loc.location_name}</option>
+                                        ))}
                                     </select>
                                 </div>
 

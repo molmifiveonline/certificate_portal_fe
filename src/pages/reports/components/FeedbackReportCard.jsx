@@ -9,7 +9,9 @@ const FeedbackReportCard = ({
   onFiltersChange,
   filterOptions,
   onSubmit,
+  onBulkDownload,
   loading,
+  loadingBulk,
   today,
 }) => {
   return (
@@ -132,23 +134,44 @@ const FeedbackReportCard = ({
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-sky-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {loading ? (
-            <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Exporting...
-            </>
-          ) : (
-            <>
-              <FileDown className="h-4 w-4" />
-              Export Feedback Excel
-            </>
-          )}
-        </button>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <button
+            type="submit"
+            disabled={loading || loadingBulk}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-sky-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loading ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <FileDown className="h-4 w-4" />
+                Export Excel
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={onBulkDownload}
+            disabled={loading || loadingBulk}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loadingBulk ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Downloading...
+              </>
+            ) : (
+              <>
+                <FileDown className="h-4 w-4" />
+                Bulk Download PDFs
+              </>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

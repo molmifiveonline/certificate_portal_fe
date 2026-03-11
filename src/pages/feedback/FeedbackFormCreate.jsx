@@ -254,31 +254,23 @@ const FeedbackFormCreate = () => {
     const categoryOptions = categories.map(c => ({ value: c.id, label: c.name }));
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="w-full">
             <Meta title={isEditMode ? "Edit Feedback Form" : "Create Feedback Form"} />
 
-            <div className="w-full px-4 pb-10">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6 pt-6">
-                    <div className="flex items-center gap-4">
-                        <BackButton to="/feedback/forms" />
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-800">
-                                {isEditMode ? "Edit Feedback Form" : "Create Feedback Form"}
-                            </h1>
-                            <p className="text-slate-500 text-sm">
-                                Define structure and questions
-                            </p>
-                        </div>
-                    </div>
-                    <Button
-                        onClick={handleSubmit}
-                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2"
-                    >
-                        <Save className="w-4 h-4" />
-                        Save Form
-                    </Button>
+            {/* Sticky Header */}
+            <div className="bg-white border-b border-slate-200 sticky top-0 z-40 px-8 py-4 flex items-center justify-between shadow-sm">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-800">
+                        {isEditMode ? "Edit Feedback Form" : "Create Feedback Form"}
+                    </h1>
+                    <p className="text-slate-500 text-sm">
+                        Define structure and questions
+                    </p>
                 </div>
+                <BackButton to="/feedback/forms" />
+            </div>
+
+            <div className="w-full px-8 pb-32 pt-8">
 
                 {/* Main Form Area */}
                 <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-6 w-full" style={{ overflow: 'visible', position: 'relative', zIndex: 20 }}>
@@ -487,6 +479,27 @@ const FeedbackFormCreate = () => {
                             );
                         })
                     )}
+                </div>
+            </div>
+
+            {/* Sticky Footer */}
+            <div className="sticky bottom-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 sm:p-6 flex justify-end shadow-[0_-8px_30px_rgb(0,0,0,0.04)] w-full -mx-0">
+                <div className="flex gap-4 w-full sm:w-auto">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate("/feedback/forms")}
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 border-slate-200 hover:bg-slate-50 transition-all text-sm h-11"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white px-8 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 text-sm h-11"
+                    >
+                        <Save className="w-4 h-4" />
+                        <span>{isEditMode ? "Update Feedback Form" : "Save Feedback Form"}</span>
+                    </Button>
                 </div>
             </div>
         </div>

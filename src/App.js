@@ -153,6 +153,9 @@ const SubmissionDetail = lazy(
 const TrainerCertificateList = lazy(
   () => import("./pages/trainers/TrainerCertificateList"),
 );
+const TrainerCourseList = lazy(
+  () => import("./pages/trainers/TrainerCourseList"),
+);
 
 const FeedbackCourseList = lazy(
   () => import("./pages/feedback/FeedbackCourseList"),
@@ -720,7 +723,10 @@ function App() {
               <Route
                 path="/certificates/print/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={["SuperAdmin", "Admin", "admin"]}
+                    noLayout={true}
+                  >
                     <CertificatePrintView />
                   </PrivateRoute>
                 }
@@ -765,6 +771,22 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
                     <TrainerCertificateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/my-courses"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <TrainerCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/my-courses/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <ActiveCourseForm />
                   </PrivateRoute>
                 }
               />

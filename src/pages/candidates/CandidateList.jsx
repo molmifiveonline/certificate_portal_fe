@@ -25,6 +25,8 @@ import { toast } from "sonner";
 import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
 import { useAuth } from "../../context/AuthContext";
+import DateSelectionModal from "../../components/candidates/DateSelectionModal";
+import CandidateImportPreviewModal from "../../components/candidates/CandidateImportPreviewModal";
 
 const CandidateList = ({ registrationType }) => {
     const navigate = useNavigate();
@@ -44,6 +46,12 @@ const CandidateList = ({ registrationType }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Two-Step Sync States
+    const [showDateModal, setShowDateModal] = useState(false);
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
+    const [previewData, setPreviewData] = useState([]);
+    const [isFetchingPreview, setIsFetchingPreview] = useState(false);
 
     // Filter States
     const [showFilters, setShowFilters] = useState(false);
@@ -126,18 +134,28 @@ const CandidateList = ({ registrationType }) => {
         }
     };
 
-    const handleSyncFromApi = async () => {
-        setIsSyncing(true);
-        const toastId = toast.loading("Syncing candidates from API...");
+    const handleSyncFromApi = () => {
+        setShowDateModal(true);
+    };
+
+    const handleDateConfirm = async (date) => {
+        setShowDateModal(false);
+        setIsFetchingPreview(true);
+        const toastId = toast.loading("Checking for updates from API...");
         try {
-            const result = await candidateService.importFromApi("1970-01-01"); // Default to all
-            toast.success(`Sync completed! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
-            fetchCandidates();
+            const result = await candidateService.fetchExternalPreview(date);
+            if (result.data.length === 0) {
+                toast.info("No new updates found for the selected date.", { id: toastId });
+            } else {
+                setPreviewData(result.data);
+                setShowPreviewModal(true);
+                toast.dismiss(toastId);
+            }
         } catch (error) {
-            console.error("Sync error:", error);
-            toast.error("Failed to sync from API", { id: toastId });
+            console.error("Preview fetch error:", error);
+            toast.error("Failed to fetch data from API. Please try again later.", { id: toastId });
         } finally {
-            setIsSyncing(false);
+            setIsFetchingPreview(false);
         }
     };
 
@@ -274,24 +292,12 @@ const CandidateList = ({ registrationType }) => {
                     <Button
                         variant="outline"
                         onClick={handleSyncFromApi}
-                        disabled={isSyncing}
+                        disabled={isSyncing || isFetchingPreview}
                         className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
                     >
-                        <Zap className={`w-4 h-4 text-amber-500 ${isSyncing ? 'animate-pulse' : ''}`} />
-                        {isSyncing ? 'Syncing...' : 'Sync API'}
+                        <Zap className={`w-4 h-4 text-amber-500 ${(isSyncing || isFetchingPreview) ? 'animate-pulse' : ''}`} />
+                        {(isSyncing || isFetchingPreview) ? 'Syncing...' : 'Sync API'}
                     </Button>
-
-                    {/* <label className={cn(buttonVariants({ variant: "outline" }), "cursor-pointer bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95 h-10")}>
-                        <Upload className="w-4 h-4 text-blue-600" />
-                        Upload
-                        <input
-                            type="file"
-                            className="hidden"
-                            accept=".csv"
-                            onChange={handleFileUpload}
-                            disabled={isUploading}
-                        />
-                    </label> */}
 
                     {hasPermission('create_candidate') && (
                         <Button
@@ -448,6 +454,19 @@ const CandidateList = ({ registrationType }) => {
                     { key: 'whatsapp_number', label: 'WhatsApp' },
                     { key: 'registration_type', label: 'Registration Type' }
                 ]}
+            />
+
+            <DateSelectionModal
+                isOpen={showDateModal}
+                onClose={() => setShowDateModal(false)}
+                onConfirm={handleDateConfirm}
+            />
+
+            <CandidateImportPreviewModal
+                isOpen={showPreviewModal}
+                onClose={() => setShowPreviewModal(false)}
+                data={previewData}
+                onImportSuccess={fetchCandidates}
             />
         </div>
     );

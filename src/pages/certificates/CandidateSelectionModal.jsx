@@ -136,7 +136,9 @@ const CandidateSelectionModal = ({ isOpen, onClose, candidates, selectedIds, onS
                                         <th className="px-4 py-3 font-semibold bg-slate-50">Emp ID</th>
                                         <th className="px-4 py-3 font-semibold bg-slate-50">Name</th>
                                         <th className="px-4 py-3 font-semibold hidden sm:table-cell bg-slate-50">Passport</th>
+                                        <th className="px-4 py-3 font-semibold hidden sm:table-cell bg-slate-50">Seaman No.</th>
                                         <th className="px-4 py-3 font-semibold hidden md:table-cell bg-slate-50">Rank</th>
+                                        <th className="px-4 py-3 font-semibold hidden md:table-cell bg-slate-50">Manager</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -157,7 +159,9 @@ const CandidateSelectionModal = ({ isOpen, onClose, candidates, selectedIds, onS
                                             <td className="px-4 py-3 font-semibold text-slate-700">{c.empId || '-'}</td>
                                             <td className="px-4 py-3 font-medium text-slate-900">{c.first_name} {c.last_name}</td>
                                             <td className="px-4 py-3 hidden sm:table-cell text-slate-500">{c.cdc_passport || '-'}</td>
+                                            <td className="px-4 py-3 hidden sm:table-cell text-slate-500">{c.seaman_book_no || '-'}</td>
                                             <td className="px-4 py-3 hidden md:table-cell text-slate-500">{c.rank || '-'}</td>
+                                            <td className="px-4 py-3 hidden md:table-cell text-slate-500">{c.manager || '-'}</td>
                                         </tr>
                                     ))}
                                 </tbody>

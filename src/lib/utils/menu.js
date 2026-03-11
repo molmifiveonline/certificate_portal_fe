@@ -10,7 +10,7 @@ import {
   // FolderKanban,
   GraduationCap,
   UserCircle,
-  // BookOpen,
+  BookOpen,
   MapPin,
   ClipboardList,
   MessageSquare,
@@ -22,7 +22,7 @@ import {
   // School,
   Building,
   // ClipboardCheck,
-  // FileBarChart,
+  FileBarChart,
   Shield,
   History,
 } from "lucide-react";
@@ -61,18 +61,18 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_trainers",
   },
-  // {
-  //   title: "Courses",
-  //   url: "/courses",
-  //   icon: BookOpen,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   permissionSlug: "view_master_courses",
-  //   subItems: [
-  //     { title: "Master Courses", url: "/courses" },
-  //     // { title: "Pre-Active Courses", url: "/pre-active-courses" },
-  //     // { title: "Active Courses", url: "/active-courses" },
-  //   ],
-  // },
+  {
+    title: "Courses",
+    url: "/courses",
+    icon: BookOpen,
+    allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_master_courses",
+    subItems: [
+      { title: "Master Courses", url: "/courses" },
+      // { title: "Pre-Active Courses", url: "/pre-active-courses" },
+      // { title: "Active Courses", url: "/active-courses" },
+    ],
+  },
 
   {
     title: "Hotel Details",
@@ -103,7 +103,7 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     subItems: [
       { title: "Question Bank", url: "/assessment/question-bank" },
-      // { title: "Assessments", url: "/assessment/assessments" },
+      { title: "Assessments", url: "/assessment/assessments" },
       // { title: "Submitted Assessments", url: "/assessment/submitted" },
     ],
   },
