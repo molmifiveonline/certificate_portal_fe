@@ -69,7 +69,7 @@ export const MenuItems = [
     permissionSlug: "view_master_courses",
     subItems: [
       { title: "Master Courses", url: "/courses" },
-      { title: "Pre-Active Courses", url: "/pre-active-courses" },
+      // { title: "Pre-Active Courses", url: "/pre-active-courses" },
       // { title: "Active Courses", url: "/active-courses" },
     ],
   },
