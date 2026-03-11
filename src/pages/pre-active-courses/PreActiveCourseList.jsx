@@ -9,6 +9,8 @@ import TablePagination from "../../components/ui/TablePagination";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { useAuth } from "../../context/AuthContext";
 import Meta from "../../components/common/Meta";
+import CourseImportPreviewModal from "../../components/pre-active-courses/CourseImportPreviewModal";
+import { Zap } from "lucide-react";
 
 const PreActiveCourseList = () => {
     const [courses, setCourses] = useState([]);
@@ -23,6 +25,7 @@ const PreActiveCourseList = () => {
     const [notifyType, setNotifyType] = useState(""); // 'nominator' or 'candidate'
     const [convertModalOpen, setConvertModalOpen] = useState(false);
     const [courseToConvert, setCourseToConvert] = useState(null);
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
 
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -120,12 +123,22 @@ const PreActiveCourseList = () => {
                     <h1 className="text-xl font-bold text-slate-800">Pre-Active Courses</h1>
                     <p className="text-sm text-slate-500">Manage courses before they become active</p>
                 </div>
-                <Link to="/pre-active-courses/add">
-                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 transition-all active:scale-95">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add New Course
+                <div className="flex items-center gap-3">
+                    <Button
+                        variant="outline"
+                        onClick={() => setShowPreviewModal(true)}
+                        className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                    >
+                        <Zap className="w-4 h-4 text-amber-500" />
+                        Sync API
                     </Button>
-                </Link>
+                    <Link to="/pre-active-courses/add">
+                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 transition-all active:scale-95">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add New Course
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <div className="max-w-[1600px] mx-auto p-8 space-y-6">
@@ -293,6 +306,12 @@ const PreActiveCourseList = () => {
                     message={`Are you sure you want to convert "${courseToConvert?.course_name}" to an Active Course? This action cannot be reversed.`}
                     confirmText="Convert"
                     variant="primary"
+                />
+
+                <CourseImportPreviewModal
+                    isOpen={showPreviewModal}
+                    onClose={() => setShowPreviewModal(false)}
+                    onImportSuccess={fetchCourses}
                 />
 
             </div>

@@ -87,6 +87,16 @@ const preActiveCourseService = {
     );
     return response.data;
   },
+
+  fetchExternalCourses: async () => {
+    const response = await api.post("/pre-active/fetch-external-preview");
+    return response.data;
+  },
+
+  confirmBulkImport: async (data) => {
+    const response = await api.post("/pre-active/confirm-bulk-import", data);
+    return response.data;
+  },
 };
 
 export default preActiveCourseService;
