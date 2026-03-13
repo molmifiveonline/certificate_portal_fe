@@ -1,26 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import Meta from '../../components/common/Meta';
 import { useAuth } from '../../context/AuthContext';
 import trainerService from '../../services/trainerService';
-import activeCourseService from '../../services/activeCourseService';
 import { 
     BookOpen, 
-    Users, 
+    Award,
     Calendar,
     Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from "../../lib/utils/utils";
-import { formatDate } from "../../lib/utils/dateUtils";
 
-const StatsCard = ({ title, value, icon: Icon, gradient, loading }) => {
+const StatsCard = ({ title, value, icon: Icon, gradient, loading, onClick }) => {
     return (
         <div
+            onClick={onClick}
+            role={onClick ? "button" : undefined}
+            tabIndex={onClick ? 0 : undefined}
+            onKeyDown={
+                onClick
+                    ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              onClick();
+                          }
+                      }
+                    : undefined
+            }
             className={cn(
                 "relative overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-white/40 shadow-lg",
-                "bg-white/60 backdrop-blur-2xl"
+                "bg-white/60 backdrop-blur-2xl",
+                onClick ? "cursor-pointer" : ""
             )}
         >
             <div className={`absolute right-0 top-0 w-32 h-32 opacity-20 rounded-bl-full bg-gradient-to-br ${gradient} -mr-8 -mt-8`} />
@@ -48,7 +59,6 @@ const TrainerDashboard = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
         activeCourses: 0,
-        totalCandidates: 0,
         certificatesIssued: 0
     });
     const [loading, setLoading] = useState(true);
@@ -103,13 +113,15 @@ const TrainerDashboard = () => {
                     icon={BookOpen} 
                     gradient="from-blue-500 to-indigo-600"
                     loading={loading}
+                    onClick={() => navigate("/my-courses")}
                 />
                 <StatsCard 
-                    title="Total Candidates" 
-                    value={stats.totalCandidates} 
-                    icon={Users} 
+                    title="Total Certificates" 
+                    value={stats.certificatesIssued} 
+                    icon={Award} 
                     gradient="from-violet-500 to-purple-600"
                     loading={loading}
+                    onClick={() => navigate("/trainer-certificates")}
                 />
             </div>
         </div>

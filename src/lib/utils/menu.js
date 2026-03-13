@@ -118,7 +118,7 @@ export const MenuItems = [
     subItems: [
       { title: "Question Bank", url: "/assessment/question-bank" },
       { title: "Assessments", url: "/assessment/assessments" },
-      // { title: "Submitted Assessments", url: "/assessment/submitted" },
+      { title: "Submitted Assessments", url: "/assessment/submitted" },
     ],
   },
 
@@ -166,48 +166,45 @@ export const MenuItems = [
   },
 
   // Trainer Specific
-  {
-    title: "My Courses",
-    url: "/my-courses",
-    icon: Book,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_courses",
-  },
-  {
-    title: "Assessments",
-    url: "/trainer-assessments",
-    icon: Users,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_assessments",
-  },
-  {
-    title: "Feedback",
-    url: "/trainer-feedback",
-    icon: MessageSquare,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_feedback",
-  },
-  {
-    title: "Certificates",
-    url: "/trainer-certificates",
-    icon: Award,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_certificates",
-  },
+  // {
+  //   title: "My Courses",
+  //   url: "/my-courses",
+  //   icon: Book,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_courses",
+  // },
+  // {
+  //   title: "Assessments",
+  //   url: "/trainer-assessments",
+  //   icon: ClipboardList,
+  //   allowedRoles: ["trainer"],
+  // },
+  // {
+  //   title: "Feedback",
+  //   url: "/trainer-feedback",
+  //   icon: MessageSquare,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_feedback",
+  // },
+  // {
+  //   title: "Certificates",
+  //   url: "/trainer-certificates",
+  //   icon: Award,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_certificates",
+  // },
 
   // Candidate Specific
-  {
-    title: "My Courses",
-    url: "/candidate-courses",
-    icon: Book,
-    allowedRoles: ["candidate"],
-    requiredPermission: "view_courses",
-  },
-  {
-    title: "My Certificates",
-    url: "/candidate-certificates",
-    icon: Award,
-    allowedRoles: ["candidate"],
-    requiredPermission: "view_certificates",
-  },
+  // {
+  //   title: "My Courses",
+  //   url: "/candidate-courses",
+  //   icon: Book,
+  //   allowedRoles: ["candidate"],
+  // },
+  // {
+  //   title: "My Certificates",
+  //   url: "/candidate-certificates",
+  //   icon: Award,
+  //   allowedRoles: ["candidate"],
+  // },
 ];
