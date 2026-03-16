@@ -179,6 +179,21 @@ const CandidateCertificateList = lazy(
 const CandidateCourseDetails = lazy(
   () => import("./pages/candidates/CandidateCourseDetails"),
 );
+const ReimbursementList = lazy(
+  () => import("./pages/reimbursements/ReimbursementList"),
+);
+const ReimbursementForm = lazy(
+  () => import("./pages/reimbursements/ReimbursementForm"),
+);
+const ReimbursementDetails = lazy(
+  () => import("./pages/reimbursements/ReimbursementDetails"),
+);
+const ReimbursementAdminList = lazy(
+  () => import("./pages/admin/reimbursements/ReimbursementAdminList"),
+);
+const ReimbursementAdminDetails = lazy(
+  () => import("./pages/admin/reimbursements/ReimbursementAdminDetails"),
+);
 
 function App() {
   return (
@@ -413,6 +428,22 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <LogHistory />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/reimbursements"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ReimbursementAdminList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/reimbursements/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ReimbursementAdminDetails />
                   </PrivateRoute>
                 }
               />
@@ -886,6 +917,38 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
                     <CandidateCertificateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements/create"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements/:id"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementDetails />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements/:id/edit"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementForm />
                   </PrivateRoute>
                 }
               />

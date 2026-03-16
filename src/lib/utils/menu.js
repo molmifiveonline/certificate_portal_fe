@@ -13,9 +13,7 @@ import {
   BookOpen,
   MapPin,
   ClipboardList,
-  MessageSquare,
-  Award,
-  Book,
+  Receipt,
   // FileBadge,
   // ChevronDown,
   // ChevronRight,
@@ -164,6 +162,13 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_logs",
   },
+  // {
+  //   title: "Reimbursements",
+  //   url: "/admin/reimbursements",
+  //   icon: Receipt,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   permissionSlug: "manage_reimbursements",
+  // },
 
   // Trainer Specific
   // {
@@ -205,6 +210,12 @@ export const MenuItems = [
   //   title: "My Certificates",
   //   url: "/candidate-certificates",
   //   icon: Award,
+  //   allowedRoles: ["candidate"],
+  // },
+  // {
+  //   title: "Reimbursements",
+  //   url: "/reimbursements",
+  //   icon: Receipt,
   //   allowedRoles: ["candidate"],
   // },
 ];
