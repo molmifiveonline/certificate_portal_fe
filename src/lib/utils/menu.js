@@ -13,7 +13,6 @@ import {
   BookOpen,
   MapPin,
   ClipboardList,
-  Receipt,
   // FileBadge,
   // ChevronDown,
   // ChevronRight,

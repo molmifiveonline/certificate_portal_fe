@@ -25,6 +25,9 @@ const EditCandidate = lazy(() => import("./pages/candidates/EditCandidate"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const RolePermission = lazy(() => import("./pages/admin/RolePermission"));
 const LogHistory = lazy(() => import("./pages/admin/LogHistory"));
+const AdminNotifications = lazy(
+  () => import("./pages/admin/AdminNotifications"),
+);
 const AdminUserList = lazy(() => import("./pages/admin/users/AdminUserList"));
 const CreateAdminUser = lazy(
   () => import("./pages/admin/users/CreateAdminUser"),
@@ -444,6 +447,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <ReimbursementAdminDetails />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/notifications"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminNotifications />
                   </PrivateRoute>
                 }
               />

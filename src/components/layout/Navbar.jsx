@@ -1,15 +1,48 @@
-import React, { useState } from 'react';
-import { Menu } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Bell, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLayout } from '../../context/LayoutContext';
 import UserProfileModal from './UserProfileModal';
+import notificationService from '../../services/notificationService';
 
 const Navbar = () => {
     const { toggleSidebar } = useLayout();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [notificationCount, setNotificationCount] = useState(0);
+
+    const role = user?.role?.toLowerCase();
+    const isAdminUser = role === 'admin' || role === 'superadmin';
+
+    useEffect(() => {
+        let ignore = false;
+
+        const loadNotificationCount = async () => {
+            if (!isAdminUser) {
+                setNotificationCount(0);
+                return;
+            }
+
+            try {
+                const response = await notificationService.getAdminNotifications();
+                if (!ignore) {
+                    setNotificationCount(response?.summary?.totalPending || 0);
+                }
+            } catch (error) {
+                if (!ignore) {
+                    setNotificationCount(0);
+                }
+            }
+        };
+
+        loadNotificationCount();
+
+        return () => {
+            ignore = true;
+        };
+    }, [isAdminUser]);
 
     const getInitials = () => {
         const firstInitial = user?.first_name?.[0] || user?.name?.[0] || 'U';
@@ -47,6 +80,23 @@ const Navbar = () => {
 
                 {/* Right Side Icons */}
                 <div className='flex items-center gap-2 sm:gap-4'>
+                    {isAdminUser && (
+                        <button
+                            type="button"
+                            onClick={() => navigate('/admin/notifications')}
+                            className='relative flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-white/60 text-slate-600 shadow-sm transition hover:bg-white hover:text-[#3a5f9e]'
+                            title="Notifications"
+                            aria-label={`Notifications${notificationCount ? `, ${notificationCount} pending` : ''}`}
+                        >
+                            <Bell className='h-5 w-5' />
+                            {notificationCount > 0 && (
+                                <span className='absolute -right-1 -top-1 min-w-[1.2rem] rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white shadow'>
+                                    {notificationCount > 99 ? '99+' : notificationCount}
+                                </span>
+                            )}
+                        </button>
+                    )}
+
                     {/* User Info */}
                     <div className='flex items-center gap-3'>
                         <div className='text-right hidden sm:block'>
