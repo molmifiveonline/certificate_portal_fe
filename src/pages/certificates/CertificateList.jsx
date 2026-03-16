@@ -83,11 +83,12 @@ const CertificateList = () => {
                 return;
             }
 
-            const headers = ['Certificate No.', 'Candidate Name', 'Task/Topic', 'Course Name', 'Issue Date', 'Status'];
+            const headers = ['Certificate No.', 'Type', 'Candidate Name', 'Task/Topic', 'Course Name', 'Issue Date', 'Status'];
             const csvContent = [
                 headers.join(','),
                 ...certificates.map((cert) => [
                     cert.certificate_no,
+                    `"${cert.type || ''}"`,
                     `"${cert.candidate_name}"`,
                     `"${cert.topic}"`,
                     `"${cert.master_course_name}"`,
@@ -122,6 +123,16 @@ const CertificateList = () => {
             key: "candidate_name",
             label: "Candidate Name",
             sortable: true,
+        },
+        {
+            key: "type",
+            label: "Type",
+            sortable: true,
+            render: (val) => (
+                <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                    {val || "-"}
+                </span>
+            ),
         },
         {
             key: "topic",

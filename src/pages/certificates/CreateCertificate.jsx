@@ -12,6 +12,21 @@ import activeCourseService from "../../services/activeCourseService";
 import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
 
+const supportsStampLogo = (type) =>
+    type === "DNV-ST0029" || type === "DNV-ST008";
+
+const getCertificateTypeHint = (type) => {
+    if (type === "SIGTTO / LNG") {
+        return "Certificate number is generated as MOLTC (Trainer Nation)- LNG(Year)-(Candidate Nation)-####.";
+    }
+
+    if (supportsStampLogo(type)) {
+        return "Certificate number is generated as TOPIC/YYMM/#### and the DNV footer mark is available on print.";
+    }
+
+    return "Certificate number is generated as TOPIC/YYMM/#### and the DNV footer mark stays hidden for Others.";
+};
+
 const CreateCertificate = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -105,6 +120,7 @@ const CreateCertificate = () => {
                     newData.type = selectedCourse.certificate_type || "Others";
                     newData.description1 = selectedCourse.description || "";
                     newData.remarks = selectedCourse.remarks || "";
+                    newData.show_logo = supportsStampLogo(newData.type);
                 }
             }
 
@@ -118,12 +134,18 @@ const CreateCertificate = () => {
                     newData.type = selectedCourse.certificate_type || "Others";
                     newData.description1 = selectedCourse.description || "";
                     newData.remarks = selectedCourse.remarks || "";
+                    newData.show_logo = supportsStampLogo(newData.type);
                 } else {
                     newData.course_id = "";
                     newData.type = "Others";
                     newData.description1 = "";
                     newData.remarks = "";
+                    newData.show_logo = false;
                 }
+            }
+
+            if (name === 'type') {
+                newData.show_logo = supportsStampLogo(value);
             }
 
             // Auto-fill dates if active course changes
@@ -316,6 +338,9 @@ const CreateCertificate = () => {
                                         <option value="DNV-ST008">DNV-ST008</option>
                                         <option value="SIGTTO / LNG">SIGTTO / LNG</option>
                                     </select>
+                                    <p className="text-xs text-slate-500">
+                                        {getCertificateTypeHint(formData.type)}
+                                    </p>
                                 </div>
 
                                 {/* Topic */}
@@ -428,17 +453,23 @@ const CreateCertificate = () => {
                                 </div>
 
                                 {/* Options */}
-                                <div className="flex gap-6 mt-4 md:col-span-2">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            name="show_logo"
-                                            checked={formData.show_logo}
-                                            onChange={handleChange}
-                                            className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                                        />
-                                        <span className="text-sm font-semibold text-slate-700">Display Logo</span>
-                                    </label>
+                                <div className="flex gap-6 mt-4 md:col-span-2 flex-wrap">
+                                    {supportsStampLogo(formData.type) ? (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                name="show_logo"
+                                                checked={formData.show_logo}
+                                                onChange={handleChange}
+                                                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm font-semibold text-slate-700">Display DNV Footer Mark</span>
+                                        </label>
+                                    ) : (
+                                        <p className="text-sm text-slate-500">
+                                            DNV footer mark is not used for this certificate type.
+                                        </p>
+                                    )}
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"

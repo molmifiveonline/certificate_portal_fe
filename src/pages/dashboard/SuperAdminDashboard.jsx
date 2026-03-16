@@ -25,6 +25,9 @@ import Meta from '../../components/common/Meta';
 import api from "../../lib/api";
 import { toast } from "sonner";
 import { formatDate } from "../../lib/utils/dateUtils";
+import TablePagination from "../../components/ui/TablePagination";
+
+const today = new Date().toISOString().split('T')[0];
 
 const StatsCard = ({ title, value, icon: Icon, gradient, loading }) => {
     return (
@@ -179,8 +182,8 @@ const FilterSection = ({
                             setFilters({
                                 trainer_id: '',
                                 master_course_id: '',
-                                start_date: '',
-                                end_date: '',
+                                start_date: today,
+                                end_date: today,
                                 status: ''
                             });
                             onSearch();
@@ -213,54 +216,91 @@ const SuperAdminDashboard = () => {
     const [masterCourses, setMasterCourses] = useState([]);
 
     const [loadingStats, setLoadingStats] = useState(true);
-    const [loadingCourses, setLoadingCourses] = useState(true);
+    const [loadingCourses, setLoadingCourses] = useState(false);
     const [loadingExpiry, setLoadingExpiry] = useState(true);
-
     const [filters, setFilters] = useState({
         trainer_id: '',
         master_course_id: '',
-        start_date: '',
-        end_date: '',
+        start_date: today,
+        end_date: today,
         status: ''
     });
+
+    // Course Details Pagination State
+    const [coursePage, setCoursePage] = useState(1);
+    const [courseLimit, setCourseLimit] = useState(10);
+    const [courseTotal, setCourseTotal] = useState(0);
+    const [hasSearched, setHasSearched] = useState(false);
+
+    // Expiry Alerts Pagination State
+    const [expiryPage, setExpiryPage] = useState(1);
+    const [expiryLimit, setExpiryLimit] = useState(10);
+    const [expiryTotal, setExpiryTotal] = useState(0);
 
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const [statsRes, trainersRes, masterCoursesRes, expiryRes] = await Promise.all([
+                const [statsRes, trainersRes, masterCoursesRes] = await Promise.all([
                     api.get('/dashboard/stats'),
                     api.get('/trainer'),
-                    api.get('/master-courses'),
-                    api.get('/dashboard/expiry')
+                    api.get('/master-courses')
                 ]);
 
                 setStats(statsRes.data);
-                setTrainers(trainersRes.data.data || []); // Assuming typical response structure
+                setTrainers(trainersRes.data.data || []);
                 setMasterCourses(masterCoursesRes.data.data || masterCoursesRes.data || []);
-                setExpiryAlerts(expiryRes.data);
 
                 setLoadingStats(false);
-                setLoadingExpiry(false);
-
-                // Fetch initial courses without filters
-                fetchCourses();
             } catch (error) {
                 console.error("Error fetching dashboard data:", error);
                 toast.error("Failed to load dashboard data");
                 setLoadingStats(false);
-                setLoadingCourses(false);
-                setLoadingExpiry(false);
             }
         };
 
         fetchInitialData();
     }, []);
 
-    const fetchCourses = async () => {
+    useEffect(() => {
+        fetchExpiryAlerts();
+    }, [expiryPage, expiryLimit]);
+
+    useEffect(() => {
+        if (hasSearched) {
+            fetchCourses();
+        }
+    }, [coursePage, courseLimit]);
+
+    const fetchExpiryAlerts = async () => {
+        setLoadingExpiry(true);
+        try {
+            const res = await api.get('/dashboard/expiry', {
+                params: {
+                    page: expiryPage,
+                    limit: expiryLimit
+                }
+            });
+            setExpiryAlerts(res.data.data || []);
+            setExpiryTotal(res.data.total || 0);
+        } catch (error) {
+            console.error("Error fetching expiry alerts:", error);
+            toast.error("Failed to fetch expiry alerts");
+        } finally {
+            setLoadingExpiry(false);
+        }
+    };
+
+    const fetchCourses = async (isNewSearch = false) => {
+        if (isNewSearch) {
+            setCoursePage(1);
+            setHasSearched(true);
+        }
         setLoadingCourses(true);
         try {
-            // Clean filters before sending (remove 'all' or empty strings)
-            const params = {};
+            const params = {
+                page: isNewSearch ? 1 : coursePage,
+                limit: courseLimit
+            };
             if (filters.trainer_id && filters.trainer_id !== 'all') params.trainer_id = filters.trainer_id;
             if (filters.master_course_id && filters.master_course_id !== 'all') params.master_course_id = filters.master_course_id;
             if (filters.start_date) params.start_date = filters.start_date;
@@ -268,7 +308,8 @@ const SuperAdminDashboard = () => {
             if (filters.status && filters.status !== 'all') params.status = filters.status;
 
             const res = await api.get('/dashboard/courses', { params });
-            setCourses(res.data);
+            setCourses(res.data.data || []);
+            setCourseTotal(res.data.total || 0);
         } catch (error) {
             console.error("Error fetching courses:", error);
             toast.error("Failed to fetch course reports");
@@ -310,7 +351,7 @@ const SuperAdminDashboard = () => {
                 setFilters={setFilters}
                 trainers={trainers}
                 masterCourses={masterCourses}
-                onSearch={fetchCourses}
+                onSearch={() => fetchCourses(true)}
             />
 
 
@@ -343,6 +384,17 @@ const SuperAdminDashboard = () => {
                                         <td colSpan="8" className="px-6 py-12 text-center">
                                             <div className="flex justify-center">
                                                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : !hasSearched ? (
+                                    <tr>
+                                        <td colSpan="8" className="px-6 py-12 text-center">
+                                            <div className="flex flex-col items-center justify-center text-slate-400 gap-2">
+                                                <div className="p-3 bg-blue-50 rounded-full">
+                                                    <Filter className="w-6 h-6 text-blue-300" />
+                                                </div>
+                                                <p className="font-medium">Please select a filter and search to view course details</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -391,6 +443,16 @@ const SuperAdminDashboard = () => {
                             </tbody>
                         </table>
                     </div>
+                    {hasSearched && courses.length > 0 && (
+                        <TablePagination
+                            currentPage={coursePage}
+                            totalPages={Math.ceil(courseTotal / courseLimit)}
+                            totalCount={courseTotal}
+                            onPageChange={setCoursePage}
+                            limit={courseLimit}
+                            onLimitChange={setCourseLimit}
+                        />
+                    )}
                 </div>
 
 
@@ -463,6 +525,16 @@ const SuperAdminDashboard = () => {
                             </tbody>
                         </table>
                     </div>
+                    {expiryAlerts.length > 0 && (
+                        <TablePagination
+                            currentPage={expiryPage}
+                            totalPages={Math.ceil(expiryTotal / expiryLimit)}
+                            totalCount={expiryTotal}
+                            onPageChange={setExpiryPage}
+                            limit={expiryLimit}
+                            onLimitChange={setExpiryLimit}
+                        />
+                    )}
                 </div>
             </div>
         </>

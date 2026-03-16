@@ -52,6 +52,9 @@ const EditCertificate = lazy(
 const CertificatePrintView = lazy(
   () => import("./pages/certificates/CertificatePrintView"),
 );
+const CertificateVerification = lazy(
+  () => import("./pages/certificates/CertificateVerification"),
+);
 
 const MasterCourseList = lazy(() => import("./pages/courses/MasterCourseList"));
 const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
@@ -208,6 +211,10 @@ function App() {
                     <ResetPassword />
                   </PublicRoute>
                 }
+              />
+              <Route
+                path="/authenticity-verification/:id"
+                element={<CertificateVerification />}
               />
 
               <Route path="/nominate/:token" element={<NominatorPortal />} />

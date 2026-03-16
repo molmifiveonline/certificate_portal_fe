@@ -22,6 +22,11 @@ const certificateService = {
     return response.data;
   },
 
+  getCertificateVerification: async (id) => {
+    const response = await api.get(`/certificates/verify/${id}`);
+    return response.data;
+  },
+
   generateCertificate: async (data) => {
     const response = await api.post("/certificates/generate", data);
     return response.data;
