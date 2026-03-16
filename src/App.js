@@ -64,6 +64,12 @@ const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
 
 const ActiveCourseList = lazy(() => import("./pages/courses/ActiveCourseList"));
 const ActiveCourseForm = lazy(() => import("./pages/courses/ActiveCourseForm"));
+const OuthouseCourseList = lazy(
+  () => import("./pages/outhouse-courses/OuthouseCourseList"),
+);
+const OuthouseCourseForm = lazy(
+  () => import("./pages/outhouse-courses/OuthouseCourseForm"),
+);
 
 const PreActiveCourseList = lazy(
   () => import("./pages/pre-active-courses/PreActiveCourseList"),
@@ -310,6 +316,31 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <ActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/outhouse-courses"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <OuthouseCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/outhouse-courses/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <OuthouseCourseForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/outhouse-courses/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <OuthouseCourseForm />
                   </PrivateRoute>
                 }
               />

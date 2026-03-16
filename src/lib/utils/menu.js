@@ -11,6 +11,7 @@ import {
   GraduationCap,
   UserCircle,
   BookOpen,
+  BookDashed,
   MapPin,
   ClipboardList,
   // FileBadge,
@@ -22,6 +23,7 @@ import {
   // FileBarChart,
   Shield,
   History,
+  MessageSquare,
 } from "lucide-react";
 
 export const MenuItems = [
@@ -80,6 +82,7 @@ export const MenuItems = [
     permissionSlug: "view_master_courses",
     subItems: [
       { title: "Master Courses", url: "/courses" },
+      // { title: "Outhouse Courses", url: "/outhouse-courses" },
       // { title: "Pre-Active Courses", url: "/pre-active-courses" },
       // { title: "Active Courses", url: "/active-courses" },
     ],
@@ -119,17 +122,17 @@ export const MenuItems = [
     ],
   },
 
-  // {
-  //   title: "Feedback",
-  //   url: "/feedback",
-  //   icon: MessageSquare,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Feedback Category", url: "/feedback" },
-  //     { title: "Feedback Question", url: "/feedback/forms" },
-  //     { title: "Submitted Feedback", url: "/feedback/submitted" },
-  //   ],
-  // },
+  {
+    title: "Feedback",
+    url: "/feedback",
+    icon: MessageSquare,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Feedback Category", url: "/feedback" },
+      // { title: "Feedback Question", url: "/feedback/forms" },
+      // { title: "Submitted Feedback", url: "/feedback/submitted" },
+    ],
+  },
   // {
   //   title: "Certificates",
   //   url: "/certificates",
