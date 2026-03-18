@@ -118,11 +118,19 @@ const LogHistory = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
+                    {/* <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-xl">
                             <History className="w-8 h-8 text-blue-600" />
                         </div>
                         Log History
+                    </h1> */}
+                    <h1 className='log-history-heading text-3xl font-bold tracking-tight page-title flex items-center gap-3'>
+                        <div className="bg-blue-100 p-2 rounded-xl">
+                            <History className="w-8 h-8 text-blue-600" />
+                        </div>
+                        <span className='log-history-shimmer'>
+                            Log History
+                        </span>
                     </h1>
                     <p className="text-slate-500 mt-1">View and manage system activity logs</p>
                 </div>
@@ -160,14 +168,13 @@ const LogHistory = () => {
                                 <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Action</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Details</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">User</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">IP Address</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100/50">
                             {logs.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
+                                    <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
                                         No logs found.
                                     </td>
                                 </tr>
@@ -187,9 +194,6 @@ const LogHistory = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
                                             {log.user_name || "System"}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">
-                                            {log.ip_address || "-"}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                             <button
