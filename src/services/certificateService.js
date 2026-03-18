@@ -6,8 +6,24 @@ const certificateService = {
     return response.data;
   },
 
+  getCandidateCertificates: async (candidateId, params = {}) => {
+    const response = await api.get("/certificates", {
+      params: {
+        ...params,
+        candidate_id: candidateId,
+        is_hidden: 0,
+      },
+    });
+    return response.data;
+  },
+
   getCertificateById: async (id) => {
     const response = await api.get(`/certificates/${id}`);
+    return response.data;
+  },
+
+  getCertificateVerification: async (id) => {
+    const response = await api.get(`/certificates/verify/${id}`);
     return response.data;
   },
 

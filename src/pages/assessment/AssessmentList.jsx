@@ -14,6 +14,7 @@ import DataTable from "../../components/ui/DataTable";
 
 import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const AssessmentList = () => {
     const navigate = useNavigate();
@@ -24,6 +25,9 @@ const AssessmentList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
+    const { user } = useAuth();
+    const isTrainer = user?.role?.toLowerCase() === 'trainer';
+    const baseUrl = isTrainer ? '/trainer-assessments' : '/assessment/assessments';
 
 
     const fetchAssessments = useCallback(async () => {
@@ -73,6 +77,12 @@ const AssessmentList = () => {
 
     const columns = [
         {
+            key: "sr_no",
+            label: "Sr. No.",
+            align: "center",
+            render: (_val, _row, index) => (currentPage - 1) * limit + index + 1,
+        },
+        {
             key: "title",
             label: "Title",
             render: (val) => <span className="font-semibold text-slate-800">{val}</span>,
@@ -98,7 +108,7 @@ const AssessmentList = () => {
             render: (_val, row) => (
                 <div className="flex items-center justify-center gap-2">
                     <Link
-                        to={`/assessment/assessments/edit/${row.id}`}
+                        to={`${baseUrl}/edit/${row.id}`}
                         className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all inline-flex"
                         title="Edit"
                     >
@@ -122,10 +132,10 @@ const AssessmentList = () => {
                         </div>
                         Assessments
                     </h1>
-                    <p className="text-slate-500 mt-1">Manage and view all assessments</p>
+                    <p className="text-slate-500 mt-1">{isTrainer ? "Manage assessments for your assigned courses" : "Manage and view all assessments"}</p>
                 </div>
                 <Button
-                    onClick={() => navigate('/assessment/assessments/add')}
+                    onClick={() => navigate(`${baseUrl}/add`)}
                     className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
                 >
                     <Plus className="w-4 h-4" />

@@ -5,6 +5,7 @@ import { ArrowLeft, Save, Check, RefreshCcw } from "lucide-react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 import { ASSESSMENT_TYPES, QUESTION_COUNTS, QUESTION_CHOICES } from "../../lib/constants";
 import BackButton from '../../components/common/BackButton';
 import { Button } from "../../components/ui/button";
@@ -53,6 +54,9 @@ const AssessmentForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = Boolean(id);
+    const { user } = useAuth();
+    const isTrainer = user?.role?.toLowerCase() === 'trainer';
+    const backUrl = isTrainer ? '/trainer-assessments' : '/assessment/assessments';
 
     const [formData, setFormData] = useState({
         title: "",
@@ -164,7 +168,7 @@ const AssessmentForm = () => {
                     }
                 } catch (error) {
                     toast.error("Failed to load assessment data.");
-                    navigate("/assessment/assessments");
+                    navigate(backUrl);
                 }
             };
             loadAssessment();
@@ -261,12 +265,11 @@ const AssessmentForm = () => {
 
             if (isEdit) {
                 await assessmentService.updateAssessment(id, payload);
-                toast.success("Assessment updated successfully.");
             } else {
                 await assessmentService.createAssessment(payload);
-                toast.success("Assessment created successfully.");
             }
-            navigate("/assessment/assessments");
+            toast.success(isEdit ? "Assessment updated successfully." : "Assessment created successfully.");
+            navigate(backUrl);
         } catch (error) {
             toast.error(isEdit ? "Failed to update assessment." : "Failed to create assessment.");
         } finally {
@@ -287,7 +290,7 @@ const AssessmentForm = () => {
                             {isEdit ? 'Update assessment details and configuration' : 'Configure and publish a new assessment'}
                         </p>
                     </div>
-                    <BackButton to="/assessment/assessments" />
+                    <BackButton to={backUrl} />
                 </div>
             </div>
 
@@ -507,7 +510,7 @@ const AssessmentForm = () => {
                     <div className="flex gap-4 w-full sm:w-auto">
                         <button
                             type="button"
-                            onClick={() => navigate('/assessment/assessments')}
+                            onClick={() => navigate(backUrl)}
                             className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-sm"
                         >
                             Cancel

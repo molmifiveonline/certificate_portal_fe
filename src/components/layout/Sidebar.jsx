@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LogOut, ChevronDown, ChevronRight, Dot } from "lucide-react";
 import { cn } from "../../lib/utils/utils";
@@ -108,6 +108,21 @@ const Sidebar = () => {
         return !hasBetterMatch;
     };
 
+    useEffect(() => {
+        visibleItems.forEach(item => {
+            if (item.subItems && item.subItems.length > 0) {
+                const subItemUrls = item.subItems.map(i => i.url);
+                const isParentActive = item.subItems.some(sub => isLinkActive(sub.url, subItemUrls));
+                if (isParentActive) {
+                    setExpandedMenus(prev => {
+                        if (prev[item.title]) return prev;
+                        return { ...prev, [item.title]: true };
+                    });
+                }
+            }
+        });
+    }, [location.pathname]);
+
     return (
         <>
             {/* Sidebar */}
@@ -177,10 +192,13 @@ const Sidebar = () => {
                                                 ? "px-4 gap-3 justify-between"
                                                 : "justify-center",
                                             (isActive || isParentActive)
-                                                ? (!isOpen ? "bg-[#3a5f9e] text-white shadow-md shadow-blue-900/10" : "text-[#3a5f9e] bg-slate-50")
-                                                : "text-slate-600 hover:bg-slate-50 hover:text-[#3a5f9e]",
+                                                ? "bg-gradient-to-r from-[#3a5f9e] via-[#4c78c7] to-[#2b4b80] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_0_0_1px_rgba(255,255,255,0.15)]"
+                                                : "text-slate-600 hover:bg-[#3a5f9e]/5 hover:text-[#3a5f9e] hover:shadow-[0_2px_8px_rgba(58,95,158,0.05)] hover:translate-x-1",
                                         )}
                                     >
+                                        {(isActive || isParentActive) && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-[#3a5f9e] to-[#4c78c7] rounded-lg blur-lg opacity-50 -z-10" />
+                                        )}
                                         <div className={cn("flex items-center gap-3", !isOpen && "justify-center")}>
                                             <Icon
                                                 className={cn(
@@ -213,10 +231,13 @@ const Sidebar = () => {
                                                 ? "px-4 gap-3 justify-start"
                                                 : "justify-center",
                                             isActive
-                                                ? "bg-[#3a5f9e] text-white shadow-md shadow-blue-900/10"
-                                                : "text-slate-600 hover:bg-slate-50 hover:text-[#3a5f9e]",
+                                                ? "bg-gradient-to-r from-[#3a5f9e] via-[#4c78c7] to-[#2b4b80] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_0_0_1px_rgba(255,255,255,0.15)]"
+                                                : "text-slate-600 hover:bg-[#3a5f9e]/5 hover:text-[#3a5f9e] hover:shadow-[0_2px_8px_rgba(58,95,158,0.05)] hover:translate-x-1",
                                         )}
                                     >
+                                        {isActive && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-[#3a5f9e] to-[#4c78c7] rounded-lg blur-lg opacity-50 -z-10" />
+                                        )}
                                         <Icon
                                             className={cn(
                                                 "transition-all duration-200 shrink-0",
@@ -253,10 +274,10 @@ const Sidebar = () => {
                                                         if (window.innerWidth < 768) setIsOpen(false);
                                                     }}
                                                     className={cn(
-                                                        "flex items-center py-2 px-3 rounded-md text-sm transition-colors",
+                                                        "flex items-center py-2 px-3 rounded-md text-sm transition-all duration-200",
                                                         isSubActive
                                                             ? "text-[#3a5f9e] bg-blue-100 font-bold shadow-sm ring-1 ring-blue-200"
-                                                            : "text-slate-500 hover:text-[#3a5f9e] hover:bg-slate-50"
+                                                            : "text-slate-500 hover:text-[#3a5f9e] hover:bg-[#3a5f9e]/5 hover:translate-x-1 hover:shadow-sm"
                                                     )}
                                                 >
                                                     {/* Optional: Add a small dot or icon for deeper nesting */}

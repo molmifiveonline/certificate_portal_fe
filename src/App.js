@@ -25,6 +25,9 @@ const EditCandidate = lazy(() => import("./pages/candidates/EditCandidate"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const RolePermission = lazy(() => import("./pages/admin/RolePermission"));
 const LogHistory = lazy(() => import("./pages/admin/LogHistory"));
+const AdminNotifications = lazy(
+  () => import("./pages/admin/AdminNotifications"),
+);
 const AdminUserList = lazy(() => import("./pages/admin/users/AdminUserList"));
 const CreateAdminUser = lazy(
   () => import("./pages/admin/users/CreateAdminUser"),
@@ -52,12 +55,21 @@ const EditCertificate = lazy(
 const CertificatePrintView = lazy(
   () => import("./pages/certificates/CertificatePrintView"),
 );
+const CertificateVerification = lazy(
+  () => import("./pages/certificates/CertificateVerification"),
+);
 
 const MasterCourseList = lazy(() => import("./pages/courses/MasterCourseList"));
 const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
 
 const ActiveCourseList = lazy(() => import("./pages/courses/ActiveCourseList"));
 const ActiveCourseForm = lazy(() => import("./pages/courses/ActiveCourseForm"));
+const OuthouseCourseList = lazy(
+  () => import("./pages/outhouse-courses/OuthouseCourseList"),
+);
+const OuthouseCourseForm = lazy(
+  () => import("./pages/outhouse-courses/OuthouseCourseForm"),
+);
 
 const PreActiveCourseList = lazy(
   () => import("./pages/pre-active-courses/PreActiveCourseList"),
@@ -165,6 +177,33 @@ const FeedbackCandidateList = lazy(
   () => import("./pages/feedback/FeedbackCandidateList"),
 );
 
+const CandidateCourseList = lazy(
+  () => import("./pages/candidates/CandidateCourseList"),
+);
+
+const CandidateCertificateList = lazy(
+  () => import("./pages/candidates/CandidateCertificateList"),
+);
+
+const CandidateCourseDetails = lazy(
+  () => import("./pages/candidates/CandidateCourseDetails"),
+);
+const ReimbursementList = lazy(
+  () => import("./pages/reimbursements/ReimbursementList"),
+);
+const ReimbursementForm = lazy(
+  () => import("./pages/reimbursements/ReimbursementForm"),
+);
+const ReimbursementDetails = lazy(
+  () => import("./pages/reimbursements/ReimbursementDetails"),
+);
+const ReimbursementAdminList = lazy(
+  () => import("./pages/admin/reimbursements/ReimbursementAdminList"),
+);
+const ReimbursementAdminDetails = lazy(
+  () => import("./pages/admin/reimbursements/ReimbursementAdminDetails"),
+);
+
 function App() {
   return (
     <HelmetProvider>
@@ -196,6 +235,10 @@ function App() {
                     <ResetPassword />
                   </PublicRoute>
                 }
+              />
+              <Route
+                path="/authenticity-verification/:id"
+                element={<CertificateVerification />}
               />
 
               <Route path="/nominate/:token" element={<NominatorPortal />} />
@@ -273,6 +316,31 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <ActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/outhouse-courses"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <OuthouseCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/outhouse-courses/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <OuthouseCourseForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/outhouse-courses/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <OuthouseCourseForm />
                   </PrivateRoute>
                 }
               />
@@ -394,6 +462,30 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <LogHistory />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/reimbursements"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ReimbursementAdminList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/reimbursements/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <ReimbursementAdminDetails />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/notifications"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AdminNotifications />
                   </PrivateRoute>
                 }
               />
@@ -724,7 +816,13 @@ function App() {
                 path="/certificates/print/:id"
                 element={
                   <PrivateRoute
-                    allowedRoles={["SuperAdmin", "Admin", "admin"]}
+                    allowedRoles={[
+                      "SuperAdmin",
+                      "Admin",
+                      "admin",
+                      "Candidate",
+                      "candidate",
+                    ]}
                     noLayout={true}
                   >
                     <CertificatePrintView />
@@ -767,6 +865,14 @@ function App() {
                 }
               />
               <Route
+                path="/dashboard/candidate"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <UnifiedDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/trainer-certificates"
                 element={
                   <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
@@ -799,14 +905,6 @@ function App() {
                 }
               />
               <Route
-                path="/trainer-feedback/candidates/:activeCourseId"
-                element={
-                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
-                    <FeedbackCandidateList />
-                  </PrivateRoute>
-                }
-              />
-              <Route
                 path="/trainer-feedback/submitted/:candidateId/:activeCourseId"
                 element={
                   <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
@@ -815,12 +913,84 @@ function App() {
                 }
               />
 
-              {/* Candidate Routes */}
               <Route
-                path="/dashboard/candidate"
+                path="/trainer-assessments"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <AssessmentList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-assessments/add"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <AssessmentForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trainer-assessments/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <AssessmentForm />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/candidate-courses"
                 element={
                   <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
-                    <UnifiedDashboard />
+                    <CandidateCourseList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/candidate-course/:id"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <CandidateCourseDetails />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/candidate-certificates"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <CandidateCertificateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements/create"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements/:id"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementDetails />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reimbursements/:id/edit"
+                element={
+                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                    <ReimbursementForm />
                   </PrivateRoute>
                 }
               />

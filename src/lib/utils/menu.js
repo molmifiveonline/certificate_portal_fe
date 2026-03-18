@@ -11,11 +11,9 @@ import {
   GraduationCap,
   UserCircle,
   BookOpen,
+  BookDashed,
   MapPin,
   ClipboardList,
-  MessageSquare,
-  Award,
-  Book,
   // FileBadge,
   // ChevronDown,
   // ChevronRight,
@@ -25,6 +23,7 @@ import {
   // FileBarChart,
   Shield,
   History,
+  MessageSquare,
 } from "lucide-react";
 
 export const MenuItems = [
@@ -85,6 +84,7 @@ export const MenuItems = [
       { title: "Master Courses", url: "/courses" },
       // { title: "Pre-Active Courses", url: "/pre-active-courses" },
       // { title: "Active Courses", url: "/active-courses" },
+      // { title: "Outhouse Courses", url: "/outhouse-courses" },
     ],
   },
 
@@ -118,21 +118,21 @@ export const MenuItems = [
     subItems: [
       { title: "Question Bank", url: "/assessment/question-bank" },
       { title: "Assessments", url: "/assessment/assessments" },
-      // { title: "Submitted Assessments", url: "/assessment/submitted" },
+      { title: "Submitted Assessments", url: "/assessment/submitted" },
     ],
   },
 
-  // {
-  //   title: "Feedback",
-  //   url: "/feedback",
-  //   icon: MessageSquare,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Feedback Category", url: "/feedback" },
-  //     { title: "Feedback Question", url: "/feedback/forms" },
-  //     { title: "Submitted Feedback", url: "/feedback/submitted" },
-  //   ],
-  // },
+  {
+    title: "Feedback",
+    url: "/feedback",
+    icon: MessageSquare,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Feedback Category", url: "/feedback" },
+      // { title: "Feedback Question", url: "/feedback/forms" },
+      // { title: "Submitted Feedback", url: "/feedback/submitted" },
+    ],
+  },
   // {
   //   title: "Certificates",
   //   url: "/certificates",
@@ -164,50 +164,60 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_logs",
   },
+  // {
+  //   title: "Reimbursements",
+  //   url: "/admin/reimbursements",
+  //   icon: Receipt,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   permissionSlug: "manage_reimbursements",
+  // },
 
   // Trainer Specific
-  {
-    title: "My Courses",
-    url: "/my-courses",
-    icon: Book,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_courses",
-  },
-  {
-    title: "Assessments",
-    url: "/trainer-assessments",
-    icon: Users,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_assessments",
-  },
-  {
-    title: "Feedback",
-    url: "/trainer-feedback",
-    icon: MessageSquare,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_feedback",
-  },
-  {
-    title: "Certificates",
-    url: "/trainer-certificates",
-    icon: Award,
-    allowedRoles: ["trainer"],
-    requiredPermission: "view_certificates",
-  },
+  // {
+  //   title: "My Courses",
+  //   url: "/my-courses",
+  //   icon: Book,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_courses",
+  // },
+  // {
+  //   title: "Assessments",
+  //   url: "/trainer-assessments",
+  //   icon: ClipboardList,
+  //   allowedRoles: ["trainer"],
+  // },
+  // {
+  //   title: "Feedback",
+  //   url: "/trainer-feedback",
+  //   icon: MessageSquare,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_feedback",
+  // },
+  // {
+  //   title: "Certificates",
+  //   url: "/trainer-certificates",
+  //   icon: Award,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_certificates",
+  // },
 
   // Candidate Specific
-  {
-    title: "My Courses",
-    url: "/candidate-courses",
-    icon: Book,
-    allowedRoles: ["candidate"],
-    requiredPermission: "view_courses",
-  },
-  {
-    title: "My Certificates",
-    url: "/candidate-certificates",
-    icon: Award,
-    allowedRoles: ["candidate"],
-    requiredPermission: "view_certificates",
-  },
+  // {
+  //   title: "My Courses",
+  //   url: "/candidate-courses",
+  //   icon: Book,
+  //   allowedRoles: ["candidate"],
+  // },
+  // {
+  //   title: "My Certificates",
+  //   url: "/candidate-certificates",
+  //   icon: Award,
+  //   allowedRoles: ["candidate"],
+  // },
+  // {
+  //   title: "Reimbursements",
+  //   url: "/reimbursements",
+  //   icon: Receipt,
+  //   allowedRoles: ["candidate"],
+  // },
 ];

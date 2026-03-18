@@ -11,6 +11,21 @@ import activeCourseService from "../../services/activeCourseService";
 import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
 
+const supportsStampLogo = (type) =>
+    type === "DNV-ST0029" || type === "DNV-ST008";
+
+const getCertificateTypeHint = (type) => {
+    if (type === "SIGTTO / LNG") {
+        return "Certificate number is generated as MOLTC (Trainer Nation)- LNG(Year)-(Candidate Nation)-####.";
+    }
+
+    if (supportsStampLogo(type)) {
+        return "Certificate number is generated as TOPIC/YYMM/#### and the DNV footer mark is available on print.";
+    }
+
+    return "Certificate number is generated as TOPIC/YYMM/#### and the DNV footer mark stays hidden for Others.";
+};
+
 const EditCertificate = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -21,6 +36,7 @@ const EditCertificate = () => {
     const [masterCourses, setMasterCourses] = useState([]);
     const [activeCourses, setActiveCourses] = useState([]);
     const [trainers, setTrainers] = useState([]);
+    const [locations, setLocations] = useState([]);
 
     const [formData, setFormData] = useState({
         candidate_id: "",
@@ -48,11 +64,12 @@ const EditCertificate = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [candRes, mcRes, acRes, trRes, certRes] = await Promise.all([
+                const [candRes, mcRes, acRes, trRes, locRes, certRes] = await Promise.all([
                     candidateService.getAllCandidates({ limit: 1000 }),
                     api.get('/master-courses', { params: { limit: 1000 } }),
                     activeCourseService.getAllCourses({ limit: 1000 }),
                     api.get('/trainer', { params: { limit: 1000 } }),
+                    api.get('/locations', { params: { limit: 1000 } }),
                     certificateService.getCertificateById(id)
                 ]);
 
@@ -60,6 +77,9 @@ const EditCertificate = () => {
                 setMasterCourses(mcRes.data?.data || []);
                 setActiveCourses(acRes.data || []);
                 setTrainers(trRes.data?.data || []);
+                let locs = locRes.data?.data?.data || locRes.data?.data || [];
+                if (!Array.isArray(locs)) locs = [];
+                setLocations(locs);
 
                 if (certRes) {
                     setFormData({
@@ -67,7 +87,7 @@ const EditCertificate = () => {
                         from_date: certRes.from_date?.split('T')[0] || "",
                         to_date: certRes.to_date?.split('T')[0] || "",
                         issue_date: certRes.issue_date?.split('T')[0] || "",
-                        show_logo: certRes.show_logo === 1,
+                        show_logo: certRes.show_logo === 1 && supportsStampLogo(certRes.type),
                         sample_cert: certRes.sample_cert === 1,
                         is_hidden: certRes.is_hidden || 0
                     });
@@ -100,7 +120,12 @@ const EditCertificate = () => {
                     newData.topic = selectedCourse.topic;
                     newData.type = selectedCourse.certificate_type || "Others";
                     newData.description1 = selectedCourse.description;
+                    newData.show_logo = supportsStampLogo(newData.type);
                 }
+            }
+
+            if (name === 'type') {
+                newData.show_logo = supportsStampLogo(value);
             }
 
             if (name === 'active_course_id') {
@@ -220,6 +245,9 @@ const EditCertificate = () => {
                                             <option key={c.id} value={c.id}>{c.first_name} {c.last_name} ({c.empId})</option>
                                         ))}
                                     </select>
+                                    <p className="text-xs text-slate-500">
+                                        This screen updates one certificate record, so candidate assignment stays single here. Multi-select is used on manual certificate creation.
+                                    </p>
                                     {formErrors.candidate_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.candidate_id}</span>}
                                 </div>
 
@@ -293,6 +321,9 @@ const EditCertificate = () => {
                                         <option value="DNV-ST008">DNV-ST008</option>
                                         <option value="SIGTTO / LNG">SIGTTO / LNG</option>
                                     </select>
+                                    <p className="text-xs text-slate-500">
+                                        {getCertificateTypeHint(formData.type)}
+                                    </p>
                                 </div>
 
                                 {/* Status */}
@@ -340,20 +371,23 @@ const EditCertificate = () => {
                                     >
                                         <option value="Operational">Operational</option>
                                         <option value="Management">Management</option>
-                                        <option value="Support">Support</option>
                                     </select>
                                 </div>
 
                                 {/* Location */}
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700">Location</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="location"
                                         value={formData.location}
                                         onChange={handleChange}
                                         className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                    />
+                                    >
+                                        <option value="">Select Location</option>
+                                        {locations.map(loc => (
+                                            <option key={loc.id} value={loc.location_name}>{loc.location_name}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 {/* Conduct */}
@@ -416,17 +450,23 @@ const EditCertificate = () => {
                                 </div>
 
                                 {/* Options */}
-                                <div className="flex gap-6 mt-4 md:col-span-2">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            name="show_logo"
-                                            checked={formData.show_logo}
-                                            onChange={handleChange}
-                                            className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                                        />
-                                        <span className="text-sm font-semibold text-slate-700">Display Logo</span>
-                                    </label>
+                                <div className="flex gap-6 mt-4 md:col-span-2 flex-wrap">
+                                    {supportsStampLogo(formData.type) ? (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                name="show_logo"
+                                                checked={formData.show_logo}
+                                                onChange={handleChange}
+                                                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm font-semibold text-slate-700">Display DNV Footer Mark</span>
+                                        </label>
+                                    ) : (
+                                        <p className="text-sm text-slate-500">
+                                            DNV footer mark is not used for this certificate type.
+                                        </p>
+                                    )}
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"
