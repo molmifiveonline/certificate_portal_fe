@@ -119,17 +119,28 @@ const HotelList = () => {
             key: "venue_name",
             label: "Hotel Name",
             sortable: true,
+            className: "whitespace-normal",
             render: (val) => <span className="font-semibold text-slate-800">{val}</span>,
         },
         {
             key: "venue_address",
             label: "Hotel Address",
             hiddenOnMobile: true,
+            className: "whitespace-normal",
             render: (val) => (
-                <p className="text-sm text-slate-600 line-clamp-1 max-w-xs" title={val}>
+                <p className="text-sm text-slate-600 max-w-xs" title={val}>
                     {val}
                 </p>
             ),
+        },
+        {
+            key: "venue_map_link",
+            label: "Google Map",
+            render: (val) => val ? (
+                <a href={val} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 font-medium">
+                    View Map <ExternalLink size={14} />
+                </a>
+            ) : <span className="text-slate-400">-</span>,
         },
         {
             key: "venue_contact",
@@ -139,6 +150,7 @@ const HotelList = () => {
             key: "email",
             label: "Email",
             hiddenOnTablet: true,
+            className: "break-all",
         },
         {
             key: "actions",
@@ -177,7 +189,7 @@ const HotelList = () => {
     ];
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="flex-1 w-full">
             <Meta title="Hotels" description="Manage Hotels" />
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">

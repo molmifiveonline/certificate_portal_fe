@@ -21,9 +21,10 @@ const candidateService = {
     return response.data;
   },
 
-  exportCandidates: async () => {
+  exportCandidates: async (params = {}) => {
     const response = await api.get("/candidate/export", {
       responseType: "blob",
+      params,
     });
     return response;
   },

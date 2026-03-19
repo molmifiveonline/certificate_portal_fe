@@ -77,12 +77,6 @@ const AssessmentList = () => {
 
     const columns = [
         {
-            key: "sr_no",
-            label: "Sr. No.",
-            align: "center",
-            render: (_val, _row, index) => (currentPage - 1) * limit + index + 1,
-        },
-        {
             key: "title",
             label: "Title",
             render: (val) => <span className="font-semibold text-slate-800">{val}</span>,
