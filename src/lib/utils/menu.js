@@ -150,20 +150,6 @@ export const MenuItems = [
   //     { title: "Admin Remarks", url: "/reports/admin-remarks" },
   //   ],
   // },
-  {
-    title: "Role Permissions",
-    url: "/admin/role-permissions",
-    icon: Shield,
-    allowedRoles: ["admin", "superadmin"],
-    permissionSlug: "manage_permissions",
-  },
-  {
-    title: "Log History",
-    url: "/admin/log-history",
-    icon: History,
-    allowedRoles: ["admin", "superadmin"],
-    permissionSlug: "view_logs",
-  },
   // {
   //   title: "Reimbursements",
   //   url: "/admin/reimbursements",
@@ -171,6 +157,20 @@ export const MenuItems = [
   //   allowedRoles: ["admin", "superadmin"],
   //   permissionSlug: "manage_reimbursements",
   // },
+  {
+    title: "Log History",
+    url: "/admin/log-history",
+    icon: History,
+    allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "view_logs",
+  },
+  {
+    title: "Role Permissions",
+    url: "/admin/role-permissions",
+    icon: Shield,
+    allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "manage_permissions",
+  },
 
   // Trainer Specific
   // {

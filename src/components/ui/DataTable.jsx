@@ -124,7 +124,7 @@ const DataTable = ({
                                         return (
                                             <td
                                                 key={col.key}
-                                                className={cn("px-6 py-4 whitespace-nowrap text-sm text-slate-600", alignCls, responsiveCls)}
+                                                className={cn("px-6 py-4 text-sm text-slate-600", alignCls, responsiveCls, col.className ? col.className : "whitespace-nowrap")}
                                             >
                                                 {col.render
                                                     ? col.render(row[col.key], row, idx)

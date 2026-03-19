@@ -278,6 +278,7 @@ const LocationList = () => {
                 config={[
                     { key: 'location_name', label: 'Location Name' },
                     { key: 'short_code', label: 'Short Code' },
+                    { key: 'type', label: 'Type' },
                     { key: 'email', label: 'Email' },
                     { key: 'phone_number', label: 'Phone Number' },
                     { key: 'address', label: 'Address' },

@@ -113,7 +113,14 @@ const CandidateList = ({ registrationType }) => {
     const handleExport = async () => {
         setIsExporting(true);
         try {
-            const response = await candidateService.exportCandidates();
+            const response = await candidateService.exportCandidates({
+                search: debouncedSearch,
+                manager: filterManager,
+                rank: filterRank,
+                nationality: filterNationality,
+                status: filterStatus,
+                registration_type: registrationType,
+            });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
@@ -134,37 +141,37 @@ const CandidateList = ({ registrationType }) => {
         setShowPreviewModal(true);
     };
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    // const handleFileUpload = async (e) => {
+    //     const file = e.target.files[0];
+    //     if (!file) return;
 
-        if (!file.name.endsWith('.csv')) {
-            toast.error("Please upload a CSV file");
-            return;
-        }
+    //     if (!file.name.endsWith('.csv')) {
+    //         toast.error("Please upload a CSV file");
+    //         return;
+    //     }
 
-        setIsUploading(true);
-        const toastId = toast.loading("Uploading candidates...");
-        const formData = new FormData();
-        formData.append("csv", file);
+    //     setIsUploading(true);
+    //     const toastId = toast.loading("Uploading candidates...");
+    //     const formData = new FormData();
+    //     formData.append("csv", file);
 
-        try {
-            const result = await candidateService.uploadCandidates(formData);
-            toast.success(`Upload successful! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
-            fetchCandidates();
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to upload candidates", { id: toastId });
-        } finally {
-            setIsUploading(false);
-            e.target.value = ''; // Reset input
-        }
-    };
+    //     try {
+    //         const result = await candidateService.uploadCandidates(formData);
+    //         toast.success(`Upload successful! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
+    //         fetchCandidates();
+    //     } catch (error) {
+    //         console.error("Upload error:", error);
+    //         toast.error("Failed to upload candidates", { id: toastId });
+    //     } finally {
+    //         setIsUploading(false);
+    //         e.target.value = ''; // Reset input
+    //     }
+    // };
 
-    const handleViewDetails = (candidate) => {
-        setSelectedCandidate(candidate);
-        setShowDetailModal(true);
-    };
+    // const handleViewDetails = (candidate) => {
+    //     setSelectedCandidate(candidate);
+    //     setShowDetailModal(true);
+    // };
 
     const columns = useMemo(() => {
         const cols = [];
