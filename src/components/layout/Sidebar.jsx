@@ -5,20 +5,36 @@ import { cn } from "../../lib/utils/utils";
 import { MenuItems } from "../../lib/utils/menu";
 import { useAuth } from "../../context/AuthContext";
 import { useLayout } from "../../context/LayoutContext";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "../ui/tooltip";
 
 // Mock useMedia hook
-const useMedia = () => {
-    const getIconUrl = (name) => {
-        // Assuming logo is available in public or we use a text fallback
-        if (name.includes('logo')) return '/logo.svg';
-        return '/favicon.ico';
-    };
-    return { getIconUrl };
-};
+// const useMedia = () => {
+//     const getIconUrl = (name) => {
+//         // Assuming logo is available in public or we use a text fallback
+//         if (name.includes('logo')) return '/logo.svg';
+//         return '/favicon.ico';
+//     };
+//     return { getIconUrl };
+// };
 
 // Mock useToast hook
 const useToast = () => {
     return { showSuccessToast: (msg) => console.log(msg) };
+};
+
+const TooltipWrapper = ({ isOpen, title, children }) => {
+    if (isOpen) return children;
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>{children}</TooltipTrigger>
+            <TooltipContent 
+                side="right" 
+                className="font-medium bg-[#3a5f9e] text-white border-none shadow-md dark:bg-[#3a5f9e] dark:text-white"
+            >
+                {title}
+            </TooltipContent>
+        </Tooltip>
+    );
 };
 
 const Sidebar = () => {
@@ -134,6 +150,7 @@ const Sidebar = () => {
                         : "w-64 -translate-x-full md:w-20 md:translate-x-0 md:overflow-hidden"
                 )}
             >
+                <TooltipProvider delayDuration={200}>
                 {/* Logo Header */}
                 <Link
                     to="/"
@@ -181,6 +198,7 @@ const Sidebar = () => {
                         return (
                             <div key={item.title}>
                                 {hasSubItems ? (
+                                    <TooltipWrapper title={item.title} isOpen={isOpen}>
                                     <div
                                         onClick={() => {
                                             if (!isOpen) setIsOpen(true);
@@ -221,7 +239,9 @@ const Sidebar = () => {
                                             </div>
                                         )}
                                     </div>
+                                    </TooltipWrapper>
                                 ) : (
+                                    <TooltipWrapper title={item.title} isOpen={isOpen}>
                                     <Link
                                         to={item.url}
                                         onClick={handleNavClick}
@@ -258,6 +278,7 @@ const Sidebar = () => {
                                             </span>
                                         )}
                                     </Link>
+                                    </TooltipWrapper>
                                 )}
 
                                 {/* Submenu */}
@@ -294,6 +315,7 @@ const Sidebar = () => {
                 </nav>
                 {/* Logout Button at Bottom */}
                 <div className="p-4 border-t border-slate-100 mt-auto">
+                    <TooltipWrapper title="Logout" isOpen={isOpen}>
                     <button
                         onClick={handleLogout}
                         className={cn(
@@ -312,7 +334,9 @@ const Sidebar = () => {
                             </span>
                         )}
                     </button>
+                    </TooltipWrapper>
                 </div>
+                </TooltipProvider>
             </aside>
 
             {/* Mobile Overlay */}
