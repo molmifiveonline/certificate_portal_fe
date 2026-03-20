@@ -905,6 +905,14 @@ function App() {
                 }
               />
               <Route
+                path="/trainer-feedback/candidates/:activeCourseId"
+                element={
+                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                    <FeedbackCandidateList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/trainer-feedback/submitted/:candidateId/:activeCourseId"
                 element={
                   <PrivateRoute allowedRoles={["Trainer", "trainer"]}>

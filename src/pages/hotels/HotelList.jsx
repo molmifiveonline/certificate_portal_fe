@@ -126,9 +126,8 @@ const HotelList = () => {
             key: "venue_address",
             label: "Hotel Address",
             hiddenOnMobile: true,
-            className: "whitespace-normal",
             render: (val) => (
-                <p className="text-sm text-slate-600 max-w-xs" title={val}>
+                <p className="text-sm text-slate-600 line-clamp-1 max-w-[180px]" title={val}>
                     {val}
                 </p>
             ),
@@ -145,6 +144,8 @@ const HotelList = () => {
         {
             key: "venue_contact",
             label: "Contact",
+            className: "max-w-[140px] truncate",
+            render: (val) => <span title={val}>{val}</span>,
         },
         {
             key: "email",

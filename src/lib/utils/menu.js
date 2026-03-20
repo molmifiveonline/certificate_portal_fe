@@ -2,24 +2,16 @@ import {
   Home,
   Users,
   UserCheck,
-  // Calendar,
-  // CalendarDays,
   // FileText,
   // Receipt,
-  // Activity,
-  // FolderKanban,
   GraduationCap,
   UserCircle,
   BookOpen,
-  BookDashed,
+  // Award,
+  // Book,
   MapPin,
   ClipboardList,
-  // FileBadge,
-  // ChevronDown,
-  // ChevronRight,
-  // School,
   Building,
-  // ClipboardCheck,
   // FileBarChart,
   Shield,
   History,
@@ -82,9 +74,9 @@ export const MenuItems = [
     permissionSlug: "view_master_courses",
     subItems: [
       { title: "Master Courses", url: "/courses" },
-      // { title: "Pre-Active Courses", url: "/pre-active-courses" },
-      // { title: "Active Courses", url: "/active-courses" },
-      // { title: "Outhouse Courses", url: "/outhouse-courses" },
+      { title: "Pre-Active Courses", url: "/pre-active-courses" },
+      { title: "Active Courses", url: "/active-courses" },
+      { title: "Outhouse Courses", url: "/outhouse-courses" },
     ],
   },
 
@@ -96,13 +88,7 @@ export const MenuItems = [
     code: "hotel_details",
     permissionSlug: "view_hotels",
   },
-  // {
-  //   title: "System Manual",
-  //   icon: FileText,
-  //   url: "/system-manual",
-  //   allowedRoles: ["admin", "superadmin"], // Assuming it's for admin/superadmin based on placement
-  //   code: "system_manual",
-  // },
+
   {
     title: "Location",
     url: "/location",
@@ -129,7 +115,7 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     subItems: [
       { title: "Feedback Category", url: "/feedback" },
-      // { title: "Feedback Question", url: "/feedback/forms" },
+      { title: "Feedback Question", url: "/feedback/forms" },
       // { title: "Submitted Feedback", url: "/feedback/submitted" },
     ],
   },
@@ -156,6 +142,13 @@ export const MenuItems = [
   //   icon: Receipt,
   //   allowedRoles: ["admin", "superadmin"],
   //   permissionSlug: "manage_reimbursements",
+  // },
+  // {
+  //   title: "System Manual",
+  //   icon: FileText,
+  //   url: "/system-manual",
+  //   allowedRoles: ["admin", "superadmin"], // Assuming it's for admin/superadmin based on placement
+  //   code: "system_manual",
   // },
   {
     title: "Log History",

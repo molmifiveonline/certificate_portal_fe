@@ -52,9 +52,9 @@ const DataTable = ({
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-white/40 border-b border-slate-200/60">
+                        <tr className="bg-gradient-to-r from-indigo-900/90 via-blue-900/90 to-indigo-900/90 text-white border-b border-white/10 backdrop-blur-md">
                             {serialNumber && (
-                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-left">
+                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-left">
                                     Sr. No.
                                 </th>
                             )}
@@ -66,7 +66,7 @@ const DataTable = ({
                                     return (
                                         <th
                                             key={col.key}
-                                            className={cn("px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none", alignCls, responsiveCls)}
+                                            className={cn("px-6 py-4 text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:text-white/80 transition-colors select-none", alignCls, responsiveCls)}
                                             onClick={() => onSort(col.key)}
                                         >
                                             <div className={`flex items-center ${col.align === "right" ? "justify-end" : col.align === "center" ? "justify-center" : ""}`}>
@@ -79,7 +79,7 @@ const DataTable = ({
                                 return (
                                     <th
                                         key={col.key}
-                                        className={cn("px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider", alignCls, responsiveCls)}
+                                        className={cn("px-6 py-4 text-xs font-bold text-white uppercase tracking-wider", alignCls, responsiveCls)}
                                     >
                                         {col.label}
                                     </th>

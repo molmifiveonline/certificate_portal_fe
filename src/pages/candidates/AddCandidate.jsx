@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import Meta from "../../components/common/Meta";
-import { useNavigate, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '../../lib/api';
 import CandidateForm from '../../components/candidates/CandidateForm';
-import { Card, CardContent } from "../../components/ui/card";
 import BackButton from '../../components/common/BackButton';
 
 const AddCandidate = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const registrationType = location.state?.registrationType || 'MOLMI Employee';
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const onSubmit = async (data) => {
@@ -53,7 +53,7 @@ const AddCandidate = () => {
             await api.post('/auth/register/candidate', payload);
 
             toast.success("Candidate Added Successfully!");
-            navigate('/candidates/molmi');
+            navigate(registrationType === 'Others' ? '/candidates/others' : '/candidates/molmi');
         } catch (error) {
             console.error("Add Candidate Error:", error);
             toast.error(error.response?.data?.message || "Failed to add candidate. Please try again.");
@@ -83,7 +83,8 @@ const AddCandidate = () => {
                     submitLabel="Create Candidate"
                     showPassword={true}
                     isAdmin={true}
-                    onCancel={() => navigate('/candidates/molmi')}
+                    onCancel={() => navigate(registrationType === 'Others' ? '/candidates/others' : '/candidates/molmi')}
+                    defaultValues={{ employeeType: registrationType }}
                 />
             </div>
         </div>
