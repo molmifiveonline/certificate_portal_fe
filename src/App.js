@@ -418,7 +418,7 @@ function App() {
                 path="/candidates/molmi"
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <CandidateList registrationType="MOLMI Employee" />
+                    <CandidateList key="molmi" registrationType="MOLMI Employee" />
                   </PrivateRoute>
                 }
               />
@@ -426,7 +426,7 @@ function App() {
                 path="/candidates/others"
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <CandidateList registrationType="Others" />
+                    <CandidateList key="others" registrationType="Others" />
                   </PrivateRoute>
                 }
               />
