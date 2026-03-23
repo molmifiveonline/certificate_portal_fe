@@ -163,12 +163,12 @@ const LogHistory = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Date/Time</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Action</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">Details</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider">User</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-900 uppercase tracking-wider text-right">Actions</th>
+                            <tr className="bg-gradient-to-r from-indigo-900/90 via-blue-900/90 to-indigo-900/90 text-white border-b border-white/10 backdrop-blur-md">
+                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Date/Time</th>
+                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Action</th>
+                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Details</th>
+                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">User</th>
+                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100/50">

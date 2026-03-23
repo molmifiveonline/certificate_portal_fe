@@ -102,24 +102,28 @@ const CandidateCertificateList = () => {
       key: "topic",
       label: "Topic",
       sortable: true,
+      className: "whitespace-normal break-words",
       render: (value) => value || "-",
     },
     {
       key: "master_course_name",
       label: "Master Course Name",
       sortable: true,
+      className: "whitespace-normal break-words",
       render: (value) => value || "-",
     },
     {
       key: "course_level",
       label: "Course Level",
       sortable: true,
+      className: "whitespace-normal",
       render: (value) => value || "-",
     },
     {
       key: "certificate_no",
       label: "Certificate No.",
       sortable: true,
+      className: "whitespace-normal break-words",
       render: (value) => (
         <span className="font-semibold text-slate-900">{value || "-"}</span>
       ),
@@ -128,6 +132,7 @@ const CandidateCertificateList = () => {
       key: "issue_date",
       label: "Issue Date",
       sortable: true,
+      className: "whitespace-normal",
       render: (value) => formatDate(value),
     },
     {

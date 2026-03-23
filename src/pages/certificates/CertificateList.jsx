@@ -5,7 +5,7 @@ import {
     FileDown,
     Award,
     Printer,
-    Edit2,
+    Edit,
     // Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -117,17 +117,20 @@ const CertificateList = () => {
             key: "certificate_no",
             label: "Certificate No.",
             sortable: true,
+            className: "whitespace-normal break-words",
             render: (val) => <span className="font-medium text-slate-800">{val}</span>,
         },
         {
             key: "candidate_name",
             label: "Candidate Name",
             sortable: true,
+            className: "whitespace-normal break-words",
         },
         {
             key: "type",
             label: "Type",
             sortable: true,
+            className: "whitespace-normal",
             render: (val) => (
                 <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                     {val || "-"}
@@ -138,22 +141,26 @@ const CertificateList = () => {
             key: "topic",
             label: "Topic",
             sortable: true,
+            className: "whitespace-normal break-words",
         },
         {
             key: "master_course_name",
             label: "Course Name",
             sortable: true,
+            className: "whitespace-normal break-words",
         },
         {
             key: "issue_date",
             label: "Issue Date",
             sortable: true,
+            className: "whitespace-normal",
             render: (val) => formatDate(val),
         },
         {
             key: "status",
             label: "Status",
             sortable: true,
+            className: "whitespace-normal",
             render: (val) => (
                 <span
                     className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${val === 0
@@ -180,10 +187,10 @@ const CertificateList = () => {
                     </button>
                     <button
                         onClick={() => navigate(`/certificates/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-all"
+                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
                         title="Edit"
                     >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit className="w-4 h-4" />
                     </button>
                     {/* <button
                         onClick={() => handleDelete(row.id)}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, ChevronDown, ChevronRight, Dot } from "lucide-react";
+import { LogOut, ChevronRight } from "lucide-react";
 import { cn } from "../../lib/utils/utils";
 import { MenuItems } from "../../lib/utils/menu";
 import { useAuth } from "../../context/AuthContext";
@@ -237,7 +237,10 @@ const Sidebar = () => {
                         )}
                       >
                         {(isActive || isParentActive) && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-[#3a5f9e] to-[#4c78c7] rounded-lg blur-lg opacity-50 -z-10" />
+                          <div
+                            className="absolute inset-0 bg-gradient-to-r from-[#3a5f9e] to-[#4c78c7] rounded-lg blur-lg opacity-40 -z-10 animate-pulse"
+                            style={{ animationDuration: "3s" }}
+                          />
                         )}
                         <div
                           className={cn(
@@ -261,12 +264,20 @@ const Sidebar = () => {
                           )}
                         </div>
                         {isOpen && (
-                          <div className="text-slate-400">
-                            {isExpanded ? (
-                              <ChevronDown size={16} />
-                            ) : (
-                              <ChevronRight size={16} />
+                          <div
+                            className={cn(
+                              "transition-all duration-500 ease-in-out",
+                              isExpanded
+                                ? "rotate-90 scale-110"
+                                : "rotate-0 scale-100",
+                              isActive || isParentActive
+                                ? "text-white"
+                                : isExpanded
+                                  ? "text-[#3a5f9e]"
+                                  : "text-slate-400",
                             )}
+                          >
+                            <ChevronRight size={16} />
                           </div>
                         )}
                       </div>
@@ -313,34 +324,52 @@ const Sidebar = () => {
                   )}
 
                   {/* Submenu */}
-                  {hasSubItems && isOpen && isExpanded && (
-                    <div className="mt-1 ml-4 border-l border-slate-200 pl-2 space-y-1">
-                      {item.subItems.map((subItem) => {
-                        const subItemUrls = item.subItems.map((i) => i.url);
-                        const isSubActive = isLinkActive(
-                          subItem.url,
-                          subItemUrls,
-                        );
-                        return (
-                          <Link
-                            key={subItem.title}
-                            to={subItem.url}
-                            onClick={() => {
-                              if (window.innerWidth < 768) setIsOpen(false);
-                            }}
-                            className={cn(
-                              "flex items-center py-2 px-3 rounded-md text-sm transition-all duration-200",
-                              isSubActive
-                                ? "text-[#3a5f9e] bg-blue-100 font-bold shadow-sm ring-1 ring-blue-200"
-                                : "text-slate-500 hover:text-[#3a5f9e] hover:bg-[#3a5f9e]/5 hover:translate-x-1 hover:shadow-sm",
-                            )}
-                          >
-                            {/* Optional: Add a small dot or icon for deeper nesting */}
-                            {/* <Dot size={16} className="mr-2" /> */}
-                            {subItem.title}
-                          </Link>
-                        );
-                      })}
+                  {hasSubItems && isOpen && (
+                    <div
+                      className={cn(
+                        "grid transition-all duration-500 ease-in-out",
+                        isExpanded
+                          ? "grid-rows-[1fr] opacity-100 mt-1"
+                          : "grid-rows-[0fr] opacity-0",
+                      )}
+                    >
+                      <div className="overflow-hidden">
+                        <div
+                          className={cn(
+                            "ml-4 border-l border-slate-200 pl-2 space-y-1 py-1 transition-all duration-500 ease-out transform",
+                            isExpanded
+                              ? "translate-y-0 opacity-100 scale-100"
+                              : "-translate-y-4 opacity-0 scale-95",
+                          )}
+                        >
+                          {item.subItems.map((subItem) => {
+                            const subItemUrls = item.subItems.map((i) => i.url);
+                            const isSubActive = isLinkActive(
+                              subItem.url,
+                              subItemUrls,
+                            );
+                            return (
+                              <Link
+                                key={subItem.title}
+                                to={subItem.url}
+                                onClick={() => {
+                                  if (window.innerWidth < 768) setIsOpen(false);
+                                }}
+                                className={cn(
+                                  "flex items-center py-2 px-3 rounded-md text-sm transition-all duration-300 ease-out",
+                                  isSubActive
+                                    ? "text-[#3a5f9e] bg-blue-100 font-bold shadow-sm ring-1 ring-blue-200 scale-[1.02]"
+                                    : "text-slate-500 hover:text-[#3a5f9e] hover:bg-[#3a5f9e]/5 hover:translate-x-2 hover:shadow-sm",
+                                )}
+                              >
+                                {/* Optional: Add a small dot or icon for deeper nesting */}
+                                {/* <Dot size={16} className="mr-2" /> */}
+                                {subItem.title}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -7,7 +7,7 @@ import {
   GraduationCap,
   UserCircle,
   BookOpen,
-  // Award,
+  Award,
   // Book,
   MapPin,
   ClipboardList,
