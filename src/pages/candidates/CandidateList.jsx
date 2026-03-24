@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 // TWO-STEP IMPORT FLOW IMPLEMENTED
 import Meta from "../../components/common/Meta";
+import PageSubtitle from "../../components/common/PageSubtitle";
 import { MANAGER_OPTIONS } from "../../lib/constants";
 import {
   Search,
@@ -296,9 +297,9 @@ const CandidateList = ({ registrationType }) => {
                 ? "Other Candidates"
                 : "All Candidates"}
           </h1>
-          <p className="text-slate-500 mt-1">
+          <PageSubtitle>
             Manage and view all registered candidates
-          </p>
+          </PageSubtitle>
         </div>
         <div className="flex flex-wrap gap-3">
           {registrationType === "MOLMI Employee" && <Button
