@@ -1,5 +1,4 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 
@@ -74,20 +73,19 @@ const Register = () => {
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
             <div className="absolute -bottom-32 left-20 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-2000"></div>
 
-            {/* Nav */}
-            <div className="max-w-6xl mx-auto mb-6 flex items-center relative z-10">
-                <Link to="/login" className="flex items-center text-gray-600 hover:text-blue-700 transition-colors bg-white/40 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm hover:shadow-md border border-white/40">
-                    <ChevronLeft size={20} />
-                    <span className="ml-1 font-medium">Back to Login</span>
-                </Link>
-            </div>
 
             <div className="max-w-6xl mx-auto bg-white/60 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/40 relative z-10 transition-all duration-300">
                 {/* Header */}
                 <div className="bg-blue-800/85 p-8 text-white relative overflow-hidden">
-                    <div className="relative z-10">
-                        <h1 className="text-3xl font-bold mb-2">Registration</h1>
-                        <p className="text-blue-100 opacity-80">Create your account to access the portal.</p>
+                    <div className="flex justify-between items-start relative z-10 w-full">
+                        <div>
+                            <h1 className="text-3xl font-bold mb-2">Registration</h1>
+                            <p className="text-blue-100 opacity-80">Create your account to access the portal.</p>
+                        </div>
+                        <Link to="/login" className="flex items-center text-white hover:text-blue-100 transition-colors bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl shadow-sm border border-white/20 text-sm">
+                            <ChevronLeft size={18} />
+                            <span className="ml-1 font-medium">Back</span>
+                        </Link>
                     </div>
                     {/* Decorative background elements */}
                     <div className="absolute inset-0 overflow-hidden">

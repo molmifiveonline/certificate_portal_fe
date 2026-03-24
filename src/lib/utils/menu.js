@@ -116,7 +116,7 @@ export const MenuItems = [
     subItems: [
       { title: "Feedback Category", url: "/feedback" },
       { title: "Feedback Question", url: "/feedback/forms" },
-      // { title: "Submitted Feedback", url: "/feedback/submitted" },
+      { title: "Submitted Feedback", url: "/feedback/submitted" },
     ],
   },
   // {

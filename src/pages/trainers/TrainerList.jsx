@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
+import PageSubtitle from "../../components/common/PageSubtitle";
 import {
     Search,
     FileDown,
@@ -218,7 +219,7 @@ const TrainerList = () => {
                         </div>
                         Trainers
                     </h1>
-                    <p className="text-slate-500 mt-1">Manage and view all registered trainers</p>
+                    <PageSubtitle>Manage and view all registered trainers</PageSubtitle>
                 </div>
                 {hasPermission('create_trainer') && (
                     <Button

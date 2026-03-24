@@ -23,7 +23,9 @@ const FeedbackReportCard = ({
           <Users className="h-5 w-5" />
         </div>
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold text-slate-900">Feedback Report</h2>
+          <h2 className="text-xl font-semibold text-slate-900">
+            Feedback Report
+          </h2>
           <p className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
             Max range: 3 months
           </p>
@@ -157,7 +159,7 @@ const FeedbackReportCard = ({
             type="button"
             onClick={onBulkDownload}
             disabled={loading || loadingBulk}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-red-700 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-red-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loadingBulk ? (
               <>

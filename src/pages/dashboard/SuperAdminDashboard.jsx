@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   GraduationCap,
@@ -6,7 +7,6 @@ import {
   Search,
   Filter,
   SlidersHorizontal,
-  MoreVertical,
   AlertCircle,
   CheckCircle,
   Loader2,
@@ -34,12 +34,33 @@ import TablePagination from "../../components/ui/TablePagination";
 
 const today = new Date().toISOString().split("T")[0];
 
-const StatsCard = ({ title, value, icon: Icon, gradient, loading }) => {
+const StatsCard = ({
+  title,
+  value,
+  icon: Icon,
+  gradient,
+  loading,
+  onClick,
+}) => {
   return (
     <div
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       className={cn(
         "relative overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-white/40 shadow-lg",
         "bg-white/60 backdrop-blur-2xl",
+        onClick ? "cursor-pointer" : "",
       )}
     >
       <div
@@ -238,6 +259,7 @@ const FilterSection = ({
 };
 
 const SuperAdminDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalCandidates: 0,
     totalTrainers: 0,
@@ -374,6 +396,7 @@ const SuperAdminDashboard = () => {
           icon={GraduationCap}
           gradient="from-violet-500 to-purple-600"
           loading={loadingStats}
+          onClick={() => navigate("/trainers")}
         />
         <StatsCard
           title="Total Active Courses"
@@ -381,6 +404,7 @@ const SuperAdminDashboard = () => {
           icon={BookOpen}
           gradient="from-emerald-500 to-teal-600"
           loading={loadingStats}
+          onClick={() => navigate("/active-courses")}
         />
       </div>
 
@@ -396,9 +420,6 @@ const SuperAdminDashboard = () => {
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/60 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white/50">
             <h3 className="font-bold text-slate-800 text-lg">Course Details</h3>
-            {/* <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <MoreVertical className="w-4 h-4 text-slate-500" />
-            </button> */}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
