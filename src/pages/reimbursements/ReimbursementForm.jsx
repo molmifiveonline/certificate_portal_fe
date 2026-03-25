@@ -3,7 +3,7 @@ import { Loader2, Save, Send, Wallet } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
-import BackButton from "../../components/common/BackButton";
+import PageHeader from "../../components/common/PageHeader";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import api from "../../lib/api";
@@ -179,27 +179,20 @@ const ReimbursementForm = () => {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 animate-in fade-in duration-500">
+    <div className="mx-auto max-w-7xl space-y-6 animate-in fade-in duration-500">
       <Meta
         title={isEditMode ? "Edit Reimbursement" : "Create Reimbursement"}
         description="Manage reimbursement claim"
       />
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900">
-            <span className="rounded-2xl bg-emerald-100 p-2 text-emerald-600">
-              <Wallet className="h-8 w-8" />
-            </span>
-            {isEditMode ? "Edit Reimbursement" : "Create Reimbursement"}
-          </h1>
-          <p className="mt-1 text-slate-500">
-            Upload proof, fill claim details, and submit for admin approval.
-          </p>
-        </div>
-
-        <BackButton to="/reimbursements" label="Back to Claims" />
-      </div>
+      <PageHeader
+        title={isEditMode ? "Edit Reimbursement" : "Create Reimbursement"}
+        subtitle="Upload proof, fill claim details, and submit for admin approval."
+        icon={Wallet}
+        compact={true}
+        backTo="/reimbursements"
+        backLabel="Back to Claims"
+      />
 
       {!editable && (
         <Card className="rounded-2xl border-amber-200 bg-amber-50/80">

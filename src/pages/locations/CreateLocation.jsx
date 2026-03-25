@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import Meta from "../../components/common/Meta";
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
 import LocationForm from './LocationForm';
 import locationService from '../../services/locationService';
 import { toast } from 'sonner';
-import BackButton from '../../components/common/BackButton';
+import PageHeader from '../../components/common/PageHeader';
 
 const CreateLocation = () => {
     const navigate = useNavigate();
@@ -31,14 +30,12 @@ const CreateLocation = () => {
         <div className="w-full h-full pb-20">
             <Meta title="Add Location" description="Add New Location" />
             <div className="max-w-[1600px] mx-auto">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight page-title">Add Location</h1>
-                        <p className="text-slate-500 mt-1">Register a new training center or venue</p>
-                    </div>
-                    <BackButton to="/location" />
-                </div>
+                <PageHeader
+                    title="Add Location"
+                    subtitle="Register a new training center or venue"
+                    compact={true}
+                    backTo="/location"
+                />
 
                 <LocationForm
                     onSubmit={handleSubmit}

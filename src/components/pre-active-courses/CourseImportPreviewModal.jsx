@@ -83,9 +83,14 @@ const CourseImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
         { 
             key: "course_name", 
             label: "Course Name",
+            className: "whitespace-normal min-w-[250px]",
             render: (val) => <span className="font-semibold text-slate-800">{val}</span>
         },
-        { key: "topic", label: "Topic" },
+        { 
+            key: "topic", 
+            label: "Topic",
+            className: "whitespace-normal min-w-[200px]"
+        },
         { 
             key: "start_date", 
             label: "Start Date",

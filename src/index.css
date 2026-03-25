@@ -113,11 +113,21 @@ code {
   animation: text-shimmer 4s ease-out infinite;
 }
 
-@keyframes text-shimmer {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: -200% center;
-  }
+
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 3s ease-in-out infinite;
+}
+
+@keyframes arrow-shift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-3px); }
+}
+
+.group:hover .animate-arrow-shift {
+  animation: arrow-shift 1.5s ease-in-out infinite;
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Printer, Award, Search } from "lucide-react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { Card, CardContent } from "../../components/ui/card";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
@@ -155,24 +156,18 @@ const CandidateCertificateList = () => {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="w-full mx-auto space-y-8 animate-in fade-in duration-500">
       <Meta
         title="My Certificates"
         description="View certificates issued for your completed courses"
       />
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-            <div className="bg-blue-100 p-2 rounded-xl">
-              <Award className="w-8 h-8 text-blue-600" />
-            </div>
-            My Certificates
-          </h1>
-          <p className="text-slate-500 mt-1">
-            Only certificates visible to you are listed here.
-          </p>
-        </div>
+        <PageHeader
+          title="My Certificates"
+          subtitle="Only certificates visible to you are listed here."
+          icon={Award}
+        />
       </div>
 
       <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm overflow-visible z-10">

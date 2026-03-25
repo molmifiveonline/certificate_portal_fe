@@ -1,12 +1,12 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import api from '../../lib/api';
-import { Users, Save, ArrowLeft } from 'lucide-react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { Users, Save } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
-import BackButton from '../../components/common/BackButton';
 
 const FormContext = createContext();
 
@@ -80,7 +80,7 @@ const SelectField = ({ label, name, options, required }) => {
 };
 
 const EditTrainer = () => {
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [previews, setPreviews] = useState({ profile_photo: null, digital_signature: null });
@@ -131,7 +131,6 @@ const EditTrainer = () => {
                 setValue('prefix', trainer.prefix || '');
                 setValue('email', trainer.email || '');
                 setValue('nationality', trainer.nationality || '');
-                setValue('designation', trainer.designation || '');
                 setValue('designation', trainer.designation || '');
                 setValue('rank', trainer.rank || '');
                 setValue('officer', trainer.officer || '');
@@ -204,8 +203,6 @@ const EditTrainer = () => {
         }
     };
 
-
-
     if (loading) {
         return (
             <div className="p-6 max-w-4xl mx-auto flex items-center justify-center min-h-[400px]">
@@ -214,27 +211,18 @@ const EditTrainer = () => {
         );
     }
 
-
-
     return (
         <FormContext.Provider value={{ register, errors, handleFileChange, previews }}>
             <div className="min-h-screen bg-slate-50">
             <Meta title="Edit Trainer" description="Edit Trainer Details" />
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-                <div className="px-8 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                            <Users size={24} className="text-blue-600" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-800">Edit Trainer</h1>
-                            <p className="text-sm text-slate-500">Update trainer details and permissions</p>
-                        </div>
-                    </div>
-                    <BackButton to="/trainers" />
-                </div>
-            </div>
+            <PageHeader
+                title="Edit Trainer"
+                subtitle="Update trainer details and permissions"
+                icon={Users}
+                compact={true}
+                backTo="/trainers"
+            />
 
             {/* Form Content */}
             <div className="max-w-none">
@@ -287,10 +275,6 @@ const EditTrainer = () => {
                                     Professional Details
                                 </h3>
                                 <div className="space-y-6">
-                                    {/* <div className="grid grid-cols-2 gap-6">
-                                        <InputField label="Officer" name="officer" placeholder="e.g. Deck Officer" />
-                                        <InputField label="Other Officer" name="other_officer" placeholder="e.g. Safety Officer" />
-                                    </div> */}
                                     <div className="grid grid-cols-2 gap-6">
                                         <InputField label="Designation" name="designation" required />
                                         <InputField label="Rank" name="rank" required />

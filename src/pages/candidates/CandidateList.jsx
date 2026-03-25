@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 // TWO-STEP IMPORT FLOW IMPLEMENTED
 import Meta from "../../components/common/Meta";
-import PageSubtitle from "../../components/common/PageSubtitle";
+import PageHeader from "../../components/common/PageHeader";
 import { MANAGER_OPTIONS } from "../../lib/constants";
 import {
   Search,
@@ -17,8 +17,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { cn } from "../../lib/utils/utils";
+import { Button } from "../../components/ui/button";
 import { formatDate } from "../../lib/utils/dateUtils";
 import candidateService from "../../services/candidateService";
 import TablePagination from "../../components/ui/TablePagination";
@@ -33,6 +32,7 @@ const CandidateList = ({ registrationType }) => {
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
   const [candidates, setCandidates] = useState([]);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -43,9 +43,7 @@ const CandidateList = ({ registrationType }) => {
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState("desc");
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
   // Two-Step Sync States
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -58,11 +56,12 @@ const CandidateList = ({ registrationType }) => {
   const [filterStatus, setFilterStatus] = useState("1"); // Default Active
 
   // Debounce search
-  const updateDebouncedSearch = useCallback(
-    debounce((value) => {
-      setDebouncedSearch(value);
-      setCurrentPage(1);
-    }, 500),
+  const updateDebouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        setDebouncedSearch(value);
+        setCurrentPage(1);
+      }, 500),
     [],
   );
 
@@ -70,7 +69,7 @@ const CandidateList = ({ registrationType }) => {
     updateDebouncedSearch(searchTerm);
   }, [searchTerm, updateDebouncedSearch]);
 
-  const fetchCandidates = async () => {
+  const fetchCandidates = useCallback(async () => {
     setLoading(true);
     try {
       const result = await candidateService.getAllCandidates({
@@ -95,13 +94,9 @@ const CandidateList = ({ registrationType }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchCandidates();
   }, [
-    currentPage,
     debouncedSearch,
+    currentPage,
     limit,
     sortBy,
     sortOrder,
@@ -111,6 +106,10 @@ const CandidateList = ({ registrationType }) => {
     filterStatus,
     registrationType,
   ]);
+
+  useEffect(() => {
+    fetchCandidates();
+  }, [fetchCandidates]);
 
   const handleSort = (column) => {
     if (sortBy === column) {
@@ -261,7 +260,8 @@ const CandidateList = ({ registrationType }) => {
         render: (_val, row) => (
           <button
             onClick={() => navigate(`/candidates/edit/${row.id}`)}
-            className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-all font-medium text-xs"
+            className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
+            title="Edit Candidate"
           >
             <Edit className="w-4 h-4" />
           </button>
@@ -284,44 +284,43 @@ const CandidateList = ({ registrationType }) => {
         }
         description="Manage Candidates"
       />
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-            <div className="bg-blue-100 p-2 rounded-xl">
-              <Users className="w-8 h-8 text-blue-600" />
-            </div>
-            {registrationType === "MOLMI Employee"
-              ? "MOLMI Candidates"
-              : registrationType === "Others"
-                ? "Other Candidates"
-                : "All Candidates"}
-          </h1>
-          <PageSubtitle>
-            Manage and view all registered candidates
-          </PageSubtitle>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {registrationType === "MOLMI Employee" && <Button
-            variant="outline"
-            onClick={handleSyncFromApi}
-            className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
-          >
-            <Zap className="w-4 h-4 text-amber-500" />
-            Sync API
-          </Button>}
+      <PageHeader
+        title={
+          registrationType === "MOLMI Employee"
+            ? "MOLMI Candidates"
+            : registrationType === "Others"
+              ? "Other Candidates"
+              : "All Candidates"
+        }
+        subtitle="Manage and view all registered candidates"
+        icon={Users}
+        actions={
+          <div className="flex flex-wrap gap-3">
+            {registrationType === "MOLMI Employee" && (
+              <Button
+                variant="outline"
+                onClick={handleSyncFromApi}
+                className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+              >
+                <Zap className="w-4 h-4 text-amber-500" />
+                Sync API
+              </Button>
+            )}
 
-          {hasPermission("create_candidate") && (
-            <Button
-              onClick={() => navigate("/candidates/add", { state: { registrationType } })}
-              className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-            >
-              <UserPlus className="w-4 h-4" />
-              Add Candidate
-            </Button>
-          )}
-        </div>
-      </div>
+            {hasPermission("create_candidate") && (
+              <Button
+                onClick={() =>
+                  navigate("/candidates/add", { state: { registrationType } })
+                }
+                className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+              >
+                <UserPlus className="w-4 h-4" />
+                Add Candidate
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
         <CardContent className="p-4 sm:p-6 space-y-4">

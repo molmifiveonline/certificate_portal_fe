@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '../../lib/api';
 import CandidateForm from '../../components/candidates/CandidateForm';
-import BackButton from '../../components/common/BackButton';
 
 const AddCandidate = () => {
     const navigate = useNavigate();
@@ -16,7 +16,6 @@ const AddCandidate = () => {
         setIsSubmitting(true);
         try {
             // Map frontend fields (camelCase) to backend fields (snake_case)
-            // Note: Reuse logic from Register.jsx or utility if complex mapping grows
             const payload = {
                 first_name: data.firstName,
                 last_name: data.lastName,
@@ -63,18 +62,15 @@ const AddCandidate = () => {
         }
     };
 
-
-
     return (
         <div className="space-y-6">
             <Meta title="Add Candidate" description="Add New Candidate" />
-            <div className="flex items-center justify-between gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title">Add New Candidate</h1>
-                    <p className="text-slate-500 mt-1">Register a new candidate manually</p>
-                </div>
-                <BackButton to="/candidates/molmi" />
-            </div>
+            <PageHeader
+                title="Add New Candidate"
+                subtitle="Register a new candidate manually"
+                compact={true}
+                backTo="/candidates/molmi"
+            />
 
             <div className="w-full">
                 <CandidateForm

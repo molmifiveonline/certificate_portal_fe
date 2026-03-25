@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Meta from '../../components/common/Meta';
+import PageHeader from '../../components/common/PageHeader';
 import { useAuth } from '../../context/AuthContext';
 import trainerService from '../../services/trainerService';
 import { 
@@ -93,10 +94,11 @@ const TrainerDashboard = () => {
             
             {/* Welcome Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome Back, {user?.first_name}!</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Here's what's happening with your courses today.</p>
-                </div>
+                <PageHeader
+                    title={`Welcome Back, ${user?.first_name}!`}
+                    subtitle="Here's what's happening with your courses today."
+                    className="mb-0"
+                />
                 <div className="flex items-center gap-3 bg-white/60 backdrop-blur-xl p-2 rounded-2xl border border-white/40 shadow-sm px-4">
                     <Calendar className="text-blue-600 w-5 h-5" />
                     <span className="text-sm font-bold text-slate-700">

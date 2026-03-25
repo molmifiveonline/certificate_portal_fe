@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
 import { useNavigate } from "react-router-dom";
-import { Award, ChevronLeft, Save, Users, Loader2 } from "lucide-react";
+import { Award, Save, Users, Loader2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import BackButton from "../../components/common/BackButton";
+import PageHeader from "../../components/common/PageHeader";
 import CandidateSelectionModal from "./CandidateSelectionModal";
 import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
@@ -219,18 +219,13 @@ const CreateCertificate = () => {
         <div className="w-full h-full pb-20">
             <Meta title="Add Certificate" description="Create a manual certificate" />
 
-            <div className="flex items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <Award className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Add Certificate
-                    </h1>
-                    <p className="text-slate-500 mt-1">Create a new certificate manually</p>
-                </div>
-                <BackButton to="/certificates" />
-            </div>
+            <PageHeader
+                title="Add Certificate"
+                subtitle="Create a new certificate manually"
+                icon={Award}
+                compact={true}
+                backTo="/certificates"
+            />
 
             <form onSubmit={handleSubmit} noValidate>
                 <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden mb-8">

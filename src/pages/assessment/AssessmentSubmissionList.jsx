@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { Search, Eye, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { debounce } from "lodash";
@@ -139,19 +140,12 @@ const AssessmentSubmissionList = () => {
             />
 
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div className="flex items-center gap-4">
-                    <BackButton to={`/assessment/submitted/${courseId}`} />
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                            Candidate Submissions
-                        </h1>
-                        <p className="text-slate-500 text-sm mt-0.5">
-                            {courseName} - {assessmentTitle}
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title="Candidate Submissions"
+                subtitle={`${courseName} - ${assessmentTitle}`}
+                compact={true}
+                actions={<BackButton to={`/assessment/submitted/${courseId}`} />}
+            />
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
                 <CardContent className="p-4 sm:p-6">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { Search, Eye, Send } from "lucide-react";
@@ -7,7 +7,7 @@ import { debounce } from "lodash";
 import feedbackAnswerService from "../../services/feedbackAnswerService";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
-import BackButton from "../../components/common/BackButton";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 import { formatDate } from "../../lib/utils/utils";
 
@@ -27,12 +27,13 @@ const FeedbackCandidateList = () => {
     const [limit, setLimit] = useState(10);
     const [courseName, setCourseName] = useState("");
 
-    const updateDebouncedSearch = useCallback(
-        debounce((value) => {
+    // Use useMemo for debounced search to avoid recreation on every render
+    const updateDebouncedSearch = useMemo(
+        () => debounce((value) => {
             setDebouncedSearch(value);
             setPage(1);
         }, 500),
-        []
+        [setDebouncedSearch, setPage]
     );
 
     useEffect(() => {
@@ -122,19 +123,13 @@ const FeedbackCandidateList = () => {
         <div className="flex-1 overflow-y-auto">
             <Meta title="Course Candidates" description="View Candidate Feedback Submissions" />
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-                <div className="flex items-center gap-4">
-                    <BackButton to={basePath} label="Back to Courses" />
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight page-title">
-                            Course Candidates
-                        </h1>
-                        <p className="text-slate-500 mt-1">
-                            {courseName ? `Showing submissions for: ${courseName}` : "Showing candidate submissions"}
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title="Course Candidates"
+                subtitle={courseName ? `Showing submissions for: ${courseName}` : "Showing candidate submissions"}
+                compact={true}
+                backTo={basePath}
+                backLabel="Back to Courses"
+            />
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
                 <CardContent className="p-4 sm:p-6">

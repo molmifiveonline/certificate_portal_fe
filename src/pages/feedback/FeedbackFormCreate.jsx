@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { ArrowLeft, Save, Plus, Trash2, X, Check, ChevronDown } from "lucide-react";
+import { Plus, X, Save, Trash2, ChevronDown, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import feedbackFormService from "../../services/feedbackFormService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import BackButton from '../../components/common/BackButton';
+import PageHeader from "../../components/common/PageHeader";
 
 const MultiSelect = ({ options, selectedValues, onChange, placeholder = "Select..." }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -63,7 +63,7 @@ const MultiSelect = ({ options, selectedValues, onChange, placeholder = "Select.
                             onClick={() => toggleOption(option.value)}
                             className="px-4 py-2 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-sm text-slate-700"
                         >
-                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedValues.includes(option.value) ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedValues.includes(option.value) ? "bg-blue-600 border-blue-600" : "border-slate-300"}`}>
                                 {selectedValues.includes(option.value) && <Check className="w-3 h-3 text-white" />}
                             </div>
                             {option.label}
@@ -257,18 +257,12 @@ const FeedbackFormCreate = () => {
         <div className="w-full">
             <Meta title={isEditMode ? "Edit Feedback Form" : "Create Feedback Form"} />
 
-            {/* Sticky Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-40 px-8 py-4 flex items-center justify-between shadow-sm">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">
-                        {isEditMode ? "Edit Feedback Form" : "Create Feedback Form"}
-                    </h1>
-                    <p className="text-slate-500 text-sm">
-                        Define structure and questions
-                    </p>
-                </div>
-                <BackButton to="/feedback/forms" />
-            </div>
+            <PageHeader
+                title={isEditMode ? "Edit Feedback Form" : "Create Feedback Form"}
+                subtitle="Define structure and questions for candidate feedback"
+                compact={true}
+                backTo="/feedback/forms"
+            />
 
             <div className="w-full px-8 pb-32 pt-8">
 

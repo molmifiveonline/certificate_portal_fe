@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
 import { Shield, Check, X, Save, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -114,33 +115,25 @@ const RolePermission = () => {
         <div className="flex-1 overflow-y-auto">
             <Meta title="Role Permissions" description="Manage Role Permissions" />
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <Shield className="w-8 h-8 text-blue-600" />
-                        Role Permissions
-                    </h1>
-                    <p className="text-slate-500 mt-1">
-                        Manage permissions for different user roles
-                    </p>
-                </div>
-                {selectedRole && (
-                    <div className="flex gap-3">
-                        <Button
-                            onClick={handleSavePermissions}
-                            disabled={saving}
-                            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                        >
-                            {saving ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <Save className="w-4 h-4" />
-                            )}
-                            Save Changes
-                        </Button>
-                    </div>
+            <PageHeader
+                title="Role Permissions"
+                subtitle="Manage permissions for different user roles"
+                icon={Shield}
+                actions={selectedRole && (
+                    <Button
+                        onClick={handleSavePermissions}
+                        disabled={saving}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        {saving ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <Save className="w-4 h-4" />
+                        )}
+                        Save Changes
+                    </Button>
                 )}
-            </div>
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Roles List */}

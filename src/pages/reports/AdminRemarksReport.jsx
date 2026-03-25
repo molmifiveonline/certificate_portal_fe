@@ -11,6 +11,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import TablePagination from "../../components/ui/TablePagination";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 
 const SelectField = ({ label, name, options, value, onChange, error, required, ...props }) => (
     <div className="space-y-1">
@@ -156,10 +157,12 @@ const AdminRemarksReport = () => {
 
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 flex items-center justify-between shadow-sm">
-                <div>
-                    <h1 className="text-xl font-bold text-slate-800">Admin Remarks Report</h1>
-                    <p className="text-sm text-slate-500">View and export admin remarks for candidate nominations</p>
-                </div>
+                <PageHeader
+                    title="Admin Remarks Report"
+                    subtitle="View and export admin remarks for candidate nominations"
+                    titleClassName="text-xl"
+                    className="mb-0"
+                />
                 <div className="flex gap-3">
                     <Button
                         variant="outline"

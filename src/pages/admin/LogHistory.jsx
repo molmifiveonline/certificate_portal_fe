@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 import { Search, Trash2, History } from "lucide-react";
 import logService from "../../services/logService";
@@ -55,7 +56,7 @@ const LogHistory = () => {
         debounce((page, limit, search) => {
             fetchLogs(page, limit, search);
         }, 500),
-        []
+        [fetchLogs]
     );
 
     // Initial Load & Param Changes
@@ -116,25 +117,11 @@ const LogHistory = () => {
         <div className="flex-1 overflow-y-auto">
             <Meta title="Log History" description="View System Logs" />
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    {/* <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <History className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Log History
-                    </h1> */}
-                    <h1 className='log-history-heading text-3xl font-bold tracking-tight page-title flex items-center gap-3'>
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <History className="w-8 h-8 text-blue-600" />
-                        </div>
-                        <span className='log-history-shimmer'>
-                            Log History
-                        </span>
-                    </h1>
-                    <p className="text-slate-500 mt-1">View and manage system activity logs</p>
-                </div>
-            </div>
+            <PageHeader
+                title="Log History"
+                subtitle="View and manage system activity logs"
+                icon={History}
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">

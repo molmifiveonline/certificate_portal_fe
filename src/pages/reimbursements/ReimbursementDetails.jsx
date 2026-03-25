@@ -3,7 +3,7 @@ import { Edit, Loader2, ReceiptText } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
-import BackButton from "../../components/common/BackButton";
+import PageHeader from "../../components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import reimbursementService from "../../services/reimbursementService";
 import { formatDate, formatDateTime } from "../../lib/utils/dateUtils";
@@ -59,22 +59,13 @@ const ReimbursementDetails = () => {
     <div className="mx-auto max-w-6xl space-y-6 animate-in fade-in duration-500">
       <Meta title="Reimbursement Details" description="View reimbursement details" />
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900">
-            <span className="rounded-2xl bg-blue-100 p-2 text-blue-600">
-              <ReceiptText className="h-8 w-8" />
-            </span>
-            Reimbursement Details
-          </h1>
-          <p className="mt-1 text-slate-500">
-            Claim #{reimbursement.claim_number || reimbursement.id}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <BackButton to="/reimbursements" label="Back to Claims" />
-          {canCandidateEditReimbursement(reimbursement.status) && (
+      <PageHeader
+        title="Reimbursement Details"
+        subtitle={`Claim #${reimbursement.claim_number || reimbursement.id}`}
+        icon={ReceiptText}
+        backTo="/reimbursements"
+        actions={
+          canCandidateEditReimbursement(reimbursement.status) && (
             <Link
               to={`/reimbursements/${reimbursement.id}/edit`}
               className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
@@ -82,9 +73,9 @@ const ReimbursementDetails = () => {
               <Edit className="h-4 w-4" />
               Edit
             </Link>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
 
       <Card className="rounded-3xl border-slate-200/60 bg-white/80 shadow-sm">
         <CardContent className="flex flex-wrap items-center justify-between gap-3 p-6">

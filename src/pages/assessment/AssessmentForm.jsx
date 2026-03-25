@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
-import { ArrowLeft, Save, Check, RefreshCcw } from "lucide-react";
-
-import { useNavigate, useParams, Link } from "react-router-dom";
+import PageHeader from "../../components/common/PageHeader";
+import { Save, Check, RefreshCcw } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { ASSESSMENT_TYPES, QUESTION_COUNTS, QUESTION_CHOICES } from "../../lib/constants";
-import BackButton from '../../components/common/BackButton';
 import { Button } from "../../components/ui/button";
 
 const InputField = ({ label, value, onChange, placeholder, required, errorMessage }) => (
@@ -173,7 +172,7 @@ const AssessmentForm = () => {
             };
             loadAssessment();
         }
-    }, [id, isEdit]);
+    }, [id, isEdit, backUrl, loadCandidates, loadCourses, loadQuestions, navigate]);
 
     const handleTypeOfTestChange = (value) => {
         setFormData((prev) => ({
@@ -278,21 +277,17 @@ const AssessmentForm = () => {
     };
 
     return (
-        <div className="flex-1 overflow-y-auto w-full bg-slate-50">
+        <div className="space-y-6">
             <Meta title={isEdit ? "Edit Assessment" : "Add Assessment"} />
 
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-                <div className="px-8 py-4 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-bold text-slate-800">{isEdit ? 'Edit Assessment' : 'New Assessment'}</h1>
-                        <p className="text-sm text-slate-500">
-                            {isEdit ? 'Update assessment details and configuration' : 'Configure and publish a new assessment'}
-                        </p>
-                    </div>
-                    <BackButton to={backUrl} />
-                </div>
-            </div>
+            <PageHeader
+                title={isEdit ? 'Edit Assessment' : 'New Assessment'}
+                subtitle={isEdit ? 'Update assessment details and configuration' : 'Configure and publish a new assessment'}
+                compact={true}
+                backTo={backUrl}
+            />
+        <div className="flex-1 overflow-y-auto w-full bg-slate-50">
+            
 
             <form onSubmit={handleSubmit} noValidate className="p-8 max-w-[1600px] mx-auto space-y-8">
 
@@ -530,6 +525,7 @@ const AssessmentForm = () => {
                     </div>
                 </div>
             </form>
+        </div>
         </div>
     );
 };

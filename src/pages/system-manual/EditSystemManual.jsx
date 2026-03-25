@@ -5,7 +5,7 @@ import { FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import SystemManualForm from './SystemManualForm';
 import { systemManualService } from '../../services/systemManualService';
-import BackButton from '../../components/common/BackButton';
+import PageHeader from '../../components/common/PageHeader';
 
 const EditSystemManual = () => {
     const { id } = useParams();
@@ -74,19 +74,13 @@ const EditSystemManual = () => {
         <div className="w-full h-full pb-20">
             <Meta title="Edit System Manual" description="Edit System Manual" />
             <div className="max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-8">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/20">
-                            <FileText className="w-8 h-8 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight page-title text-slate-900">Edit System Manual</h1>
-                            <p className="text-slate-500 mt-1">Update existing document details or replace file</p>
-                        </div>
-                    </div>
-                    <BackButton to="/system-manual" />
-                </div>
+                <PageHeader
+                    title="Edit System Manual"
+                    subtitle="Update existing document details or replace file"
+                    icon={FileText}
+                    compact={true}
+                    backTo="/system-manual"
+                />
 
                 {/* Form Container */}
                 <SystemManualForm

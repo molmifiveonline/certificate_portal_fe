@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import PageHeader from "../../components/common/PageHeader";
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import candidateService from '../../services/candidateService';
 import CandidateForm from '../../components/candidates/CandidateForm';
-import { Card, CardContent } from "../../components/ui/card";
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import BackButton from '../../components/common/BackButton';
 
 const EditCandidate = () => {
     const { id } = useParams();
@@ -46,8 +44,8 @@ const EditCandidate = () => {
                     signOnDate: data.sign_on_date ? data.sign_on_date.split('T')[0] : '',
                     signOffDate: data.sign_off_date ? data.sign_off_date.split('T')[0] : '',
                     officer: data.officer,
-                    seamanBookNo: data.seaman_book_no,
-                    profileImage: data.profile_image,
+                    seaman_book_no: data.seaman_book_no,
+                    profile_image: data.profile_image,
                     status: data.status === 1, // Map 1 to true, 0 to false
                     declaration: true // Pre-check since candidate already accepted during registration
                 };
@@ -114,18 +112,15 @@ const EditCandidate = () => {
 
     if (loading) return <LoadingSpinner />;
 
-
-
     return (
         <div className="space-y-6">
             <Meta title="Edit Candidate" description="Edit Candidate Details" />
-            <div className="flex items-center justify-between gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title">Edit Candidate</h1>
-                    <p className="text-slate-500 mt-1">Modify candidate information</p>
-                </div>
-                <BackButton to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'} />
-            </div>
+            <PageHeader
+                title="Edit Candidate"
+                subtitle="Modify candidate information"
+                compact={true}
+                backTo={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'}
+            />
 
             <div className="w-full">
                 <CandidateForm

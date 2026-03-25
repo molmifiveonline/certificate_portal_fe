@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
 import {
     Search,
@@ -195,18 +196,11 @@ const LocationList = () => {
     return (
         <div className="flex-1 overflow-y-auto w-full">
             <Meta title="Locations" description="Manage Locations" />
-            {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-indigo-100 p-2 rounded-xl">
-                            <MapPin className="w-8 h-8 text-indigo-600" />
-                        </div>
-                        Location Management
-                    </h1>
-                    <p className="text-slate-500 mt-1">Manage training centers and course locations</p>
-                </div>
-                {hasPermission('create_location') && (
+            <PageHeader
+                title="Location Management"
+                subtitle="Manage training centers and course locations"
+                icon={MapPin}
+                actions={hasPermission('create_location') && (
                     <Button
                         onClick={() => navigate('/location/create')}
                         className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
@@ -215,7 +209,7 @@ const LocationList = () => {
                         Add Location
                     </Button>
                 )}
-            </div>
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">

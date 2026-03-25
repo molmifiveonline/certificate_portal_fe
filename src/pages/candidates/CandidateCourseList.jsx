@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  BookOpen,
-  Calendar,
-  Clock,
-  Eye,
-  Search,
-  Book,
-} from "lucide-react";
+import { BookOpen, Calendar, Clock, Eye, Search, Book } from "lucide-react";
 import Meta from "../../components/common/Meta";
 import { toast } from "sonner";
 import api from "../../lib/api";
@@ -131,7 +124,7 @@ const CandidateCourseList = () => {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="w-full mx-auto space-y-8 animate-in fade-in duration-500">
       <Meta
         title="My Courses"
         description="View and manage your enrolled courses"

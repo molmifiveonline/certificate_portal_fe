@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
+import PageHeader from "../../components/common/PageHeader";
 import {
     Search,
     Building2,
     SlidersHorizontal,
 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
 import { formatDate } from "../../lib/utils/dateUtils";
 import ReportService from "../../services/reportService";
 import TablePagination from "../../components/ui/TablePagination";
@@ -35,24 +35,24 @@ const HotelReport = () => {
     const [limit, setLimit] = useState(10);
 
     // Debounce effects
-    const updateDebouncedHotel = useCallback(
-        debounce((value) => {
+    const updateDebouncedHotel = useMemo(
+        () => debounce((value) => {
             setDebouncedHotel(value);
             setCurrentPage(1);
         }, 500),
         []
     );
 
-    const updateDebouncedEmployee = useCallback(
-        debounce((value) => {
+    const updateDebouncedEmployee = useMemo(
+        () => debounce((value) => {
             setDebouncedEmployee(value);
             setCurrentPage(1);
         }, 500),
         []
     );
 
-    const updateDebouncedCourse = useCallback(
-        debounce((value) => {
+    const updateDebouncedCourse = useMemo(
+        () => debounce((value) => {
             setDebouncedCourse(value);
             setCurrentPage(1);
         }, 500),
@@ -63,7 +63,7 @@ const HotelReport = () => {
     useEffect(() => { updateDebouncedEmployee(filterEmployee); }, [filterEmployee, updateDebouncedEmployee]);
     useEffect(() => { updateDebouncedCourse(filterCourse); }, [filterCourse, updateDebouncedCourse]);
 
-    const fetchReportData = async () => {
+    const fetchReportData = useCallback(async () => {
         setLoading(true);
         try {
             const result = await ReportService.getHotelReport({
@@ -83,11 +83,11 @@ const HotelReport = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [debouncedHotel, debouncedEmployee, debouncedCourse, currentPage, limit]);
 
     useEffect(() => {
         fetchReportData();
-    }, [currentPage, limit, debouncedHotel, debouncedEmployee, debouncedCourse]);
+    }, [fetchReportData]);
 
     const columns = useMemo(() => [
         {
@@ -148,17 +148,11 @@ const HotelReport = () => {
             </div>
 
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-sky-100 p-2 rounded-xl">
-                            <Building2 className="w-8 h-8 text-sky-600" />
-                        </div>
-                        Hotel Report
-                    </h1>
-                    <p className="text-slate-500 mt-1">View list of candidates allotted to hotels</p>
-                </div>
-            </div>
+            <PageHeader
+                title="Hotel Report"
+                subtitle="View list of candidates allotted to hotels"
+                icon={Building2}
+            />
 
             <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
                 <CardContent className="p-4 sm:p-6 space-y-4">

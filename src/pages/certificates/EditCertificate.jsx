@@ -3,8 +3,7 @@ import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from "react-router-dom";
 import { Award, Save, Loader2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import BackButton from "../../components/common/BackButton";
+import PageHeader from "../../components/common/PageHeader";
 import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
 import activeCourseService from "../../services/activeCourseService";
@@ -198,18 +197,13 @@ const EditCertificate = () => {
         <div className="w-full h-full pb-20">
             <Meta title="Edit Certificate" description="Update certificate details" />
 
-            <div className="flex items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <Award className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Edit Certificate
-                    </h1>
-                    <p className="text-slate-500 mt-1">Modify details for certificate #{formData.certificate_no}</p>
-                </div>
-                <BackButton to="/certificates" />
-            </div>
+            <PageHeader
+                title="Edit Certificate"
+                subtitle={`Modify details for certificate #${formData.certificate_no}`}
+                icon={Award}
+                compact={true}
+                backTo="/certificates"
+            />
 
             <form onSubmit={handleSubmit} noValidate>
                 <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden mb-8">

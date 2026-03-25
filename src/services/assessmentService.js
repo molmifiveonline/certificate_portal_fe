@@ -52,7 +52,7 @@ const getSubmittedCourses = async (params) => {
   return response.data;
 };
 
-const getAllPaginatedSubmissions = async (params) => {
+const getSubmittedAssessments = async (params) => {
   const response = await api.get("/assessment/all-submissions", { params });
   return response.data;
 };
@@ -116,7 +116,7 @@ const assessmentService = {
   downloadSubmissionPdf,
   getAssessmentsByCourse,
   getAssessmentSubmissions,
-  getAllPaginatedSubmissions,
+  getSubmittedAssessments,
 };
 
 export default assessmentService;

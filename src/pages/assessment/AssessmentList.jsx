@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import {
     Search,
     Plus,
@@ -118,24 +119,20 @@ const AssessmentList = () => {
             <Meta title="Assessments" description="Manage Assessments" />
 
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <ClipboardCheck className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Assessments
-                    </h1>
-                    <p className="text-slate-500 mt-1">{isTrainer ? "Manage assessments for your assigned courses" : "Manage and view all assessments"}</p>
-                </div>
-                <Button
-                    onClick={() => navigate(`${baseUrl}/add`)}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Assessment
-                </Button>
-            </div>
+            <PageHeader
+                title="Assessments"
+                subtitle={isTrainer ? "Manage assessments for your assigned courses" : "Manage and view all assessments"}
+                icon={ClipboardCheck}
+                actions={
+                    <Button
+                        onClick={() => navigate(`${baseUrl}/add`)}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Assessment
+                    </Button>
+                }
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
