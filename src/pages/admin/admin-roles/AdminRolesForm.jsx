@@ -5,7 +5,7 @@ import { Shield, Save, RefreshCcw } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import api from '../../../lib/api';
 import { toast } from 'sonner';
-import BackButton from '../../../components/common/BackButton';
+import PageHeader from '../../../components/common/PageHeader';
 
 const AdminRolesForm = () => {
     const navigate = useNavigate();
@@ -64,18 +64,13 @@ const AdminRolesForm = () => {
         <div className="w-full h-full pb-20">
             <Meta title={isEditing ? "Edit Admin Role" : "Add Admin Role"} description="Manage Admin Role" />
             <div className="max-w-[1600px] mx-auto">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                            <div className="bg-indigo-100 p-2 rounded-xl">
-                                <Shield className="w-8 h-8 text-indigo-600" />
-                            </div>
-                            {isEditing ? "Edit Admin Role" : "Add Admin Role"}
-                        </h1>
-                        <p className="text-slate-500 mt-1">Configure permissions profile for admin users</p>
-                    </div>
-                    <BackButton to="/admin/admin-roles" />
-                </div>
+                <PageHeader
+                    title={isEditing ? "Edit Admin Role" : "Add Admin Role"}
+                    subtitle="Configure permissions profile for admin users"
+                    icon={Shield}
+                    compact={true}
+                    backTo="/admin/admin-roles"
+                />
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

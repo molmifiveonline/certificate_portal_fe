@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
-import { Search, Eye, ArrowLeft } from "lucide-react";
+import { Search, Eye } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import assessmentService from "../../services/assessmentService";
-import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
 import { formatDate } from "../../lib/utils/dateUtils";
-import BackButton from '../../components/common/BackButton';
+import PageHeader from "../../components/common/PageHeader";
 
 const CourseSubmissions = () => {
     const { courseId } = useParams();
@@ -19,11 +18,12 @@ const CourseSubmissions = () => {
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [activeTab, setActiveTab] = useState("3"); // Default to Daily (3)
 
-    const updateDebouncedSearch = useCallback(
-        debounce((value) => {
+    // Use useMemo for debounced search to avoid recreation on every render
+    const updateDebouncedSearch = useMemo(
+        () => debounce((value) => {
             setDebouncedSearch(value);
         }, 500),
-        []
+        [setDebouncedSearch]
     );
 
     useEffect(() => {
@@ -113,20 +113,12 @@ const CourseSubmissions = () => {
                 description="View candidate submissions"
             />
 
-            {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div className="flex items-center gap-4">
-                    <BackButton to="/assessment/submitted" />
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                            Submitted Assessment Candidates
-                        </h1>
-                        <p className="text-slate-500 text-sm mt-0.5">
-                            {courseName}
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title="Submitted Assessment Candidates"
+                subtitle={`Showing submissions for: ${courseName}`}
+                compact={true}
+                backTo="/assessment/submitted"
+            />
 
             <div className="mb-6 flex gap-2 border-b border-slate-200">
                 <button

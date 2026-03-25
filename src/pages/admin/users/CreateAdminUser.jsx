@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import AdminUserForm from './AdminUserForm';
 import adminUserService from '../../../services/adminUserService';
 import { toast } from 'sonner';
-import BackButton from '../../../components/common/BackButton';
 
 const CreateAdminUser = () => {
     const navigate = useNavigate();
@@ -33,7 +32,7 @@ const CreateAdminUser = () => {
                     title="Add Admin User"
                     subtitle="Register a new system administrator"
                     compact={true}
-                    backButton={<BackButton to="/admin/users" />}
+                    backTo="/admin/users"
                 />
 
                 <AdminUserForm

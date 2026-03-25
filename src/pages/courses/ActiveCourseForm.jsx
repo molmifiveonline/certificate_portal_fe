@@ -26,7 +26,6 @@ import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { Button } from "../../components/ui/button";
 import { cn } from "../../lib/utils/utils";
-import BackButton from "../../components/common/BackButton";
 import { Badge } from "../../components/ui/badge";
 import { useAuth } from "../../context/AuthContext";
 
@@ -1552,7 +1551,7 @@ const ActiveCourseForm = () => {
         title={id ? "Edit Course" : "Create New Course"}
         subtitle={courseData ? `${courseData.course_name} (${courseData.course_id})` : ""}
         compact={true}
-        backButton={<BackButton to={backRoute} />}
+        backTo={backRoute}
         className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 shadow-sm mb-0"
       />
 

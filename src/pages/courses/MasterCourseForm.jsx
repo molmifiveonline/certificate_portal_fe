@@ -9,7 +9,6 @@ import { Save, BookOpen, FileText } from 'lucide-react';
 import { Button } from "../../components/ui/button";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import BackButton from '../../components/common/BackButton';
 
 const FormContext = createContext();
 
@@ -125,7 +124,7 @@ const MasterCourseForm = () => {
                     title={id ? 'Edit Master Course' : 'Create Master Course'}
                     subtitle={id ? 'Update master course details' : 'Define a new master course template'}
                     compact={true}
-                    backButton={<BackButton to="/courses" />}
+                    backTo="/courses"
                     className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 shadow-sm mb-0"
                 />
 

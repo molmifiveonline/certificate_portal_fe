@@ -8,7 +8,6 @@ import { TRAINER_NATIONALITY_OPTIONS, PREFIX_OPTIONS } from '../../lib/constants
 import { Users, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
-import BackButton from '../../components/common/BackButton';
 
 const FormContext = createContext();
 
@@ -102,8 +101,6 @@ const CreateTrainer = () => {
         }
     };
 
-
-
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
@@ -115,7 +112,7 @@ const CreateTrainer = () => {
             const lastName = nameParts.slice(1).join(' ') || '';
 
             formData.append('first_name', firstName);
-            formData.append('last_name', lastName); // Backend expects last_name
+            formData.append('last_name', lastName);
             formData.append('email', data.email);
             formData.append('password', data.password);
             formData.append('prefix', data.prefix);
@@ -150,8 +147,6 @@ const CreateTrainer = () => {
         }
     };
 
-
-
     return (
         <FormContext.Provider value={{ register, errors, handleFileChange, previews }}>
             <div className="min-h-screen bg-slate-50">
@@ -162,7 +157,7 @@ const CreateTrainer = () => {
                 subtitle="Fill in the details to register a new trainer"
                 icon={Users}
                 compact={true}
-                backButton={<BackButton to="/trainers" />}
+                backTo="/trainers"
                 className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 shadow-sm mb-0"
             />
 
@@ -224,10 +219,6 @@ const CreateTrainer = () => {
                                         <InputField label="Designation" name="designation" required />
                                         <InputField label="Rank" name="rank" required />
                                     </div>
-                                    {/* <div className="grid grid-cols-2 gap-6">
-                                        <InputField label="Officer" name="officer" placeholder="e.g. Deck Officer" />
-                                        <InputField label="Other Officer" name="other_officer" placeholder="e.g. Safety Officer" />
-                                    </div> */}
                                 </div>
                             </div>
                         </div>

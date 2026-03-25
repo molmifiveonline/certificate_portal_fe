@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import nominatorService from '../../services/nominatorService';
 import { Users, Save } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import BackButton from '../../components/common/BackButton';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PageHeader from '../../components/common/PageHeader';
 
 const FormContext = createContext();
 
@@ -73,21 +73,13 @@ const EditNominator = () => {
         <FormContext.Provider value={{ register, errors }}>
             <div className="min-h-screen bg-slate-50">
             <Meta title="Edit Nominator" description="Edit Nominator Details" />
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-                <div className="px-8 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                            <Users size={24} className="text-blue-600" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-800">Edit Nominator</h1>
-                            <p className="text-sm text-slate-500">Update nominator details</p>
-                        </div>
-                    </div>
-                    <BackButton to="/nominators" />
-                </div>
-            </div>
+            <PageHeader
+                title="Edit Nominator"
+                subtitle="Update nominator details"
+                icon={Users}
+                compact={true}
+                backTo="/nominators"
+            />
 
             {/* Form Content */}
             <div className="max-w-none">

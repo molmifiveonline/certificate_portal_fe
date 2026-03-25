@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import nominatorService from '../../services/nominatorService';
 import { Users, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '../../components/common/BackButton';
+import PageHeader from '../../components/common/PageHeader';
 
 const FormContext = createContext();
 
@@ -51,21 +51,13 @@ const CreateNominator = () => {
         <FormContext.Provider value={{ register, errors }}>
             <div className="min-h-screen bg-slate-50">
             <Meta title="Create Nominator" description="Create New Nominator" />
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-                <div className="px-8 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                            <Users size={24} className="text-blue-600" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-800">Create New Nominator</h1>
-                            <p className="text-sm text-slate-500">Fill in the details to add a new nominator</p>
-                        </div>
-                    </div>
-                    <BackButton to="/nominators" />
-                </div>
-            </div>
+            <PageHeader
+                title="Create New Nominator"
+                subtitle="Fill in the details to add a new nominator"
+                icon={Users}
+                compact={true}
+                backTo="/nominators"
+            />
 
             {/* Form Content */}
             <div className="max-w-none">

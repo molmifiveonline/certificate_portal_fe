@@ -7,7 +7,6 @@ import api from '../../lib/api';
 import { Users, Save } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
-import BackButton from '../../components/common/BackButton';
 
 const FormContext = createContext();
 
@@ -133,7 +132,6 @@ const EditTrainer = () => {
                 setValue('email', trainer.email || '');
                 setValue('nationality', trainer.nationality || '');
                 setValue('designation', trainer.designation || '');
-                setValue('designation', trainer.designation || '');
                 setValue('rank', trainer.rank || '');
                 setValue('officer', trainer.officer || '');
                 setValue('other_officer', trainer.other_officer || '');
@@ -205,8 +203,6 @@ const EditTrainer = () => {
         }
     };
 
-
-
     if (loading) {
         return (
             <div className="p-6 max-w-4xl mx-auto flex items-center justify-center min-h-[400px]">
@@ -214,8 +210,6 @@ const EditTrainer = () => {
             </div>
         );
     }
-
-
 
     return (
         <FormContext.Provider value={{ register, errors, handleFileChange, previews }}>
@@ -227,7 +221,7 @@ const EditTrainer = () => {
                 subtitle="Update trainer details and permissions"
                 icon={Users}
                 compact={true}
-                backButton={<BackButton to="/trainers" />}
+                backTo="/trainers"
             />
 
             {/* Form Content */}
@@ -281,10 +275,6 @@ const EditTrainer = () => {
                                     Professional Details
                                 </h3>
                                 <div className="space-y-6">
-                                    {/* <div className="grid grid-cols-2 gap-6">
-                                        <InputField label="Officer" name="officer" placeholder="e.g. Deck Officer" />
-                                        <InputField label="Other Officer" name="other_officer" placeholder="e.g. Safety Officer" />
-                                    </div> */}
                                     <div className="grid grid-cols-2 gap-6">
                                         <InputField label="Designation" name="designation" required />
                                         <InputField label="Rank" name="rank" required />

@@ -5,7 +5,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import AdminUserForm from './AdminUserForm';
 import adminUserService from '../../../services/adminUserService';
 import { toast } from 'sonner';
-import BackButton from '../../../components/common/BackButton';
 
 const EditAdminUser = () => {
     const { id } = useParams();
@@ -64,7 +63,7 @@ const EditAdminUser = () => {
                     title="Edit Admin User"
                     subtitle="Update system administrator details"
                     compact={true}
-                    backButton={<BackButton to="/admin/users" />}
+                    backTo="/admin/users"
                 />
 
                 <AdminUserForm

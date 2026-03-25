@@ -3,9 +3,9 @@ import Meta from "../../components/common/Meta";
 import { toast } from 'sonner';
 import api from '../../lib/api';
 import questionBankService from '../../services/questionBankService';
-import { Save, ArrowLeft, BookOpen, RefreshCcw } from 'lucide-react';
+import { Save, BookOpen, RefreshCcw } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import BackButton from '../../components/common/BackButton';
+import PageHeader from '../../components/common/PageHeader';
 import { Button } from "../../components/ui/button";
 
 const FormContext = createContext();
@@ -288,21 +288,13 @@ const QuestionBankForm = () => {
             <div className="min-h-screen bg-slate-50">
                 <Meta title={isEditMode ? "Edit Question" : "Add Question"} description={isEditMode ? "Edit Question Details" : "Add New Question"} />
 
-                {/* Header */}
-                <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-                    <div className="px-8 py-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <div className="bg-blue-100 p-2 rounded-lg">
-                                <BookOpen size={24} className="text-blue-600" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold text-slate-800">{isEditMode ? "Edit Question" : "Add New Question"}</h1>
-                                <p className="text-sm text-slate-500">Fill in the details to {isEditMode ? "update" : "create"} a question</p>
-                            </div>
-                        </div>
-                        <BackButton to="/assessment/question-bank" />
-                    </div>
-                </div>
+                <PageHeader
+                    title={isEditMode ? "Edit Question" : "Add New Question"}
+                    subtitle={`Fill in the details to ${isEditMode ? "update" : "create"} a question`}
+                    icon={BookOpen}
+                    compact={true}
+                    backTo="/assessment/question-bank"
+                />
 
                 <div className="max-w-none p-8">
                     <form onSubmit={handleSubmit} noValidate className="space-y-8 max-w-[1200px] mx-auto">

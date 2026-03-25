@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import feedbackAnswerService from "../../services/feedbackAnswerService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Meta from "../../components/common/Meta";
-import { ArrowLeft, User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Download } from "lucide-react";
+import { User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Download } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
-import BackButton from '../../components/common/BackButton';
+import PageHeader from "../../components/common/PageHeader";
 
 const SubmittedFeedbackDetails = () => {
     const { candidateId, activeCourseId } = useParams();
@@ -69,29 +69,22 @@ const SubmittedFeedbackDetails = () => {
         <div className="flex-1 overflow-y-auto">
             <Meta title="Feedback Details" description="View feedback submission details" />
 
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-                <div className="flex items-center gap-4">
-                    <BackButton to={backUrl} />
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                            Feedback Details
-                        </h1>
-                        <p className="text-slate-500 text-sm mt-0.5">
-                            Submission for {candidate.first_name} {candidate.last_name}
-                        </p>
-                    </div>
-                </div>
-
-                <button
-                    onClick={handleDownloadPDF}
-                    disabled={downloading}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-sm shadow-blue-600/20"
-                >
-                    <Download className="w-4 h-4" />
-                    {downloading ? "Downloading..." : "Download PDF"}
-                </button>
-            </div>
+            <PageHeader
+                title="Feedback Details"
+                subtitle={`Submission for ${candidate.first_name} ${candidate.last_name}`}
+                compact={true}
+                backTo={backUrl}
+                actions={
+                    <button
+                        onClick={handleDownloadPDF}
+                        disabled={downloading}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-sm shadow-blue-600/20"
+                    >
+                        <Download className="w-4 h-4" />
+                        {downloading ? "Downloading..." : "Download PDF"}
+                    </button>
+                }
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Candidate Info Card */}

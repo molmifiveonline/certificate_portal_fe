@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import Meta from "../../components/common/Meta";
 import { useNavigate } from 'react-router-dom';
-import { Building, ArrowLeft } from 'lucide-react';
+import { Building } from 'lucide-react';
 import { toast } from 'sonner';
 import HotelForm from './HotelForm';
 import hotelService from '../../services/hotelService';
-import BackButton from '../../components/common/BackButton';
+import PageHeader from '../../components/common/PageHeader';
 
 const CreateHotel = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,19 +44,13 @@ const CreateHotel = () => {
         <div className="w-full h-full pb-20">
             <Meta title="Add Hotel" description="Add New Hotel" />
             <div className="max-w-[1600px] mx-auto">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-500/20">
-                            <Building className="w-8 h-8 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight page-title">Add New Hotel</h1>
-                            <p className="text-slate-500 mt-1">Register a new hotel for courses and certificates</p>
-                        </div>
-                    </div>
-                    <BackButton to="/hotel-details" />
-                </div>
+                <PageHeader
+                    title="Add New Hotel"
+                    subtitle="Register a new hotel for courses and certificates"
+                    icon={Building}
+                    compact={true}
+                    backTo="/hotel-details"
+                />
 
                 {/* Form Container */}
                 <HotelForm
