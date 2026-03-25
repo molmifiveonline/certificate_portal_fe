@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -8,21 +9,17 @@ import activeCourseService from "../../services/activeCourseService";
 // import candidateService from '../../services/candidateService'; // Not used directly, using activeCourseService
 import {
   Save,
-  ArrowLeft,
   BookOpen,
   MapPin,
   Calendar,
   FileText,
   Video,
-  Clock,
   Users,
-  Link as LinkIcon,
   Check,
   ChevronDown,
   Trash2,
   Mail,
   AlertTriangle,
-  AlertCircle,
   RefreshCcw,
 } from "lucide-react";
 import ReactQuill from "react-quill-new";
@@ -30,12 +27,6 @@ import "react-quill-new/dist/quill.snow.css";
 import { Button } from "../../components/ui/button";
 import { cn } from "../../lib/utils/utils";
 import BackButton from "../../components/common/BackButton";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { useAuth } from "../../context/AuthContext";
 
@@ -1304,7 +1295,7 @@ const ActiveCourseForm = () => {
         if (payload.location_id === "Other") {
           payload.location = payload.other_location;
         } else {
-          const loc = locations.find((l) => l.id == payload.location_id);
+          const loc = locations.find((l) => String(l.id) === String(payload.location_id));
           if (loc) {
             payload.location = loc.location_name;
             // Keep location_id just in case, but location field is what DB usually stores as string?
@@ -1557,21 +1548,13 @@ const ActiveCourseForm = () => {
       <Meta title={id ? "Edit Course" : "Add Course"} />
 
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 flex items-center justify-between shadow-sm">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800">
-            {id ? "Edit Course" : "Create New Course"}
-          </h1>
-          {courseData && (
-            <p className="text-sm text-slate-500">
-              {courseData.course_name} ({courseData.course_id})
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          <BackButton to={backRoute} />
-        </div>
-      </div>
+      <PageHeader
+        title={id ? "Edit Course" : "Create New Course"}
+        subtitle={courseData ? `${courseData.course_name} (${courseData.course_id})` : ""}
+        compact={true}
+        backButton={<BackButton to={backRoute} />}
+        className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 shadow-sm mb-0"
+      />
 
       {/* Progress Bar */}
       {id && (

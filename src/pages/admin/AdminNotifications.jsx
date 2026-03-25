@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import PageHeader from "../../components/common/PageHeader";
 import { Bell, BookOpenCheck, ReceiptText, UserCog } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -163,22 +164,16 @@ const AdminNotifications = () => {
         description="Admin request inbox for candidate and trainer actions"
       />
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900">
-            <span className="rounded-2xl bg-blue-100 p-2 text-blue-700">
-              <Bell className="h-8 w-8" />
-            </span>
-            Notifications
-          </h1>
-          <p className="mt-1 max-w-3xl text-slate-500">
-            Admin-only inbox for requests that need review and action.
-          </p>
-        </div>
-        <Badge variant="outline" className="w-fit border-slate-200 px-3 py-1 text-sm text-slate-600">
-          {summary.totalPending} pending items
-        </Badge>
-      </div>
+      <PageHeader
+        title="Notifications"
+        subtitle="Admin-only inbox for requests that need review and action."
+        icon={Bell}
+        actions={
+          <Badge variant="outline" className="w-fit border-slate-200 px-3 py-1 text-sm text-slate-600">
+            {summary.totalPending} pending items
+          </Badge>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {summaryCards(summary).map((item) => {

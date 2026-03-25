@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import PageSubtitle from "../../components/common/PageSubtitle";
 import {
     Search,
@@ -211,26 +212,22 @@ const TrainerList = () => {
         <div className="flex-1 overflow-y-auto w-full">
             <Meta title="Trainers" description="Manage Trainers" />
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <UserCheck className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Trainers
-                    </h1>
-                    <PageSubtitle>Manage and view all registered trainers</PageSubtitle>
-                </div>
-                {hasPermission('create_trainer') && (
-                    <Button
-                        onClick={() => navigate('/trainer/create')}
-                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                    >
-                        <UserPlus className="w-4 h-4" />
-                        Add Trainer
-                    </Button>
-                )}
-            </div>
+            <PageHeader
+                title="Trainers"
+                subtitle="Manage and view all registered trainers"
+                icon={UserCheck}
+                actions={
+                    hasPermission('create_trainer') && (
+                        <Button
+                            onClick={() => navigate('/trainer/create')}
+                            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                        >
+                            <UserPlus className="w-4 h-4" />
+                            Add Trainer
+                        </Button>
+                    )
+                }
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">

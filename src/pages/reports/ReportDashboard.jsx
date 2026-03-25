@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 import { FileSpreadsheet, Sparkles } from "lucide-react";
 import ReportService from "../../services/reportService";
@@ -186,20 +187,12 @@ const ReportDashboard = () => {
         <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-indigo-200/40 blur-3xl" />
       </div>
 
-      <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-700">
-            <Sparkles className="h-3.5 w-3.5" />
-            Analytics Hub
-          </p>
-          <h1 className="flex items-center gap-2 text-3xl font-bold text-slate-900 sm:text-4xl">
-            <FileSpreadsheet className="h-8 w-8 text-sky-600" />
-            Reports Dashboard
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
-            Generate polished Excel exports with flexible filters for feedback and certificates.
-          </p>
-        </div>
+      <div className="mb-8">
+        <PageHeader
+          title="Reports Dashboard"
+          subtitle="Generate polished Excel exports with flexible filters for feedback and certificates."
+          icon={FileSpreadsheet}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">

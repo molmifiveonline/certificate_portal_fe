@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import PageHeader from '../../../components/common/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Search, Mail, Phone, UserCheck } from 'lucide-react';
 import Meta from "../../../components/common/Meta";
@@ -161,17 +162,11 @@ const AdminUserList = () => {
         <div className="flex-1 overflow-y-auto w-full">
             <Meta title="Admin Users" description="Manage Admin Users" />
             
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <UserCheck className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Admin Users
-                    </h1>
-                    <p className="text-slate-500 mt-1">Manage system administrators</p>
-                </div>
-                {hasPermission('create_admin_user') && (
+            <PageHeader
+                title="Admin Users"
+                subtitle="Manage system administrators"
+                icon={UserCheck}
+                actions={hasPermission('create_admin_user') && (
                     <Button
                         onClick={() => navigate('/admin/users/create')}
                         className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
@@ -180,7 +175,7 @@ const AdminUserList = () => {
                         Add Admin
                     </Button>
                 )}
-            </div>
+            />
 
             <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
                 <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-center">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { ArrowLeft, Save, Check, RefreshCcw } from "lucide-react";
 
 import { useNavigate, useParams, Link } from "react-router-dom";
@@ -284,13 +285,12 @@ const AssessmentForm = () => {
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
                 <div className="px-8 py-4 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-bold text-slate-800">{isEdit ? 'Edit Assessment' : 'New Assessment'}</h1>
-                        <p className="text-sm text-slate-500">
-                            {isEdit ? 'Update assessment details and configuration' : 'Configure and publish a new assessment'}
-                        </p>
-                    </div>
-                    <BackButton to={backUrl} />
+                    <PageHeader
+                        title={isEdit ? 'Edit Assessment' : 'New Assessment'}
+                        subtitle={isEdit ? 'Update assessment details and configuration' : 'Configure and publish a new assessment'}
+                        compact={true}
+                        actions={<BackButton to={backUrl} />}
+                    />
                 </div>
             </div>
 

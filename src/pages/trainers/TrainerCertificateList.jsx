@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { Search, Award } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import TablePagination from "../../components/ui/TablePagination";
@@ -86,19 +87,11 @@ const TrainerCertificateList = () => {
             <Meta title="My Certificates" description="View your certificates" />
 
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <Award className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Certificates
-                    </h1>
-                    <p className="text-slate-500 mt-1">
-                        View all certificates issued under your training
-                    </p>
-                </div>
-            </div>
+            <PageHeader
+                title="Certificates"
+                subtitle="View all certificates issued under your training"
+                icon={Award}
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">

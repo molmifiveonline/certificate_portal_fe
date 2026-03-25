@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Meta from "../../../components/common/Meta";
+import PageHeader from '../../../components/common/PageHeader';
 import { useNavigate, useParams } from 'react-router-dom';
 import AdminUserForm from './AdminUserForm';
 import adminUserService from '../../../services/adminUserService';
@@ -59,14 +60,12 @@ const EditAdminUser = () => {
         <div className="w-full h-full pb-20">
             <Meta title="Edit Admin User" description="Edit Admin User" />
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight page-title">Edit Admin User</h1>
-                        <p className="text-slate-500 mt-1">Update system administrator details</p>
-                    </div>
-                    <BackButton to="/admin/users" />
-                </div>
+                <PageHeader
+                    title="Edit Admin User"
+                    subtitle="Update system administrator details"
+                    compact={true}
+                    backButton={<BackButton to="/admin/users" />}
+                />
 
                 <AdminUserForm
                     initialData={initialData}

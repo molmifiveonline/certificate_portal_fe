@@ -12,7 +12,7 @@ import {
   MapPin,
   ClipboardList,
   Building,
-  // FileBarChart,
+  FileBarChart,
   Shield,
   History,
   MessageSquare,
@@ -74,7 +74,7 @@ export const MenuItems = [
     permissionSlug: "view_master_courses",
     subItems: [
       { title: "Master Courses", url: "/courses" },
-      // { title: "Pre-Active Courses", url: "/pre-active-courses" },
+      { title: "Pre-Active Courses", url: "/pre-active-courses" },
       { title: "Active Courses", url: "/active-courses" },
       // { title: "Outhouse Courses", url: "/outhouse-courses" },
     ],
@@ -125,17 +125,17 @@ export const MenuItems = [
   //   icon: Award,
   //   allowedRoles: ["admin", "superadmin"],
   // },
-  // {
-  //   title: "Reports",
-  //   url: "/reports",
-  //   icon: FileBarChart,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Reports", url: "/reports" },
-  //     { title: "Hotel Report", url: "/reports/hotel" },
-  //     { title: "Admin Remarks", url: "/reports/admin-remarks" },
-  //   ],
-  // },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: FileBarChart,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Reports", url: "/reports" },
+      { title: "Hotel Report", url: "/reports/hotel" },
+      { title: "Admin Remarks", url: "/reports/admin-remarks" },
+    ],
+  },
   // {
   //   title: "Reimbursements",
   //   url: "/admin/reimbursements",

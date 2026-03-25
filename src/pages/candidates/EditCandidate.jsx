@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import PageHeader from "../../components/common/PageHeader";
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import candidateService from '../../services/candidateService';
 import CandidateForm from '../../components/candidates/CandidateForm';
-import { Card, CardContent } from "../../components/ui/card";
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import BackButton from '../../components/common/BackButton';
 
@@ -119,13 +118,12 @@ const EditCandidate = () => {
     return (
         <div className="space-y-6">
             <Meta title="Edit Candidate" description="Edit Candidate Details" />
-            <div className="flex items-center justify-between gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title">Edit Candidate</h1>
-                    <p className="text-slate-500 mt-1">Modify candidate information</p>
-                </div>
-                <BackButton to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'} />
-            </div>
+            <PageHeader
+                title="Edit Candidate"
+                subtitle="Modify candidate information"
+                compact={true}
+                backButton={<BackButton to={candidateData?.employeeType === 'Others' ? '/candidates/others' : '/candidates/molmi'} />}
+            />
 
             <div className="w-full">
                 <CandidateForm

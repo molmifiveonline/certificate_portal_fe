@@ -1,11 +1,12 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import api from '../../lib/api';
 import { TRAINER_NATIONALITY_OPTIONS, PREFIX_OPTIONS } from '../../lib/constants';
-import { Users, Save, ArrowLeft } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Users, Save } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import BackButton from '../../components/common/BackButton';
 
@@ -156,20 +157,14 @@ const CreateTrainer = () => {
             <div className="min-h-screen bg-slate-50">
             <Meta title="Create Trainer" description="Create New Trainer" />
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-                <div className="px-8 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                            <Users size={24} className="text-blue-600" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-800">Create New Trainer</h1>
-                            <p className="text-sm text-slate-500">Fill in the details to register a new trainer</p>
-                        </div>
-                    </div>
-                    <BackButton to="/trainers" />
-                </div>
-            </div>
+            <PageHeader
+                title="Create New Trainer"
+                subtitle="Fill in the details to register a new trainer"
+                icon={Users}
+                compact={true}
+                backButton={<BackButton to="/trainers" />}
+                className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 shadow-sm mb-0"
+            />
 
             {/* Form Content */}
             <div className="max-w-none">

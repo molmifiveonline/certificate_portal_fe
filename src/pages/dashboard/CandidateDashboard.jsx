@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
@@ -154,14 +155,11 @@ const CandidateDashboard = () => {
       <Meta title="Candidate Dashboard" description="Candidate Dashboard" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            Welcome Back, {user?.first_name || user?.name || "Candidate"}!
-          </h1>
-          <p className="mt-1 font-medium text-slate-500">
-            Review your active courses and available certificates.
-          </p>
-        </div>
+        <PageHeader
+          title={`Welcome Back, ${user?.first_name || user?.name || "Candidate"}!`}
+          subtitle="Review your active courses and available certificates."
+          className="mb-0"
+        />
         <div className="flex items-center gap-3 rounded-2xl border border-white/40 bg-white/60 px-4 py-2 shadow-sm backdrop-blur-xl">
           <Calendar className="h-5 w-5 text-blue-600" />
           <span className="text-sm font-bold text-slate-700">

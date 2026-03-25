@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import {
     Search,
     FileDown,
     Plus,
     Edit,
-    BookOpen,
+    LayoutDashboard,
 } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 
-import { Button, buttonVariants } from "../../components/ui/button";
-import { cn } from "../../lib/utils/utils";
+import { Button } from "../../components/ui/button";
 import { formatDate } from "../../lib/utils/dateUtils";
-import api from "../../lib/api";
 import activeCourseService from "../../services/activeCourseService";
 import { toast } from "sonner";
 
@@ -208,25 +207,20 @@ const ActiveCourseList = () => {
         <div className="flex-1 overflow-y-auto w-full">
             <Meta title="Active Courses" description="Manage Active Courses" />
 
-            {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <BookOpen className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Active Courses
-                    </h1>
-                    <p className="text-slate-500 mt-1">Manage and view all active courses</p>
-                </div>
-                <Button
-                    onClick={() => navigate('/active-courses/add')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Course
-                </Button>
-            </div>
+            <PageHeader
+                title="Active Courses"
+                subtitle="Manage and track ongoing course sessions"
+                icon={LayoutDashboard}
+                actions={
+                    <Button
+                        onClick={() => navigate('/active-courses/add')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Course
+                    </Button>
+                }
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">

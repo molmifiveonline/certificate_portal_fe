@@ -1,12 +1,12 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../lib/api';
 import { Save, BookOpen, FileText } from 'lucide-react';
 import { Button } from "../../components/ui/button";
-import { cn } from "../../lib/utils/utils";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import BackButton from '../../components/common/BackButton';
@@ -121,15 +121,13 @@ const MasterCourseForm = () => {
                 <Meta title={id ? "Edit Master Course" : "Add Master Course"} description="Manage Master Course Details" />
 
                 {/* Header */}
-                <div className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 flex items-center justify-between shadow-sm">
-                    <div>
-                        <h1 className="text-xl font-bold text-slate-800">{id ? 'Edit Master Course' : 'Create Master Course'}</h1>
-                        <p className="text-sm text-slate-500">
-                            {id ? 'Update master course details' : 'Define a new master course template'}
-                        </p>
-                    </div>
-                    <BackButton to="/courses" />
-                </div>
+                <PageHeader
+                    title={id ? 'Edit Master Course' : 'Create Master Course'}
+                    subtitle={id ? 'Update master course details' : 'Define a new master course template'}
+                    compact={true}
+                    backButton={<BackButton to="/courses" />}
+                    className="bg-white border-b border-slate-200 sticky top-0 z-10 px-8 py-4 shadow-sm mb-0"
+                />
 
                 {/* Form Content */}
                 <div className="max-w-[1600px] mx-auto p-8">

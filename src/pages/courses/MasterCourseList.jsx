@@ -8,10 +8,10 @@ import {
     GraduationCap,
     ExternalLink,
 } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import PageHeader from "../../components/common/PageHeader";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/card";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { cn } from "../../lib/utils/utils";
+import { Button } from "../../components/ui/button";
 import { formatDate } from "../../lib/utils/dateUtils";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
@@ -192,24 +192,20 @@ const MasterCourseList = () => {
             <Meta title="Master Courses" description="Manage Master Courses" />
 
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-xl">
-                            <GraduationCap className="w-8 h-8 text-blue-600" />
-                        </div>
-                        Master Courses
-                    </h1>
-                    <p className="text-slate-500 mt-1">Manage and view all master courses</p>
-                </div>
-                <Button
-                    onClick={() => navigate('/courses/add')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Master Course
-                </Button>
-            </div>
+            <PageHeader
+                title="Master Courses"
+                subtitle="Manage and view all master courses"
+                icon={GraduationCap}
+                actions={
+                    <Button
+                        onClick={() => navigate('/courses/add')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Master Course
+                    </Button>
+                }
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">

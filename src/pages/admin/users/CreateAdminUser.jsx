@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Meta from "../../../components/common/Meta";
+import PageHeader from '../../../components/common/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import AdminUserForm from './AdminUserForm';
 import adminUserService from '../../../services/adminUserService';
@@ -28,14 +29,12 @@ const CreateAdminUser = () => {
         <div className="w-full h-full pb-20">
             <Meta title="Add Admin User" description="Add New Admin User" />
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight page-title">Add Admin User</h1>
-                        <p className="text-slate-500 mt-1">Register a new system administrator</p>
-                    </div>
-                    <BackButton to="/admin/users" />
-                </div>
+                <PageHeader
+                    title="Add Admin User"
+                    subtitle="Register a new system administrator"
+                    compact={true}
+                    backButton={<BackButton to="/admin/users" />}
+                />
 
                 <AdminUserForm
                     onSubmit={handleSubmit}
