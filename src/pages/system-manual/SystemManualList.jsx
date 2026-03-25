@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
+import PageHeader from "../../components/common/PageHeader";
 import {
     Search,
     Plus,
@@ -192,25 +193,20 @@ const SystemManualList = () => {
     return (
         <div className="flex-1 overflow-y-auto w-full">
             <Meta title="System Manuals" description="Manage System Manuals" />
-            {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight page-title flex items-center gap-3">
-                        <div className="bg-indigo-100 p-2 rounded-xl border border-indigo-200">
-                            <FileText className="w-8 h-8 text-indigo-600" />
-                        </div>
-                        System Manual
-                    </h1>
-                    <p className="text-slate-500 mt-1 pb-2 border-b-2 border-slate-200 inline-block">Manage system documents, forms and policy files.</p>
-                </div>
-                <Button
-                    onClick={() => navigate('/system-manual/create')}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Manual
-                </Button>
-            </div>
+            <PageHeader
+                title="System Manual"
+                subtitle="Manage system documents, forms and policy files."
+                icon={FileText}
+                actions={
+                    <Button
+                        onClick={() => navigate('/system-manual/create')}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Manual
+                    </Button>
+                }
+            />
 
             {/* Filter Bar */}
             <Card className="rounded-3xl border border-slate-200 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10 transition-all hover:shadow-xl">

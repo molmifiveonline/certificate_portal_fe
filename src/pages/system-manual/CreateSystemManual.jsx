@@ -38,7 +38,7 @@ const CreateSystemManual = () => {
     return (
         <div className="w-full h-full pb-20">
             <Meta title="Add System Manual" description="Add New System Manual" />
-            <div className="max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-8">
+            <div className="w-full mx-auto">
                 <PageHeader
                     title="Add New System Manual"
                     subtitle="Upload a new document or add a URL link"

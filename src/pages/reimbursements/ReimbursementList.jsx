@@ -10,6 +10,7 @@ import TablePagination from "../../components/ui/TablePagination";
 import reimbursementService from "../../services/reimbursementService";
 import { formatDate } from "../../lib/utils/dateUtils";
 import ReimbursementStatusBadge from "../../components/reimbursements/ReimbursementStatusBadge";
+import PageHeader from "../../components/common/PageHeader";
 import { canCandidateEditReimbursement } from "../../lib/utils/reimbursementUtils";
 
 const normalizeListResponse = (response) => ({
@@ -108,34 +109,27 @@ const ReimbursementList = () => {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6 animate-in fade-in duration-500">
+    <div className="w-full space-y-8 animate-in fade-in duration-500">
       <Meta
         title="Reimbursement Claims"
         description="Create and track reimbursement claims"
       />
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900">
-            <span className="rounded-2xl bg-blue-100 p-2 text-blue-600">
-              <ReceiptText className="h-8 w-8" />
-            </span>
-            Reimbursement Claims
-          </h1>
-          <p className="mt-1 text-slate-500">
-            Submit claims, upload proof, and track admin feedback.
-          </p>
-        </div>
-
-        <Button
-          type="button"
-          onClick={() => navigate("/reimbursements/create")}
-          className="gap-2 rounded-xl"
-        >
-          <Plus className="h-4 w-4" />
-          Create Claim
-        </Button>
-      </div>
+      <PageHeader
+        title="Reimbursement Claims"
+        subtitle="Submit claims, upload proof, and track admin feedback."
+        icon={ReceiptText}
+        actions={
+          <Button
+            type="button"
+            onClick={() => navigate("/reimbursements/create")}
+            className="gap-2 rounded-xl"
+          >
+            <Plus className="h-4 w-4" />
+            Create Claim
+          </Button>
+        }
+      />
 
       <Card className="rounded-2xl border-slate-200/60 bg-white/80 shadow-sm">
         <CardContent className="flex items-center justify-between p-4">

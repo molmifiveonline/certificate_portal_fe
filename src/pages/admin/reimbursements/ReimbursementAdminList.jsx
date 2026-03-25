@@ -3,6 +3,7 @@ import { Eye, ReceiptText, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../../components/common/Meta";
+import PageHeader from "../../../components/common/PageHeader";
 import { Card, CardContent } from "../../../components/ui/card";
 import {
   Select,
@@ -119,17 +120,11 @@ const ReimbursementAdminList = () => {
         description="Review reimbursement claims"
       />
 
-      <div>
-        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900">
-          <span className="rounded-2xl bg-blue-100 p-2 text-blue-600">
-            <ReceiptText className="h-8 w-8" />
-          </span>
-          Reimbursements
-        </h1>
-        <p className="mt-1 text-slate-500">
-          Review claims, request corrections, and send approved claims forward.
-        </p>
-      </div>
+      <PageHeader
+        title="Reimbursements"
+        subtitle="Review claims, request corrections, and send approved claims forward."
+        icon={ReceiptText}
+      />
 
       <Card className="rounded-2xl border-slate-200/60 bg-white/80 shadow-sm">
         <CardContent className="grid grid-cols-1 gap-4 p-4 md:grid-cols-[1fr_220px]">

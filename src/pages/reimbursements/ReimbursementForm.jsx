@@ -179,7 +179,7 @@ const ReimbursementForm = () => {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 animate-in fade-in duration-500">
+    <div className="mx-auto max-w-7xl space-y-6 animate-in fade-in duration-500">
       <Meta
         title={isEditMode ? "Edit Reimbursement" : "Create Reimbursement"}
         description="Manage reimbursement claim"

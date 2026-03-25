@@ -277,7 +277,7 @@ const AssessmentForm = () => {
     };
 
     return (
-        <div className="flex-1 overflow-y-auto w-full bg-slate-50">
+        <div className="space-y-6">
             <Meta title={isEdit ? "Edit Assessment" : "Add Assessment"} />
 
             <PageHeader
@@ -286,6 +286,8 @@ const AssessmentForm = () => {
                 compact={true}
                 backTo={backUrl}
             />
+        <div className="flex-1 overflow-y-auto w-full bg-slate-50">
+            
 
             <form onSubmit={handleSubmit} noValidate className="p-8 max-w-[1600px] mx-auto space-y-8">
 
@@ -523,6 +525,7 @@ const AssessmentForm = () => {
                     </div>
                 </div>
             </form>
+        </div>
         </div>
     );
 };
