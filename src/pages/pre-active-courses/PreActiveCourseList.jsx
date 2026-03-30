@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Search, Edit, Trash2, Mail, Send, CheckCircle, RefreshCw, Calendar, BookOpen, zap, Zap, Clock } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Plus, Search, Edit, Trash2, Mail, Send, CheckCircle, RefreshCw, Calendar, BookOpen, Zap, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
@@ -34,8 +33,7 @@ const PreActiveCourseList = () => {
     const [courseToConvert, setCourseToConvert] = useState(null);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-    const navigate = useNavigate();
-    const { user } = useAuth();
+    useAuth();
 
     const fetchCourses = useCallback(async () => {
         try {
@@ -255,7 +253,8 @@ const PreActiveCourseList = () => {
                     <Button
                         variant="outline"
                         onClick={() => setShowPreviewModal(true)}
-                        className="h-11 px-6 rounded-xl border-white bg-white/60 backdrop-blur-md shadow-sm hover:bg-white text-slate-700 font-bold flex items-center gap-2 active:scale-95 transition-all"
+                        className="h-11 px-6 rounded-xl border bg-white/60 backdrop-blur-md shadow-sm hover:bg-white text-slate-700 font-bold flex items-center gap-2 active:scale-95 transition-all"
+                        style={{ borderColor: 'rgb(49 46 129 / 90%)' }}
                     >
                         <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
                         Sync API

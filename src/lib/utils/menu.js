@@ -12,7 +12,7 @@ import {
   MapPin,
   ClipboardList,
   Building,
-  // FileBarChart,
+  FileBarChart,
   Shield,
   History,
   MessageSquare,
@@ -119,12 +119,12 @@ export const MenuItems = [
       { title: "Submitted Feedback", url: "/feedback/submitted" },
     ],
   },
-  // {
-  //   title: "Certificates",
-  //   url: "/certificates",
-  //   icon: Award,
-  //   allowedRoles: ["admin", "superadmin"],
-  // },
+  {
+    title: "Certificates",
+    url: "/certificates",
+    icon: Award,
+    allowedRoles: ["admin", "superadmin"],
+  },
   // {
   //   title: "Reports",
   //   url: "/reports",
