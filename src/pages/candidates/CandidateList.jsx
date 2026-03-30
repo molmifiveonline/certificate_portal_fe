@@ -9,8 +9,6 @@ import {
   RefreshCcw,
   UserPlus,
   Edit,
-  Eye,
-  Upload,
   Zap,
   Users,
   SlidersHorizontal,
@@ -32,7 +30,7 @@ const CandidateList = ({ registrationType }) => {
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
   const [candidates, setCandidates] = useState([]);
-  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [selectedCandidate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -300,7 +298,8 @@ const CandidateList = ({ registrationType }) => {
               <Button
                 variant="outline"
                 onClick={handleSyncFromApi}
-                className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                style={{ borderColor: "rgb(49 46 129 / 90%)" }}
               >
                 <Zap className="w-4 h-4 text-amber-500" />
                 Sync API
