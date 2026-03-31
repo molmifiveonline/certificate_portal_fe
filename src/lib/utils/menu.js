@@ -2,7 +2,7 @@ import {
   Home,
   Users,
   UserCheck,
-  // FileText,
+  FileText,
   // Receipt,
   GraduationCap,
   UserCircle,
@@ -143,13 +143,13 @@ export const MenuItems = [
   //   allowedRoles: ["admin", "superadmin"],
   //   permissionSlug: "manage_reimbursements",
   // },
-  // {
-  //   title: "System Manual",
-  //   icon: FileText,
-  //   url: "/system-manual",
-  //   allowedRoles: ["admin", "superadmin"], // Assuming it's for admin/superadmin based on placement
-  //   code: "system_manual",
-  // },
+  {
+    title: "System Manual",
+    icon: FileText,
+    url: "/system-manual",
+    allowedRoles: ["admin", "superadmin"], // Assuming it's for admin/superadmin based on placement
+    code: "system_manual",
+  },
   {
     title: "Log History",
     url: "/admin/log-history",
