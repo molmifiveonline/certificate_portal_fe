@@ -2,7 +2,7 @@ import {
   Home,
   Users,
   UserCheck,
-  // FileText,
+  FileText,
   // Receipt,
   GraduationCap,
   UserCircle,
@@ -125,17 +125,17 @@ export const MenuItems = [
     icon: Award,
     allowedRoles: ["admin", "superadmin"],
   },
-  // {
-  //   title: "Reports",
-  //   url: "/reports",
-  //   icon: FileBarChart,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Reports", url: "/reports" },
-  //     { title: "Hotel Report", url: "/reports/hotel" },
-  //     { title: "Admin Remarks", url: "/reports/admin-remarks" },
-  //   ],
-  // },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: FileBarChart,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Reports", url: "/reports" },
+      // { title: "Hotel Report", url: "/reports/hotel" },
+      // { title: "Admin Remarks", url: "/reports/admin-remarks" },
+    ],
+  },
   // {
   //   title: "Reimbursements",
   //   url: "/admin/reimbursements",
@@ -143,13 +143,13 @@ export const MenuItems = [
   //   allowedRoles: ["admin", "superadmin"],
   //   permissionSlug: "manage_reimbursements",
   // },
-  // {
-  //   title: "System Manual",
-  //   icon: FileText,
-  //   url: "/system-manual",
-  //   allowedRoles: ["admin", "superadmin"], // Assuming it's for admin/superadmin based on placement
-  //   code: "system_manual",
-  // },
+  {
+    title: "System Manual",
+    icon: FileText,
+    url: "/system-manual",
+    allowedRoles: ["admin", "superadmin"], // Assuming it's for admin/superadmin based on placement
+    code: "system_manual",
+  },
   {
     title: "Log History",
     url: "/admin/log-history",
