@@ -125,17 +125,17 @@ export const MenuItems = [
     icon: Award,
     allowedRoles: ["admin", "superadmin"],
   },
-  // {
-  //   title: "Reports",
-  //   url: "/reports",
-  //   icon: FileBarChart,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   subItems: [
-  //     { title: "Reports", url: "/reports" },
-  //     { title: "Hotel Report", url: "/reports/hotel" },
-  //     { title: "Admin Remarks", url: "/reports/admin-remarks" },
-  //   ],
-  // },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: FileBarChart,
+    allowedRoles: ["admin", "superadmin"],
+    subItems: [
+      { title: "Reports", url: "/reports" },
+      // { title: "Hotel Report", url: "/reports/hotel" },
+      // { title: "Admin Remarks", url: "/reports/admin-remarks" },
+    ],
+  },
   // {
   //   title: "Reimbursements",
   //   url: "/admin/reimbursements",
