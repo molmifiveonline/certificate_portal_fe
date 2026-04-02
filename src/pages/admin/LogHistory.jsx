@@ -154,7 +154,7 @@ const LogHistory = () => {
                                 <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Date/Time</th>
                                 <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Action</th>
                                 <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Details</th>
-                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">User</th>
+                                <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">User / Role</th>
                                 <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
@@ -179,8 +179,15 @@ const LogHistory = () => {
                                         <td className="px-6 py-4 text-sm text-slate-600 max-w-md truncate" title={log.details}>
                                             {log.details || "-"}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
-                                            {log.user_name || "System"}
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-tight mb-0.5">
+                                                    {log.admin_role_name || (log.role_name === 'superadmin' ? 'Super Admin' : (log.role_name === 'admin' ? 'Admin' : (log.role_name || (log.user_id ? 'User' : 'System'))))}
+                                                </span>
+                                                <span className="text-sm font-semibold text-slate-800">
+                                                    {log.user_name || (log.user_id ? "Unknown User" : "System")}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                             <button

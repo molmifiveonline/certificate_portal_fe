@@ -6,6 +6,7 @@ import { FileSpreadsheet, Sparkles } from "lucide-react";
 import ReportService from "../../services/reportService";
 import FeedbackReportCard from "./components/FeedbackReportCard";
 import CertificateReportCard from "./components/CertificateReportCard";
+import { parseBlobError } from "../../lib/utils/blobUtils";
 
 const TODAY = new Date().toISOString().split("T")[0];
 
@@ -104,10 +105,15 @@ const ReportDashboard = () => {
       toast.success("Feedback report downloaded successfully!");
     } catch (error) {
       console.error(error);
-      const msg =
-        error.message && typeof error.message === "string"
-          ? error.message
-          : "Failed to export report.";
+      let msg = "Failed to export report.";
+      if (error instanceof Blob) {
+        const errorData = await parseBlobError(error);
+        if (errorData?.message) msg = errorData.message;
+      } else if (typeof error === "string") {
+        msg = error;
+      } else if (error?.message) {
+        msg = error.message;
+      }
       toast.error(msg);
     } finally {
       setLoadingFeedback(false);
@@ -134,10 +140,15 @@ const ReportDashboard = () => {
       toast.success("Feedback PDFs downloaded successfully!");
     } catch (error) {
       console.error(error);
-      const msg =
-        error.message && typeof error.message === "string"
-          ? error.message
-          : "Failed to download PDFs.";
+      let msg = "Failed to download PDFs.";
+      if (error instanceof Blob) {
+        const errorData = await parseBlobError(error);
+        if (errorData?.message) msg = errorData.message;
+      } else if (typeof error === "string") {
+        msg = error;
+      } else if (error?.message) {
+        msg = error.message;
+      }
       toast.error(msg);
     } finally {
       setLoadingBulkFeedback(false);
@@ -165,10 +176,15 @@ const ReportDashboard = () => {
       toast.success("Certificate report downloaded successfully!");
     } catch (error) {
       console.error(error);
-      const msg =
-        error.message && typeof error.message === "string"
-          ? error.message
-          : "Failed to export report.";
+      let msg = "Failed to export report.";
+      if (error instanceof Blob) {
+        const errorData = await parseBlobError(error);
+        if (errorData?.message) msg = errorData.message;
+      } else if (typeof error === "string") {
+        msg = error;
+      } else if (error?.message) {
+        msg = error.message;
+      }
       toast.error(msg);
     } finally {
       setLoadingCertificate(false);
