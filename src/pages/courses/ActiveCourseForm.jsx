@@ -633,6 +633,7 @@ const ActiveCourseForm = () => {
                             name="start_date"
                             type="date"
                             required
+                            max={endDate}
                             register={register}
                             errors={errors}
                           />
@@ -641,6 +642,7 @@ const ActiveCourseForm = () => {
                             name="end_date"
                             type="date"
                             required
+                            min={startDate}
                             register={register}
                             errors={errors}
                           />

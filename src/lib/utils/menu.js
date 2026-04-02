@@ -75,7 +75,7 @@ export const MenuItems = [
     subItems: [
       { title: "Master Courses", url: "/courses" },
       { title: "Pre-Active Courses", url: "/pre-active-courses" },
-      { title: "Active Courses", url: "/active-courses" },
+      // { title: "Active Courses", url: "/active-courses" },
       // { title: "Outhouse Courses", url: "/outhouse-courses" },
     ],
   },
@@ -119,12 +119,12 @@ export const MenuItems = [
       { title: "Submitted Feedback", url: "/feedback/submitted" },
     ],
   },
-  {
-    title: "Certificates",
-    url: "/certificates",
-    icon: Award,
-    allowedRoles: ["admin", "superadmin"],
-  },
+  // {
+  //   title: "Certificates",
+  //   url: "/certificates",
+  //   icon: Award,
+  //   allowedRoles: ["admin", "superadmin"],
+  // },
   {
     title: "Reports",
     url: "/reports",

@@ -58,7 +58,7 @@ export const getCommonFieldValidation = ({
       value: EMAIL_REGEX,
       message: `Enter a valid ${label || "email address"}`,
     };
-    inputProps.type = "email";
+    inputProps.type = "text";
     inputProps.inputMode = "email";
   }
 

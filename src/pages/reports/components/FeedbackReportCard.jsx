@@ -1,6 +1,7 @@
 import React from "react";
 import { FileDown, Calendar, Filter, Users } from "lucide-react";
 import { inputStyles, selectStyles } from "./reportFormStyles";
+import { Input } from "../../../components/ui/input";
 
 const FeedbackReportCard = ({
   dates,
@@ -45,14 +46,15 @@ const FeedbackReportCard = ({
               <Calendar className="h-4 w-4 text-sky-600" />
               Start Date
             </label>
-            <input
+            <Input
               id="feedback-start-date"
               type="date"
               name="start_date"
               value={dates.start_date}
               onChange={onDateChange}
-              max={today}
-              className={inputStyles}
+              max={dates.end_date || today}
+              className="px-3"
+              placeholder="DD-MM-YYYY"
             />
           </div>
           <div>
@@ -63,14 +65,16 @@ const FeedbackReportCard = ({
               <Calendar className="h-4 w-4 text-sky-600" />
               End Date
             </label>
-            <input
+            <Input
               id="feedback-end-date"
               type="date"
               name="end_date"
               value={dates.end_date}
               onChange={onDateChange}
+              min={dates.start_date}
               max={today}
-              className={inputStyles}
+              className="px-3"
+              placeholder="DD-MM-YYYY"
             />
           </div>
         </div>
@@ -97,7 +101,7 @@ const FeedbackReportCard = ({
                     topic: e.target.value,
                   })
                 }
-                className={selectStyles}
+                className={`${selectStyles} cursor-pointer`}
               >
                 <option value="">All Topics</option>
                 {filterOptions.topics.map((topic) => (
@@ -123,7 +127,7 @@ const FeedbackReportCard = ({
                     manager: e.target.value,
                   })
                 }
-                className={selectStyles}
+                className={`${selectStyles} cursor-pointer`}
               >
                 <option value="">All Managers</option>
                 {filterOptions.managers.map((manager) => (

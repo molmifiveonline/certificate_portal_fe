@@ -117,10 +117,12 @@ const AdminUserList = () => {
             <Mail className="w-3.5 h-3.5 text-slate-400" />
             {row.email}
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Phone className="w-3.5 h-3.5 text-slate-400" />
-            {row.mobile}
-          </div>
+          {row.mobile && (
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Phone className="w-3.5 h-3.5 text-slate-400" />
+              {row.mobile}
+            </div>
+          )}
         </div>
       ),
     },

@@ -227,7 +227,7 @@ const NominatorPortal = () => {
                                         />
                                         <Input
                                             label="Email Address"
-                                            type="email"
+                                            type="text"
                                             placeholder="john@example.com"
                                             value={candidate.email}
                                             onChange={(e) => handleChange(index, 'email', e.target.value)}

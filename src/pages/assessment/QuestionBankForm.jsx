@@ -250,6 +250,9 @@ const QuestionBankForm = () => {
     if (!formValues.question.trim()) {
       errors.question = "Question is required";
     }
+    if (formValues.type_of_test.length === 0) {
+      errors.type_of_test = "Type of Test is required";
+    }
     if (formValues.correct_option.length === 0) {
       errors.correct_option = "At least one correct option is required";
     }
@@ -355,7 +358,7 @@ const QuestionBankForm = () => {
 
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-gray-700 block">
-                      Type of Test
+                      Type of Test <span className="text-red-500">*</span>
                     </label>
                     <div className="flex gap-4 mt-2">
                       <label className="flex items-center space-x-2">
@@ -393,6 +396,11 @@ const QuestionBankForm = () => {
                         <span className="text-sm text-gray-700">Daily</span>
                       </label>
                     </div>
+                    {formErrors.type_of_test && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        {formErrors.type_of_test}
+                      </span>
+                    )}
                   </div>
                 </div>
 

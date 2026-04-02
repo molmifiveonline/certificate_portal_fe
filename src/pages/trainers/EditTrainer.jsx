@@ -23,8 +23,8 @@ const InputField = ({ label, name, type = "text", required, rules, placeholder }
                 type={type}
                 {...register(name, validation.rules)}
                 {...validation.inputProps}
-                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
-                placeholder={placeholder}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm cursor-pointer`}
+                placeholder={placeholder || (type === "date" ? "DD-MM-YYYY" : "")}
             />
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
         </div>
@@ -70,7 +70,7 @@ const SelectField = ({ label, name, options, required }) => {
             </label>
             <select
                 {...register(name, { required: required ? `${label} is required` : false })}
-                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm cursor-pointer`}
             >
                 <option value="">Select {label}</option>
                 {options.map((opt) => (
@@ -250,7 +250,7 @@ const EditTrainer = () => {
                                         </div>
                                     </div>
 
-                                    <InputField label="Email Address" name="email" type="email" required />
+                                    <InputField label="Email Address" name="email" type="text" required />
 
                                     <div className="grid grid-cols-2 gap-6">
                                         <SelectField label="Nationality" name="nationality" options={nationalities} required />

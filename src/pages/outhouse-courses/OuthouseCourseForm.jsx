@@ -254,7 +254,7 @@ const VenueModal = ({ state, onClose, onSave }) => {
         <div className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2">
           <InputField label="Hotel Name" value={formState.hotel_name} onChange={(event) => setFormState((current) => ({ ...current, hotel_name: event.target.value }))} />
           <InputField label="Hotel Contact" value={formState.hotel_contact} onChange={(event) => setFormState((current) => ({ ...current, hotel_contact: sanitizeNumericValue(event.target.value) }))} />
-          <InputField label="Hotel Email" type="email" value={formState.hotel_email} onChange={(event) => setFormState((current) => ({ ...current, hotel_email: event.target.value }))} />
+          <InputField label="Hotel Email" type="text" value={formState.hotel_email} onChange={(event) => setFormState((current) => ({ ...current, hotel_email: event.target.value }))} />
           <InputField label="Offline Date" type="date" value={formState.offline_date} onChange={(event) => setFormState((current) => ({ ...current, offline_date: event.target.value }))} />
           <TextareaField label="Hotel Address" className="md:col-span-2" rows={3} value={formState.hotel_address} onChange={(event) => setFormState((current) => ({ ...current, hotel_address: event.target.value }))} />
           <TextareaField label="Remarks" className="md:col-span-2" rows={3} value={formState.remarks} onChange={(event) => setFormState((current) => ({ ...current, remarks: event.target.value }))} />
@@ -862,8 +862,8 @@ const OuthouseCourseForm = () => {
                 <SelectField label="Master Course Name" required value={formData.master_course_id} onChange={(event) => handleMasterCourseSelection(event.target.value)} options={masterCourseOptions} error={errors.master_course_id} placeholder="Select master course" />
                 <InputField label="Course Name" required name="course_name" value={formData.course_name} onChange={handleFormChange} error={errors.course_name} />
                 <SelectField label="Status" required name="status" value={formData.status} onChange={handleFormChange} options={COURSE_STATUSES.map((status) => ({ value: status, label: status }))} error={errors.status} />
-                <InputField label="Start Date" required type="date" name="start_date" value={formData.start_date} onChange={handleFormChange} error={errors.start_date} />
-                <InputField label="End Date" required type="date" name="end_date" value={formData.end_date} onChange={handleFormChange} error={errors.end_date} />
+                <InputField label="Start Date" required type="date" name="start_date" value={formData.start_date} onChange={handleFormChange} error={errors.start_date} max={formData.end_date} />
+                <InputField label="End Date" required type="date" name="end_date" value={formData.end_date} onChange={handleFormChange} error={errors.end_date} min={formData.start_date} />
                 <InputField label="Start Time" required type="time" name="start_time" value={formData.start_time} onChange={handleFormChange} error={errors.start_time} />
                 <InputField label="End Time" required type="time" name="end_time" value={formData.end_time} onChange={handleFormChange} error={errors.end_time} />
                 <InputField label="Days" value={daysCount} readOnly />

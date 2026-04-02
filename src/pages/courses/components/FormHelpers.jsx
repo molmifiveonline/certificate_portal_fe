@@ -2,6 +2,7 @@ import React from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "../../../lib/utils/utils";
 import { getCommonFieldValidation } from "../../../lib/utils/validation";
+import { Input } from "../../../components/ui/input";
 
 export const InputField = ({
   label,
@@ -13,6 +14,7 @@ export const InputField = ({
   register,
   errors,
   defaultValue,
+  ...props
 }) => {
   const validation = getCommonFieldValidation({ label, name, type, required });
 
@@ -21,16 +23,17 @@ export const InputField = ({
       <label className="text-sm font-medium text-slate-700 block">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <input
+      <Input
         type={type}
-        {...(register ? register(name, validation.rules) : { name, defaultValue })}
+        {...(register ? register(name, validation.rules) : { name, defaultValue, onChange: props.onChange })}
         {...validation.inputProps}
         readOnly={readOnly}
-        placeholder={placeholder}
+        placeholder={placeholder || (type === "date" ? "DD-MM-YYYY" : "")}
         className={cn(
-          "w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-sm outline-none",
+          "bg-slate-50/50 border-slate-200",
           readOnly && "bg-slate-100 cursor-not-allowed text-slate-500",
         )}
+        {...props}
       />
       {errors && errors[name] && (
         <p className="text-xs text-red-500 mt-1">{errors[name].message}</p>
@@ -60,7 +63,7 @@ export const SelectField = ({
         }) : { name })}
         disabled={disabled}
         className={cn(
-          "w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-sm outline-none appearance-none",
+          "w-full h-11 pl-4 pr-10 rounded-xl bg-slate-50/50 border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-sm outline-none appearance-none cursor-pointer",
           disabled && "bg-slate-100 cursor-not-allowed text-slate-500",
         )}
       >

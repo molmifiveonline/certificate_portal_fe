@@ -1,6 +1,7 @@
 import React from "react";
 import { FileDown, Calendar, Filter, Building2 } from "lucide-react";
 import { inputStyles, selectStyles } from "./reportFormStyles";
+import { Input } from "../../../components/ui/input";
 
 const CertificateReportCard = ({
   dates,
@@ -10,6 +11,7 @@ const CertificateReportCard = ({
   filterOptions,
   onSubmit,
   loading,
+  today,
 }) => {
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-emerald-100 bg-white/85 shadow-lg shadow-slate-200/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -35,13 +37,15 @@ const CertificateReportCard = ({
               <Calendar className="h-4 w-4 text-emerald-600" />
               Start Date
             </label>
-            <input
+            <Input
               id="certificate-start-date"
               type="date"
               name="start_date"
               value={dates.start_date}
               onChange={onDateChange}
-              className={inputStyles}
+              max={dates.end_date || today}
+              className="px-3"
+              placeholder="DD-MM-YYYY"
             />
           </div>
           <div>
@@ -52,13 +56,16 @@ const CertificateReportCard = ({
               <Calendar className="h-4 w-4 text-emerald-600" />
               End Date
             </label>
-            <input
+            <Input
               id="certificate-end-date"
               type="date"
               name="end_date"
               value={dates.end_date}
               onChange={onDateChange}
-              className={inputStyles}
+              min={dates.start_date}
+              max={today}
+              className="px-3"
+              placeholder="DD-MM-YYYY"
             />
           </div>
         </div>
@@ -85,7 +92,7 @@ const CertificateReportCard = ({
                     topic: e.target.value,
                   })
                 }
-                className={selectStyles}
+                className={`${selectStyles} cursor-pointer`}
               >
                 <option value="">All Topics</option>
                 {filterOptions.topics.map((topic) => (
@@ -111,7 +118,7 @@ const CertificateReportCard = ({
                     manager: e.target.value,
                   })
                 }
-                className={selectStyles}
+                className={`${selectStyles} cursor-pointer`}
               >
                 <option value="">All Managers</option>
                 {filterOptions.managers.map((manager) => (
@@ -137,7 +144,7 @@ const CertificateReportCard = ({
                     company: e.target.value,
                   })
                 }
-                className={selectStyles}
+                className={`${selectStyles} cursor-pointer`}
               >
                 <option value="">All Companies</option>
                 {filterOptions.companies.map((company) => (

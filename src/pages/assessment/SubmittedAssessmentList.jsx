@@ -46,12 +46,12 @@ const SubmittedAssessmentList = () => {
         page,
         limit,
         search: debouncedSearch,
-        course: courseFilter,
-        type: typeFilter,
+        course_id: courseFilter,
+        type_of_test: typeFilter,
       });
       setSubmissions(result.data || []);
-      setTotalPages(result.pagination?.totalPages || 1);
-      setTotalCount(result.pagination?.totalItems || 0);
+      setTotalPages(result.totalPages || 1);
+      setTotalCount(result.totalCount || 0);
     } catch (err) {
       console.error("Error fetching submissions:", err);
       toast.error("Failed to load recordings");
@@ -74,10 +74,6 @@ const SubmittedAssessmentList = () => {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    fetchSubmissions();
-  }, [fetchSubmissions]);
-
   const getTypeLabel = (type) => {
     const labels = { 1: "Pre Course", 2: "Post Course", 3: "Daily" };
     return labels[type] || type || "N/A";
@@ -88,6 +84,8 @@ const SubmittedAssessmentList = () => {
       setIsExporting(true);
       const response = await assessmentService.exportSubmittedAssessments({
         search: debouncedSearch,
+        course_id: courseFilter,
+        type_of_test: typeFilter,
       });
 
       const blob = new Blob([response.data], {

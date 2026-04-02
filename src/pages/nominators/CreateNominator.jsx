@@ -90,7 +90,7 @@ const CreateNominator = () => {
                   <InputField
                     label="Email Address"
                     name="email"
-                    type="email"
+                    type="text"
                     required
                     placeholder="Email Address"
                   />

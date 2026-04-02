@@ -233,6 +233,7 @@ const ReportDashboard = () => {
           filterOptions={filterOptions}
           onSubmit={handleCertificateExport}
           loading={loadingCertificate}
+          today={TODAY}
         />
       </div>
     </div>

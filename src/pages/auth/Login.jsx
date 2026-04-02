@@ -189,7 +189,7 @@ const Login = () => {
                     Email Address
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     {...register("email", emailValidation.rules)}
                     {...emailValidation.inputProps}
                     className={`w-full px-4 py-3 rounded-lg bg-white/70 border ${errors.email ? "border-red-500" : "border-gray-300"} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm`}

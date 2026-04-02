@@ -94,7 +94,7 @@ const EditNominator = () => {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <InputField label="Name" name="name" required placeholder="Full Name" />
-                            <InputField label="Email Address" name="email" type="email" required placeholder="Email Address" />
+                            <InputField label="Email Address" name="email" type="text" required placeholder="Email Address" />
                         </div>
                     </div>
 

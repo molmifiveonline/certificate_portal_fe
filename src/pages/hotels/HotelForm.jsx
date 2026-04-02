@@ -43,7 +43,7 @@ const HotelForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                             Email Address
                         </label>
                         <input
-                            type="email"
+                            type="text"
                             {...register('email', emailValidation.rules)}
                             {...emailValidation.inputProps}
                             className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
