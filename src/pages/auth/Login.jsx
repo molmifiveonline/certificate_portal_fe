@@ -116,16 +116,18 @@ const Login = () => {
           </div>
 
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
-            <div className="bg-white/20 backdrop-blur-sm p-6 rounded-3xl mb-8 shadow-inner border border-white/20">
+            <div className="bg-white/20 backdrop-blur-sm p-6 rounded-3xl mb-6 shadow-inner border border-white/20 flex flex-col items-center">
               <img
                 src="/mol-logo.png"
                 alt="MOLMI Logo"
                 className="w-48 h-auto object-contain drop-shadow-lg transform hover:scale-105 transition-transform duration-300"
               />
+              <p className="text-white font-bold tracking-wide text-center px-4">
+              MOL Maritime India Pvt. Ltd.
+            </p>
             </div>
-            {/* <h2 className="text-white text-2xl font-bold tracking-wide">MOLMI</h2> */}
-            <p className="text-blue-100 mt-2 text-lg font-medium">
-              Maritime Online Learning
+            <p className="text-blue-100 mt-1 text-lg font-medium">
+              MOLMI Navis
             </p>
           </div>
         </div>

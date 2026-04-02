@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import { Badge } from "../../../components/ui/badge";
-import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group";
+import { RadioGroupItem } from "../../../components/ui/radio-group";
 import { Label } from "../../../components/ui/label";
 import { Timer, ArrowLeft, ArrowRight, CheckCircle2, AlertCircle, Send } from "lucide-react";
 import api from '../../../lib/api';
@@ -66,7 +65,7 @@ const AssessmentPlayer = ({ assessmentId, courseId, onClose }) => {
                 course_id: courseId,
                 answers: questions.map(q => ({
                     question_id: q.id,
-                    selected_option: answers[q.id]
+                    selected_option: answers[q.id] || null
                 }))
             };
 
@@ -169,18 +168,14 @@ const AssessmentPlayer = ({ assessmentId, courseId, onClose }) => {
             <Card className="bg-white/80 backdrop-blur-xl border-white/60 shadow-xl rounded-3xl overflow-hidden min-h-[400px] flex flex-col">
                 <CardContent className="p-8 md:p-12 flex-grow">
                     <h2 className="text-xl md:text-2xl font-bold text-slate-900 leading-snug mb-10">
-                        {currentQuestion.question_text}
+                        {currentQuestion.question}
                     </h2>
 
-                    <RadioGroup 
-                        value={answers[currentQuestion.id] || ""} 
-                        onValueChange={(val) => handleOptionSelect(currentQuestion.id, val)}
-                        className="space-y-4"
-                    >
-                        {['option1', 'option2', 'option3', 'option4'].map((optKey, idx) => {
+                    <div className="space-y-4">
+                        {['option_a', 'option_b', 'option_c', 'option_d'].map((optKey, idx) => {
                             const optValue = currentQuestion[optKey];
                             if (!optValue) return null;
-                            const isSelected = answers[currentQuestion.id] === optValue;
+                            const isSelected = answers[currentQuestion.id] === optKey;
 
                             return (
                                 <div key={idx} className="relative group">
@@ -194,8 +189,11 @@ const AssessmentPlayer = ({ assessmentId, courseId, onClose }) => {
                                         `}
                                     >
                                         <RadioGroupItem 
-                                            value={optValue} 
+                                            value={optKey} 
                                             id={`${currentQuestion.id}-${idx}`} 
+                                            checked={answers[currentQuestion.id] === optKey}
+                                            onChange={() => handleOptionSelect(currentQuestion.id, optKey)}
+                                            name={`question-${currentQuestion.id}`}
                                             className="mr-4 border-slate-300 text-primary" 
                                         />
                                         <span className={`text-base font-medium ${isSelected ? 'text-primary' : 'text-slate-700'}`}>
@@ -205,7 +203,7 @@ const AssessmentPlayer = ({ assessmentId, courseId, onClose }) => {
                                 </div>
                             );
                         })}
-                    </RadioGroup>
+                    </div>
                 </CardContent>
                 
                 <CardFooter className="bg-slate-50/50 p-8 flex justify-between border-t border-slate-100">
