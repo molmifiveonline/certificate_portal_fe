@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, RefreshCcw } from 'lucide-react';
+import { getCommonFieldValidation } from '../../lib/utils/validation';
 
 const HotelForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: initialData || {}
     });
+    const emailValidation = getCommonFieldValidation({ label: 'Email', name: 'email', type: 'email' });
+    const contactValidation = getCommonFieldValidation({ label: 'Contact number', name: 'venue_contact' });
 
     useEffect(() => {
         if (initialData) {
@@ -41,7 +44,8 @@ const HotelForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                         </label>
                         <input
                             type="email"
-                            {...register('email')}
+                            {...register('email', emailValidation.rules)}
+                            {...emailValidation.inputProps}
                             className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
                             placeholder="hotel@example.com"
                         />
@@ -75,7 +79,8 @@ const HotelForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                             Contact Number
                         </label>
                         <input
-                            {...register('venue_contact')}
+                            {...register('venue_contact', contactValidation.rules)}
+                            {...contactValidation.inputProps}
                             className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
                             placeholder="Contact details"
                         />

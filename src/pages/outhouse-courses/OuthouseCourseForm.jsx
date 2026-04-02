@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/ca
 import { Input } from "../../components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { formatDate } from "../../lib/utils/dateUtils";
+import { isNumericOnly, isValidEmail, sanitizeNumericValue } from "../../lib/utils/validation";
 import candidateService from "../../services/candidateService";
 import locationService from "../../services/locationService";
 import outhouseCourseService from "../../services/outhouseCourseService";
@@ -252,7 +253,7 @@ const VenueModal = ({ state, onClose, onSave }) => {
         </div>
         <div className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2">
           <InputField label="Hotel Name" value={formState.hotel_name} onChange={(event) => setFormState((current) => ({ ...current, hotel_name: event.target.value }))} />
-          <InputField label="Hotel Contact" value={formState.hotel_contact} onChange={(event) => setFormState((current) => ({ ...current, hotel_contact: event.target.value }))} />
+          <InputField label="Hotel Contact" value={formState.hotel_contact} onChange={(event) => setFormState((current) => ({ ...current, hotel_contact: sanitizeNumericValue(event.target.value) }))} />
           <InputField label="Hotel Email" type="email" value={formState.hotel_email} onChange={(event) => setFormState((current) => ({ ...current, hotel_email: event.target.value }))} />
           <InputField label="Offline Date" type="date" value={formState.offline_date} onChange={(event) => setFormState((current) => ({ ...current, offline_date: event.target.value }))} />
           <TextareaField label="Hotel Address" className="md:col-span-2" rows={3} value={formState.hotel_address} onChange={(event) => setFormState((current) => ({ ...current, hotel_address: event.target.value }))} />
@@ -687,6 +688,16 @@ const OuthouseCourseForm = () => {
   };
 
   const handleVenueSave = async (venueDetails) => {
+    if (!isNumericOnly(venueDetails.hotel_contact)) {
+      toast.error("Hotel contact must contain digits only");
+      return;
+    }
+
+    if (!isValidEmail(venueDetails.hotel_email)) {
+      toast.error("Enter a valid hotel email address");
+      return;
+    }
+
     try {
       const payload = new FormData();
       payload.append("hotel_name", venueDetails.hotel_name || "");

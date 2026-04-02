@@ -7,9 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
-const SuperAdminDashboard = lazy(
-  () => import("./pages/dashboard/SuperAdminDashboard"),
-);
+// SuperAdminDashboard import removed - /demo route removed for security
 // const TrainerDashboard = lazy(
 //   () => import("./pages/dashboard/TrainerDashboard"),
 // );
@@ -247,7 +245,24 @@ function App() {
                 element={<CandidateApprovalPortal />}
               />
 
-              <Route path="/acknowledge" element={<Acknowledge />} />
+              <Route
+                path="/acknowledge"
+                element={
+                  <PrivateRoute
+                    allowedRoles={[
+                      "SuperAdmin",
+                      "Admin",
+                      "admin",
+                      "Trainer",
+                      "trainer",
+                      "Candidate",
+                      "candidate",
+                    ]}
+                  >
+                    <Acknowledge />
+                  </PrivateRoute>
+                }
+              />
 
               <Route path="/" element={<Navigate to="/login" replace />} />
 
@@ -1003,8 +1018,7 @@ function App() {
                 }
               />
 
-              {/* Public Demo Route - kept as is, or use PublicRoute if intended for unauth */}
-              <Route path="/demo" element={<SuperAdminDashboard />} />
+              {/* Demo route removed - all pages require authentication */}
 
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>

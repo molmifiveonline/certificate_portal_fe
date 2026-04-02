@@ -8,6 +8,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 import ForgotPasswordModal from "../../components/auth/ForgotPasswordModal";
 import Meta from "../../components/common/Meta";
+import { getCommonFieldValidation } from "../../lib/utils/validation";
 
 const Login = () => {
   // const [role, setRole] = useState('Candidate'); // Role is now coming from backend
@@ -23,6 +24,12 @@ const Login = () => {
   } = useForm();
   const { login, logout } = useAuth();
   const navigate = useNavigate();
+  const emailValidation = getCommonFieldValidation({
+    label: "Email",
+    name: "email",
+    type: "email",
+    required: true,
+  });
 
   // Map selected tab to accepted backend role names (lowercase)
   const ROLE_TAB_MAP = {
@@ -123,8 +130,8 @@ const Login = () => {
                 className="w-48 h-auto object-contain drop-shadow-lg transform hover:scale-105 transition-transform duration-300"
               />
               <p className="text-white font-bold tracking-wide text-center px-4">
-              MOL Maritime India Pvt. Ltd.
-            </p>
+                MOL Maritime India Pvt. Ltd.
+              </p>
             </div>
             <p className="text-blue-100 mt-1 text-lg font-medium">
               MOLMI Navis
@@ -183,10 +190,10 @@ const Login = () => {
                   </label>
                   <input
                     type="email"
-                    {...register("email", { required: "Email is required" })}
+                    {...register("email", emailValidation.rules)}
+                    {...emailValidation.inputProps}
                     className={`w-full px-4 py-3 rounded-lg bg-white/70 border ${errors.email ? "border-red-500" : "border-gray-300"} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm`}
-                    placeholder="name@company.com"
-                    defaultValue="molmi.admin@molgroup.com"
+                    placeholder="Enter your Email"
                   />
                   {errors.email && (
                     <span className="text-red-500 text-xs mt-1 block">

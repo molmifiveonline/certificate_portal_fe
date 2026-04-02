@@ -5,6 +5,7 @@ import { PasswordInput } from '../ui/PasswordInput';
 import candidateService from '../../services/candidateService';
 import { toast } from 'sonner';
 import { MANAGER_OPTIONS, PREFIX_OPTIONS, GENDER_OPTIONS, CANDIDATE_NATIONALITY_OPTIONS, RANK_OPTIONS } from '../../lib/constants';
+import { getCommonFieldValidation } from '../../lib/utils/validation';
 
 const FormContext = createContext();
 
@@ -18,6 +19,7 @@ const SectionHeader = ({ title, icon: Icon }) => (
 
 const InputField = ({ label, name, type = "text", required, rules, placeholder, className }) => {
     const { register, errors } = useContext(FormContext);
+    const validation = getCommonFieldValidation({ label, name, type, required, rules });
     return (
         <div className={`space-y-1 ${className}`}>
             <label className="text-sm font-medium text-slate-700 block">
@@ -25,7 +27,8 @@ const InputField = ({ label, name, type = "text", required, rules, placeholder, 
             </label>
             <input
                 type={type}
-                {...register(name, { required: required ? `${label} is required` : false, ...rules })}
+                {...register(name, validation.rules)}
+                {...validation.inputProps}
                 className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
                 placeholder={placeholder || ""}
             />

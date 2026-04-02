@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, RefreshCcw } from 'lucide-react';
 import api from '../../../lib/api';
+import { getCommonFieldValidation } from '../../../lib/utils/validation';
 
 const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
         defaultValues: initialData || { status: 1 }
     });
     const [adminRoles, setAdminRoles] = useState([]);
+    const emailValidation = getCommonFieldValidation({ label: 'Email', name: 'email', type: 'email', required: true });
+    const mobileValidation = getCommonFieldValidation({ label: 'Mobile number', name: 'mobile', required: true });
 
     useEffect(() => {
         if (initialData) {
@@ -86,7 +89,8 @@ const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                         </label>
                         <input
                             type="email"
-                            {...register('email', { required: 'Email is required' })}
+                            {...register('email', emailValidation.rules)}
+                            {...emailValidation.inputProps}
                             className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.email ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
                             placeholder="Email Address"
                         />
@@ -98,7 +102,8 @@ const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                             Mobile No. <span className="text-red-500">*</span>
                         </label>
                         <input
-                            {...register('mobile', { required: 'Mobile number is required' })}
+                            {...register('mobile', mobileValidation.rules)}
+                            {...mobileValidation.inputProps}
                             className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.mobile ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
                             placeholder="Mobile No."
                         />
