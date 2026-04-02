@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Award, Save, Users, Loader2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 import PageHeader from "../../components/common/PageHeader";
 import CandidateSelectionModal from "./CandidateSelectionModal";
 import api from "../../lib/api";
@@ -405,34 +406,37 @@ const CreateCertificate = () => {
                                 {/* Dates */}
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700">From Date</label>
-                                    <input
+                                    <Input
                                         type="date"
                                         name="from_date"
                                         value={formData.from_date}
                                         onChange={handleChange}
-                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                        className="bg-slate-50 border-slate-200"
+                                        placeholder="DD-MM-YYYY"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700">To Date</label>
-                                    <input
+                                    <Input
                                         type="date"
                                         name="to_date"
                                         value={formData.to_date}
                                         onChange={handleChange}
-                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                        className="bg-slate-50 border-slate-200"
+                                        placeholder="DD-MM-YYYY"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700">Issue Date</label>
-                                    <input
+                                    <Input
                                         type="date"
                                         name="issue_date"
                                         value={formData.issue_date}
                                         onChange={handleChange}
-                                        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                        className="bg-slate-50 border-slate-200"
+                                        placeholder="DD-MM-YYYY"
                                     />
                                 </div>
 

@@ -131,3 +131,79 @@ code {
 .group:hover .animate-arrow-shift {
   animation: arrow-shift 1.5s ease-in-out infinite;
 }
+
+/* Global improvements for form elements */
+select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 1rem center !important;
+  background-size: 1rem !important;
+  padding-right: 2.5rem !important;
+  cursor: pointer !important;
+}
+
+input[type="date"],
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Date Picker Consistency & Placeholder Fix */
+.date-input-wrapper {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  width: 100%;
+}
+
+.date-input-wrapper .calendar-icon {
+  position: absolute;
+  right: 1.1rem;
+  pointer-events: none;
+  color: #64748b; /* slate-500 */
+  z-index: 10;
+}
+
+/* Hidden text only when empty and not focused */
+input[type="date"].date-input-custom:not(:focus):not([data-has-value="true"])::-webkit-datetime-edit {
+  opacity: 0 !important;
+  color: transparent !important;
+}
+
+/* Custom Placeholder for Date Input */
+input[type="date"].date-input-custom {
+  position: relative;
+}
+
+input[type="date"].date-input-custom::before {
+  content: "DD-MM-YYYY" !important;
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8; /* slate-400 */
+  pointer-events: none;
+  display: none !important;
+}
+
+/* Show custom placeholder ONLY when empty and not focused */
+input[type="date"].date-input-custom:not(:focus):not([data-has-value="true"])::before {
+  display: block !important;
+}
+
+/* Allow native date picker to be triggered by clicking anywhere */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+  z-index: 20;
+}

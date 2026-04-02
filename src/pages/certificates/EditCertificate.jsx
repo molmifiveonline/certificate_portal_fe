@@ -3,6 +3,7 @@ import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from "react-router-dom";
 import { Award, Save, Loader2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
 import PageHeader from "../../components/common/PageHeader";
 import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
@@ -482,12 +483,13 @@ const EditCertificate = () => {
                   <label className="text-sm font-semibold text-slate-700">
                     From Date
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="from_date"
                     value={formData.from_date}
                     onChange={handleChange}
-                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    className="bg-slate-50 border-slate-200"
+                    placeholder="DD-MM-YYYY"
                   />
                 </div>
 
@@ -495,12 +497,13 @@ const EditCertificate = () => {
                   <label className="text-sm font-semibold text-slate-700">
                     To Date
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="to_date"
                     value={formData.to_date}
                     onChange={handleChange}
-                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    className="bg-slate-50 border-slate-200"
+                    placeholder="DD-MM-YYYY"
                   />
                 </div>
 
@@ -508,12 +511,13 @@ const EditCertificate = () => {
                   <label className="text-sm font-semibold text-slate-700">
                     Issue Date
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="issue_date"
                     value={formData.issue_date}
                     onChange={handleChange}
-                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    className="bg-slate-50 border-slate-200"
+                    placeholder="DD-MM-YYYY"
                   />
                 </div>
 

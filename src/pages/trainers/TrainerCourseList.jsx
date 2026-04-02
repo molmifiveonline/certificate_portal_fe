@@ -4,6 +4,7 @@ import { Search, Edit, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
+import { Input } from "../../components/ui/input";
 import { Card, CardContent } from "../../components/ui/card";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
@@ -162,10 +163,10 @@ const TrainerCourseList = () => {
         <CardContent className="p-4 sm:p-6 flex flex-wrap lg:flex-nowrap gap-3 items-center">
           <div className="relative w-full lg:w-64 shrink">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
+            <Input
               type="text"
               placeholder="Search courses..."
-              className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+              className="pl-10 h-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -174,7 +175,7 @@ const TrainerCourseList = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 px-3 bg-white/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 shrink-0"
+            className="h-10 px-3 bg-white/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 shrink-0 cursor-pointer"
           >
             {STATUS_OPTIONS.map((status) => (
               <option key={status || "all"} value={status}>
@@ -185,25 +186,27 @@ const TrainerCourseList = () => {
 
           <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10 shrink-0">
             <span className="text-xs text-slate-400">From</span>
-            <input
+            <Input
               type="date"
               value={dateRange.start}
               onChange={(e) =>
                 setDateRange((prev) => ({ ...prev, start: e.target.value }))
               }
-              className="bg-transparent text-sm focus:outline-none w-32"
+              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
+              placeholder="DD-MM-YYYY"
             />
           </div>
 
           <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-2 h-10 shrink-0">
             <span className="text-xs text-slate-400">To</span>
-            <input
+            <Input
               type="date"
               value={dateRange.end}
               onChange={(e) =>
                 setDateRange((prev) => ({ ...prev, end: e.target.value }))
               }
-              className="bg-transparent text-sm focus:outline-none w-32"
+              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
+              placeholder="DD-MM-YYYY"
             />
           </div>
 

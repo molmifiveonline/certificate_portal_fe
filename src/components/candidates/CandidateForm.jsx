@@ -4,7 +4,9 @@ import { User, FileText, Briefcase, ArrowRight, Upload, Image as ImageIcon } fro
 import { PasswordInput } from '../ui/PasswordInput';
 import candidateService from '../../services/candidateService';
 import { toast } from 'sonner';
+import { Input } from '../ui/input';
 import { MANAGER_OPTIONS, PREFIX_OPTIONS, GENDER_OPTIONS, CANDIDATE_NATIONALITY_OPTIONS, RANK_OPTIONS } from '../../lib/constants';
+import { getCommonFieldValidation } from '../../lib/utils/validation';
 
 const FormContext = createContext();
 
@@ -16,18 +18,21 @@ const SectionHeader = ({ title, icon: Icon }) => (
     </div>
 );
 
-const InputField = ({ label, name, type = "text", required, rules, placeholder, className }) => {
+const InputField = ({ label, name, type = "text", required, rules, placeholder, className, ...props }) => {
     const { register, errors } = useContext(FormContext);
+    const validation = getCommonFieldValidation({ label, name, type, required, rules });
     return (
         <div className={`space-y-1 ${className}`}>
             <label className="text-sm font-medium text-slate-700 block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
-            <input
+            <Input
                 type={type}
-                {...register(name, { required: required ? `${label} is required` : false, ...rules })}
-                className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
-                placeholder={placeholder || ""}
+                {...register(name, validation.rules)}
+                {...validation.inputProps}
+                className={errors[name] ? 'border-red-500' : 'border-slate-200'}
+                placeholder={placeholder || (type === "date" ? "DD-MM-YYYY" : "")}
+                {...props}
             />
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
         </div>
@@ -44,7 +49,7 @@ const SelectField = ({ label, name, required, options, className }) => {
             <div className="relative">
                 <select
                     {...register(name, { required: required ? `${label} is required` : false })}
-                    className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+                    className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm cursor-pointer`}
                 >
                     <option value="">Select...</option>
                     {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -153,7 +158,7 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                             <div>
                                 <SectionHeader title="Contact Info" />
                                 <div className="space-y-4">
-                                    <InputField label="Email Address" name="email" type="email" required />
+                                    <InputField label="Email Address" name="email" type="text" required />
 
                                     {/* Password Section */}
                                     {(showPassword || showResetPassword) && (
@@ -242,7 +247,7 @@ const CandidateForm = ({ onSubmit, defaultValues = {}, isSubmitting: parentIsSub
                                     <InputField label="Middle Name" name="middleName" className="md:col-span-2" />
                                     <InputField label="Last Name" name="lastName" required className="md:col-span-2" />
                                     <SelectField label="Gender" name="gender" required options={GENDER_OPTIONS} className="md:col-span-2" />
-                                    <InputField label="Date of Birth" name="dob" type="date" required className="md:col-span-2" />
+                                    <InputField label="Date of Birth" name="dob" type="date" required max={new Date().toISOString().split('T')[0]} className="md:col-span-2" />
                                     <SelectField label="Nationality" name="nationality" required options={CANDIDATE_NATIONALITY_OPTIONS} className="md:col-span-2" />
                                     <InputField label="Seaman Book No." name="seamanBookNo" className="md:col-span-2" />
 

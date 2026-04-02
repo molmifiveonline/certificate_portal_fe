@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, RefreshCcw } from 'lucide-react';
+import { getCommonFieldValidation } from '../../lib/utils/validation';
 
 const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: initialData || {}
     });
+    const emailValidation = getCommonFieldValidation({ label: 'Email', name: 'email', type: 'email', required: true });
+    const phoneValidation = getCommonFieldValidation({ label: 'Phone number', name: 'phone_number', required: true });
 
     useEffect(() => {
         if (initialData) {
@@ -66,8 +69,9 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                             Email Address <span className="text-red-500">*</span>
                         </label>
                         <input
-                            type="email"
-                            {...register('email', { required: 'Email is required' })}
+                            type="text"
+                            {...register('email', emailValidation.rules)}
+                            {...emailValidation.inputProps}
                             className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.email ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
                             placeholder="center@example.com"
                         />
@@ -79,7 +83,8 @@ const LocationForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                             Phone Number <span className="text-red-500">*</span>
                         </label>
                         <input
-                            {...register('phone_number', { required: 'Phone number is required' })}
+                            {...register('phone_number', phoneValidation.rules)}
+                            {...phoneValidation.inputProps}
                             className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.phone_number ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
                             placeholder="Contact number"
                         />

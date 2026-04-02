@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import nominatorService from '../../services/nominatorService';
 import { Users, Save } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { getCommonFieldValidation } from '../../lib/utils/validation';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import PageHeader from '../../components/common/PageHeader';
 
@@ -12,6 +13,7 @@ const FormContext = createContext();
 
 const InputField = ({ label, name, type = "text", required, placeholder }) => {
     const { register, errors } = useContext(FormContext);
+    const validation = getCommonFieldValidation({ label, name, type, required });
     return (
         <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700 block">
@@ -19,7 +21,8 @@ const InputField = ({ label, name, type = "text", required, placeholder }) => {
             </label>
             <input
                 type={type}
-                {...register(name, { required: required ? `${label} is required` : false })}
+                {...register(name, validation.rules)}
+                {...validation.inputProps}
                 className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
                 placeholder={placeholder}
             />
@@ -91,7 +94,7 @@ const EditNominator = () => {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <InputField label="Name" name="name" required placeholder="Full Name" />
-                            <InputField label="Email Address" name="email" type="email" required placeholder="Email Address" />
+                            <InputField label="Email Address" name="email" type="text" required placeholder="Email Address" />
                         </div>
                     </div>
 

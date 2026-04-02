@@ -3,9 +3,16 @@ import { useForm } from 'react-hook-form';
 import { X, Mail, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../../lib/api';
+import { getCommonFieldValidation } from '../../lib/utils/validation';
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
+    const emailValidation = getCommonFieldValidation({
+        label: 'Email',
+        name: 'email',
+        type: 'email',
+        required: true
+    });
 
     const onSubmit = async (data) => {
         try {
@@ -53,11 +60,9 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                                     <Mail size={20} />
                                 </div>
                                 <input
-                                    type="email"
-                                    {...register('email', {
-                                        required: 'Email is required',
-                                        pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" }
-                                    })}
+                                    type="text"
+                                    {...register('email', emailValidation.rules)}
+                                    {...emailValidation.inputProps}
                                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all shadow-sm"
                                     placeholder="name@company.com"
                                 />

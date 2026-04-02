@@ -95,7 +95,7 @@ const Register = () => {
                 </div>
 
                 <div className="p-8 md:p-12 bg-white/40 backdrop-blur-md">
-                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" showPassword={false} />
+                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" showPassword={false} defaultValues={{ employeeType: "Others" }} />
                 </div>
             </div>
         </div>

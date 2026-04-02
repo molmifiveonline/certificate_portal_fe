@@ -3,6 +3,15 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import MainLayout from '../layout/MainLayout';
 
+// Helper to get the correct dashboard path per role
+const getDashboardByRole = (role) => {
+    const r = (role || '').toLowerCase();
+    if (r === 'superadmin' || r === 'admin') return '/dashboard';
+    if (r === 'trainer') return '/dashboard/trainer';
+    if (r === 'candidate') return '/dashboard/candidate';
+    return '/dashboard';
+};
+
 const PrivateRoute = ({ children, allowedRoles, noLayout = false }) => {
     const { user, loading } = useAuth();
     const location = useLocation();
@@ -15,13 +24,15 @@ const PrivateRoute = ({ children, allowedRoles, noLayout = false }) => {
         );
     }
 
+    // Not logged in → redirect to login
     if (!user) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    // Case insensitive role check
+    // Role not allowed → redirect to user's own dashboard (not login)
     if (allowedRoles && !allowedRoles.some(role => role.toLowerCase() === user.role.toLowerCase())) {
-        return <Navigate to="/" replace />;
+        const userDashboard = getDashboardByRole(user.role);
+        return <Navigate to={userDashboard} replace />;
     }
 
     if (noLayout) {

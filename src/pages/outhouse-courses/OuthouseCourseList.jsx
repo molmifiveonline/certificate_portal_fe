@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
 import { formatDate } from "../../lib/utils/dateUtils";
@@ -216,10 +217,10 @@ const OuthouseCourseList = () => {
         <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:p-6">
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
+            <Input
               type="text"
               placeholder="Search course id, topic or name"
-              className="h-10 w-full rounded-xl border border-slate-200/60 bg-white/50 pl-10 pr-4 text-sm outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+              className="h-10 pl-10"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
             />
@@ -228,7 +229,7 @@ const OuthouseCourseList = () => {
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="h-10 rounded-xl border border-slate-200/60 bg-white/50 px-3 text-sm outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+            className="h-10 rounded-xl border border-slate-200/60 bg-white/50 px-3 text-sm outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 cursor-pointer"
           >
             <option value="">All status</option>
             {STATUS_OPTIONS.map((status) => (
@@ -240,25 +241,27 @@ const OuthouseCourseList = () => {
 
           <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200/60 bg-white/50 px-3">
             <span className="text-xs text-slate-400">From</span>
-            <input
+            <Input
               type="date"
               value={dateRange.from}
               onChange={(event) =>
                 setDateRange((current) => ({ ...current, from: event.target.value }))
               }
-              className="bg-transparent text-sm outline-none"
+              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
+              placeholder="DD-MM-YYYY"
             />
           </div>
 
           <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200/60 bg-white/50 px-3">
             <span className="text-xs text-slate-400">To</span>
-            <input
+            <Input
               type="date"
               value={dateRange.to}
               onChange={(event) =>
                 setDateRange((current) => ({ ...current, to: event.target.value }))
               }
-              className="bg-transparent text-sm outline-none"
+              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
+              placeholder="DD-MM-YYYY"
             />
           </div>
 

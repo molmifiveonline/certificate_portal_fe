@@ -5,6 +5,7 @@ import { Loader2, Plus, Trash2, Send } from 'lucide-react';
 import preActiveCourseService from '../../services/preActiveCourseService';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
+import { isNumericOnly, isValidEmail, sanitizeNumericValue } from '../../lib/utils/validation';
 
 const NominatorPortal = () => {
     const { token } = useParams();
@@ -42,7 +43,7 @@ const NominatorPortal = () => {
 
     const handleChange = (index, field, value) => {
         const newCandidates = [...candidates];
-        newCandidates[index][field] = value;
+        newCandidates[index][field] = field === 'mobile_no' ? sanitizeNumericValue(value) : value;
         setCandidates(newCandidates);
     };
 
@@ -52,8 +53,12 @@ const NominatorPortal = () => {
                 toast.error("First Name and Email are required for all candidates.");
                 return false;
             }
-            if (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) {
+            if (!isValidEmail(c.email)) {
                 toast.error(`Invalid email format: ${c.email}`);
+                return false;
+            }
+            if (!isNumericOnly(c.mobile_no)) {
+                toast.error(`Mobile number must contain digits only${c.first_name ? ` for ${c.first_name}` : ''}.`);
                 return false;
             }
         }
@@ -222,7 +227,7 @@ const NominatorPortal = () => {
                                         />
                                         <Input
                                             label="Email Address"
-                                            type="email"
+                                            type="text"
                                             placeholder="john@example.com"
                                             value={candidate.email}
                                             onChange={(e) => handleChange(index, 'email', e.target.value)}
