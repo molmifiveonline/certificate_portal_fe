@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../lib/api";
 import { Save, BookOpen, FileText } from "lucide-react";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/ui/Button";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 
@@ -287,3 +287,5 @@ const MasterCourseForm = () => {
 };
 
 export default MasterCourseForm;
+
+

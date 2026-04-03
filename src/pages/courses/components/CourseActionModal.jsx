@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../components/ui/Button";
 
 const CourseActionModal = ({ isOpen, onClose, onConfirm, type, reason, setReason }) => {
   if (!isOpen) return null;
@@ -35,3 +35,5 @@ const CourseActionModal = ({ isOpen, onClose, onConfirm, type, reason, setReason
 };
 
 export default CourseActionModal;
+
+

@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { Loader2, Save, BookOpen, Calendar, FileText } from "lucide-react";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import api from "../../lib/api";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import locationService from "../../services/locationService";
@@ -487,3 +487,5 @@ const PreActiveCourseForm = () => {
 };
 
 export default PreActiveCourseForm;
+
+

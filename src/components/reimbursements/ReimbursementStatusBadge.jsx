@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge } from "../ui/badge";
+import { Badge } from "../ui/Badge";
 import {
   getReimbursementStatusLabel,
   REIMBURSEMENT_STATUS_STYLES,
@@ -17,3 +17,4 @@ const ReimbursementStatusBadge = ({ status }) => (
 );
 
 export default ReimbursementStatusBadge;
+

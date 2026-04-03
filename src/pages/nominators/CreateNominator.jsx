@@ -73,7 +73,7 @@ const CreateNominator = () => {
           <div className="max-w-none">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="space-y-8 max-w-[1200px] mx-auto mt-8 px-4"
+              className="space-y-8 mx-auto mt-8"
             >
               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { Search, Eye, Send } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { debounce } from "lodash";
 import feedbackAnswerService from "../../services/feedbackAnswerService";
 import TablePagination from "../../components/ui/TablePagination";
@@ -171,3 +171,5 @@ const FeedbackCandidateList = () => {
 };
 
 export default FeedbackCandidateList;
+
+

@@ -11,8 +11,8 @@ import {
     UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
@@ -296,3 +296,5 @@ const TrainerList = () => {
 };
 
 export default TrainerList;
+
+

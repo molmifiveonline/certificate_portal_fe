@@ -4,7 +4,7 @@ import feedbackAnswerService from "../../services/feedbackAnswerService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Meta from "../../components/common/Meta";
 import { User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Download } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import PageHeader from "../../components/common/PageHeader";
 
 const SubmittedFeedbackDetails = () => {
@@ -210,3 +210,5 @@ const SubmittedFeedbackDetails = () => {
 };
 
 export default SubmittedFeedbackDetails;
+
+

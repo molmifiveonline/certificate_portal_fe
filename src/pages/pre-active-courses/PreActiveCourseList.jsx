@@ -3,14 +3,14 @@ import { Plus, Search, Edit, Trash2, Mail, Send, CheckCircle, RefreshCw, Calenda
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import preActiveCourseService from "../../services/preActiveCourseService";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/ui/Button";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { useAuth } from "../../context/AuthContext";
 import Meta from "../../components/common/Meta";
 import CourseImportPreviewModal from "../../components/pre-active-courses/CourseImportPreviewModal";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { formatDate } from "../../lib/utils/dateUtils";
 
 const PreActiveCourseList = () => {
@@ -354,3 +354,5 @@ const PreActiveCourseList = () => {
 };
 
 export default PreActiveCourseList;
+
+

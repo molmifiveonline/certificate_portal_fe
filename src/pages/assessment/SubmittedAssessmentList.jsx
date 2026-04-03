@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Search, Eye, ClipboardList, FileDown } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/Button";
+import { Card, CardContent } from "../../components/ui/Card";
 import { debounce } from "lodash";
 import assessmentService from "../../services/assessmentService";
 import TablePagination from "../../components/ui/TablePagination";
@@ -348,3 +348,5 @@ const SubmittedAssessmentList = () => {
 };
 
 export default SubmittedAssessmentList;
+
+

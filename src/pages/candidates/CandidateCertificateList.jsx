@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Printer, Award, Search } from "lucide-react";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
 import { formatDate } from "../../lib/utils/dateUtils";
@@ -236,3 +236,5 @@ const CandidateCertificateList = () => {
 };
 
 export default CandidateCertificateList;
+
+

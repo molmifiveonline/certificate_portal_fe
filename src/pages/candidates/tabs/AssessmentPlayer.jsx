@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
-import { RadioGroupItem } from "../../../components/ui/radio-group";
-import { Label } from "../../../components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../../components/ui/Card";
+import { Button } from "../../../components/ui/Button";
+import { RadioGroupItem } from "../../../components/ui/RadioGroup";
+import { Label } from "../../../components/ui/Label";
 import { Timer, ArrowLeft, ArrowRight, CheckCircle2, AlertCircle, Send } from "lucide-react";
 import api from '../../../lib/api';
 import { toast } from "sonner";
@@ -244,3 +244,5 @@ const AssessmentPlayer = ({ assessmentId, courseId, onClose }) => {
 };
 
 export default AssessmentPlayer;
+
+

@@ -7,8 +7,8 @@ import * as XLSX from "xlsx";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import activeCourseService from "../../services/activeCourseService";
 import candidateService from "../../services/candidateService";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import TablePagination from "../../components/ui/TablePagination";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
@@ -355,3 +355,5 @@ const AdminRemarksReport = () => {
 };
 
 export default AdminRemarksReport;
+
+

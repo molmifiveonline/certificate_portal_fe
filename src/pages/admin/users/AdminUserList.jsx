@@ -14,8 +14,8 @@ import Meta from "../../../components/common/Meta";
 import adminUserService from "../../../services/adminUserService";
 import { toast } from "sonner";
 import { useAuth } from "../../../context/AuthContext";
-import { Card, CardContent } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
+import { Card, CardContent } from "../../../components/ui/Card";
+import { Button } from "../../../components/ui/Button";
 import DataTable from "../../../components/ui/DataTable";
 import TablePagination from "../../../components/ui/TablePagination";
 import ConfirmationModal from "../../../components/ui/ConfirmationModal";
@@ -265,3 +265,5 @@ const AdminUserList = () => {
 };
 
 export default AdminUserList;
+
+

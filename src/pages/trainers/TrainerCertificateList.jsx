@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Search, Award } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import { formatDate } from "../../lib/utils/dateUtils";
@@ -140,3 +140,5 @@ const TrainerCertificateList = () => {
 };
 
 export default TrainerCertificateList;
+
+

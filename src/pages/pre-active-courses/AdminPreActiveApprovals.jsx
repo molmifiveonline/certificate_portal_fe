@@ -3,8 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Check, X, ShieldAlert, Loader2, Users } from "lucide-react";
 import preActiveCourseService from "../../services/preActiveCourseService";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import Meta from "../../components/common/Meta";
 import BackButton from "../../components/common/BackButton";
 
@@ -242,3 +242,5 @@ const AdminPreActiveApprovals = () => {
 };
 
 export default AdminPreActiveApprovals;
+
+

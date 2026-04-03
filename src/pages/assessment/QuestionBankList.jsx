@@ -12,8 +12,8 @@ import {
     FileQuestion,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
@@ -340,3 +340,5 @@ const QuestionBankList = () => {
 };
 
 export default QuestionBankList;
+
+

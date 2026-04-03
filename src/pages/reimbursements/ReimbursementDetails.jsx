@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 import reimbursementService from "../../services/reimbursementService";
 import { formatDate, formatDateTime } from "../../lib/utils/dateUtils";
 import ReimbursementAttachments from "../../components/reimbursements/ReimbursementAttachments";
@@ -148,3 +148,5 @@ const ReimbursementDetails = () => {
 };
 
 export default ReimbursementDetails;
+
+

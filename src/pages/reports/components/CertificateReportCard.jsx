@@ -1,7 +1,7 @@
 import React from "react";
 import { FileDown, Calendar, Filter, Building2 } from "lucide-react";
 import { inputStyles, selectStyles } from "./reportFormStyles";
-import { Input } from "../../../components/ui/input";
+import { Input } from "../../../components/ui/Input";
 
 const CertificateReportCard = ({
   dates,
@@ -180,3 +180,5 @@ const CertificateReportCard = ({
 };
 
 export default CertificateReportCard;
+
+

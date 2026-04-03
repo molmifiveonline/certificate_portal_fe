@@ -1,6 +1,6 @@
 import React from "react";
 import { Video, MapPin } from "lucide-react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../components/ui/Button";
 
 const EmailTypeModal = ({ isOpen, onClose, onSendOnline, onSendOffline, candidateId }) => {
   if (!isOpen) return null;
@@ -41,3 +41,5 @@ const EmailTypeModal = ({ isOpen, onClose, onSendOnline, onSendOffline, candidat
 };
 
 export default EmailTypeModal;
+
+

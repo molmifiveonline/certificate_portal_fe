@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import PageHeader from "../../components/common/PageHeader";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import { formatDate } from "../../lib/utils/dateUtils";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
@@ -264,3 +264,5 @@ const MasterCourseList = () => {
 };
 
 export default MasterCourseList;
+
+

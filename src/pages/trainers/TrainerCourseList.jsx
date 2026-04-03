@@ -4,8 +4,8 @@ import { Search, Edit, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
-import { Input } from "../../components/ui/input";
-import { Card, CardContent } from "../../components/ui/card";
+import { Input } from "../../components/ui/Input";
+import { Card, CardContent } from "../../components/ui/Card";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
 import activeCourseService from "../../services/activeCourseService";
@@ -243,3 +243,5 @@ const TrainerCourseList = () => {
 };
 
 export default TrainerCourseList;
+
+

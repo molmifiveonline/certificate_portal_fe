@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/Tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Badge } from "../../components/ui/Badge";
 import { BookOpen, Calendar, Clock, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
 import Meta from '../../components/common/Meta';
 import { toast } from "sonner";
@@ -167,3 +167,5 @@ const CandidateCourseDetails = () => {
 };
 
 export default CandidateCourseDetails;
+
+

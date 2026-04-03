@@ -4,7 +4,7 @@ import assessmentService from "../../services/assessmentService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Meta from "../../components/common/Meta";
 import { ArrowLeft, XCircle } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 
 // Custom Back Button mimicking the old UI style
 const BackButton = ({ to }) => (
@@ -260,3 +260,5 @@ const SubmissionDetail = () => {
 };
 
 export default SubmissionDetail;
+
+

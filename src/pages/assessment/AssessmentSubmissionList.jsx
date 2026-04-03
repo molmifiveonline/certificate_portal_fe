@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Search, Eye, ArrowLeft } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { debounce } from "lodash";
 import assessmentService from "../../services/assessmentService";
 import TablePagination from "../../components/ui/TablePagination";
@@ -197,3 +197,5 @@ const AssessmentSubmissionList = () => {
 };
 
 export default AssessmentSubmissionList;
+
+

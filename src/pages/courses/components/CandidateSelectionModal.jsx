@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../components/ui/Button";
 
 const CandidateSelectionModal = ({
   isOpen,
@@ -119,3 +119,5 @@ const CandidateSelectionModal = ({
 };
 
 export default CandidateSelectionModal;
+
+
