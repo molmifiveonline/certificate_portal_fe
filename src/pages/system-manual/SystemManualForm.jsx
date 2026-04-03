@@ -56,6 +56,39 @@ const SystemManualForm = ({
             : null
     );
 
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e, setFieldValue) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            // Validate file type (matching the input's 'accept' attribute)
+            const allowedTypes = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|jpg|jpeg|png)$/i;
+            if (allowedTypes.test(file.name)) {
+                setFieldValue("document_file", file);
+                setFilePreview(file.name);
+                setPreviewUrl(URL.createObjectURL(file));
+            } else {
+                toast.error("Unsupported file type. Please upload PDF, Word, Excel, PowerPoint, or Image files.");
+            }
+        }
+    };
+
     const handleSubmit = async (values, { setSubmitting }) => {
         try {
             if (values.document_type === 'file' && !values.document_file && !initialData?.file_name) {
@@ -137,8 +170,16 @@ const SystemManualForm = ({
                                         <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                                             Document File <span className="text-red-500">*</span>
                                         </label>
-                                        <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition-colors">
-                                            <div className="space-y-1 text-center flex flex-col items-center">
+                                        <div
+                                            className={`mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-xl transition-all cursor-pointer ${isDragging
+                                                ? "border-indigo-500 bg-indigo-50/50 scale-[1.01]"
+                                                : "border-slate-300 hover:bg-slate-50"
+                                                }`}
+                                            onDragOver={handleDragOver}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => handleDrop(e, setFieldValue)}
+                                        >
+                                            <div className="space-y-1 text-center flex flex-col items-center pointer-events-none">
                                                 <div className="bg-indigo-100 p-3 rounded-full mb-2">
                                                     <Upload className="mx-auto h-8 w-8 text-indigo-500" />
                                                 </div>

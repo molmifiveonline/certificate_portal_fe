@@ -169,7 +169,14 @@ const PreActiveCourseForm = () => {
       topic: mcId,
       course_name: selected ? selected.master_course_name : prev.course_name,
     }));
-    if (errors.topic) setErrors((prev) => ({ ...prev, topic: "" }));
+    
+    // Clear errors for both topic and course_name
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      if (mcId) delete newErrors.topic;
+      if (selected && selected.master_course_name) delete newErrors.course_name;
+      return newErrors;
+    });
   };
 
   const handleDescriptionChange = (content) => {

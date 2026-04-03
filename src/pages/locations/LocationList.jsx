@@ -55,7 +55,7 @@ const LocationList = () => {
             if (result.success && result.data) {
                 setLocations(Array.isArray(result.data.data) ? result.data.data : []);
                 setTotalPages(result.data.totalPages || 1);
-                setTotalCount(result.data.totalCount || 0);
+                setTotalCount(result.data.total || 0);
                 setCurrentPage(result.data.page || 1);
             } else {
                 setLocations([]);
