@@ -329,7 +329,8 @@ const LogHistory = () => {
   // Calculate total pages for pagination component
   const totalPages = Math.ceil(totalLogs / itemsPerPage);
 
-  if (loading && logs.length === 0) return <LoadingSpinner />;
+  // Only show full-page spinner on initial load (not during search)
+  if (loading && logs.length === 0 && !searchTerm && !latestSearchTermRef.current) return <LoadingSpinner />;
 
   return (
     <div className="flex-1 overflow-y-auto">
