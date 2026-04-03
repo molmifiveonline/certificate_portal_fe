@@ -221,8 +221,15 @@ const FeedbackFormCreate = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const errors = {};
         if (!title.trim()) {
-            setFormErrors({ title: "Form title is required" });
+            errors.title = "Form title is required";
+        }
+        if (selectedCategories.length === 0) {
+            errors.categories = "Please select at least one category";
+        }
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
             return;
         }
         setFormErrors({});
@@ -300,9 +307,13 @@ const FeedbackFormCreate = () => {
                             <MultiSelect
                                 options={categoryOptions}
                                 selectedValues={selectedCategories}
-                                onChange={handleCategoryChange}
+                                onChange={(val) => {
+                                    handleCategoryChange(val);
+                                    if (formErrors.categories) setFormErrors(prev => ({ ...prev, categories: undefined }));
+                                }}
                                 placeholder="Select Categories (Objectives, Design, etc.)"
                             />
+                            {formErrors.categories && <span className="text-red-500 text-xs mt-1 block">{formErrors.categories}</span>}
                             <p className="text-xs text-slate-400 mt-1">
                                 Selected categories will appear below for question addition.
                             </p>

@@ -146,6 +146,8 @@ select {
 }
 
 input[type="date"],
+input[type="radio"],
+input[type="checkbox"],
 .cursor-pointer {
   cursor: pointer !important;
 }

@@ -168,7 +168,7 @@ const FilterSection = ({
                   <SelectItem value="all">All Courses</SelectItem>
                   {masterCourses.map((mc) => (
                     <SelectItem key={mc.id} value={mc.id}>
-                      {mc.name || mc.course_name}
+                      {mc.master_course_name}
                     </SelectItem>
                   ))}
                 </SelectContent>
