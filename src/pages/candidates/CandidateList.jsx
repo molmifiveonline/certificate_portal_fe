@@ -105,6 +105,17 @@ const CandidateList = ({ registrationType }) => {
     registrationType,
   ]);
 
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setDebouncedSearch("");
+    setFilterManager("");
+    setFilterRank("");
+    setFilterNationality("");
+    setFilterStatus("1");
+    setCurrentPage(1);
+    toast.success("Filters cleared");
+  };
+
   useEffect(() => {
     fetchCandidates();
   }, [fetchCandidates]);
@@ -359,7 +370,7 @@ const CandidateList = ({ registrationType }) => {
             </div>
           </div>
           {showFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Manager
@@ -448,6 +459,16 @@ const CandidateList = ({ registrationType }) => {
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </select>
+              </div>
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  onClick={handleResetFilters}
+                  className="w-full h-10 border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                >
+                  <RefreshCcw className="w-3.5 h-3.5" />
+                  Reset Filters
+                </Button>
               </div>
             </div>
           )}

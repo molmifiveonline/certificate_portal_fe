@@ -69,7 +69,7 @@ const AddCandidate = () => {
                 title="Add New Candidate"
                 subtitle="Register a new candidate manually"
                 compact={true}
-                backTo="/candidates/molmi"
+                backTo={registrationType === 'Others' ? '/candidates/others' : '/candidates/molmi'}
             />
 
             <div className="w-full">

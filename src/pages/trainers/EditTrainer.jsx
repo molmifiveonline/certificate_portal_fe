@@ -138,6 +138,8 @@ const EditTrainer = () => {
                 setValue('rank', trainer.rank || '');
                 setValue('officer', trainer.officer || '');
                 setValue('other_officer', trainer.other_officer || '');
+                setValue('mobile', trainer.mobile || '');
+                setValue('status', trainer.status === 1);
 
                 // Set existing image previews
                 if (trainer.profile_photo) {
@@ -177,6 +179,8 @@ const EditTrainer = () => {
             formData.append('rank', data.rank);
             formData.append('officer', data.officer);
             formData.append('other_officer', data.other_officer);
+            formData.append('mobile', data.mobile);
+            formData.append('status', data.status ? 1 : 0);
 
             // Only append password if provided
             if (data.password) {
@@ -268,6 +272,7 @@ const EditTrainer = () => {
                                             {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                                         </div>
                                     </div>
+                                    <InputField label="Mobile Number" name="mobile" required placeholder="Phone/WhatsApp" />
                                 </div>
                             </div>
 
@@ -302,6 +307,29 @@ const EditTrainer = () => {
                                         <FileInput label="Digital Signature (leave empty to keep current)" name="digital_signature" />
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Account Status */}
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <span className="w-1 h-6 bg-amber-500 rounded-full"></span>
+                                    Account Status
+                                </h3>
+                                <div className="flex items-center space-x-3 cursor-pointer">
+                                    <span className="text-sm font-medium text-slate-700">Status:</span>
+                                    <div className="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+                                        <input
+                                            type="checkbox"
+                                            {...register("status")}
+                                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-2 appearance-none cursor-pointer peer checked:translate-x-6 translate-x-0 border-slate-200 checked:border-green-400 transition-transform"
+                                        />
+                                        <div className="toggle-label block overflow-hidden h-6 rounded-full bg-slate-200 peer-checked:bg-green-400 cursor-pointer"></div>
+                                    </div>
+                                    <span className="text-sm font-medium text-slate-700">Active</span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-2">
+                                    Inactive trainers cannot log in or be assigned to courses.
+                                </p>
                             </div>
                         </div>
                     </div>

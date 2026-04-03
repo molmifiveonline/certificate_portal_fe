@@ -37,13 +37,13 @@ const AdminRolesList = () => {
       const result = await api.get("/admin-roles", { params });
 
       if (result.data.success) {
-        const responseData = result.data.data;
-        const rows = responseData?.data || responseData || [];
+        const rows = result.data.data || [];
+        const meta = result.data.meta;
 
         setRoles(Array.isArray(rows) ? rows : []);
-        setTotalPages(responseData?.meta?.totalPages || 1);
-        setTotalCount(responseData?.meta?.total || rows.length || 0);
-        setCurrentPage(responseData?.meta?.page || 1);
+        setTotalPages(meta?.totalPages || 1);
+        setTotalCount(meta?.total || rows.length || 0);
+        setCurrentPage(meta?.page || 1);
       } else {
         setRoles([]);
       }

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Calendar } from "lucide-react";
 import { cn } from "../../lib/utils/utils";
 
-const Input = React.forwardRef(({ className, type, ...props }, ref) => {
+const Input = React.forwardRef(({ className, type, onChange, onBlur, value, defaultValue, ...props }, ref) => {
   const internalRef = React.useRef(null);
   const combinedRef = (node) => {
     internalRef.current = node;
@@ -10,19 +10,19 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
     else if (ref) ref.current = node;
   };
 
-  const [hasValue, setHasValue] = React.useState(!!props.value || !!props.defaultValue);
+  const [hasValue, setHasValue] = React.useState(!!value || !!defaultValue);
 
   // Re-sync value when props change or when mounting
   React.useEffect(() => {
     const checkValue = () => {
-      const val = internalRef.current?.value || props.value || props.defaultValue;
+      const val = internalRef.current?.value || value || defaultValue;
       setHasValue(!!val);
     };
     checkValue();
     // Also check after a small delay in case RHF updates the value asynchronously
-    const timer = setTimeout(checkValue, 0);
+    const timer = setTimeout(checkValue, 100);
     return () => clearTimeout(timer);
-  }, [props.value, props.defaultValue]);
+  }, [value, defaultValue]);
 
   const inputElement = (
     <input
@@ -34,8 +34,14 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
       )}
       onChange={(e) => {
         setHasValue(!!e.target.value);
-        props.onChange?.(e);
+        onChange?.(e);
       }}
+      onBlur={(e) => {
+        setHasValue(!!e.target.value);
+        onBlur?.(e);
+      }}
+      value={value}
+      defaultValue={defaultValue}
       data-has-value={hasValue}
       ref={combinedRef}
       {...props}
