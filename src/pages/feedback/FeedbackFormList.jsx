@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
 import { Plus, Search, Edit, Trash2, ClipboardList } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button, buttonVariants } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button, buttonVariants } from "../../components/ui/Button";
 import { cn } from "../../lib/utils/utils";
 import { toast } from "sonner";
 import { debounce } from "lodash";
@@ -211,3 +211,5 @@ const FeedbackFormList = () => {
 };
 
 export default FeedbackFormList;
+
+

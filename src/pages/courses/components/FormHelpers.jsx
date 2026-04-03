@@ -2,7 +2,7 @@ import React from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "../../../lib/utils/utils";
 import { getCommonFieldValidation } from "../../../lib/utils/validation";
-import { Input } from "../../../components/ui/input";
+import { Input } from "../../../components/ui/Input";
 
 export const InputField = ({
   label,
@@ -86,3 +86,5 @@ export const SelectField = ({
     )}
   </div>
 );
+
+

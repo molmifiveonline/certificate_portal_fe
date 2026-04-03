@@ -9,8 +9,8 @@ import {
     Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
@@ -201,4 +201,6 @@ const NominatorList = () => {
 };
 
 export default NominatorList;
+
+
 

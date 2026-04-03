@@ -12,9 +12,9 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../../components/common/Meta";
 import PageHeader from "../../../components/common/PageHeader";
-import { Button } from "../../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Textarea } from "../../../components/ui/textarea";
+import { Button } from "../../../components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { Textarea } from "../../../components/ui/Textarea";
 import reimbursementService from "../../../services/reimbursementService";
 import {
   canAdminTakeDecision,
@@ -346,3 +346,5 @@ const ReimbursementAdminDetails = () => {
 };
 
 export default ReimbursementAdminDetails;
+
+

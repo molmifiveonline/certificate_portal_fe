@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { toast, Toaster } from 'sonner';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import preActiveCourseService from '../../services/preActiveCourseService';
-import { Input } from '../../components/ui/input';
-import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/Input';
+import { Button } from '../../components/ui/Button';
 
 const CandidateApprovalPortal = () => {
     const { token } = useParams();
@@ -209,3 +209,5 @@ const CandidateApprovalPortal = () => {
 };
 
 export default CandidateApprovalPortal;
+
+

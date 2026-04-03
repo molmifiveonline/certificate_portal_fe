@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Badge } from "../../../components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { Badge } from "../../../components/ui/Badge";
 import { CheckCircle2, XCircle, Clock } from "lucide-react";
 import api from '../../../lib/api';
 import { toast } from "sonner";
@@ -115,3 +115,5 @@ const CandidateAttendanceTab = ({ courseId }) => {
 };
 
 export default CandidateAttendanceTab;
+
+

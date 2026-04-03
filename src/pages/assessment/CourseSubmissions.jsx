@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { Search, Eye } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import debounce from "lodash/debounce";
 import assessmentService from "../../services/assessmentService";
 import DataTable from "../../components/ui/DataTable";
@@ -186,3 +186,5 @@ const CourseSubmissions = () => {
 };
 
 export default CourseSubmissions;
+
+

@@ -1,6 +1,6 @@
 import React from "react";
 import { AlertTriangle } from "lucide-react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../components/ui/Button";
 
 const CandidateDeleteModal = ({
   isOpen,
@@ -60,3 +60,5 @@ const CandidateDeleteModal = ({
 };
 
 export default CandidateDeleteModal;
+
+

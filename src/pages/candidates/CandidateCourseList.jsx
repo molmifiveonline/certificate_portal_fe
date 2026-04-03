@@ -4,10 +4,10 @@ import { BookOpen, Calendar, Clock, Eye, Search, Book } from "lucide-react";
 import Meta from "../../components/common/Meta";
 import { toast } from "sonner";
 import api from "../../lib/api";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
-import { Badge } from "../../components/ui/badge";
+import { Badge } from "../../components/ui/Badge";
 
 const CandidateCourseList = () => {
   const [courses, setCourses] = useState([]);
@@ -209,3 +209,5 @@ const CandidateCourseList = () => {
 };
 
 export default CandidateCourseList;
+
+

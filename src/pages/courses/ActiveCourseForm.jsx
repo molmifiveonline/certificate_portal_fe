@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/ui/Button";
 import { cn } from "../../lib/utils/utils";
 
 import { useAuth } from "../../context/AuthContext";
@@ -1125,3 +1125,5 @@ const ActiveCourseForm = () => {
 };
 
 export default ActiveCourseForm;
+
+

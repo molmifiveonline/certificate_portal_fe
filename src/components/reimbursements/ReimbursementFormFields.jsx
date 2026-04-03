@@ -1,13 +1,13 @@
 import React from "react";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/Input";
+import { Textarea } from "../ui/Textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../ui/Select";
 import {
   REIMBURSEMENT_EXPENSE_CATEGORIES,
   REIMBURSEMENT_PAYMENT_MODES,
@@ -197,3 +197,4 @@ const ReimbursementFormFields = ({
 };
 
 export default ReimbursementFormFields;
+

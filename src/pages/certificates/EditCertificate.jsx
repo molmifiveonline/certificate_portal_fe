@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from "react-router-dom";
 import { Award, Save, Loader2 } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Input } from "../../components/ui/Input";
 import PageHeader from "../../components/common/PageHeader";
 import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
@@ -640,3 +640,5 @@ const EditCertificate = () => {
 };
 
 export default EditCertificate;
+
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { X, CheckCircle2, AlertCircle, Loader2, Info, Calendar, RefreshCcw } from 'lucide-react';
-import { Button } from "../ui/button";
+import { Button } from "../ui/Button";
 import DataTable from "../ui/DataTable";
 import TablePagination from "../ui/TablePagination";
 import { toast } from "sonner";
@@ -207,3 +207,4 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
 };
 
 export default CandidateImportPreviewModal;
+

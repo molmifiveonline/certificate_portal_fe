@@ -7,7 +7,7 @@ import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { ASSESSMENT_TYPES, QUESTION_COUNTS, QUESTION_CHOICES } from "../../lib/constants";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/ui/Button";
 
 const InputField = ({ label, value, onChange, placeholder, required, errorMessage }) => (
     <div>
@@ -531,3 +531,5 @@ const AssessmentForm = () => {
 };
 
 export default AssessmentForm;
+
+

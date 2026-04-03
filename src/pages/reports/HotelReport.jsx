@@ -6,7 +6,7 @@ import {
     Building2,
     SlidersHorizontal,
 } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { formatDate } from "../../lib/utils/dateUtils";
 import ReportService from "../../services/reportService";
 import TablePagination from "../../components/ui/TablePagination";
@@ -232,3 +232,5 @@ const HotelReport = () => {
 };
 
 export default HotelReport;
+
+

@@ -11,7 +11,7 @@ import {
 import { PasswordInput } from "../ui/PasswordInput";
 import candidateService from "../../services/candidateService";
 import { toast } from "sonner";
-import { Input } from "../ui/input";
+import { Input } from "../ui/Input";
 import {
   MANAGER_OPTIONS,
   PREFIX_OPTIONS,
@@ -606,3 +606,4 @@ const CandidateForm = ({
 };
 
 export default CandidateForm;
+

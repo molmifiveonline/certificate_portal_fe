@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { X, CheckCircle2, AlertCircle, Loader2, Info, RefreshCcw, BookOpen } from 'lucide-react';
-import { Button } from "../ui/button";
+import { Button } from "../ui/Button";
 import DataTable from "../ui/DataTable";
 import TablePagination from "../ui/TablePagination";
 import { toast } from "sonner";
@@ -202,3 +202,4 @@ const CourseImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
 };
 
 export default CourseImportPreviewModal;
+

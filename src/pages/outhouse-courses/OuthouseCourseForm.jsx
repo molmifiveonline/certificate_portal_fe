@@ -16,10 +16,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import BackButton from "../../components/common/BackButton";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Button } from "../../components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Input } from "../../components/ui/Input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/Tabs";
 import { formatDate } from "../../lib/utils/dateUtils";
 import { isNumericOnly, isValidEmail, sanitizeNumericValue } from "../../lib/utils/validation";
 import candidateService from "../../services/candidateService";
@@ -1292,3 +1292,5 @@ const OuthouseCourseForm = () => {
 };
 
 export default OuthouseCourseForm;
+
+

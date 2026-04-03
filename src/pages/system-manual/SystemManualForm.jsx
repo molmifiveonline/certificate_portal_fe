@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Form, Formik, Field } from "formik";
 import * as Yup from "yup";
 import { Save, X, FileText, Link as LinkIcon, Upload } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import { toast } from "sonner";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -274,3 +274,5 @@ const SystemManualForm = ({
 };
 
 export default SystemManualForm;
+
+

@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { FileText, RefreshCcw, Mail } from "lucide-react";
 import api from "../../../lib/api";
 import activeCourseService from "../../../services/activeCourseService";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../components/ui/Button";
 
 const FeedbackTab = ({ courseId }) => {
   const [candidates, setCandidates] = useState([]);
@@ -115,3 +115,5 @@ const FeedbackTab = ({ courseId }) => {
 };
 
 export default FeedbackTab;
+
+

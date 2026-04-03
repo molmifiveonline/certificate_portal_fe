@@ -1,7 +1,7 @@
 import React from "react";
 import { FileDown, Calendar, Filter, Users } from "lucide-react";
 import { inputStyles, selectStyles } from "./reportFormStyles";
-import { Input } from "../../../components/ui/input";
+import { Input } from "../../../components/ui/Input";
 
 const FeedbackReportCard = ({
   dates,
@@ -184,3 +184,5 @@ const FeedbackReportCard = ({
 };
 
 export default FeedbackReportCard;
+
+

@@ -17,7 +17,7 @@ import questionBankService from "../../services/questionBankService";
 import Meta from "../../components/common/Meta";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import TablePagination from "../../components/ui/TablePagination";
 import { formatDateTime } from "../../lib/utils/dateUtils";
 
@@ -478,3 +478,5 @@ const LogHistory = () => {
 };
 
 export default LogHistory;
+
+

@@ -4,8 +4,8 @@ import Meta from "../../components/common/Meta";
 import { Shield, Check, X, Save, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 
 const RolePermission = () => {
   const [roles, setRoles] = useState([]);
@@ -263,3 +263,5 @@ const RolePermission = () => {
 };
 
 export default RolePermission;
+
+

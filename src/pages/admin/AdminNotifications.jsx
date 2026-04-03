@@ -4,8 +4,8 @@ import { Bell, BookOpenCheck, ReceiptText, UserCog } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
-import { Badge } from "../../components/ui/badge";
-import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/Badge";
+import { Card, CardContent } from "../../components/ui/Card";
 import notificationService from "../../services/notificationService";
 import { formatDate, formatDateTime } from "../../lib/utils/dateUtils";
 
@@ -243,3 +243,5 @@ const AdminNotifications = () => {
 };
 
 export default AdminNotifications;
+
+

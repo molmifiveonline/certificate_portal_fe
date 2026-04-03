@@ -3,9 +3,9 @@ import { BookOpen, Edit, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/Button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Input } from "../../components/ui/Input";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
 import { formatDate } from "../../lib/utils/dateUtils";
@@ -304,3 +304,5 @@ const OuthouseCourseList = () => {
 };
 
 export default OuthouseCourseList;
+
+

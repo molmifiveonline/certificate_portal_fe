@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/ui/Button";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
@@ -162,3 +162,5 @@ const FeedbackCategoryForm = ({ isOpen, onClose, onSuccess, initialData }) => {
 };
 
 export default FeedbackCategoryForm;
+
+

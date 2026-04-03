@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { FileText } from "lucide-react";
 import activeCourseService from "../../../services/activeCourseService";
-import { Button } from "../../../components/ui/button";
-import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/Button";
+import { Badge } from "../../../components/ui/Badge";
 import { generateDateRange, formatDateDMY } from "./courseUtils";
 
 const CertificateTab = ({ courseId }) => {
@@ -305,3 +305,5 @@ const CertificateTab = ({ courseId }) => {
 };
 
 export default CertificateTab;
+
+

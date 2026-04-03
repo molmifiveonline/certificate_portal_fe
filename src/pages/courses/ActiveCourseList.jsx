@@ -9,11 +9,11 @@ import {
     LayoutDashboard,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/ui/Button";
 import { formatDate } from "../../lib/utils/dateUtils";
 import activeCourseService from "../../services/activeCourseService";
 import { toast } from "sonner";
@@ -314,3 +314,5 @@ const ActiveCourseList = () => {
 };
 
 export default ActiveCourseList;
+
+

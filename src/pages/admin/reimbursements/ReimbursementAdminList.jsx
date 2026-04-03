@@ -4,14 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../../components/common/Meta";
 import PageHeader from "../../../components/common/PageHeader";
-import { Card, CardContent } from "../../../components/ui/card";
+import { Card, CardContent } from "../../../components/ui/Card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../components/ui/select";
+} from "../../../components/ui/Select";
 import DataTable from "../../../components/ui/DataTable";
 import TablePagination from "../../../components/ui/TablePagination";
 import reimbursementService from "../../../services/reimbursementService";
@@ -187,3 +187,5 @@ const ReimbursementAdminList = () => {
 };
 
 export default ReimbursementAdminList;
+
+

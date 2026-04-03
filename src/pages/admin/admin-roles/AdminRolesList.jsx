@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../../components/common/Meta";
 import { Search, Plus, Edit, Trash2, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
+import { Card, CardContent } from "../../../components/ui/Card";
+import { Button } from "../../../components/ui/Button";
 import TablePagination from "../../../components/ui/TablePagination";
 import DataTable from "../../../components/ui/DataTable";
 import ConfirmationModal from "../../../components/ui/ConfirmationModal";
@@ -226,3 +226,5 @@ const AdminRolesList = () => {
 };
 
 export default AdminRolesList;
+
+

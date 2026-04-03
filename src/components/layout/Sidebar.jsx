@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
-} from "../ui/tooltip";
+} from "../ui/Tooltip";
 
 // Mock useMedia hook
 // const useMedia = () => {
@@ -414,3 +414,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+

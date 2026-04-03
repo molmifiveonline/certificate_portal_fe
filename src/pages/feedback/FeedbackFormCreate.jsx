@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { Plus, X, Save, Trash2, ChevronDown, Check } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import { toast } from "sonner";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import feedbackFormService from "../../services/feedbackFormService";
@@ -512,3 +512,5 @@ const FeedbackFormCreate = () => {
 };
 
 export default FeedbackFormCreate;
+
+

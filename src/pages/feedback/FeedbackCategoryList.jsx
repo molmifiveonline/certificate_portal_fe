@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
 import { Plus, Search, Edit, Trash2, MessageSquare } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import { toast } from "sonner";
 import { debounce } from "lodash";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
@@ -212,3 +212,5 @@ const FeedbackCategoryList = () => {
 };
 
 export default FeedbackCategoryList;
+
+
