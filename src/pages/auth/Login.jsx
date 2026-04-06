@@ -209,10 +209,23 @@ const Login = () => {
                   <PasswordInput
                     {...register("password", {
                       required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be 8 to 16 characters",
+                      },
+                      maxLength: {
+                        value: 16,
+                        message: "Password must be 8 to 16 characters",
+                      },
                     })}
                     className={`w-full px-4 py-3 rounded-lg bg-white/70 border ${errors.password ? "border-red-500" : "border-gray-300"} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto`}
                     placeholder="Enter your password"
                   />
+                  {errors.password && (
+                    <span className="text-red-500 text-xs mt-1 block">
+                      {errors.password.message}
+                    </span>
+                  )}
                 </div>
               </div>
 

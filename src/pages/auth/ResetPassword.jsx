@@ -96,7 +96,8 @@ const ResetPassword = () => {
                                         <PasswordInput
                                             {...register('password', {
                                                 required: 'Password is required',
-                                                minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                                                minLength: { value: 8, message: 'Password must be 8 to 16 characters' },
+                                                maxLength: { value: 16, message: 'Password must be 8 to 16 characters' }
                                             })}
                                             className={`w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border ${errors.password ? 'border-red-500' : 'border-gray-300'} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto`}
                                             placeholder="Enter new password"
@@ -115,8 +116,11 @@ const ResetPassword = () => {
                                         <PasswordInput
                                             {...register('confirm_password', {
                                                 required: 'Please confirm your password',
+                                                minLength: { value: 8, message: 'Confirm Password must be 8 to 16 characters' },
+                                                maxLength: { value: 16, message: 'Confirm Password must be 8 to 16 characters' },
                                                 validate: (val) => {
                                                     if (watch('password') !== val) return "Passwords do not match";
+                                                    return true;
                                                 }
                                             })}
                                             className={`w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border ${errors.confirm_password ? 'border-red-500' : 'border-gray-300'} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto`}

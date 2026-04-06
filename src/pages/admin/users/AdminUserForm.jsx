@@ -116,7 +116,11 @@ const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
                         </label>
                         <input
                             type="password"
-                            {...register('password', { required: isEditMode ? false : 'Password is required' })}
+                            {...register('password', {
+                                required: isEditMode ? false : 'Password is required',
+                                minLength: { value: 8, message: 'Password must be 8 to 16 characters' },
+                                maxLength: { value: 16, message: 'Password must be 8 to 16 characters' }
+                            })}
                             className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.password ? 'border-red-500' : 'border-slate-200'} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
                             placeholder={isEditMode ? "Leave blank to keep current password" : "Password"}
                         />
