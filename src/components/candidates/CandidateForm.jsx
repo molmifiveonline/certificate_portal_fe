@@ -16,8 +16,7 @@ import {
   MANAGER_OPTIONS,
   PREFIX_OPTIONS,
   GENDER_OPTIONS,
-  CANDIDATE_NATIONALITY_OPTIONS,
-  RANK_OPTIONS,
+  TRAINER_NATIONALITY_OPTIONS,
 } from "../../lib/constants";
 import { getCommonFieldValidation } from "../../lib/utils/validation";
 
@@ -248,11 +247,10 @@ const CandidateForm = ({
                 <SectionHeader title="Professional Info" icon={FileText} />
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <SelectField
+                    <InputField
                       label="Rank On Vessel"
                       name="rank"
                       required
-                      options={RANK_OPTIONS}
                     />
                     <SelectField
                       label="Manager"
@@ -297,8 +295,12 @@ const CandidateForm = ({
                                 ? "Password is required"
                                 : false,
                             minLength: {
-                              value: 6,
-                              message: "Password must be at least 6 characters",
+                              value: 8,
+                              message: "Password must be 8 to 16 characters",
+                            },
+                            maxLength: {
+                              value: 16,
+                              message: "Password must be 8 to 16 characters",
                             },
                           })}
                           className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
@@ -325,6 +327,16 @@ const CandidateForm = ({
                               showPassword || showResetPassword
                                 ? "Confirm Password is required"
                                 : false,
+                            minLength: {
+                              value: 8,
+                              message:
+                                "Confirm Password must be 8 to 16 characters",
+                            },
+                            maxLength: {
+                              value: 16,
+                              message:
+                                "Confirm Password must be 8 to 16 characters",
+                            },
                             validate: (val, formValues) => {
                               if (showPassword || showResetPassword) {
                                 return (
@@ -441,7 +453,7 @@ const CandidateForm = ({
                     label="Nationality"
                     name="nationality"
                     required
-                    options={CANDIDATE_NATIONALITY_OPTIONS}
+                    options={TRAINER_NATIONALITY_OPTIONS}
                     className="md:col-span-2"
                   />
                   <InputField

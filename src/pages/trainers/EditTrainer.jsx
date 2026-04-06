@@ -43,6 +43,7 @@ const FileInput = ({ label, name }) => {
                 ref={ref}
                 {...rest}
                 onChange={(e) => {
+                    if (!e.target.files?.[0]) return;
                     rest.onChange(e);
                     handleFileChange(name, e);
                 }}
@@ -264,7 +265,8 @@ const EditTrainer = () => {
                                             </label>
                                             <PasswordInput
                                                 {...register("password", {
-                                                    minLength: { value: 6, message: "Min 6 characters" }
+                                                    minLength: { value: 8, message: "Password must be 8 to 16 characters" },
+                                                    maxLength: { value: 16, message: "Password must be 8 to 16 characters" }
                                                 })}
                                                 className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
                                                 placeholder="New password"

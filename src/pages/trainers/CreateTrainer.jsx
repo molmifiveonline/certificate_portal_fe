@@ -61,6 +61,7 @@ const FileInput = ({ label, name, required }) => {
         ref={ref}
         {...rest}
         onChange={(e) => {
+          if (!e.target.files?.[0]) return;
           rest.onChange(e);
           handleFileChange(name, e);
         }}
@@ -125,12 +126,10 @@ const CreateTrainer = () => {
 
   const handleFileChange = (name, e) => {
     const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviews((prev) => ({ ...prev, [name]: url }));
-    } else {
-      setPreviews((prev) => ({ ...prev, [name]: null }));
-    }
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    setPreviews((prev) => ({ ...prev, [name]: url }));
   };
 
   const onSubmit = async (data) => {
@@ -257,8 +256,12 @@ const CreateTrainer = () => {
                             {...register("password", {
                               required: "Password is required",
                               minLength: {
-                                value: 6,
-                                message: "Min 6 characters",
+                                value: 8,
+                                message: "Password must be 8 to 16 characters",
+                              },
+                              maxLength: {
+                                value: 16,
+                                message: "Password must be 8 to 16 characters",
                               },
                             })}
                             className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm h-auto"
