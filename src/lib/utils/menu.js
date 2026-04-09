@@ -75,7 +75,7 @@ export const MenuItems = [
     subItems: [
       { title: "Master Courses", url: "/courses" },
       { title: "Pre-Active Courses", url: "/pre-active-courses" },
-      // { title: "Active Courses", url: "/active-courses" },
+      { title: "Active Courses", url: "/active-courses" },
       // { title: "Outhouse Courses", url: "/outhouse-courses" },
     ],
   },

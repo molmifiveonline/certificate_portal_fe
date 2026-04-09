@@ -47,7 +47,8 @@ const OuthouseCourseList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [dateRange, setDateRange] = useState({ from: "", to: "" });
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
@@ -62,9 +63,8 @@ const OuthouseCourseList = () => {
         page: currentPage,
         limit,
         search: searchTerm.trim(),
-        status: statusFilter,
-        from_date: dateRange.from,
-        to_date: dateRange.to,
+        from_date: fromDate,
+        to_date: toDate,
         sort_by: sortBy,
         sort_order: sortOrder,
       });
@@ -72,7 +72,9 @@ const OuthouseCourseList = () => {
       const data = response?.data || response?.rows || [];
       const total = response?.total || response?.meta?.total || 0;
       const pages =
-        response?.totalPages || response?.meta?.totalPages || Math.max(1, Math.ceil(total / limit));
+        response?.totalPages ||
+        response?.meta?.totalPages ||
+        Math.max(1, Math.ceil(total / limit));
 
       setCourses(Array.isArray(data) ? data : []);
       setTotalCount(total);
@@ -85,7 +87,16 @@ const OuthouseCourseList = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, dateRange.from, dateRange.to, limit, searchTerm, sortBy, sortOrder, statusFilter]);
+  }, [
+    currentPage,
+    fromDate,
+    toDate,
+    limit,
+    searchTerm,
+    sortBy,
+    sortOrder,
+    statusFilter,
+  ]);
 
   useEffect(() => {
     fetchCourses();
@@ -97,7 +108,7 @@ const OuthouseCourseList = () => {
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [searchTerm, statusFilter, dateRange.from, dateRange.to]);
+  }, [searchTerm, statusFilter, fromDate, toDate]);
 
   const handleSort = (column) => {
     if (sortBy === column) {
@@ -149,9 +160,14 @@ const OuthouseCourseList = () => {
       sortable: true,
       render: (value, row) => (
         <div className="space-y-1">
-          <div className="font-medium text-slate-700">{value || row.location_type || "-"}</div>
+          <div className="font-medium text-slate-700">
+            {value || row.location_type || "-"}
+          </div>
           <div className="text-xs text-slate-500">
-            {row.location_name || row.location_of_training || row.other_location || "-"}
+            {row.location_name ||
+              row.location_of_training ||
+              row.other_location ||
+              "-"}
           </div>
         </div>
       ),
@@ -163,7 +179,8 @@ const OuthouseCourseList = () => {
       render: (value) => (
         <span
           className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-            STATUS_STYLES[value] || "bg-slate-50 text-slate-700 border-slate-100"
+            STATUS_STYLES[value] ||
+            "bg-slate-50 text-slate-700 border-slate-100"
           }`}
         >
           {value || "-"}
@@ -200,7 +217,8 @@ const OuthouseCourseList = () => {
             Outhouse Courses
           </h1>
           <p className="mt-1 text-slate-500">
-            Admin-only outhouse course creation, candidate handling, attendance, feedback, and certificates
+            Admin-only outhouse course creation, candidate handling, attendance,
+            feedback, and certificates
           </p>
         </div>
 
@@ -239,29 +257,25 @@ const OuthouseCourseList = () => {
             ))}
           </select>
 
-          <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200/60 bg-white/50 px-3">
-            <span className="text-xs text-slate-400">From</span>
-            <Input
+          <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200/60 bg-white/50 px-2 shrink-0">
+            <span className="text-xs text-slate-400 font-medium">From</span>
+            <input
               type="date"
-              value={dateRange.from}
-              onChange={(event) =>
-                setDateRange((current) => ({ ...current, from: event.target.value }))
-              }
-              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
-              placeholder="DD-MM-YYYY"
+              value={fromDate}
+              data-has-value={!!fromDate}
+              onChange={(event) => setFromDate(event.target.value)}
+              className="date-input-custom relative bg-transparent text-sm outline-none w-32 cursor-pointer"
             />
           </div>
 
-          <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200/60 bg-white/50 px-3">
-            <span className="text-xs text-slate-400">To</span>
-            <Input
+          <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200/60 bg-white/50 px-2 shrink-0">
+            <span className="text-xs text-slate-400 font-medium">To</span>
+            <input
               type="date"
-              value={dateRange.to}
-              onChange={(event) =>
-                setDateRange((current) => ({ ...current, to: event.target.value }))
-              }
-              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
-              placeholder="DD-MM-YYYY"
+              value={toDate}
+              data-has-value={!!toDate}
+              onChange={(event) => setToDate(event.target.value)}
+              className="date-input-custom relative bg-transparent text-sm outline-none w-32 cursor-pointer"
             />
           </div>
 
@@ -304,5 +318,3 @@ const OuthouseCourseList = () => {
 };
 
 export default OuthouseCourseList;
-
-

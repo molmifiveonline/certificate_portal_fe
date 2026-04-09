@@ -152,6 +152,11 @@ input[type="checkbox"],
   cursor: pointer !important;
 }
 
+/* Ensure calendar picker indicator stays within the input boundary */
+input[type="date"] {
+  position: relative;
+}
+
 /* Date Picker Consistency & Placeholder Fix */
 .date-input-wrapper {
   position: relative;
