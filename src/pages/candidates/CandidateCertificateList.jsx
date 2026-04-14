@@ -7,12 +7,11 @@ import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
 import { formatDate } from "../../lib/utils/dateUtils";
 import { useAuth } from "../../context/AuthContext";
-import candidateService from "../../services/candidateService";
 import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
 import {
+  buildLoggedInCandidateIdentity,
   isCertificateOwnedByCandidate,
-  resolveLoggedInCandidate,
 } from "../../lib/utils/candidateUtils";
 
 const CandidateCertificateList = () => {
@@ -33,13 +32,15 @@ const CandidateCertificateList = () => {
       setLoading(true);
 
       try {
-        const [candidateResult, certificateResult] = await Promise.all([
-          candidateService.getAllCandidates({ limit: 1000 }),
-          certificateService.getAllCertificates({ limit: 1000, is_hidden: 0 }),
-        ]);
-
-        const candidateRows = candidateResult?.data || [];
-        const loggedInCandidate = resolveLoggedInCandidate(user, candidateRows);
+        const loggedInCandidate = buildLoggedInCandidateIdentity(user);
+        const certificateResult = loggedInCandidate?.id
+          ? await certificateService.getCandidateCertificates(loggedInCandidate.id, {
+              limit: 1000,
+            })
+          : await certificateService.getAllCertificates({
+              limit: 1000,
+              is_hidden: 0,
+            });
         const rawCertificates = Array.isArray(certificateResult)
           ? certificateResult
           : certificateResult?.data || [];
@@ -99,6 +100,15 @@ const CandidateCertificateList = () => {
   }, [currentPage, limit, searchTerm, user]);
 
   const columns = [
+    {
+      key: "sr_no",
+      label: "Sr. No.",
+      render: (_, __, index) => (
+        <span className="text-slate-500 font-medium">
+          {(currentPage - 1) * limit + index + 1}
+        </span>
+      ),
+    },
     {
       key: "topic",
       label: "Topic",

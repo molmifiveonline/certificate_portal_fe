@@ -10,13 +10,12 @@ import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
-import candidateService from "../../services/candidateService";
 import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
 import { cn } from "../../lib/utils/utils";
 import {
+  buildLoggedInCandidateIdentity,
   isCertificateOwnedByCandidate,
-  resolveLoggedInCandidate,
 } from "../../lib/utils/candidateUtils";
 
 const StatsCard = ({
@@ -99,15 +98,19 @@ const CandidateDashboard = () => {
       setLoading(true);
 
       try {
-        const [coursesRes, candidateRes, certsRes] = await Promise.all([
+        const loggedInCandidate = buildLoggedInCandidateIdentity(user);
+        const certificateRequest = loggedInCandidate?.id
+          ? certificateService.getCandidateCertificates(loggedInCandidate.id, {
+              limit: 1000,
+            })
+          : certificateService.getAllCertificates({ limit: 1000, is_hidden: 0 });
+
+        const [coursesRes, certsRes] = await Promise.all([
           api.get("/active-courses"),
-          candidateService.getAllCandidates({ limit: 1000 }),
-          certificateService.getAllCertificates({ limit: 1000, is_hidden: 0 }),
+          certificateRequest,
         ]);
 
         const courseRows = coursesRes.data?.data || [];
-        const candidateRows = candidateRes?.data || [];
-        const loggedInCandidate = resolveLoggedInCandidate(user, candidateRows);
         const certificateRows = Array.isArray(certsRes) ? certsRes : certsRes.data || [];
         const visibleCertificates = certificateRows.filter(
           (certificate) =>

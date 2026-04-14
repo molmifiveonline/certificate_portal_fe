@@ -170,7 +170,10 @@ const AttendanceTab = ({ courseId }) => {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left">
             <tr>
-              <th className="px-4 py-3 font-semibold text-slate-600 sticky left-0 bg-slate-50 z-10 min-w-[200px]">
+              <th className="px-4 py-3 font-semibold text-slate-600 sticky left-0 bg-slate-50 z-20 w-16">
+                Sr. No.
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 sticky left-[64px] bg-slate-50 z-20 min-w-[200px]">
                 Candidate
               </th>
               {dates.map((date) => (
@@ -190,16 +193,19 @@ const AttendanceTab = ({ courseId }) => {
             {candidates.length === 0 ? (
               <tr>
                 <td
-                  colSpan={1 + dates.length}
+                  colSpan={2 + dates.length}
                   className="text-center py-8 text-slate-400"
                 >
                   No candidates enrolled
                 </td>
               </tr>
             ) : (
-              candidates.map((c) => (
+              candidates.map((c, idx) => (
                 <tr key={c.candidate_id} className="border-b border-slate-50">
-                  <td className="px-4 py-2 font-medium text-slate-800 sticky left-0 bg-white z-10">
+                  <td className="px-4 py-2 text-sm text-slate-600 sticky left-0 bg-white z-10 w-16">
+                    {idx + 1}
+                  </td>
+                  <td className="px-4 py-2 font-medium text-slate-800 sticky left-[64px] bg-white z-10">
                     <div className="text-sm">{c.candidate_name}</div>
                     <div className="text-xs text-slate-400">
                       {c.empId || ""}

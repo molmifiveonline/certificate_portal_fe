@@ -151,6 +151,13 @@ const ActiveCourseList = () => {
 
   const columns = [
     {
+      key: "sr_no",
+      label: "Sr. No.",
+      render: (_val, _row, index) => (
+        <span>{(currentPage - 1) * limit + index + 1}</span>
+      ),
+    },
+    {
       key: "course_name",
       label: "Course Name",
       sortable: true,

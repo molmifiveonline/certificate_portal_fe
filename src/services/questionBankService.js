@@ -1,7 +1,7 @@
 import api from "../lib/api";
 
-const getQuestions = async (search = "", page = 1, limit = 10) => {
-  const params = { search, page, limit };
+const getQuestions = async (search = "", masterCourseId = "", page = 1, limit = 10) => {
+  const params = { search, masterCourseId, page, limit };
   const response = await api.get("/question-bank", { params });
   return response.data;
 };

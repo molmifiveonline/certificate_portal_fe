@@ -8,7 +8,7 @@ import {
   UserCircle,
   BookOpen,
   Award,
-  // Book,
+  Book,
   MapPin,
   ClipboardList,
   Building,
@@ -76,7 +76,7 @@ export const MenuItems = [
       { title: "Master Courses", url: "/courses" },
       { title: "Pre-Active Courses", url: "/pre-active-courses" },
       { title: "Active Courses", url: "/active-courses" },
-      // { title: "Outhouse Courses", url: "/outhouse-courses" },
+      { title: "Outhouse Courses", url: "/outhouse-courses" },
     ],
   },
 

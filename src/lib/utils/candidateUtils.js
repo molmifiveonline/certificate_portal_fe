@@ -9,6 +9,24 @@ export const buildCandidateFullName = (candidate) =>
     .join(" ")
     .trim();
 
+export const buildLoggedInCandidateIdentity = (user) => {
+  if (!user) {
+    return null;
+  }
+
+  return {
+    id: user?.candidate_id || user?.candidateId || user?.id || null,
+    email: user?.email || "",
+    employee_id: user?.employee_id || user?.employeeId || user?.empId || "",
+    first_name: user?.first_name || "",
+    middle_name: user?.middle_name || "",
+    last_name: user?.last_name || "",
+    name:
+      user?.name ||
+      [user?.first_name, user?.middle_name, user?.last_name].filter(Boolean).join(" "),
+  };
+};
+
 export const resolveLoggedInCandidate = (user, candidates = []) => {
   if (!user || !Array.isArray(candidates) || candidates.length === 0) {
     return null;

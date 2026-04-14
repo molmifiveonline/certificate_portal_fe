@@ -260,7 +260,22 @@ const VenueModal = ({ state, onClose, onSave }) => {
           <TextareaField label="Remarks" className="md:col-span-2" rows={3} value={formState.remarks} onChange={(event) => setFormState((current) => ({ ...current, remarks: event.target.value }))} />
           <div className="md:col-span-2">
             <FieldLabel label="Documents" />
-            <input type="file" multiple onChange={(event) => setFormState((current) => ({ ...current, files: event.target.files }))} className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+            <input
+              type="file"
+              multiple
+              onChange={(event) => {
+                const files = Array.from(event.target.files);
+                for (const file of files) {
+                  if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+                    toast.error(`Image "${file.name}" exceeds 500 KB limit.`);
+                    event.target.value = "";
+                    return;
+                  }
+                }
+                setFormState((current) => ({ ...current, files: event.target.files }));
+              }}
+              className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+            />
           </div>
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
@@ -734,10 +749,15 @@ const OuthouseCourseForm = () => {
       toast.error("Failed to save attendance");
     }
   };
-
   const handleFeedbackUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+      toast.error("Image size must be less than 500 KB");
+      event.target.value = "";
+      return;
+    }
     try {
       const payload = new FormData();
       payload.append("feedback_document", file);
@@ -1267,7 +1287,19 @@ const OuthouseCourseForm = () => {
                                 <Input type="date" value={row.issue_date || ""} onChange={(event) => updateCertificateRow(row.id, "issue_date", event.target.value)} className="h-10 rounded-lg border-slate-200" />
                               </td>
                               <td className="px-4 py-3">
-                                <input type="file" onChange={(event) => updateCertificateRow(row.id, "file", event.target.files?.[0] || null)} className="block w-full text-sm" />
+                                <input
+                                  type="file"
+                                  onChange={(event) => {
+                                    const file = event.target.files?.[0];
+                                    if (file && file.type.startsWith("image/") && file.size > 500 * 1024) {
+                                      toast.error("Image size must be less than 500 KB");
+                                      event.target.value = "";
+                                      return;
+                                    }
+                                    updateCertificateRow(row.id, "file", file || null);
+                                  }}
+                                  className="block w-full text-sm"
+                                />
                               </td>
                               <td className="px-4 py-3">
                                 <Button type="button" onClick={() => handleCertificateSave(row)}>Save</Button>

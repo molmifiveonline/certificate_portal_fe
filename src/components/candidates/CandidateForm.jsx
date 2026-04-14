@@ -40,9 +40,10 @@ const InputField = ({
   rules,
   placeholder,
   className,
+  onChange: customOnChange,
   ...props
 }) => {
-  const { register, errors } = useContext(FormContext);
+  const { register, errors, trigger } = useContext(FormContext);
   const validation = getCommonFieldValidation({
     label,
     name,
@@ -50,6 +51,9 @@ const InputField = ({
     required,
     rules,
   });
+
+  const { onChange, ...registerRest } = register(name, validation.rules);
+
   return (
     <div className={`space-y-1 ${className}`}>
       <label className="text-sm font-medium text-slate-700 block">
@@ -57,7 +61,11 @@ const InputField = ({
       </label>
       <Input
         type={type}
-        {...register(name, validation.rules)}
+        {...registerRest}
+        onChange={(e) => {
+          onChange(e);
+          if (customOnChange) customOnChange(e);
+        }}
         {...validation.inputProps}
         className={errors[name] ? "border-red-500" : "border-slate-200"}
         placeholder={placeholder || (type === "date" ? "DD-MM-YYYY" : "")}
@@ -109,7 +117,7 @@ const CandidateForm = ({
   onCancel,
 }) => {
   // Pre-process defaultValues for Manager "Others" case
-  const formattedDefaultValues = { status: true, ...defaultValues };
+  const formattedDefaultValues = { status: false, ...defaultValues };
   if (
     formattedDefaultValues.manager &&
     !MANAGER_OPTIONS.some((o) => o.value === formattedDefaultValues.manager)
@@ -123,6 +131,7 @@ const CandidateForm = ({
     handleSubmit,
     watch,
     setValue,
+    trigger,
     formState: { errors },
   } = useForm({
     defaultValues: formattedDefaultValues,
@@ -155,6 +164,12 @@ const CandidateForm = ({
     const file = e.target.files[0];
     if (!file) return;
 
+    // Check file size (500KB limit)
+    if (file.size > 500 * 1024) {
+      toast.error("Image size must be less than 500 KB");
+      return;
+    }
+
     setUploadingImage(true);
     try {
       const data = await candidateService.uploadProfileImage(file);
@@ -185,7 +200,7 @@ const CandidateForm = ({
   };
 
   return (
-    <FormContext.Provider value={{ register, errors }}>
+    <FormContext.Provider value={{ register, errors, watch, trigger }}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="bg-white rounded-3xl border border-slate-200/60 shadow-xl p-8">
           {/* Employee Type Toggle */}
@@ -446,7 +461,11 @@ const CandidateForm = ({
                     name="dob"
                     type="date"
                     required
-                    max={new Date().toISOString().split("T")[0]}
+                    max={(() => {
+                      const d = new Date();
+                      d.setFullYear(d.getFullYear() - 18);
+                      return d.toISOString().split("T")[0];
+                    })()}
                     className="md:col-span-2"
                   />
                   <SelectField
@@ -520,11 +539,31 @@ const CandidateForm = ({
                     label="Sign On Date"
                     name="signOnDate"
                     type="date"
+                    rules={{
+                      validate: (val, values) => {
+                        if (!val || !values.signOffDate) return true;
+                        return (
+                          new Date(val) <= new Date(values.signOffDate) ||
+                          "Sign On Date cannot be after Sign Off Date"
+                        );
+                      },
+                    }}
+                    onChange={() => trigger("signOffDate")}
                   />
                   <InputField
                     label="Sign Off Date"
                     name="signOffDate"
                     type="date"
+                    rules={{
+                      validate: (val, values) => {
+                        if (!val || !values.signOnDate) return true;
+                        return (
+                          new Date(val) >= new Date(values.signOnDate) ||
+                          "Sign Off Date cannot be before Sign On Date"
+                        );
+                      },
+                    }}
+                    onChange={() => trigger("signOnDate")}
                   />
                 </div>
               </div>

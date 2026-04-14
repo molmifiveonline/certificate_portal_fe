@@ -1,5 +1,5 @@
-import React from "react";
 import { Download, FileText, UploadCloud, X } from "lucide-react";
+import { toast } from "sonner";
 
 const ReimbursementAttachments = ({
   attachments = [],
@@ -17,7 +17,17 @@ const ReimbursementAttachments = ({
             type="file"
             multiple
             className="hidden"
-            onChange={(event) => onAddFiles?.(event.target.files)}
+            onChange={(event) => {
+              const files = Array.from(event.target.files);
+              for (const file of files) {
+                if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+                  toast.error(`Image "${file.name}" exceeds 500 KB limit.`);
+                  event.target.value = "";
+                  return;
+                }
+              }
+              onAddFiles?.(event.target.files);
+            }}
           />
         </label>
       )}

@@ -94,6 +94,11 @@ const EditTrainer = () => {
     const handleFileChange = (name, e) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+                toast.error("Image size must be less than 500 KB");
+                e.target.value = "";
+                return;
+            }
             const url = URL.createObjectURL(file);
             setPreviews(prev => ({ ...prev, [name]: url }));
         }

@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../../../components/ui/Button";
 import { InputField } from "./FormHelpers";
+import { toast } from "sonner";
 
 const VenueModal = ({ isOpen, onClose, onSubmit, data }) => {
   if (!isOpen) return null;
@@ -62,6 +63,16 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data }) => {
               name="venue_files"
               multiple
               className="text-sm"
+              onChange={(e) => {
+                const files = Array.from(e.target.files);
+                for (const file of files) {
+                  if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+                    toast.error(`Image "${file.name}" exceeds 500 KB limit.`);
+                    e.target.value = "";
+                    break;
+                  }
+                }
+              }}
             />
             <p className="text-xs text-slate-500">
               Allowed: Images, PDF, Word

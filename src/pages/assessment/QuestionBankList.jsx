@@ -19,6 +19,7 @@ import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import questionBankService from "../../services/questionBankService";
 import { toast } from "sonner";
+import api from "../../lib/api";
 
 const QuestionBankList = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -34,12 +35,14 @@ const QuestionBankList = () => {
     const [bulkFile, setBulkFile] = useState(null);
     const [bulkUploading, setBulkUploading] = useState(false);
     const [bulkResult, setBulkResult] = useState(null);
+    const [masterCourses, setMasterCourses] = useState([]);
+    const [selectedCourse, setSelectedCourse] = useState("");
     const navigate = useNavigate();
 
     const fetchQuestions = useCallback(async () => {
         setLoading(true);
         try {
-            const result = await questionBankService.getQuestions(searchTerm, currentPage, limit);
+            const result = await questionBankService.getQuestions(searchTerm, selectedCourse, currentPage, limit);
             setQuestions(Array.isArray(result.data) ? result.data : []);
             setTotalPages(result.totalPages || Math.ceil((result.total || 0) / limit));
             setTotalCount(result.total || 0);
@@ -50,7 +53,20 @@ const QuestionBankList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, searchTerm]);
+    }, [currentPage, limit, searchTerm, selectedCourse]);
+
+    useEffect(() => {
+        const fetchMasterCourses = async () => {
+            try {
+                const response = await api.get("/master-courses");
+                setMasterCourses(response.data.data || []);
+            } catch (error) {
+                console.error("Error fetching master courses:", error);
+                toast.error("Failed to load master courses.");
+            }
+        };
+        fetchMasterCourses();
+    }, []);
 
     useEffect(() => {
         fetchQuestions();
@@ -61,7 +77,7 @@ const QuestionBankList = () => {
             setCurrentPage(1);
         }, 400);
         return () => clearTimeout(timeout);
-    }, [searchTerm]);
+    }, [searchTerm, selectedCourse]);
 
     const handleDelete = (id) => {
         setQuestionToDelete(id);
@@ -225,8 +241,20 @@ const QuestionBankList = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex gap-3 w-full md:w-auto items-center">
-                        <span className="text-xs text-slate-400">{totalCount} question{totalCount !== 1 ? 's' : ''}</span>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-center">
+                        <select
+                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm w-full sm:w-64"
+                            value={selectedCourse}
+                            onChange={(e) => setSelectedCourse(e.target.value)}
+                        >
+                            <option value="">All Master Courses</option>
+                            {masterCourses.map((course) => (
+                                <option key={course.id} value={course.id}>
+                                    {course.master_course_name}
+                                </option>
+                            ))}
+                        </select>
+                        <span className="text-xs text-slate-400 whitespace-nowrap">{totalCount} question{totalCount !== 1 ? 's' : ''}</span>
                     </div>
                 </CardContent>
             </Card>
