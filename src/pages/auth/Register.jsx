@@ -43,8 +43,8 @@ const Register = () => {
                 last_vessel_name: data.lastVesselName,
                 next_vessel_name: data.nextVesselName,
                 manning_company: data.manningCompany,
-                sign_on_date: data.signOnDate,
-                sign_off_date: data.signOffDate,
+                sign_on_date: data.signOnDate || null,
+                sign_off_date: data.signOffDate || null,
                 officer: data.officer,
                 seaman_book_no: data.seamanBookNo,
                 profile_image: data.profileImage

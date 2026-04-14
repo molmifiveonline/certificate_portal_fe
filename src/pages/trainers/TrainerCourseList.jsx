@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Edit, BookOpen } from "lucide-react";
+import { Search, Edit, BookOpen, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
@@ -73,7 +73,14 @@ const TrainerCourseList = () => {
       setCurrentPage(1);
     }, 400);
     return () => clearTimeout(timeout);
-  }, [searchTerm]);
+  }, [searchTerm, statusFilter, dateRange]);
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("");
+    setDateRange({ start: "", end: "" });
+    setCurrentPage(1);
+  };
 
   const getStatusBadge = (status) => {
     const badgeColors = {
@@ -81,7 +88,8 @@ const TrainerCourseList = () => {
       "Course Started": "bg-orange-50 text-orange-600 border-orange-100",
       "Assessment Initiated": "bg-purple-50 text-purple-600 border-purple-100",
       "Feedback Generated": "bg-indigo-50 text-indigo-600 border-indigo-100",
-      "Certificate Generated": "bg-emerald-50 text-emerald-600 border-emerald-100",
+      "Certificate Generated":
+        "bg-emerald-50 text-emerald-600 border-emerald-100",
       "Course Completed": "bg-green-50 text-green-600 border-green-100",
       Cancelled: "bg-red-50 text-red-600 border-red-100",
     };
@@ -96,6 +104,13 @@ const TrainerCourseList = () => {
   };
 
   const columns = [
+    {
+      key: "sr_no",
+      label: "Sr. No.",
+      render: (_value, _row, index) => (
+        <span>{(currentPage - 1) * limit + index + 1}</span>
+      ),
+    },
     {
       key: "course_name",
       label: "Course Name",
@@ -128,7 +143,9 @@ const TrainerCourseList = () => {
         return (
           <div className="flex items-center justify-end gap-2">
             <button
-              onClick={() => !isCancelled && navigate(`/my-courses/edit/${row.id}`)}
+              onClick={() =>
+                !isCancelled && navigate(`/my-courses/edit/${row.id}`)
+              }
               disabled={isCancelled}
               className={`p-1.5 rounded-lg transition-all ${
                 isCancelled
@@ -189,10 +206,11 @@ const TrainerCourseList = () => {
             <Input
               type="date"
               value={dateRange.start}
+              data-has-value={!!dateRange.start}
               onChange={(e) =>
                 setDateRange((prev) => ({ ...prev, start: e.target.value }))
               }
-              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
+              className="bg-transparent border-none focus-visible:ring-0 h-8 w-44 pl-1 pr-10"
               placeholder="DD-MM-YYYY"
             />
           </div>
@@ -202,13 +220,23 @@ const TrainerCourseList = () => {
             <Input
               type="date"
               value={dateRange.end}
+              data-has-value={!!dateRange.end}
               onChange={(e) =>
                 setDateRange((prev) => ({ ...prev, end: e.target.value }))
               }
-              className="bg-transparent border-none focus-visible:ring-0 h-8 w-32 px-1"
+              className="bg-transparent border-none focus-visible:ring-0 h-8 w-44 pl-1 pr-10"
               placeholder="DD-MM-YYYY"
             />
           </div>
+
+          <button
+            onClick={handleClearFilters}
+            className="flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium whitespace-nowrap active:scale-95"
+            title="Clear all filters"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Clear
+          </button>
 
           <div className="flex gap-3 items-center ml-auto shrink-0">
             <span className="text-xs text-slate-400 whitespace-nowrap">
@@ -243,5 +271,3 @@ const TrainerCourseList = () => {
 };
 
 export default TrainerCourseList;
-
-

@@ -52,8 +52,9 @@ const CandidateList = ({ registrationType }) => {
   // Filter States
   const [showFilters, setShowFilters] = useState(false);
   const [filterManager, setFilterManager] = useState("");
+  const [filterRank, setFilterRank] = useState("");
   const [filterNationality, setFilterNationality] = useState("");
-  const [filterStatus, setFilterStatus] = useState("1"); // Default Active
+  const [filterStatus, setFilterStatus] = useState("all"); // Default All
 
   // Debounce search
   const updateDebouncedSearch = useMemo(
@@ -79,6 +80,7 @@ const CandidateList = ({ registrationType }) => {
         sort_by: sortBy,
         sort_order: sortOrder,
         manager: filterManager,
+        rank: filterRank,
         nationality: filterNationality,
         status: filterStatus,
         registration_type: registrationType,
@@ -100,6 +102,7 @@ const CandidateList = ({ registrationType }) => {
     sortBy,
     sortOrder,
     filterManager,
+    filterRank,
     filterNationality,
     filterStatus,
     registrationType,
@@ -109,6 +112,7 @@ const CandidateList = ({ registrationType }) => {
     setSearchTerm("");
     setDebouncedSearch("");
     setFilterManager("");
+    setFilterRank("");
     setFilterNationality("");
     setFilterStatus("1");
     setCurrentPage(1);
@@ -135,6 +139,7 @@ const CandidateList = ({ registrationType }) => {
       const response = await candidateService.exportCandidates({
         search: debouncedSearch,
         manager: filterManager,
+        rank: filterRank,
         nationality: filterNationality,
         status: filterStatus,
         registration_type: registrationType,
@@ -158,38 +163,6 @@ const CandidateList = ({ registrationType }) => {
   const handleSyncFromApi = () => {
     setShowPreviewModal(true);
   };
-
-  // const handleFileUpload = async (e) => {
-  //     const file = e.target.files[0];
-  //     if (!file) return;
-
-  //     if (!file.name.endsWith('.csv')) {
-  //         toast.error("Please upload a CSV file");
-  //         return;
-  //     }
-
-  //     setIsUploading(true);
-  //     const toastId = toast.loading("Uploading candidates...");
-  //     const formData = new FormData();
-  //     formData.append("csv", file);
-
-  //     try {
-  //         const result = await candidateService.uploadCandidates(formData);
-  //         toast.success(`Upload successful! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
-  //         fetchCandidates();
-  //     } catch (error) {
-  //         console.error("Upload error:", error);
-  //         toast.error("Failed to upload candidates", { id: toastId });
-  //     } finally {
-  //         setIsUploading(false);
-  //         e.target.value = ''; // Reset input
-  //     }
-  // };
-
-  // const handleViewDetails = (candidate) => {
-  //     setSelectedCandidate(candidate);
-  //     setShowDetailModal(true);
-  // };
 
   const columns = useMemo(() => {
     const cols = [];
@@ -368,31 +341,33 @@ const CandidateList = ({ registrationType }) => {
             </div>
           </div>
           {showFilters && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Manager
                 </label>
                 <div className="relative">
-                  <select
-                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                  <input
+                    type="text"
+                    placeholder="Search by Manager"
+                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                     value={filterManager}
                     onChange={(e) => setFilterManager(e.target.value)}
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                      backgroundPosition: `right 0.5rem center`,
-                      backgroundRepeat: `no-repeat`,
-                      backgroundSize: `1.5em 1.5em`,
-                      paddingRight: `2.5rem`,
-                    }}
-                  >
-                    <option value="">Last served (All)</option>
-                    {MANAGER_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Rank
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by Rank"
+                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    value={filterRank}
+                    onChange={(e) => setFilterRank(e.target.value)}
+                  />
                 </div>
               </div>
               <div className="space-y-1">

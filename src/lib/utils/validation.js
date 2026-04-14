@@ -1,5 +1,7 @@
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const NUMERIC_ONLY_REGEX = /^\d+$/;
+export const PHONE_REGEX = /^\+?\d+$/;
+
 
 const DEFAULT_LABEL = "This field";
 
@@ -11,10 +13,8 @@ const isEmailField = ({ name = "", label = "", type = "" }) => {
   return type === "email" || fieldText.includes("email");
 };
 
-const isNumericField = ({ name = "", label = "" }) => {
+const isPhoneField = ({ name = "", label = "" }) => {
   const fieldText = getFieldText({ name, label });
-  if (/(link|group|map)/.test(fieldText)) return false;
-
   return [
     "whatsapp",
     "alternate number",
@@ -24,6 +24,14 @@ const isNumericField = ({ name = "", label = "" }) => {
     "contact",
   ].some((keyword) => fieldText.includes(keyword));
 };
+
+const isNumericField = ({ name = "", label = "" }) => {
+  const fieldText = getFieldText({ name, label });
+  if (/(link|group|map)/.test(fieldText)) return false;
+
+  return isPhoneField({ name, label });
+};
+
 
 export const sanitizeNumericValue = (value = "") =>
   String(value ?? "").replace(/\D+/g, "");
@@ -35,11 +43,31 @@ export const sanitizeNumericInput = (event) => {
   }
 };
 
+export const sanitizePhoneValue = (value = "") => {
+  const str = String(value ?? "");
+  const hasPlus = str.startsWith("+");
+  const digitsOnly = str.replace(/\D/g, "");
+  return (hasPlus ? "+" : "") + digitsOnly;
+};
+
+export const sanitizePhoneInput = (event) => {
+  const sanitizedValue = sanitizePhoneValue(event?.target?.value);
+  if (event?.target && event.target.value !== sanitizedValue) {
+    event.target.value = sanitizedValue;
+  }
+};
+
+
 export const isValidEmail = (value = "") =>
   !String(value ?? "").trim() || EMAIL_REGEX.test(String(value).trim());
 
 export const isNumericOnly = (value = "") =>
   !String(value ?? "").trim() || NUMERIC_ONLY_REGEX.test(String(value).trim());
+
+const isDobField = ({ name = "", label = "" }) => {
+  const fieldText = getFieldText({ name, label });
+  return name === "dob" || fieldText.includes("date of birth");
+};
 
 export const getCommonFieldValidation = ({
   name = "",
@@ -62,7 +90,22 @@ export const getCommonFieldValidation = ({
     inputProps.inputMode = "email";
   }
 
-  if (isNumericField({ name, label })) {
+  if (isPhoneField({ name, label })) {
+    nextRules.pattern = {
+      value: PHONE_REGEX,
+      message: `${label || DEFAULT_LABEL} must contain digits and may start with +`,
+    };
+    nextRules.minLength = {
+      value: 6,
+      message: `${label || DEFAULT_LABEL} must be at least 6 characters`,
+    };
+    nextRules.maxLength = {
+      value: 13,
+      message: `${label || DEFAULT_LABEL} must not exceed 13 characters`,
+    };
+    inputProps.inputMode = "tel";
+    inputProps.onInput = sanitizePhoneInput;
+  } else if (isNumericField({ name, label })) {
     nextRules.pattern = {
       value: NUMERIC_ONLY_REGEX,
       message: `${label || DEFAULT_LABEL} must contain digits only`,
@@ -70,6 +113,22 @@ export const getCommonFieldValidation = ({
     inputProps.inputMode = "numeric";
     inputProps.pattern = "[0-9]*";
     inputProps.onInput = sanitizeNumericInput;
+  }
+
+
+  if (isDobField({ name, label })) {
+    const minAge = 18;
+    nextRules.validate = (value) => {
+      if (!value) return true;
+      const today = new Date();
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age >= minAge || `You must be at least ${minAge} years old`;
+    };
   }
 
   return {

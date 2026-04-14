@@ -13,11 +13,12 @@ import {
   Calendar,
   FileText,
   Users,
-  Check,
-  Trash2,
   Mail,
   AlertTriangle,
   RefreshCcw,
+  Trash2,
+  MapPin,
+  Check,
 } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
@@ -28,6 +29,7 @@ import { useAuth } from "../../context/AuthContext";
 
 import { InputField, SelectField } from "./components/FormHelpers";
 import MultiSelectInput from "./components/MultiSelectInput";
+import CandidatesTab from "./components/CandidatesTab";
 import AttendanceTab from "./components/AttendanceTab";
 import AssessmentTab from "./components/AssessmentTab";
 import FeedbackTab from "./components/FeedbackTab";
@@ -37,7 +39,6 @@ import CandidateSelectionModal from "./components/CandidateSelectionModal";
 import CourseActionModal from "./components/CourseActionModal";
 import EmailTypeModal from "./components/EmailTypeModal";
 import VenueModal from "./components/VenueModal";
-
 
 // ==========================================
 // COURSE FORM COMPONENT
@@ -435,8 +436,6 @@ const ActiveCourseForm = () => {
     }
   };
 
-
-
   if (isLoading)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -502,6 +501,7 @@ const ActiveCourseForm = () => {
             <div className="flex border-b border-slate-200">
               {[
                 "details",
+                "candidates",
                 "attendance",
                 "assessment",
                 "feedbacks",
@@ -540,6 +540,7 @@ const ActiveCourseForm = () => {
                             label="Topic"
                             name="topic"
                             required
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                             options={masterCourses.map((mc) => ({
@@ -551,6 +552,7 @@ const ActiveCourseForm = () => {
                             label="Course Name"
                             name="course_name"
                             required
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                           />
@@ -593,6 +595,7 @@ const ActiveCourseForm = () => {
                           <SelectField
                             label="Course Level"
                             name="course_level"
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                             options={[
@@ -605,6 +608,7 @@ const ActiveCourseForm = () => {
                           <SelectField
                             label="Type of Course"
                             name="course_type"
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                             options={[
@@ -633,6 +637,7 @@ const ActiveCourseForm = () => {
                             name="start_date"
                             type="date"
                             required
+                            disabled={isTrainerRole}
                             max={endDate}
                             register={register}
                             errors={errors}
@@ -642,6 +647,7 @@ const ActiveCourseForm = () => {
                             name="end_date"
                             type="date"
                             required
+                            disabled={isTrainerRole}
                             min={startDate}
                             register={register}
                             errors={errors}
@@ -652,6 +658,7 @@ const ActiveCourseForm = () => {
                             label="Start Time"
                             name="start_time"
                             type="time"
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                           />
@@ -659,6 +666,7 @@ const ActiveCourseForm = () => {
                             label="End Time"
                             name="end_time"
                             type="time"
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                           />
@@ -675,6 +683,7 @@ const ActiveCourseForm = () => {
                           <SelectField
                             label="Location Type"
                             name="type_of_location"
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                             options={[
@@ -689,6 +698,7 @@ const ActiveCourseForm = () => {
                           <SelectField
                             label="Venue / Location"
                             name="location_id"
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                             options={[
@@ -708,6 +718,7 @@ const ActiveCourseForm = () => {
                             label="Specify Location"
                             name="other_location"
                             required
+                            disabled={isTrainerRole}
                             register={register}
                             errors={errors}
                             placeholder="Enter location"
@@ -720,12 +731,14 @@ const ActiveCourseForm = () => {
                               <InputField
                                 label="Zoom Link"
                                 name="zoom_link"
+                                disabled={isTrainerRole}
                                 register={register}
                                 errors={errors}
                               />
                               <InputField
                                 label="WhatsApp Link"
                                 name="whatsapp_link"
+                                disabled={isTrainerRole}
                                 register={register}
                                 errors={errors}
                               />
@@ -734,12 +747,14 @@ const ActiveCourseForm = () => {
                               <InputField
                                 label="Zoom Username"
                                 name="zoom_username"
+                                disabled={isTrainerRole}
                                 register={register}
                                 errors={errors}
                               />
                               <InputField
                                 label="Zoom Password"
                                 name="zoom_password"
+                                disabled={isTrainerRole}
                                 register={register}
                                 errors={errors}
                               />
@@ -761,6 +776,7 @@ const ActiveCourseForm = () => {
                           label="Primary Trainer"
                           name="primary_trainer_id"
                           required
+                          disabled={isTrainerRole}
                           register={register}
                           errors={errors}
                           options={trainers.map((t) => ({
@@ -780,6 +796,7 @@ const ActiveCourseForm = () => {
                               <MultiSelectInput
                                 value={field.value}
                                 onChange={field.onChange}
+                                disabled={isTrainerRole}
                                 options={trainers.map((t) => ({
                                   value: t.id,
                                   label: `${t.first_name} ${t.last_name}`,
@@ -805,7 +822,11 @@ const ActiveCourseForm = () => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                              <ReactQuill {...field} theme="snow" />
+                              <ReactQuill
+                                {...field}
+                                theme="snow"
+                                readOnly={false}
+                              />
                             )}
                           />
                         </div>
@@ -817,7 +838,11 @@ const ActiveCourseForm = () => {
                             name="remarks"
                             control={control}
                             render={({ field }) => (
-                              <ReactQuill {...field} theme="snow" />
+                              <ReactQuill
+                                {...field}
+                                theme="snow"
+                                readOnly={false}
+                              />
                             )}
                           />
                         </div>
@@ -868,7 +893,7 @@ const ActiveCourseForm = () => {
                               })
                             }
                           >
-                            Cancel Course
+                            <Trash2 size={16} className="mr-2" /> Cancel Course
                           </Button>
                           <Button
                             type="button"
@@ -881,7 +906,7 @@ const ActiveCourseForm = () => {
                               })
                             }
                           >
-                            Complete Course
+                            <Check size={16} className="mr-2" /> Complete Course
                           </Button>
                         </>
                       )}
@@ -900,174 +925,47 @@ const ActiveCourseForm = () => {
                   </div>
                 </div>
               </form>
-
-              {/* Candidate Management Section */}
-              {id && (
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2 text-lg font-bold text-slate-800">
-                      <Users size={20} className="text-blue-600" />
-                      <h3>Enrolled Candidates</h3>
-                    </div>
-                    <Button onClick={openCandidateModal} disabled={courseEnded}>
-                      + Add Candidates
-                    </Button>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-slate-50 text-left text-sm font-semibold text-slate-600">
-                        <tr>
-                          <th className="px-4 py-3">Emp ID</th>
-                          <th className="px-4 py-3">Candidate Name</th>
-                          <th className="px-4 py-3">Rank</th>
-                          <th className="px-4 py-3">Passport</th>
-                          <th className="px-4 py-3">Seaman No</th>
-                          <th className="px-4 py-3">Manager</th>
-                          <th className="px-4 py-3">Status Pool</th>
-                          <th className="px-4 py-3 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {enrolledCandidates.length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan="5"
-                              className="px-4 py-8 text-center text-slate-500"
-                            >
-                              No candidates enrolled yet.
-                            </td>
-                          </tr>
-                        ) : (
-                          enrolledCandidates.map((candidate) => (
-                            <tr
-                              key={candidate.id}
-                              className="hover:bg-slate-50"
-                            >
-                              <td className="px-4 py-3 text-sm text-slate-600">
-                                {candidate.empId}
-                              </td>
-                              <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                                {candidate.candidate_name}
-                              </td>
-                              <td className="px-4 py-3 text-sm text-slate-600">
-                                {candidate.rank}
-                              </td>
-                              <td className="px-4 py-3 text-sm text-slate-600">
-                                {candidate.cdc_passport}
-                              </td>
-                              <td className="px-4 py-3 text-sm text-slate-600">
-                                {candidate.seaman_book_no}
-                              </td>
-                              <td className="px-4 py-3 text-sm text-slate-600">
-                                {candidate.manager}
-                              </td>
-                              <td className="px-4 py-3">
-                                <select
-                                  value={candidate.status_pool || ""}
-                                  onChange={(e) =>
-                                    handleStatusPoolChange(
-                                      candidate.candidate_id,
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="h-9 px-3 rounded-lg border border-slate-200 text-sm focus:border-blue-500 outline-none"
-                                >
-                                  <option value="">Select Status</option>
-                                  <option value="LNG">LNG</option>
-                                  <option value="LPG">LPG</option>
-                                  <option value="DRY">DRY</option>
-                                  <option value="TANKERS">TANKERS</option>
-                                </select>
-                              </td>
-                              <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    setEmailModal({
-                                      isOpen: true,
-                                      candidateId: candidate.candidate_id,
-                                    })
-                                  }
-                                  title="Send Email"
-                                >
-                                  <Mail
-                                    size={16}
-                                    className={
-                                      candidate.candidate_email_status
-                                        ? "text-green-500"
-                                        : "text-slate-400"
-                                    }
-                                  />
-                                </Button>
-                                {typeOfLocation !== "Online" && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      openVenueModal(candidate.candidate_id)
-                                    }
-                                    title="Edit Venue"
-                                  >
-                                    {/* Use a pencil icon */}
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="16"
-                                      height="16"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      className="lucide lucide-pencil"
-                                    >
-                                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                                      <path d="m15 5 4 4" />
-                                    </svg>
-                                  </Button>
-                                )}
-                                {!isTrainerRole && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    disabled={courseEnded}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
-                                    onClick={() =>
-                                      setDeleteModal({
-                                        isOpen: true,
-                                        candidateId: candidate.candidate_id,
-                                        remark: "",
-                                      })
-                                    }
-                                  >
-                                    <Trash2 size={16} />
-                                  </Button>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
+          {/* Candidates Tab */}
+          {activeTab === "candidates" && (
+            <CandidatesTab
+              candidates={enrolledCandidates}
+              onAdd={openCandidateModal}
+              onEmail={(cid) =>
+                setEmailModal({ isOpen: true, candidateId: cid })
+              }
+              onVenue={openVenueModal}
+              onDelete={(cid) =>
+                setDeleteModal({ isOpen: true, candidateId: cid, remark: "" })
+              }
+              onStatusPoolChange={handleStatusPoolChange}
+              isTrainerRole={isTrainerRole}
+              courseEnded={courseEnded}
+              typeOfLocation={typeOfLocation}
+            />
+          )}
+
           {/* Attendance Tab */}
-          {activeTab === "attendance" && <AttendanceTab courseId={id} />}
+          {activeTab === "attendance" && (
+            <AttendanceTab courseId={id} isTrainerRole={isTrainerRole} />
+          )}
 
           {/* Assessment Tab */}
-          {activeTab === "assessment" && <AssessmentTab courseId={id} />}
+          {activeTab === "assessment" && (
+            <AssessmentTab courseId={id} isTrainerRole={isTrainerRole} />
+          )}
 
           {/* Feedbacks Tab */}
-          {activeTab === "feedbacks" && <FeedbackTab courseId={id} />}
+          {activeTab === "feedbacks" && (
+            <FeedbackTab courseId={id} isTrainerRole={isTrainerRole} />
+          )}
 
           {/* Certificates Tab */}
-          {activeTab === "certificates" && <CertificateTab courseId={id} />}
+          {activeTab === "certificates" && (
+            <CertificateTab courseId={id} isTrainerRole={isTrainerRole} />
+          )}
         </div>
 
         {/* Modals */}
@@ -1125,5 +1023,3 @@ const ActiveCourseForm = () => {
 };
 
 export default ActiveCourseForm;
-
-

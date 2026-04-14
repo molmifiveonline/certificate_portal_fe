@@ -75,6 +75,7 @@ const CandidateAttendanceTab = ({ courseId }) => {
                         <table className="w-full text-left">
                             <thead className="bg-slate-50/50 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                                 <tr>
+                                    <th className="px-6 py-4 w-16">Sr. No.</th>
                                     <th className="px-6 py-4">Date</th>
                                     <th className="px-6 py-4">Status</th>
                                     <th className="px-6 py-4">Remarks</th>
@@ -83,13 +84,14 @@ const CandidateAttendanceTab = ({ courseId }) => {
                             <tbody className="divide-y divide-slate-100">
                                 {attendance.length === 0 ? (
                                     <tr>
-                                        <td colSpan="3" className="px-6 py-10 text-center text-slate-400">
+                                        <td colSpan="4" className="px-6 py-10 text-center text-slate-400">
                                             No attendance records found yet.
                                         </td>
                                     </tr>
                                 ) : (
                                     attendance.map((record, index) => (
                                         <tr key={index} className="hover:bg-slate-50/30 transition-colors">
+                                            <td className="px-6 py-4 text-slate-500 font-medium">{index + 1}</td>
                                             <td className="px-6 py-4 font-medium text-slate-700">
                                                 {new Date(record.attendance_date).toLocaleDateString()}
                                             </td>

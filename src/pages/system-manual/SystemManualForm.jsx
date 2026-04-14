@@ -80,6 +80,10 @@ const SystemManualForm = ({
             // Validate file type (matching the input's 'accept' attribute)
             const allowedTypes = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|jpg|jpeg|png)$/i;
             if (allowedTypes.test(file.name)) {
+                if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+                    toast.error("Image size must be less than 500 KB");
+                    return;
+                }
                 setFieldValue("document_file", file);
                 setFilePreview(file.name);
                 setPreviewUrl(URL.createObjectURL(file));
@@ -195,6 +199,11 @@ const SystemManualForm = ({
                                                             onChange={(event) => {
                                                                 const file = event.currentTarget.files[0];
                                                                 if (file) {
+                                                                    if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+                                                                        toast.error("Image size must be less than 500 KB");
+                                                                        event.target.value = "";
+                                                                        return;
+                                                                    }
                                                                     setFieldValue("document_file", file);
                                                                     setFilePreview(file.name);
                                                                     setPreviewUrl(URL.createObjectURL(file));

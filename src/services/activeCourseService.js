@@ -159,6 +159,14 @@ const activeCourseService = {
     return response.data;
   },
 
+  updateTrainerComment: async (courseId, candidateId, comment) => {
+    const response = await api.put(`/active-courses/${courseId}/trainer-comment`, {
+      candidateId,
+      comment,
+    });
+    return response.data;
+  },
+
   // Feedback Tab
   getFeedbackStatus: async (id) => {
     const response = await api.get(`/active-courses/${id}/feedback-status`);

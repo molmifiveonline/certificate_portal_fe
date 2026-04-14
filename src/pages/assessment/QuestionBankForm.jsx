@@ -16,19 +16,29 @@ import { Button } from "../../components/ui/Button";
 
 const FormContext = createContext();
 
-const InputField = ({ label, name, value, onChange, placeholder }) => (
-  <div className="space-y-1">
-    <label className="text-sm font-medium text-slate-700 block">{label}</label>
-    <input
-      type="text"
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full h-11 px-4 rounded-xl bg-slate-50/50 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm"
-      placeholder={placeholder}
-    />
-  </div>
-);
+const InputField = ({ label, name, value, onChange, placeholder, required, error }) => {
+  const { formErrors } = useContext(FormContext);
+  return (
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 block">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type="text"
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${error && formErrors[error] ? "border-red-500" : "border-slate-200"} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+        placeholder={placeholder}
+      />
+      {error && formErrors[error] && (
+        <span className="text-red-500 text-xs mt-1 block">
+          {formErrors[error]}
+        </span>
+      )}
+    </div>
+  );
+};
 
 const SelectField = ({
   label,
@@ -234,6 +244,11 @@ const QuestionBankForm = () => {
   const handleFileChange = (name, e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+        toast.error("Image size must be less than 500 KB");
+        e.target.value = "";
+        return;
+      }
       const url = URL.createObjectURL(file);
       setPreviews((prev) => ({ ...prev, [name]: url }));
     }
@@ -255,6 +270,18 @@ const QuestionBankForm = () => {
     }
     if (formValues.correct_option.length === 0) {
       errors.correct_option = "At least one correct option is required";
+    }
+    if (!formValues.option_a.trim()) {
+      errors.option_a = "Option A text is required";
+    }
+    if (!formValues.option_b.trim()) {
+      errors.option_b = "Option B text is required";
+    }
+    if (!formValues.option_c.trim()) {
+      errors.option_c = "Option C text is required";
+    }
+    if (!formValues.option_d.trim()) {
+      errors.option_d = "Option D text is required";
     }
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -439,6 +466,8 @@ const QuestionBankForm = () => {
                       value={formValues[`option_${opt}`]}
                       onChange={handleInputChange}
                       placeholder={`Option ${opt.toUpperCase()} text`}
+                      required
+                      error={`option_${opt}`}
                     />
                     <FileInputField
                       label={`Option ${opt.toUpperCase()} Image`}
