@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Link, useLocation } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { Search, Users } from "lucide-react";
@@ -49,7 +50,7 @@ const FeedbackCourseList = () => {
             setTotalCount(response.totalCount);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to fetch feedback courses.");
+            toast.error(getErrorMessage(err, "Failed to fetch feedback courses."));
         } finally {
             setLoading(false);
         }

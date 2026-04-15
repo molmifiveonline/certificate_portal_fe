@@ -5,20 +5,109 @@ import DataTable from "../ui/DataTable";
 import TablePagination from "../ui/TablePagination";
 import { toast } from "sonner";
 import candidateService from "../../services/candidateService";
+import { formatDate, getCurrentDateForInput } from "../../lib/utils/dateUtils";
+
+const CANDIDATE_LAST_SYNC_STORAGE_KEY = "candidate.lastSyncedDate";
+
+const normalizeDateInputValue = (value) => {
+    if (!value) return "";
+
+    if (typeof value === "string") {
+        const directMatch = value.match(/^\d{4}-\d{2}-\d{2}/);
+        if (directMatch) return directMatch[0];
+    }
+
+    const parsedDate = new Date(value);
+    if (Number.isNaN(parsedDate.getTime())) return "";
+
+    return parsedDate.toISOString().split("T")[0];
+};
+
+const readStoredLastSyncDate = () => {
+    if (typeof window === "undefined") return "";
+
+    try {
+        return normalizeDateInputValue(window.localStorage.getItem(CANDIDATE_LAST_SYNC_STORAGE_KEY));
+    } catch (error) {
+        console.error("Failed to read candidate sync date from local storage:", error);
+        return "";
+    }
+};
+
+const persistLastSyncDate = (date) => {
+    const normalizedDate = normalizeDateInputValue(date);
+    if (!normalizedDate || typeof window === "undefined") return;
+
+    try {
+        window.localStorage.setItem(CANDIDATE_LAST_SYNC_STORAGE_KEY, normalizedDate);
+    } catch (error) {
+        console.error("Failed to persist candidate sync date:", error);
+    }
+};
+
+const extractLastSyncDate = (payload) => {
+    const nestedPayload = Array.isArray(payload?.data) ? null : payload?.data;
+    const possibleDates = [
+        payload?.lastSyncedDate,
+        payload?.last_synced_date,
+        payload?.lastSyncDate,
+        payload?.syncDate,
+        payload?.sync_date,
+        payload?.meta?.lastSyncedDate,
+        payload?.meta?.last_synced_date,
+        payload?.meta?.lastSyncDate,
+        payload?.meta?.syncDate,
+        payload?.meta?.sync_date,
+        payload?.stats?.lastSyncedDate,
+        payload?.stats?.last_synced_date,
+        payload?.stats?.syncDate,
+        payload?.stats?.sync_date,
+        nestedPayload?.lastSyncedDate,
+        nestedPayload?.last_synced_date,
+        nestedPayload?.lastSyncDate,
+        nestedPayload?.syncDate,
+        nestedPayload?.sync_date,
+    ];
+
+    return possibleDates.map(normalizeDateInputValue).find(Boolean) || "";
+};
+
+const extractPreviewData = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.candidates)) return payload.candidates;
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.data?.candidates)) return payload.data.candidates;
+    if (Array.isArray(payload?.data?.items)) return payload.data.items;
+    return [];
+};
 
 const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
     const [previewData, setPreviewData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [importing, setImporting] = useState(false);
-    const [syncDate, setSyncDate] = useState(new Date().toISOString().split('T')[0]);
+    const [syncDate, setSyncDate] = useState(() => readStoredLastSyncDate() || getCurrentDateForInput());
+    const [lastSyncedDate, setLastSyncedDate] = useState(() => readStoredLastSyncDate());
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
 
-    const fetchPreview = React.useCallback(async (dateToFetch) => {
+    const fetchPreview = React.useCallback(async (dateToFetch, options = {}) => {
+        const { updateInputDate = false } = options;
         setLoading(true);
         try {
             const result = await candidateService.fetchExternalPreview(dateToFetch);
-            setPreviewData(result.data || []);
+            const previewRows = extractPreviewData(result);
+            const resolvedLastSyncedDate = extractLastSyncDate(result);
+
+            setPreviewData(previewRows);
+            if (resolvedLastSyncedDate) {
+                setLastSyncedDate(resolvedLastSyncedDate);
+                persistLastSyncDate(resolvedLastSyncedDate);
+
+                if (updateInputDate) {
+                    setSyncDate(resolvedLastSyncedDate);
+                }
+            }
             setCurrentPage(1); // Reset to first page on new fetch
         } catch (error) {
             console.error("Preview fetch error:", error);
@@ -30,24 +119,41 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
 
     useEffect(() => {
         if (isOpen) {
-            fetchPreview(syncDate);
+            const storedLastSyncDate = readStoredLastSyncDate();
+            const initialSyncDate = storedLastSyncDate || getCurrentDateForInput();
+
+            setLastSyncedDate(storedLastSyncDate);
+            setSyncDate(initialSyncDate);
+            fetchPreview(initialSyncDate, { updateInputDate: true });
         }
-    }, [isOpen, syncDate, fetchPreview]);
+    }, [isOpen, fetchPreview]);
 
     const handleDateChange = (e) => {
-        setSyncDate(e.target.value);
+        const nextSyncDate = e.target.value;
+        setSyncDate(nextSyncDate);
+        fetchPreview(nextSyncDate);
     };
 
     const handleImport = async () => {
         setImporting(true);
         const toastId = toast.loading("Importing candidates...");
         try {
-            const result = await candidateService.confirmBulkImport(previewData);
+            const result = await candidateService.confirmBulkImport({
+                candidates: previewData,
+                syncDate,
+            });
+            const resolvedLastSyncDate =
+                extractLastSyncDate(result) || normalizeDateInputValue(syncDate) || getCurrentDateForInput();
+
+            persistLastSyncDate(resolvedLastSyncDate);
+            setLastSyncedDate(resolvedLastSyncDate);
+            setSyncDate(resolvedLastSyncDate);
+
             toast.success(
                 `Import successful! ${result.stats.inserted} new, ${result.stats.updated} updated.`,
                 { id: toastId }
             );
-            onImportSuccess();
+            onImportSuccess?.(resolvedLastSyncDate);
             onClose();
         } catch (error) {
             console.error("Import error:", error);
@@ -110,7 +216,10 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-slate-900">Preview API Import</h3>
-                            <p className="text-sm text-slate-500 font-medium">{previewData.length} candidates found</p>
+                            <p className="text-sm text-slate-500 font-medium">
+                                {previewData.length} candidates found
+                                {lastSyncedDate ? ` • Last synced ${formatDate(lastSyncedDate)}` : ""}
+                            </p>
                         </div>
                     </div>
 

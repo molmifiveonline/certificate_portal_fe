@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
 import {
@@ -43,7 +44,7 @@ const NominatorList = () => {
             setTotalCount(result.total || 0);
         } catch (error) {
             console.error("Error fetching nominators:", error);
-            toast.error("Failed to load nominators.");
+            toast.error(getErrorMessage(error, "Failed to load nominators."));
             setNominators([]);
         } finally {
             setLoading(false);
@@ -71,7 +72,8 @@ const NominatorList = () => {
             toast.success("Nominator deleted successfully.");
             fetchNominators();
         } catch (error) {
-            toast.error("Failed to delete nominator.");
+            console.error("Delete error:", error);
+            toast.error(getErrorMessage(error, "Failed to delete nominator."));
         } finally {
             setDeleteModalOpen(false);
             setNominatorToDelete(null);
@@ -80,16 +82,16 @@ const NominatorList = () => {
 
     const columns = [
         {
-            key: "name",
+            key: "first_name",
             label: "Name",
             sortable: true,
             render: (_val, row) => (
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200">
-                        {row.name?.[0].toUpperCase()}
+                        {(row.first_name?.[0] || row.name?.[0] || "N").toUpperCase()}
                     </div>
                     <span className="text-sm font-semibold text-slate-800">
-                        {row.name}
+                        {[row.first_name, row.last_name].filter(Boolean).join(" ") || row.name}
                     </span>
                 </div>
             ),
@@ -98,6 +100,39 @@ const NominatorList = () => {
             key: "email",
             label: "Email",
             sortable: true,
+        },
+        {
+            key: "mobile",
+            label: "Mobile",
+            sortable: true,
+            render: (value) => value || "-",
+        },
+        {
+            key: "location",
+            label: "Location",
+            sortable: true,
+            render: (value) => value || "-",
+        },
+        {
+            key: "status",
+            label: "Status",
+            sortable: true,
+            render: (value) => (
+                <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                        Number(value) === 1
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-rose-50 text-rose-700 border border-rose-200"
+                    }`}
+                >
+                    <span
+                        className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                            Number(value) === 1 ? "bg-emerald-500" : "bg-rose-500"
+                        }`}
+                    />
+                    {Number(value) === 1 ? "Active" : "Inactive"}
+                </span>
+            ),
         },
         {
             key: "actions",
@@ -153,7 +188,7 @@ const NominatorList = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search by name or email..."
+                            placeholder="Search by name, email, mobile, or location..."
                             className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -201,6 +236,3 @@ const NominatorList = () => {
 };
 
 export default NominatorList;
-
-
-

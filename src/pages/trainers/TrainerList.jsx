@@ -20,6 +20,8 @@ import api from "../../lib/api";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 
+import { getErrorMessage } from "../../lib/utils/errorUtils";
+
 const TrainerList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
@@ -56,7 +58,7 @@ const TrainerList = () => {
             setCurrentPage(result.page || 1);
         } catch (error) {
             console.error("Error fetching trainers:", error);
-            toast.error("Failed to load trainers.");
+            toast.error(getErrorMessage(error, "Failed to load trainers."));
             setTrainers([]);
         } finally {
             setLoading(false);
@@ -86,7 +88,7 @@ const TrainerList = () => {
             link.click();
             link.remove();
         } catch (error) {
-            toast.error("Failed to export data.");
+            toast.error(getErrorMessage(error, "Failed to export data."));
         }
     };
 
@@ -102,7 +104,7 @@ const TrainerList = () => {
             toast.success("Trainer deleted successfully.");
             fetchTrainers();
         } catch (error) {
-            toast.error("Failed to delete trainer.");
+            toast.error(getErrorMessage(error, "Failed to delete trainer."));
         } finally {
             setDeleteModalOpen(false);
             setTrainerToDelete(null);

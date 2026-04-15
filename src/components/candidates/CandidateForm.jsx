@@ -1,4 +1,5 @@
 import React, { useState, createContext, useContext } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useForm } from "react-hook-form";
 import {
   User,
@@ -181,7 +182,7 @@ const CandidateForm = ({
       toast.success("Image uploaded successfully!");
     } catch (error) {
       console.error("Upload failed", error);
-      toast.error("Failed to upload image. Please try again.");
+      toast.error(getErrorMessage(error, "Failed to upload image. Please try again."));
     } finally {
       setUploadingImage(false);
     }

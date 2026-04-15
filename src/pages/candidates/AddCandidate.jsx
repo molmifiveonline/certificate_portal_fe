@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -56,7 +57,7 @@ const AddCandidate = () => {
             navigate(registrationType === 'Others' ? '/candidates/others' : '/candidates/molmi');
         } catch (error) {
             console.error("Add Candidate Error:", error);
-            toast.error(error.response?.data?.message || "Failed to add candidate. Please try again.");
+            toast.error(getErrorMessage(error, "Failed to add candidate. Please try again."));
             window.scrollTo(0, 0);
         } finally {
             setIsSubmitting(false);

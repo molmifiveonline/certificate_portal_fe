@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useNavigate, useParams } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { Plus, X, Save, Trash2, ChevronDown, Check } from "lucide-react";
@@ -125,7 +126,7 @@ const FeedbackFormCreate = () => {
                 }
             } catch (error) {
                 console.error("Error loading data:", error);
-                toast.error("Failed to load data");
+                toast.error(getErrorMessage(error, "Failed to load data"));
             } finally {
                 setLoading(false);
             }
@@ -252,7 +253,7 @@ const FeedbackFormCreate = () => {
             navigate("/feedback/forms");
         } catch (error) {
             console.error("Error saving form:", error);
-            toast.error("Failed to save feedback form");
+            toast.error(getErrorMessage(error, "Failed to save feedback form"));
         }
     };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
 import {
@@ -63,7 +64,7 @@ const HotelList = () => {
             }
         } catch (error) {
             console.error("Error fetching hotels:", error);
-            toast.error("Failed to load hotels.");
+            toast.error(getErrorMessage(error, "Failed to load hotels."));
             setHotels([]);
         } finally {
             setLoading(false);
@@ -93,7 +94,7 @@ const HotelList = () => {
             toast.success("Hotel deleted successfully.");
             fetchHotels();
         } catch (error) {
-            toast.error("Failed to delete hotel.");
+            toast.error(getErrorMessage(error, "Failed to delete hotel."));
         } finally {
             setDeleteModalOpen(false);
             setHotelToDelete(null);

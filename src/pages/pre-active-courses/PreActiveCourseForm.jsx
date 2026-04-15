@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Loader2, Save, BookOpen, Calendar, FileText } from "lucide-react";
@@ -108,8 +109,8 @@ const PreActiveCourseForm = () => {
       setMasterCourses(coursesRes.data?.data || []);
       setLocations(locRes.data?.data || []);
     } catch (error) {
-      console.error("Error fetching dependancies:", error);
-      toast.error("Failed to load form dependancies");
+      console.error("Error fetching dependencies:", error);
+      toast.error(getErrorMessage(error, "Failed to load form dependencies"));
     }
   };
 
@@ -132,7 +133,7 @@ const PreActiveCourseForm = () => {
         remarks: data.remarks || "",
       });
     } catch (error) {
-      toast.error("Failed to fetch course details");
+      toast.error(getErrorMessage(error, "Failed to fetch course details"));
       navigate("/pre-active-courses");
     } finally {
       setInitialLoading(false);
@@ -238,9 +239,7 @@ const PreActiveCourseForm = () => {
       }
       navigate("/pre-active-courses");
     } catch (error) {
-      toast.error(
-        error.message || `Failed to ${isEditMode ? "update" : "create"} course`,
-      );
+      toast.error(getErrorMessage(error, `Failed to ${isEditMode ? "update" : "create"} course`));
     } finally {
       setLoading(false);
     }

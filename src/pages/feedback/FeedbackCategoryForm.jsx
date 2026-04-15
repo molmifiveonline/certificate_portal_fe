@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/Button";
@@ -26,7 +27,7 @@ const FeedbackCategoryForm = ({ isOpen, onClose, onSuccess, initialData }) => {
                     });
                 } catch (error) {
                     console.error("Error fetching category details:", error);
-                    toast.error("Failed to load category details");
+                    toast.error(getErrorMessage(error, "Failed to load category details"));
                     // Fallback to initialData if API fails
                     setFormData({
                         name: initialData.name || "",
@@ -83,9 +84,7 @@ const FeedbackCategoryForm = ({ isOpen, onClose, onSuccess, initialData }) => {
             onClose();
         } catch (error) {
             console.error("Error saving feedback category:", error);
-            toast.error(
-                error.response?.data?.message || "Failed to save feedback category"
-            );
+            toast.error(getErrorMessage(error, "Failed to save feedback category"));
         } finally {
             setLoading(false);
         }

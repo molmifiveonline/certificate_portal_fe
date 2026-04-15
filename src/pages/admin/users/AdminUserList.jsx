@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import PageHeader from "../../../components/common/PageHeader";
 import { useNavigate } from "react-router-dom";
 import {
@@ -47,7 +48,7 @@ const AdminUserList = () => {
       setTotalPages(response.meta?.totalPages || 1);
     } catch (error) {
       console.error("Error fetching admin users:", error);
-      toast.error("Failed to load admin users");
+      toast.error(getErrorMessage(error, "Failed to load admin users"));
     } finally {
       setLoading(false);
     }
@@ -81,9 +82,7 @@ const AdminUserList = () => {
       fetchAdmins();
     } catch (error) {
       console.error("Error deleting admin user:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to delete admin user",
-      );
+      toast.error(getErrorMessage(error, "Failed to delete admin user"));
     } finally {
       setDeleteModalOpen(false);
       setAdminToDelete(null);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../../lib/utils/errorUtils';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Badge } from "../../../components/ui/Badge";
@@ -22,7 +23,7 @@ const CandidateAssessmentTab = ({ courseId }) => {
             setAssessments(response.data.data || []);
         } catch (error) {
             console.error("Error fetching assessments:", error);
-            toast.error("Failed to load assessments");
+            toast.error(getErrorMessage(error, "Failed to load assessments"));
         } finally {
             setLoading(false);
         }

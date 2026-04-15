@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LogOut, ChevronRight } from "lucide-react";
 import { cn } from "../../lib/utils/utils";
@@ -12,17 +12,6 @@ import {
   TooltipProvider,
 } from "../ui/Tooltip";
 
-// Mock useMedia hook
-// const useMedia = () => {
-//     const getIconUrl = (name) => {
-//         // Assuming logo is available in public or we use a text fallback
-//         if (name.includes('logo')) return '/logo.svg';
-//         return '/favicon.ico';
-//     };
-//     return { getIconUrl };
-// };
-
-// Mock useToast hook
 const useToast = () => {
   return { showSuccessToast: (msg) => console.log(msg) };
 };
@@ -45,7 +34,7 @@ const TooltipWrapper = ({ isOpen, title, children }) => {
 const Sidebar = () => {
   const { isOpen, setIsOpen } = useLayout();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, hasAnyPermission, isRestrictedAdmin } = useAuth();
   const navigate = useNavigate();
   const { showSuccessToast } = useToast();
   const [expandedMenus, setExpandedMenus] = useState({});
@@ -53,25 +42,19 @@ const Sidebar = () => {
   const toggleMenu = (title) => {
     setExpandedMenus((prev) => {
       const isCurrentlyOpen = prev[title];
-      // Close all other menus, only keep the toggled one open
       if (isCurrentlyOpen) {
-        // If closing the current menu, just close it
         return { ...prev, [title]: false };
       }
-      // If opening a new menu, close all others
-      const newState = {};
-      newState[title] = true;
-      return newState;
+
+      return { [title]: true };
     });
   };
 
-  // Filter menu items based on user role and permissions
   const visibleItems = MenuItems.filter((item) => {
-    // If no allowedRoles specified, show to everyone
     if (!item.allowedRoles) {
       return true;
     }
-    // Check if user's role is in the allowedRoles array
+
     if (!user?.role) return false;
 
     const userRole = user.role.toLowerCase();
@@ -80,29 +63,28 @@ const Sidebar = () => {
     );
     if (!hasRole) return false;
 
-    // For admin users with an assigned admin_role (adminRolePermissions is an array, not null):
-    // only show items where their slug is in the adminRolePermissions list.
-    // SuperAdmins (adminRolePermissions === null) always see everything.
-    // Admins without an assigned role (adminRolePermissions === null) also see everything.
-    const adminRolePermissions = user.adminRolePermissions; // null = unrestricted, array = restricted
-    if (
-      adminRolePermissions !== null &&
-      adminRolePermissions !== undefined &&
-      userRole === "admin"
-    ) {
-      if (item.permissionSlug) {
-        // Home has no permissionSlug — always visible
-        return adminRolePermissions.includes(item.permissionSlug);
+    if (isRestrictedAdmin && userRole === "admin") {
+      if (item.url === "/dashboard") {
+        return true;
       }
-      // Items without permissionSlug (e.g. Home) are always shown
-      return true;
+
+      if (item.permissionSlug && hasAnyPermission([item.permissionSlug])) {
+        return true;
+      }
+
+      if (
+        Array.isArray(item.permissionSlugsAny) &&
+        hasAnyPermission(item.permissionSlugsAny)
+      ) {
+        return true;
+      }
+
+      return false;
     }
 
-    // Legacy: trainer/candidate permission check
     if (item.requiredPermission) {
       const userPermissions = user.permissions || [];
-      const hasPermission = userPermissions.includes(item.requiredPermission);
-      return hasPermission;
+      return userPermissions.includes(item.requiredPermission);
     }
 
     return true;
@@ -117,7 +99,7 @@ const Sidebar = () => {
     }
   };
 
-  const isLinkActive = (url, siblings = []) => {
+  const isLinkActive = useCallback((url, siblings = []) => {
     if (url === "/") {
       return (
         location.pathname === "/" || location.pathname.startsWith("/dashboard")
@@ -128,7 +110,6 @@ const Sidebar = () => {
       location.pathname === url || location.pathname.startsWith(`${url}/`);
     if (!isBaseMatch) return false;
 
-    // If there's a more specific (longer) match among siblings, this one is not the "active" one
     const hasBetterMatch = siblings.some((siblingUrl) => {
       if (!siblingUrl || siblingUrl === url) return false;
       return (
@@ -139,7 +120,7 @@ const Sidebar = () => {
     });
 
     return !hasBetterMatch;
-  };
+  }, [location.pathname]);
 
   useEffect(() => {
     visibleItems.forEach((item) => {
@@ -156,11 +137,10 @@ const Sidebar = () => {
         }
       }
     });
-  }, [location.pathname]);
+  }, [isLinkActive, visibleItems]);
 
   return (
     <>
-      {/* Sidebar */}
       <aside
         className={cn(
           "fixed left-0 top-0 h-screen transition-all duration-500 ease-in-out z-50 flex flex-col bg-white border-r border-slate-200 shadow-xl md:shadow-sm",
@@ -170,7 +150,6 @@ const Sidebar = () => {
         )}
       >
         <TooltipProvider delayDuration={200}>
-          {/* Logo Header */}
           <Link
             to="/"
             className="flex items-center justify-center py-6 hover:opacity-80 transition-opacity cursor-pointer border-b border-slate-100"
@@ -190,7 +169,6 @@ const Sidebar = () => {
             )}
           </Link>
 
-          {/* Menu Items */}
           <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
             {visibleItems.map((item) => {
               const Icon = item.icon;
@@ -200,7 +178,6 @@ const Sidebar = () => {
               const topLevelUrls = visibleItems.map((i) => i.url);
               const subItemUrls = item.subItems?.map((i) => i.url) || [];
 
-              // Check if any subitem is active to highlight parent
               const isParentActive =
                 hasSubItems &&
                 item.subItems.some((sub) => isLinkActive(sub.url, subItemUrls));
@@ -208,7 +185,6 @@ const Sidebar = () => {
                 !hasSubItems && isLinkActive(item.url, topLevelUrls);
 
               const handleNavClick = () => {
-                // Close all expanded submenus when navigating to a different module
                 if (!hasSubItems) {
                   setExpandedMenus({});
                 }
@@ -323,7 +299,6 @@ const Sidebar = () => {
                     </TooltipWrapper>
                   )}
 
-                  {/* Submenu */}
                   {hasSubItems && isOpen && (
                     <div
                       className={cn(
@@ -343,10 +318,10 @@ const Sidebar = () => {
                           )}
                         >
                           {item.subItems.map((subItem) => {
-                            const subItemUrls = item.subItems.map((i) => i.url);
+                            const nestedUrls = item.subItems.map((i) => i.url);
                             const isSubActive = isLinkActive(
                               subItem.url,
-                              subItemUrls,
+                              nestedUrls,
                             );
                             return (
                               <Link
@@ -362,8 +337,6 @@ const Sidebar = () => {
                                     : "text-slate-500 hover:text-[#3a5f9e] hover:bg-[#3a5f9e]/5 hover:translate-x-2 hover:shadow-sm",
                                 )}
                               >
-                                {/* Optional: Add a small dot or icon for deeper nesting */}
-                                {/* <Dot size={16} className="mr-2" /> */}
                                 {subItem.title}
                               </Link>
                             );
@@ -376,7 +349,7 @@ const Sidebar = () => {
               );
             })}
           </nav>
-          {/* Logout Button at Bottom */}
+
           <div className="p-4 border-t border-slate-100 mt-auto">
             <TooltipWrapper title="Logout" isOpen={isOpen}>
               <button
@@ -402,7 +375,6 @@ const Sidebar = () => {
         </TooltipProvider>
       </aside>
 
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
@@ -414,4 +386,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-

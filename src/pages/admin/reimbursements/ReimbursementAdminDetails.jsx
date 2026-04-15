@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import {
   CheckCircle2,
   Loader2,
@@ -97,7 +98,7 @@ const ReimbursementAdminDetails = () => {
       setReimbursement(response?.data || response);
     } catch (error) {
       console.error("Failed to load reimbursement:", error);
-      toast.error("Failed to load reimbursement");
+      toast.error(getErrorMessage(error, "Failed to load reimbursement"));
     } finally {
       setLoading(false);
     }
@@ -140,9 +141,7 @@ const ReimbursementAdminDetails = () => {
       loadReimbursement();
     } catch (error) {
       console.error("Failed to update reimbursement:", error);
-      toast.error(
-        error?.response?.data?.message || "Failed to update reimbursement",
-      );
+      toast.error(getErrorMessage(error, "Failed to update reimbursement"));
     } finally {
       setActionLoading(false);
     }
@@ -156,7 +155,7 @@ const ReimbursementAdminDetails = () => {
       loadReimbursement();
     } catch (error) {
       console.error("Failed to resend approved email:", error);
-      toast.error("Failed to resend approved email");
+      toast.error(getErrorMessage(error, "Failed to resend approved email"));
     } finally {
       setActionLoading(false);
     }

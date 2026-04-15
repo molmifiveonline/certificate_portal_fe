@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 import { Search, History } from "lucide-react";
@@ -14,6 +15,12 @@ import hotelService from "../../services/hotelService";
 import outhouseCourseService from "../../services/outhouseCourseService";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import questionBankService from "../../services/questionBankService";
+import nominatorService from "../../services/nominatorService";
+import adminUserService from "../../services/adminUserService";
+import locationService from "../../services/locationService";
+import { systemManualService } from "../../services/systemManualService";
+import reimbursementService from "../../services/reimbursementService";
+import certificateService from "../../services/certificateService";
 import Meta from "../../components/common/Meta";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
@@ -103,7 +110,13 @@ const extractResourceRefFromLog = (log) => {
   const apiIndex = parts.indexOf("api");
   if (apiIndex === -1 || apiIndex === parts.length - 1) return null;
 
-  const moduleKey = parts[apiIndex + 1];
+  let moduleKey = parts[apiIndex + 1];
+  
+  // Handle nested routes like /api/admin/users or /api/admin/reimbursements
+  if (moduleKey === "admin" && parts[apiIndex + 2]) {
+    moduleKey = `admin/${parts[apiIndex + 2]}`;
+  }
+
   const recordId = parts.find((part, index) => index > apiIndex + 1 && UUID_PATTERN.test(part));
 
   if (!moduleKey || !recordId) return null;
@@ -159,29 +172,72 @@ const resolveResourceName = async ({ moduleKey, recordId }) => {
       const response = await hotelService.getHotelById(recordId);
       return buildSimpleName(response?.data || response);
     }
+    case "nominators": {
+      const nominator = await nominatorService.getNominatorById(recordId);
+      return nominator?.name || nominator?.email || null;
+    }
+    case "admin/users": {
+      const admin = await adminUserService.getAdminById(recordId);
+      return [admin?.first_name, admin?.last_name].filter(Boolean).join(" ") || admin?.email || null;
+    }
+    case "locations": {
+      const location = await locationService.getLocationById(recordId);
+      return location?.location_name || null;
+    }
+    case "system-manual": {
+      const manual = await systemManualService.getSystemManualById(recordId);
+      return manual?.title || null;
+    }
+    case "reimbursements":
+    case "admin/reimbursements": {
+      const reimbursement = await reimbursementService.getAdminReimbursementById(recordId);
+      return reimbursement?.claim_number || null;
+    }
+    case "certificates": {
+      const certificate = await certificateService.getCertificateById(recordId);
+      return certificate?.certificate_no || null;
+    }
+    case "admin-roles": {
+      const response = await api.get(`/admin-roles/${recordId}`);
+      return response.data?.role_name || null;
+    }
     default:
       return null;
   }
 };
 
 const formatLogDetails = (log, resolvedResourceNames) => {
-  const details = log?.details || "-";
+  let details = log?.details || "-";
   const resourceRef = extractResourceRefFromLog(log);
-
-  if (!resourceRef) return details;
-
-  const resourceName =
-    resolvedResourceNames[getResourceCacheKey(resourceRef)];
-  if (!resourceName) return details;
-
-  if (resourceRef.moduleKey === "candidate") {
-    return details.replace(
-      /candidate ID:\s*[0-9a-f-]+/i,
-      `candidate: ${resourceName}`,
-    );
+  
+  let targetName = null;
+  if (resourceRef) {
+    targetName = resolvedResourceNames[getResourceCacheKey(resourceRef)];
+    if (targetName) {
+      if (resourceRef.moduleKey === "candidate") {
+        details = details.replace(
+          /candidate ID:\s*[0-9a-f-]+/i,
+          `Candidate: ${targetName}`
+        );
+      }
+      details = details.replace(resourceRef.recordId, targetName);
+    } else {
+      targetName = resourceRef.recordId;
+    }
   }
 
-  return details.replace(resourceRef.recordId, resourceName);
+  // Check if it is an auto-generated log with Method, URL, Status
+  const isAutoLog = /Method:\s+[A-Z]+,\s+URL:.+,\s+Status:\s+\d+/i.test(details);
+  
+  if (isAutoLog) {
+    return targetName || "";
+  }
+
+  // For custom logs, just remove Method and URL keywords if they exist to keep it clean
+  details = details.replace(/Method:\s*[A-Z]+,?\s*/i, "");
+  details = details.replace(/URL:\s*[^,]+,?\s*/i, "");
+  
+  return details.replace(/^(,\s*)+|(,\s*)+$/g, "").trim() || "-";
 };
 
 const LogHistory = () => {
@@ -206,12 +262,10 @@ const LogHistory = () => {
     setLoading(true);
     try {
       const response = await logService.getLogs({ page, limit, search });
-      // API returns { data: [], total, page, limit, totalPages }
       if (response.data && response.total !== undefined) {
         setLogs(response.data);
         setTotalLogs(response.total);
       } else if (response.data && response.meta) {
-        // Legacy fallback
         setLogs(response.data);
         setTotalLogs(response.meta.total);
       } else {
@@ -220,16 +274,15 @@ const LogHistory = () => {
       }
     } catch (error) {
       console.error("Failed to fetch logs:", error);
-      toast.error("Failed to load log history");
+      toast.error(getErrorMessage(error, "Failed to load log history"));
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Initial Load & Param Changes
   useEffect(() => {
     fetchLogs(currentPage, itemsPerPage, latestSearchTermRef.current);
-  }, [currentPage, itemsPerPage, fetchLogs]); // Search is handled separately via timeout
+  }, [currentPage, itemsPerPage, fetchLogs]);
 
   useEffect(() => {
     const unresolvedResources = [
@@ -287,7 +340,7 @@ const LogHistory = () => {
     const value = e.target.value;
     setSearchTerm(value);
     latestSearchTermRef.current = value;
-    setCurrentPage(1); // Reset to page 1 on search
+    setCurrentPage(1);
 
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -305,12 +358,11 @@ const LogHistory = () => {
     try {
       await logService.deleteLog(logToDelete);
       toast.success("Log deleted successfully");
-      // Refresh logs to keep pagination correct
       fetchLogs(currentPage, itemsPerPage, searchTerm);
       setIsDeleteModalOpen(false);
     } catch (error) {
       console.error("Failed to delete log:", error);
-      toast.error("Failed to delete log");
+      toast.error(getErrorMessage(error, "Failed to delete log"));
     } finally {
       setIsDeleting(false);
       setLogToDelete(null);
@@ -326,23 +378,19 @@ const LogHistory = () => {
     setCurrentPage(1);
   };
 
-  // Calculate total pages for pagination component
   const totalPages = Math.ceil(totalLogs / itemsPerPage);
 
-  // Only show full-page spinner on initial load (not during search)
   if (loading && logs.length === 0 && !searchTerm && !latestSearchTermRef.current) return <LoadingSpinner />;
 
   return (
     <div className="flex-1 overflow-y-auto">
       <Meta title="Log History" description="View System Logs" />
-      {/* Page Header */}
       <PageHeader
         title="Log History"
         subtitle="View and manage system activity logs"
         icon={History}
       />
 
-      {/* Filter Bar */}
       <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
         <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="relative w-full md:w-96">
@@ -364,7 +412,6 @@ const LogHistory = () => {
         </CardContent>
       </Card>
 
-      {/* Logs Table */}
       <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col mb-8">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -382,9 +429,6 @@ const LogHistory = () => {
                 <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">
                   User / Role
                 </th>
-                {/* <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-right">
-                  Actions
-                </th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100/50">
@@ -434,15 +478,6 @@ const LogHistory = () => {
                         </span>
                       </div>
                     </td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <button
-                        onClick={() => handleDeleteClick(log.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete Log"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td> */}
                   </tr>
                 ))
               )}
@@ -450,7 +485,6 @@ const LogHistory = () => {
           </table>
         </div>
 
-        {/* Pagination */}
         {totalLogs > 0 && (
           <TablePagination
             currentPage={currentPage}
@@ -478,5 +512,3 @@ const LogHistory = () => {
 };
 
 export default LogHistory;
-
-

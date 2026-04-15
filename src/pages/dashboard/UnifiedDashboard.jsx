@@ -3,15 +3,19 @@ import { useAuth } from '../../context/AuthContext';
 import SuperAdminDashboard from './SuperAdminDashboard';
 import TrainerDashboard from './TrainerDashboard';
 import CandidateDashboard from './CandidateDashboard';
+import RestrictedAdminDashboard from './RestrictedAdminDashboard';
 
 const UnifiedDashboard = () => {
-    const { user } = useAuth();
+    const { user, isRestrictedAdmin } = useAuth();
 
     if (!user) return null; // Or a loading spinner, though PrivateRoute handles this
 
     const role = user.role?.toLowerCase();
 
     if (role === 'superadmin' || role === 'admin') {
+        if (isRestrictedAdmin) {
+            return <RestrictedAdminDashboard />;
+        }
         return <SuperAdminDashboard />;
     }
 

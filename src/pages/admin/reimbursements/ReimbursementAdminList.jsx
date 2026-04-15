@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import { Eye, ReceiptText, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -57,7 +58,7 @@ const ReimbursementAdminList = () => {
       setTotalCount(total || data.length);
     } catch (error) {
       console.error("Failed to load reimbursements:", error);
-      toast.error("Failed to load reimbursement claims");
+      toast.error(getErrorMessage(error, "Failed to load reimbursement claims"));
     } finally {
       setLoading(false);
     }

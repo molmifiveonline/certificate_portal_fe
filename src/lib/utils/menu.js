@@ -7,8 +7,6 @@ import {
   GraduationCap,
   UserCircle,
   BookOpen,
-  Award,
-  Book,
   MapPin,
   ClipboardList,
   Building,
@@ -72,6 +70,12 @@ export const MenuItems = [
     icon: BookOpen,
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_master_courses",
+    permissionSlugsAny: [
+      "view_master_courses",
+      "view_pre_active_courses",
+      "view_active_courses",
+      "view_outhouse_courses",
+    ],
     subItems: [
       { title: "Master Courses", url: "/courses" },
       { title: "Pre-Active Courses", url: "/pre-active-courses" },

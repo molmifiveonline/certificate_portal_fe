@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/Tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
@@ -26,7 +27,7 @@ const CandidateCourseDetails = () => {
                 setCourse(response.data);
             } catch (error) {
                 console.error("Error fetching course details:", error);
-                toast.error("Failed to load course details");
+                toast.error(getErrorMessage(error, "Failed to load course details"));
             } finally {
                 setLoading(false);
             }

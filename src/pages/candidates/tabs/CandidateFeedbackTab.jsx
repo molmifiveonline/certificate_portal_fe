@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../../lib/utils/errorUtils';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Badge } from "../../../components/ui/Badge";
@@ -40,7 +41,7 @@ const CandidateFeedbackTab = ({ courseId, course }) => {
             }
         } catch (error) {
             console.error("Error fetching feedback status:", error);
-            toast.error("Failed to load feedback form");
+            toast.error(getErrorMessage(error, "Failed to load feedback form"));
         } finally {
             setLoading(false);
         }
@@ -86,7 +87,7 @@ const CandidateFeedbackTab = ({ courseId, course }) => {
             fetchStatus();
         } catch (error) {
             console.error("Error submitting feedback:", error);
-            toast.error("Failed to submit feedback");
+            toast.error(getErrorMessage(error, "Failed to submit feedback"));
         } finally {
             setSubmitting(false);
         }

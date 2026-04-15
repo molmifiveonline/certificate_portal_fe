@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Lock, ArrowRight } from 'lucide-react';
 import { PasswordInput } from '../../components/ui/PasswordInput';
@@ -39,8 +40,7 @@ const ResetPassword = () => {
             navigate('/login');
         } catch (error) {
             console.error("Reset Password Error:", error);
-            const message = error.response?.data?.message || "Failed to reset password";
-            toast.error(message);
+            toast.error(getErrorMessage(error, "Failed to reset password"));
         } finally {
             setIsSubmitting(false);
         }

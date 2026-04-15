@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import { Plus, Search, Edit, Trash2, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/Card";
@@ -53,7 +54,7 @@ const FeedbackFormList = () => {
             setTotalPages(Math.ceil(result.total / limit));
         } catch (error) {
             console.error("Error fetching feedback forms:", error);
-            toast.error("Failed to load feedback forms");
+            toast.error(getErrorMessage(error, "Failed to load feedback forms"));
         } finally {
             setLoading(false);
         }
@@ -77,7 +78,7 @@ const FeedbackFormList = () => {
             fetchForms();
         } catch (error) {
             console.error("Delete error:", error);
-            toast.error("Failed to delete feedback form");
+            toast.error(getErrorMessage(error, "Failed to delete feedback form"));
         } finally {
             setShowDeleteModal(false);
             setFormToDelete(null);

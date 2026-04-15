@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
 import { Shield, Check, X, Save, Users, Loader2 } from "lucide-react";
@@ -31,7 +32,7 @@ const RolePermission = () => {
         setPermissions(permissionsRes.data.data || []);
       } catch (error) {
         console.error("Error fetching initial data:", error);
-        toast.error("Failed to load roles and permissions.");
+        toast.error(getErrorMessage(error, "Failed to load roles and permissions."));
       } finally {
         setLoading(false);
       }
@@ -54,7 +55,7 @@ const RolePermission = () => {
         setRolePermissions(perms.map((p) => p.id));
       } catch (error) {
         console.error("Error fetching role permissions:", error);
-        toast.error("Failed to load role permissions.");
+        toast.error(getErrorMessage(error, "Failed to load role permissions."));
       } finally {
         setLoadingRolePermissions(false);
       }
@@ -92,7 +93,7 @@ const RolePermission = () => {
       toast.success("Permissions updated successfully!");
     } catch (error) {
       console.error("Error saving permissions:", error);
-      toast.error("Failed to save permissions.");
+      toast.error(getErrorMessage(error, "Failed to save permissions."));
     } finally {
       setSaving(false);
     }

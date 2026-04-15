@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import { Bell, BookOpenCheck, ReceiptText, UserCog } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -131,7 +132,7 @@ const AdminNotifications = () => {
         setData(response);
       } catch (error) {
         console.error("Failed to load admin notifications:", error);
-        toast.error("Failed to load notifications");
+        toast.error(getErrorMessage(error, "Failed to load notifications"));
       } finally {
         setLoading(false);
       }

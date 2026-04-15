@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 
 import api from '../../lib/api';
-import { useState } from 'react';
 import { toast } from 'sonner';
 import CandidateForm from '../../components/candidates/CandidateForm';
 import Meta from '../../components/common/Meta';
@@ -56,7 +56,7 @@ const Register = () => {
             navigate('/login');
         } catch (error) {
             console.error("Registration Error:", error);
-            toast.error(error.response?.data?.message || "Registration failed. Please try again.");
+            toast.error(getErrorMessage(error, "Registration failed. Please try again."));
             // Scroll to top to show error (optional, but good UX)
             window.scrollTo(0, 0);
         } finally {

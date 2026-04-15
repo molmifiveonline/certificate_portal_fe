@@ -202,6 +202,17 @@ const ReimbursementAdminDetails = lazy(
   () => import("./pages/admin/reimbursements/ReimbursementAdminDetails"),
 );
 
+const ADMIN_ROLES = ["SuperAdmin", "Admin", "admin"];
+const TRAINER_ROLES = ["Trainer", "trainer"];
+const CANDIDATE_ROLES = ["Candidate", "candidate"];
+const ALL_APP_ROLES = [...ADMIN_ROLES, ...TRAINER_ROLES, ...CANDIDATE_ROLES];
+const COURSE_ROUTE_PERMISSIONS = [
+  "view_master_courses",
+  "view_pre_active_courses",
+  "view_active_courses",
+  "view_outhouse_courses",
+];
+
 function App() {
   return (
     <HelmetProvider>
@@ -248,17 +259,7 @@ function App() {
               <Route
                 path="/acknowledge"
                 element={
-                  <PrivateRoute
-                    allowedRoles={[
-                      "SuperAdmin",
-                      "Admin",
-                      "admin",
-                      "Trainer",
-                      "trainer",
-                      "Candidate",
-                      "candidate",
-                    ]}
-                  >
+                  <PrivateRoute allowedRoles={ALL_APP_ROLES}>
                     <Acknowledge />
                   </PrivateRoute>
                 }
@@ -270,15 +271,8 @@ function App() {
                 path="/dashboard"
                 element={
                   <PrivateRoute
-                    allowedRoles={[
-                      "SuperAdmin",
-                      "Admin",
-                      "admin",
-                      "Trainer",
-                      "trainer",
-                      "Candidate",
-                      "candidate",
-                    ]}
+                    allowedRoles={ALL_APP_ROLES}
+                    allowRestrictedAdminWithoutPermissions={true}
                   >
                     <UnifiedDashboard />
                   </PrivateRoute>
@@ -288,7 +282,10 @@ function App() {
               <Route
                 path="/courses"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <MasterCourseList />
                   </PrivateRoute>
                 }
@@ -296,7 +293,10 @@ function App() {
               <Route
                 path="/courses/add"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <MasterCourseForm />
                   </PrivateRoute>
                 }
@@ -304,7 +304,10 @@ function App() {
               <Route
                 path="/courses/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <MasterCourseForm />
                   </PrivateRoute>
                 }
@@ -313,7 +316,10 @@ function App() {
               <Route
                 path="/active-courses"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <ActiveCourseList />
                   </PrivateRoute>
                 }
@@ -321,7 +327,10 @@ function App() {
               <Route
                 path="/active-courses/add"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <ActiveCourseForm />
                   </PrivateRoute>
                 }
@@ -329,7 +338,10 @@ function App() {
               <Route
                 path="/active-courses/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <ActiveCourseForm />
                   </PrivateRoute>
                 }
@@ -338,7 +350,10 @@ function App() {
               <Route
                 path="/outhouse-courses"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <OuthouseCourseList />
                   </PrivateRoute>
                 }
@@ -346,7 +361,10 @@ function App() {
               <Route
                 path="/outhouse-courses/add"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <OuthouseCourseForm />
                   </PrivateRoute>
                 }
@@ -354,7 +372,10 @@ function App() {
               <Route
                 path="/outhouse-courses/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <OuthouseCourseForm />
                   </PrivateRoute>
                 }
@@ -363,7 +384,10 @@ function App() {
               <Route
                 path="/pre-active-courses"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <PreActiveCourseList />
                   </PrivateRoute>
                 }
@@ -371,7 +395,10 @@ function App() {
               <Route
                 path="/pre-active-courses/add"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <PreActiveCourseForm />
                   </PrivateRoute>
                 }
@@ -379,7 +406,10 @@ function App() {
               <Route
                 path="/pre-active-courses/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <PreActiveCourseForm />
                   </PrivateRoute>
                 }
@@ -387,7 +417,10 @@ function App() {
               <Route
                 path="/pre-active-courses/:id/approvals"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                  >
                     <AdminPreActiveApprovals />
                   </PrivateRoute>
                 }
@@ -396,7 +429,10 @@ function App() {
               <Route
                 path="/dashboard/super-admin"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    allowRestrictedAdminWithoutPermissions={true}
+                  >
                     <UnifiedDashboard />
                   </PrivateRoute>
                 }
@@ -405,7 +441,10 @@ function App() {
               <Route
                 path="/trainers"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_trainers"
+                  >
                     <TrainerList />
                   </PrivateRoute>
                 }
@@ -414,7 +453,10 @@ function App() {
               <Route
                 path="/trainer/create"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="create_trainer"
+                  >
                     <CreateTrainer />
                   </PrivateRoute>
                 }
@@ -423,7 +465,10 @@ function App() {
               <Route
                 path="/trainer/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="edit_trainer"
+                  >
                     <EditTrainer />
                   </PrivateRoute>
                 }
@@ -432,7 +477,10 @@ function App() {
               <Route
                 path="/candidates/molmi"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_candidates"
+                  >
                     <CandidateList key="molmi" registrationType="MOLMI Employee" />
                   </PrivateRoute>
                 }
@@ -440,7 +488,10 @@ function App() {
               <Route
                 path="/candidates/others"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_candidates"
+                  >
                     <CandidateList key="others" registrationType="Others" />
                   </PrivateRoute>
                 }
@@ -449,7 +500,10 @@ function App() {
               <Route
                 path="/candidates/add"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="create_candidate"
+                  >
                     <AddCandidate />
                   </PrivateRoute>
                 }
@@ -457,7 +511,10 @@ function App() {
               <Route
                 path="/candidates/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="edit_candidate"
+                  >
                     <EditCandidate />
                   </PrivateRoute>
                 }
@@ -466,7 +523,10 @@ function App() {
               <Route
                 path="/admin/role-permissions"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="manage_permissions"
+                  >
                     <RolePermission />
                   </PrivateRoute>
                 }
@@ -475,7 +535,10 @@ function App() {
               <Route
                 path="/admin/log-history"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_logs"
+                  >
                     <LogHistory />
                   </PrivateRoute>
                 }
@@ -507,7 +570,10 @@ function App() {
               <Route
                 path="/admin/users"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="manage_admin_users"
+                  >
                     <AdminUserList />
                   </PrivateRoute>
                 }
@@ -515,7 +581,10 @@ function App() {
               <Route
                 path="/admin/admin-roles"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="manage_admin_roles"
+                  >
                     <AdminRolesList />
                   </PrivateRoute>
                 }
@@ -523,7 +592,10 @@ function App() {
               <Route
                 path="/admin/admin-roles/create"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="create_admin_role"
+                  >
                     <AdminRolesForm />
                   </PrivateRoute>
                 }
@@ -531,7 +603,10 @@ function App() {
               <Route
                 path="/admin/admin-roles/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="edit_admin_role"
+                  >
                     <AdminRolesForm />
                   </PrivateRoute>
                 }
@@ -539,7 +614,10 @@ function App() {
               <Route
                 path="/admin/users/create"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="create_admin_user"
+                  >
                     <CreateAdminUser />
                   </PrivateRoute>
                 }
@@ -547,7 +625,10 @@ function App() {
               <Route
                 path="/admin/users/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="edit_admin_user"
+                  >
                     <EditAdminUser />
                   </PrivateRoute>
                 }
@@ -556,7 +637,10 @@ function App() {
               <Route
                 path="/hotel-details"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_hotels"
+                  >
                     <HotelList />
                   </PrivateRoute>
                 }
@@ -609,7 +693,10 @@ function App() {
               <Route
                 path="/location"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_locations"
+                  >
                     <LocationList />
                   </PrivateRoute>
                 }
@@ -618,7 +705,10 @@ function App() {
               <Route
                 path="/location/create"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="create_location"
+                  >
                     <CreateLocation />
                   </PrivateRoute>
                 }
@@ -627,7 +717,10 @@ function App() {
               <Route
                 path="/location/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="edit_location"
+                  >
                     <EditLocation />
                   </PrivateRoute>
                 }
@@ -637,7 +730,10 @@ function App() {
               <Route
                 path="/nominators"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_nominators"
+                  >
                     <NominatorList />
                   </PrivateRoute>
                 }
@@ -645,7 +741,10 @@ function App() {
               <Route
                 path="/nominators/add"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="create_nominator"
+                  >
                     <CreateNominator />
                   </PrivateRoute>
                 }
@@ -653,7 +752,10 @@ function App() {
               <Route
                 path="/nominators/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="edit_nominator"
+                  >
                     <EditNominator />
                   </PrivateRoute>
                 }
@@ -874,7 +976,7 @@ function App() {
               <Route
                 path="/dashboard/trainer"
                 element={
-                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                  <PrivateRoute allowedRoles={TRAINER_ROLES}>
                     <UnifiedDashboard />
                   </PrivateRoute>
                 }
@@ -882,7 +984,7 @@ function App() {
               <Route
                 path="/dashboard/candidate"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <UnifiedDashboard />
                   </PrivateRoute>
                 }
@@ -890,7 +992,7 @@ function App() {
               <Route
                 path="/trainer-certificates"
                 element={
-                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                  <PrivateRoute allowedRoles={TRAINER_ROLES}>
                     <TrainerCertificateList />
                   </PrivateRoute>
                 }
@@ -898,7 +1000,7 @@ function App() {
               <Route
                 path="/my-courses"
                 element={
-                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                  <PrivateRoute allowedRoles={TRAINER_ROLES}>
                     <TrainerCourseList />
                   </PrivateRoute>
                 }
@@ -906,7 +1008,7 @@ function App() {
               <Route
                 path="/my-courses/edit/:id"
                 element={
-                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
+                  <PrivateRoute allowedRoles={TRAINER_ROLES}>
                     <ActiveCourseForm />
                   </PrivateRoute>
                 }
@@ -964,7 +1066,7 @@ function App() {
               <Route
                 path="/candidate-courses"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <CandidateCourseList />
                   </PrivateRoute>
                 }
@@ -972,7 +1074,7 @@ function App() {
               <Route
                 path="/candidate-course/:id"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <CandidateCourseDetails />
                   </PrivateRoute>
                 }
@@ -980,7 +1082,7 @@ function App() {
               <Route
                 path="/candidate-certificates"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <CandidateCertificateList />
                   </PrivateRoute>
                 }
@@ -988,7 +1090,7 @@ function App() {
               <Route
                 path="/reimbursements"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <ReimbursementList />
                   </PrivateRoute>
                 }
@@ -996,7 +1098,7 @@ function App() {
               <Route
                 path="/reimbursements/create"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <ReimbursementForm />
                   </PrivateRoute>
                 }
@@ -1004,7 +1106,7 @@ function App() {
               <Route
                 path="/reimbursements/:id"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <ReimbursementDetails />
                   </PrivateRoute>
                 }
@@ -1012,7 +1114,7 @@ function App() {
               <Route
                 path="/reimbursements/:id/edit"
                 element={
-                  <PrivateRoute allowedRoles={["Candidate", "candidate"]}>
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
                     <ReimbursementForm />
                   </PrivateRoute>
                 }
