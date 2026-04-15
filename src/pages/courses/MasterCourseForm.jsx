@@ -1,4 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
@@ -89,7 +90,7 @@ const MasterCourseForm = () => {
           });
         } catch (error) {
           console.error("Error fetching course:", error);
-          toast.error("Failed to load course details");
+          toast.error(getErrorMessage(error, "Failed to load course details"));
           navigate("/courses");
         } finally {
           setIsLoading(false);
@@ -112,7 +113,7 @@ const MasterCourseForm = () => {
       navigate("/courses");
     } catch (error) {
       console.error("Error saving course:", error);
-      toast.error(error.response?.data?.message || "Failed to save course");
+      toast.error(getErrorMessage(error, "Failed to save course"));
     } finally {
       setIsSubmitting(false);
     }

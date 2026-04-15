@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import Meta from "../../components/common/Meta";
 import { useNavigate } from 'react-router-dom';
 import { FileText } from 'lucide-react';
@@ -29,7 +30,7 @@ const CreateSystemManual = () => {
             navigate('/system-manual');
         } catch (error) {
             console.error('Error creating system manual:', error);
-            toast.error(error.response?.data?.message || 'Failed to create system manual.');
+            toast.error(getErrorMessage(error, 'Failed to create system manual.'));
         } finally {
             setIsSubmitting(false);
         }

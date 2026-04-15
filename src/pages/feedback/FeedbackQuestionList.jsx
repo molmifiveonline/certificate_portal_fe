@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/Card";
@@ -71,7 +72,7 @@ const FeedbackQuestionList = () => {
             setTotalCount(result.total);
         } catch (error) {
             console.error("Error fetching questions:", error);
-            toast.error("Failed to load feedback questions");
+            toast.error(getErrorMessage(error, "Failed to load feedback questions"));
         } finally {
             setLoading(false);
         }
@@ -110,7 +111,7 @@ const FeedbackQuestionList = () => {
             fetchQuestions();
         } catch (error) {
             console.error("Delete error:", error);
-            toast.error("Failed to delete feedback question");
+            toast.error(getErrorMessage(error, "Failed to delete feedback question"));
         } finally {
             setShowDeleteModal(false);
             setQuestionToDelete(null);

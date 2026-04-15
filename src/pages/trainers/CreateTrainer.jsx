@@ -1,4 +1,5 @@
 import React, { useState, createContext, useContext } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
@@ -180,7 +181,7 @@ const CreateTrainer = () => {
       navigate("/trainers");
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to create trainer.");
+      toast.error(getErrorMessage(error, "Failed to create trainer."));
     } finally {
       setIsSubmitting(false);
     }

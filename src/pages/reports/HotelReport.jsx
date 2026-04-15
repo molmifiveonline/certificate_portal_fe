@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Helmet } from "react-helmet-async";
 import PageHeader from "../../components/common/PageHeader";
 import {
@@ -79,7 +80,7 @@ const HotelReport = () => {
             setTotalCount(result.totalCount);
         } catch (error) {
             console.error("Error fetching hotel report:", error);
-            toast.error("Failed to load hotel report data");
+            toast.error(getErrorMessage(error, "Failed to load hotel report data"));
         } finally {
             setLoading(false);
         }

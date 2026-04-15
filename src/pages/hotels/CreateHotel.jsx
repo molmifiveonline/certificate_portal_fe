@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import Meta from "../../components/common/Meta";
 import { useNavigate } from 'react-router-dom';
 import { Building } from 'lucide-react';
@@ -32,7 +33,7 @@ const CreateHotel = () => {
             navigate('/hotel-details');
         } catch (error) {
             console.error('Error creating hotel:', error);
-            toast.error(error.response?.data?.message || 'Failed to create hotel.');
+            toast.error(getErrorMessage(error, 'Failed to create hotel.'));
         } finally {
             setIsSubmitting(false);
         }

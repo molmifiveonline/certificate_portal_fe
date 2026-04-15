@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Plus, Search, Edit, Trash2, Mail, Send, CheckCircle, RefreshCw, Calendar, BookOpen, Zap, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -33,7 +34,15 @@ const PreActiveCourseList = () => {
     const [courseToConvert, setCourseToConvert] = useState(null);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-    useAuth();
+    const { hasPermission, isRestrictedAdmin } = useAuth();
+    const canCreateCourse = !isRestrictedAdmin && hasPermission("create_pre_active_course");
+    const canNotifyNominators =
+        hasPermission("edit_pre_active_course") || hasPermission("view_pre_active_courses");
+    const canNotifyCandidates = !isRestrictedAdmin && hasPermission("edit_pre_active_course");
+    const canViewApprovals = !isRestrictedAdmin && hasPermission("view_pre_active_approvals");
+    const canConvertCourse = !isRestrictedAdmin && hasPermission("edit_pre_active_course");
+    const canEditCourse = !isRestrictedAdmin && hasPermission("edit_pre_active_course");
+    const canDeleteCourse = !isRestrictedAdmin && hasPermission("delete_pre_active_course");
 
     const fetchCourses = useCallback(async () => {
         try {
@@ -51,7 +60,7 @@ const PreActiveCourseList = () => {
                 setTotalCount(response.meta.total || 0);
             }
         } catch (error) {
-            toast.error("Failed to fetch pre-active courses");
+            toast.error(getErrorMessage(error, "Failed to fetch pre-active courses"));
         } finally {
             setLoading(false);
         }
@@ -80,7 +89,7 @@ const PreActiveCourseList = () => {
             setDeleteModalOpen(false);
             fetchCourses();
         } catch (error) {
-            toast.error(error.message || "Failed to delete course");
+            toast.error(getErrorMessage(error, "Failed to delete course"));
         }
     };
 
@@ -101,7 +110,7 @@ const PreActiveCourseList = () => {
             }
             setNotifyModalOpen(false);
         } catch (error) {
-            toast.error(`Failed to notify ${notifyType}s`);
+            toast.error(getErrorMessage(error, `Failed to notify ${notifyType}s`));
         }
     };
 
@@ -117,8 +126,7 @@ const PreActiveCourseList = () => {
             setConvertModalOpen(false);
             fetchCourses();
         } catch (error) {
-            const msg = error.response?.data?.message || "Failed to convert course";
-            toast.error(msg);
+            toast.error(getErrorMessage(error, "Failed to convert course"));
         }
     };
 
@@ -175,62 +183,106 @@ const PreActiveCourseList = () => {
             key: "actions",
             label: "Actions",
             align: "right",
-            render: (_val, row) => (
-                <div className="flex justify-end gap-1.5">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleNotifyClick(row, 'nominator')}
-                        className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50 rounded-lg"
-                        title="Notify Nominators"
-                    >
-                        <Mail className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleNotifyClick(row, 'candidate')}
-                        className="h-8 w-8 p-0 text-purple-600 hover:bg-purple-50 rounded-lg"
-                        title="Notify Candidates"
-                    >
-                        <Send className="h-4 w-4" />
-                    </Button>
-                    <Link to={`/pre-active-courses/${row.id}/approvals`}>
+            render: (_val, row) => {
+                const actionItems = [];
+
+                if (canNotifyNominators) {
+                    actionItems.push(
                         <Button
+                            key="notify-nominators"
                             variant="ghost"
                             size="sm"
-                            className="h-8 w-8 p-0 text-green-600 hover:bg-green-50 rounded-lg"
-                            title="View Candidate Approvals"
+                            onClick={() => handleNotifyClick(row, 'nominator')}
+                            className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50 rounded-lg"
+                            title="Notify Nominators"
                         >
-                            <CheckCircle className="h-4 w-4" />
+                            <Mail className="h-4 w-4" />
                         </Button>
-                    </Link>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleConvertClick(row)}
-                        className="h-8 px-2 border-orange-200 text-orange-600 hover:bg-orange-50 gap-1.5 font-bold text-[10px] uppercase tracking-wider rounded-lg"
-                        title="Convert to Active Course"
-                    >
-                        <RefreshCw className="h-3 w-3" />
-                        <span>Convert</span>
-                    </Button>
-                    <div className="w-px h-6 bg-slate-200 mx-1 self-center" />
-                    <Link to={`/pre-active-courses/edit/${row.id}`}>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <Edit className="h-4 w-4" />
+                    );
+                }
+
+                if (canNotifyCandidates) {
+                    actionItems.push(
+                        <Button
+                            key="notify-candidates"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleNotifyClick(row, 'candidate')}
+                            className="h-8 w-8 p-0 text-purple-600 hover:bg-purple-50 rounded-lg"
+                            title="Notify Candidates"
+                        >
+                            <Send className="h-4 w-4" />
                         </Button>
-                    </Link>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                        onClick={() => handleDeleteClick(row)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
-            )
+                    );
+                }
+
+                if (canViewApprovals) {
+                    actionItems.push(
+                        <Link key="approvals" to={`/pre-active-courses/${row.id}/approvals`}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-green-600 hover:bg-green-50 rounded-lg"
+                                title="View Candidate Approvals"
+                            >
+                                <CheckCircle className="h-4 w-4" />
+                            </Button>
+                        </Link>
+                    );
+                }
+
+                if (canConvertCourse) {
+                    actionItems.push(
+                        <Button
+                            key="convert"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleConvertClick(row)}
+                            className="h-8 px-2 border-orange-200 text-orange-600 hover:bg-orange-50 gap-1.5 font-bold text-[10px] uppercase tracking-wider rounded-lg"
+                            title="Convert to Active Course"
+                        >
+                            <RefreshCw className="h-3 w-3" />
+                            <span>Convert</span>
+                        </Button>
+                    );
+                }
+
+                if (canEditCourse || canDeleteCourse) {
+                    actionItems.push(
+                        <div key="divider" className="w-px h-6 bg-slate-200 mx-1 self-center" />
+                    );
+                }
+
+                if (canEditCourse) {
+                    actionItems.push(
+                        <Link key="edit" to={`/pre-active-courses/edit/${row.id}`}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                                <Edit className="h-4 w-4" />
+                            </Button>
+                        </Link>
+                    );
+                }
+
+                if (canDeleteCourse) {
+                    actionItems.push(
+                        <Button
+                            key="delete"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                            onClick={() => handleDeleteClick(row)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    );
+                }
+
+                if (actionItems.length === 0) {
+                    return <span className="text-xs text-slate-400">No actions</span>;
+                }
+
+                return <div className="flex justify-end gap-1.5">{actionItems}</div>;
+            }
         }
     ];
 
@@ -250,21 +302,25 @@ const PreActiveCourseList = () => {
                     <p className="text-slate-500 mt-1">Manage courses before they become active</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button
-                        variant="outline"
-                        onClick={() => setShowPreviewModal(true)}
-                        className="h-11 px-6 rounded-xl border bg-white/60 backdrop-blur-md shadow-sm hover:bg-white text-slate-700 font-bold flex items-center gap-2 active:scale-95 transition-all"
-                        style={{ borderColor: 'rgb(49 46 129 / 90%)' }}
-                    >
-                        <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-                        Sync API
-                    </Button>
-                    <Link to="/pre-active-courses/add">
-                        <Button className="h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
-                            <Plus className="w-5 h-5" />
-                            Add Pre-Active Course
-                        </Button>
-                    </Link>
+                    {canCreateCourse && (
+                        <>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowPreviewModal(true)}
+                                className="h-11 px-6 rounded-xl border bg-white/60 backdrop-blur-md shadow-sm hover:bg-white text-slate-700 font-bold flex items-center gap-2 active:scale-95 transition-all"
+                                style={{ borderColor: 'rgb(49 46 129 / 90%)' }}
+                            >
+                                <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+                                Sync API
+                            </Button>
+                            <Link to="/pre-active-courses/add">
+                                <Button className="h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                    <Plus className="w-5 h-5" />
+                                    Add Pre-Active Course
+                                </Button>
+                            </Link>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -354,5 +410,3 @@ const PreActiveCourseList = () => {
 };
 
 export default PreActiveCourseList;
-
-

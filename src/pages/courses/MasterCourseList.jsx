@@ -18,6 +18,7 @@ import DataTable from "../../components/ui/DataTable";
 
 import api from "../../lib/api";
 import { toast } from "sonner";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 
 const MasterCourseList = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -52,7 +53,7 @@ const MasterCourseList = () => {
             setTotalCount(result.total || 0);
         } catch (error) {
             console.error("Error fetching master courses:", error);
-            toast.error("Failed to load master courses.");
+            toast.error(getErrorMessage(error, "Failed to load master courses."));
             setCourses([]);
         } finally {
             setLoading(false);
@@ -101,7 +102,7 @@ const MasterCourseList = () => {
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            toast.error("Failed to export.");
+            toast.error(getErrorMessage(error, "Failed to export."));
         }
     };
 

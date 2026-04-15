@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
 import {
@@ -62,7 +63,7 @@ const LocationList = () => {
             }
         } catch (error) {
             console.error("Error fetching locations:", error);
-            toast.error("Failed to load locations.");
+            toast.error(getErrorMessage(error, "Failed to load locations."));
             setLocations([]);
         } finally {
             setLoading(false);
@@ -92,7 +93,7 @@ const LocationList = () => {
             toast.success("Location deleted successfully.");
             fetchLocations();
         } catch (error) {
-            toast.error("Failed to delete location.");
+            toast.error(getErrorMessage(error, "Failed to delete location."));
         } finally {
             setDeleteModalOpen(false);
             setLocationToDelete(null);

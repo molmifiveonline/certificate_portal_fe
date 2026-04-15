@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import { Plus, Search, Edit, Trash2, MessageSquare } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/Card";
@@ -57,7 +58,7 @@ const FeedbackCategoryList = () => {
             setTotalCount(result.total);
         } catch (error) {
             console.error("Error fetching categories:", error);
-            toast.error("Failed to load feedback categories");
+            toast.error(getErrorMessage(error, "Failed to load feedback categories"));
         } finally {
             setLoading(false);
         }
@@ -91,7 +92,7 @@ const FeedbackCategoryList = () => {
             fetchCategories();
         } catch (error) {
             console.error("Delete error:", error);
-            toast.error("Failed to delete feedback category");
+            toast.error(getErrorMessage(error, "Failed to delete feedback category"));
         } finally {
             setShowDeleteModal(false);
             setCategoryToDelete(null);

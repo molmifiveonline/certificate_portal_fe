@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Printer, Award, Search } from "lucide-react";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
@@ -83,7 +84,7 @@ const CandidateCertificateList = () => {
           setCertificates([]);
           setTotalCount(0);
           setTotalPages(1);
-          toast.error("Failed to load certificates.");
+          toast.error(getErrorMessage(error, "Failed to load certificates."));
         }
       } finally {
         if (isMounted) {
@@ -246,5 +247,3 @@ const CandidateCertificateList = () => {
 };
 
 export default CandidateCertificateList;
-
-

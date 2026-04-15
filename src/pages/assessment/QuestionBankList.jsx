@@ -20,6 +20,7 @@ import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import questionBankService from "../../services/questionBankService";
 import { toast } from "sonner";
 import api from "../../lib/api";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 
 const QuestionBankList = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -48,7 +49,7 @@ const QuestionBankList = () => {
             setTotalCount(result.total || 0);
         } catch (error) {
             console.error("Error fetching questions:", error);
-            toast.error("Failed to load questions.");
+            toast.error(getErrorMessage(error, "Failed to load questions."));
             setQuestions([]);
         } finally {
             setLoading(false);
@@ -62,7 +63,7 @@ const QuestionBankList = () => {
                 setMasterCourses(response.data.data || []);
             } catch (error) {
                 console.error("Error fetching master courses:", error);
-                toast.error("Failed to load master courses.");
+                toast.error(getErrorMessage(error, "Failed to load master courses."));
             }
         };
         fetchMasterCourses();
@@ -92,7 +93,7 @@ const QuestionBankList = () => {
             fetchQuestions();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to delete question.");
+            toast.error(getErrorMessage(error, "Failed to delete question."));
         } finally {
             setDeleteModalOpen(false);
             setQuestionToDelete(null);
@@ -130,7 +131,7 @@ const QuestionBankList = () => {
             fetchQuestions();
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || "Bulk upload failed.");
+            toast.error(getErrorMessage(error, "Bulk upload failed."));
         } finally {
             setBulkUploading(false);
         }
@@ -140,7 +141,7 @@ const QuestionBankList = () => {
         try {
             await questionBankService.downloadTemplate();
         } catch (error) {
-            toast.error("Failed to download template.");
+            toast.error(getErrorMessage(error, "Failed to download template."));
         }
     };
 

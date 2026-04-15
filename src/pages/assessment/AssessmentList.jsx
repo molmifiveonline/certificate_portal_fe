@@ -15,6 +15,7 @@ import DataTable from "../../components/ui/DataTable";
 
 import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useAuth } from "../../context/AuthContext";
 
 const AssessmentList = () => {
@@ -44,7 +45,7 @@ const AssessmentList = () => {
             setTotalPages(Math.ceil((response.total || 0) / limit));
         } catch (error) {
             console.error(error);
-            toast.error("Failed to load assessments.");
+            toast.error(getErrorMessage(error, "Failed to load assessments."));
         } finally {
             setLoading(false);
         }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import {
@@ -60,7 +61,7 @@ const SystemManualList = () => {
             }
         } catch (error) {
             console.error("Error fetching system manuals:", error);
-            toast.error("Failed to load system manuals.");
+            toast.error(getErrorMessage(error, "Failed to load system manuals."));
             setManuals([]);
         } finally {
             setLoading(false);
@@ -90,7 +91,7 @@ const SystemManualList = () => {
             toast.success("System manual deleted successfully.");
             fetchManuals();
         } catch (error) {
-            toast.error("Failed to delete system manual.");
+            toast.error(getErrorMessage(error, "Failed to delete system manual."));
         } finally {
             setDeleteModalOpen(false);
             setManualToDelete(null);

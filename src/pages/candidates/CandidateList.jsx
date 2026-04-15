@@ -13,6 +13,7 @@ import {
   UserPlus,
   Edit,
   Zap,
+  History,
   Users,
   SlidersHorizontal,
 } from "lucide-react";
@@ -27,7 +28,9 @@ import { toast } from "sonner";
 import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
 import { useAuth } from "../../context/AuthContext";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import CandidateImportPreviewModal from "../../components/candidates/CandidateImportPreviewModal";
+import CandidateSyncHistoryModal from "../../components/candidates/CandidateSyncHistoryModal";
 
 const CandidateList = ({ registrationType }) => {
   const navigate = useNavigate();
@@ -48,6 +51,7 @@ const CandidateList = ({ registrationType }) => {
 
   // Two-Step Sync States
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showSyncHistoryModal, setShowSyncHistoryModal] = useState(false);
 
   // Filter States
   const [showFilters, setShowFilters] = useState(false);
@@ -91,7 +95,7 @@ const CandidateList = ({ registrationType }) => {
       setTotalCount(result.total);
     } catch (error) {
       console.error("Error fetching candidates:", error);
-      toast.error("Failed to load candidates");
+      toast.error(getErrorMessage(error, "Failed to load candidates"));
     } finally {
       setLoading(false);
     }
@@ -154,7 +158,7 @@ const CandidateList = ({ registrationType }) => {
       toast.success("Candidates exported successfully");
     } catch (error) {
       console.error("Export error:", error);
-      toast.error("Failed to export candidates");
+      toast.error(getErrorMessage(error, "Failed to export candidates"));
     } finally {
       setIsExporting(false);
     }
@@ -277,15 +281,27 @@ const CandidateList = ({ registrationType }) => {
         actions={
           <div className="flex flex-wrap gap-3">
             {registrationType === "MOLMI Employee" && (
-              <Button
-                variant="outline"
-                onClick={handleSyncFromApi}
-                className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
-                style={{ borderColor: "rgb(49 46 129 / 90%)" }}
-              >
-                <Zap className="w-4 h-4 text-amber-500" />
-                Sync API
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowSyncHistoryModal(true)}
+                  className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                  style={{ borderColor: "rgb(99 102 241 / 35%)" }}
+                >
+                  <History className="w-4 h-4 text-indigo-500" />
+                  Synced History
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={handleSyncFromApi}
+                  className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                  style={{ borderColor: "rgb(49 46 129 / 90%)" }}
+                >
+                  <Zap className="w-4 h-4 text-amber-500" />
+                  Sync API
+                </Button>
+              </>
             )}
 
             {hasPermission("create_candidate") && (
@@ -486,10 +502,13 @@ const CandidateList = ({ registrationType }) => {
         onClose={() => setShowPreviewModal(false)}
         onImportSuccess={fetchCandidates}
       />
+
+      <CandidateSyncHistoryModal
+        isOpen={showSyncHistoryModal}
+        onClose={() => setShowSyncHistoryModal(false)}
+      />
     </div>
   );
 };
 
 export default CandidateList;
-
-

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Form, Formik, Field } from "formik";
 import * as Yup from "yup";
 import { Save, X, FileText, Link as LinkIcon, Upload } from "lucide-react";
@@ -103,6 +104,7 @@ const SystemManualForm = ({
             await onSubmit(values);
         } catch (error) {
             console.error("Form submission error:", error);
+            toast.error(getErrorMessage(error, "Failed to save manual"));
         } finally {
             setSubmitting(false);
         }

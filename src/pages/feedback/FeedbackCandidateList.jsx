@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Link, useParams, useLocation } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import { Search, Eye, Send } from "lucide-react";
@@ -58,7 +59,7 @@ const FeedbackCandidateList = () => {
             }
         } catch (err) {
             console.error(err);
-            toast.error("Failed to fetch candidate submissions.");
+            toast.error(getErrorMessage(err, "Failed to fetch candidate submissions."));
         } finally {
             setLoading(false);
         }

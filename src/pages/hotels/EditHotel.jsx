@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Building } from 'lucide-react';
@@ -28,7 +29,7 @@ const EditHotel = () => {
                 }
             } catch (error) {
                 console.error('Error fetching hotel:', error);
-                toast.error('Failed to load hotel details.');
+                toast.error(getErrorMessage(error, 'Failed to load hotel details.'));
                 navigate('/hotel-details');
             } finally {
                 setLoading(false);
@@ -59,7 +60,7 @@ const EditHotel = () => {
             navigate('/hotel-details');
         } catch (error) {
             console.error('Error updating hotel:', error);
-            toast.error(error.response?.data?.message || 'Failed to update hotel.');
+            toast.error(getErrorMessage(error, 'Failed to update hotel.'));
         } finally {
             setIsSubmitting(false);
         }

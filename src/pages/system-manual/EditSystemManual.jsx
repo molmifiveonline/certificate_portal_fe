@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
 import { FileText } from 'lucide-react';
@@ -26,7 +27,7 @@ const EditSystemManual = () => {
                 }
             } catch (error) {
                 console.error('Error fetching system manual:', error);
-                toast.error('Failed to load system manual.');
+                toast.error(getErrorMessage(error, 'Failed to load system manual.'));
                 navigate('/system-manual');
             } finally {
                 setIsLoading(false);
@@ -56,7 +57,7 @@ const EditSystemManual = () => {
             navigate('/system-manual');
         } catch (error) {
             console.error('Error updating system manual:', error);
-            toast.error(error.response?.data?.message || 'Failed to update system manual.');
+            toast.error(getErrorMessage(error, 'Failed to update system manual.'));
         } finally {
             setIsSubmitting(false);
         }

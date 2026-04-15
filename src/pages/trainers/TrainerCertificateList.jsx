@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Search, Award } from "lucide-react";
@@ -41,7 +42,7 @@ const TrainerCertificateList = () => {
             setTotalCount(total);
         } catch (error) {
             console.error("Error fetching certificates:", error);
-            toast.error("Failed to load certificates.");
+            toast.error(getErrorMessage(error, "Failed to load certificates."));
             setCertificates([]);
         } finally {
             setLoading(false);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Calendar, Clock, Eye, Search, Book } from "lucide-react";
 import Meta from "../../components/common/Meta";
@@ -24,7 +25,7 @@ const CandidateCourseList = () => {
         setCourses(response.data.data || []);
       } catch (error) {
         console.error("Error fetching courses:", error);
-        toast.error("Failed to load courses");
+        toast.error(getErrorMessage(error, "Failed to load courses"));
       } finally {
         setLoading(false);
       }

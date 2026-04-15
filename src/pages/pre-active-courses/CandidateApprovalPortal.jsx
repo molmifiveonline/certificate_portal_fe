@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import { useParams } from 'react-router-dom';
 import { toast, Toaster } from 'sonner';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
@@ -23,7 +24,7 @@ const CandidateApprovalPortal = () => {
                 const data = await preActiveCourseService.getCourseByToken(token);
                 setCourseContext(data);
             } catch (err) {
-                setError(err.response?.data?.message || 'Invalid or expired token.');
+                setError(getErrorMessage(err, 'Invalid or expired token.'));
             } finally {
                 setLoading(false);
             }
@@ -49,7 +50,7 @@ const CandidateApprovalPortal = () => {
             setStatus(selectedStatus);
             toast.success(`Nomination ${selectedStatus.toLowerCase()} successfully.`);
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to submit response.');
+            toast.error(getErrorMessage(err, 'Failed to submit response.'));
         } finally {
             setSubmitting(false);
         }

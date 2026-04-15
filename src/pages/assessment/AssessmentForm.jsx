@@ -5,6 +5,7 @@ import { Save, Check, RefreshCcw } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useAuth } from "../../context/AuthContext";
 import { ASSESSMENT_TYPES, QUESTION_COUNTS, QUESTION_CHOICES } from "../../lib/constants";
 import { Button } from "../../components/ui/Button";
@@ -77,6 +78,7 @@ const AssessmentForm = () => {
     const [loadingCourses, setLoadingCourses] = useState(false);
     const [loadingCandidates, setLoadingCandidates] = useState(false);
     const [loadingQuestions, setLoadingQuestions] = useState(false);
+    const [autoSelectionDisabled, setAutoSelectionDisabled] = useState(false);
 
 
     const loadCourses = useCallback(async (typeOfTest, assessmentId = null) => {
@@ -112,14 +114,18 @@ const AssessmentForm = () => {
     const loadQuestions = useCallback(async (courseId, typeOfTest) => {
         if (!courseId) {
             setQuestions([]);
-            return;
+            return [];
         }
         setLoadingQuestions(true);
         try {
             const response = await assessmentService.getQuestionsByCourse(courseId, typeOfTest);
-            setQuestions(response.data || []);
+            const loadedQuestions = response.data || [];
+            setQuestions(loadedQuestions);
+            return loadedQuestions;
         } catch (error) {
             console.error("Failed to load questions:", error);
+            setQuestions([]);
+            return [];
         } finally {
             setLoadingQuestions(false);
         }
@@ -153,7 +159,15 @@ const AssessmentForm = () => {
                     await loadCourses(data.type_of_test, id);
                     if (data.course_id) {
                         await loadCandidates(data.course_id);
-                        await loadQuestions(data.course_id, data.type_of_test);
+                        const loadedQuestions = await loadQuestions(data.course_id, data.type_of_test);
+                        const hasQuestions = loadedQuestions.length > 0;
+                        setAutoSelectionDisabled(!hasQuestions);
+                        if (!hasQuestions && (data.questions_choice || "auto") === "auto") {
+                            setFormData((prev) => ({
+                                ...prev,
+                                questions_choice: "manual",
+                            }));
+                        }
                     }
 
 
@@ -166,7 +180,7 @@ const AssessmentForm = () => {
                         setSelectedQuestions(data.question_ids.split(",").filter(Boolean));
                     }
                 } catch (error) {
-                    toast.error("Failed to load assessment data.");
+                    toast.error(getErrorMessage(error, "Failed to load assessment data."));
                     navigate(backUrl);
                 }
             };
@@ -174,22 +188,35 @@ const AssessmentForm = () => {
         }
     }, [id, isEdit, backUrl, loadCandidates, loadCourses, loadQuestions, navigate]);
 
-    const handleTypeOfTestChange = (value) => {
+    const handleTypeOfTestChange = async (value) => {
         setFormData((prev) => ({
             ...prev,
             type_of_test: value,
-            course_id: "",
-            candidate_ids: "",
             question_ids: "",
         }));
-        setSelectedCandidates([]);
         setSelectedQuestions([]);
-        setCandidates([]);
-        setQuestions([]);
         loadCourses(value, isEdit ? id : null);
+
+        if (formData.course_id) {
+            const loadedQuestions = await loadQuestions(formData.course_id, value);
+            const hasQuestions = loadedQuestions.length > 0;
+
+            setAutoSelectionDisabled(!hasQuestions);
+            setFormData((prev) => ({
+                ...prev,
+                questions_choice: hasQuestions ? "auto" : "manual",
+            }));
+
+            if (!hasQuestions) {
+                toast.warning("No questions are available for this course and test type. Please use manual selection.");
+            }
+        } else {
+            setQuestions([]);
+            setAutoSelectionDisabled(false);
+        }
     };
 
-    const handleCourseChange = (courseId) => {
+    const handleCourseChange = async (courseId) => {
         setFormData((prev) => ({
             ...prev,
             course_id: courseId,
@@ -200,10 +227,22 @@ const AssessmentForm = () => {
         setSelectedQuestions([]);
         if (courseId) {
             loadCandidates(courseId);
-            loadQuestions(courseId, formData.type_of_test);
+            const loadedQuestions = await loadQuestions(courseId, formData.type_of_test);
+            const hasQuestions = loadedQuestions.length > 0;
+
+            setAutoSelectionDisabled(!hasQuestions);
+            setFormData((prev) => ({
+                ...prev,
+                questions_choice: hasQuestions ? "auto" : "manual",
+            }));
+
+            if (!hasQuestions) {
+                toast.warning("No questions are available for this course and test type. Please use manual selection.");
+            }
         } else {
             setCandidates([]);
             setQuestions([]);
+            setAutoSelectionDisabled(false);
         }
     };
 
@@ -270,7 +309,7 @@ const AssessmentForm = () => {
             toast.success(isEdit ? "Assessment updated successfully." : "Assessment created successfully.");
             navigate(backUrl);
         } catch (error) {
-            toast.error(isEdit ? "Failed to update assessment." : "Failed to create assessment.");
+            toast.error(getErrorMessage(error, isEdit ? "Failed to update assessment." : "Failed to create assessment."));
         } finally {
             setLoading(false);
         }
@@ -386,8 +425,17 @@ const AssessmentForm = () => {
                                 {QUESTION_CHOICES.map((opt) => (
                                     <div
                                         key={opt.value}
-                                        onClick={() => setFormData({ ...formData, questions_choice: opt.value })}
-                                        className={`cursor-pointer rounded-xl border-2 p-4 transition-all flex items-center gap-3 ${formData.questions_choice === opt.value
+                                        onClick={() => {
+                                            if (opt.value === "auto" && autoSelectionDisabled) {
+                                                toast.warning("Auto selection is unavailable because no matching questions were found for this course.");
+                                                return;
+                                            }
+                                            setFormData({ ...formData, questions_choice: opt.value });
+                                        }}
+                                        className={`rounded-xl border-2 p-4 transition-all flex items-center gap-3 ${opt.value === "auto" && autoSelectionDisabled
+                                            ? 'cursor-not-allowed opacity-60 border-slate-200 bg-slate-100'
+                                            : 'cursor-pointer'
+                                            } ${formData.questions_choice === opt.value
                                             ? 'border-indigo-600 bg-indigo-50/50'
                                             : 'border-slate-100 bg-slate-50/50 hover:border-indigo-200'
                                             }`}
@@ -401,7 +449,11 @@ const AssessmentForm = () => {
                                                 {opt.label}
                                             </span>
                                             <span className="text-xs text-slate-500">
-                                                {opt.value === 'auto' ? 'System randomly selects questions' : 'Manually pick specific questions'}
+                                                {opt.value === 'auto'
+                                                    ? autoSelectionDisabled
+                                                        ? 'Unavailable because no matching questions were found'
+                                                        : 'System randomly selects questions'
+                                                    : 'Manually pick specific questions'}
                                             </span>
                                         </div>
                                     </div>

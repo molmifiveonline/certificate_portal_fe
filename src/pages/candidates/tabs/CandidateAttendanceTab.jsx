@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../../lib/utils/errorUtils';
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { CheckCircle2, XCircle, Clock } from "lucide-react";
@@ -16,7 +17,7 @@ const CandidateAttendanceTab = ({ courseId }) => {
                 setAttendance(response.data);
             } catch (error) {
                 console.error("Error fetching attendance:", error);
-                toast.error("Failed to load attendance record");
+                toast.error(getErrorMessage(error, "Failed to load attendance record"));
             } finally {
                 setLoading(false);
             }

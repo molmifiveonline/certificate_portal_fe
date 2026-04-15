@@ -12,8 +12,15 @@ const getDashboardByRole = (role) => {
     return '/dashboard';
 };
 
-const PrivateRoute = ({ children, allowedRoles, noLayout = false }) => {
-    const { user, loading } = useAuth();
+const PrivateRoute = ({
+    children,
+    allowedRoles,
+    noLayout = false,
+    requiredPermission,
+    requiredAnyPermissions,
+    allowRestrictedAdminWithoutPermissions = false,
+}) => {
+    const { user, loading, hasPermission, hasAnyPermission, isRestrictedAdmin } = useAuth();
     const location = useLocation();
 
     if (loading) {
@@ -33,6 +40,18 @@ const PrivateRoute = ({ children, allowedRoles, noLayout = false }) => {
     if (allowedRoles && !allowedRoles.some(role => role.toLowerCase() === user.role.toLowerCase())) {
         const userDashboard = getDashboardByRole(user.role);
         return <Navigate to={userDashboard} replace />;
+    }
+
+    if (isRestrictedAdmin) {
+        const hasRoutePermission = requiredPermission
+            ? hasPermission(requiredPermission)
+            : Array.isArray(requiredAnyPermissions) && requiredAnyPermissions.length > 0
+                ? hasAnyPermission(requiredAnyPermissions)
+                : allowRestrictedAdminWithoutPermissions;
+
+        if (!hasRoutePermission) {
+            return <Navigate to="/dashboard" replace />;
+        }
     }
 
     if (noLayout) {

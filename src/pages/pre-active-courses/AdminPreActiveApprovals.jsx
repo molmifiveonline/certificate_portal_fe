@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Check, X, ShieldAlert, Loader2, Users } from "lucide-react";
@@ -44,7 +45,7 @@ const AdminPreActiveApprovals = () => {
             const data = await preActiveCourseService.getPendingAdminApprovals(id);
             setApprovals(data || []);
         } catch (error) {
-            toast.error("Failed to load approvals.");
+            toast.error(getErrorMessage(error, "Failed to load approvals"));
         } finally {
             setLoading(false);
         }
@@ -74,7 +75,7 @@ const AdminPreActiveApprovals = () => {
             setActionModal({ isOpen: false, data: null, status: '' });
             fetchApprovals();
         } catch (error) {
-            toast.error(`Failed to ${actionModal.status.toLowerCase()} candidate.`);
+            toast.error(getErrorMessage(error, `Failed to ${actionModal.status.toLowerCase()} candidate`));
         }
     };
 

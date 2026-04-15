@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../../lib/utils/errorUtils';
 import Meta from "../../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Shield, Save, RefreshCcw } from 'lucide-react';
@@ -28,7 +29,7 @@ const AdminRolesForm = () => {
                 }
             } catch (error) {
                 console.error("Error fetching admin role:", error);
-                toast.error("Failed to fetch admin role details");
+                toast.error(getErrorMessage(error, "Failed to fetch admin role details"));
                 navigate('/admin/admin-roles');
             } finally {
                 setIsLoading(false);
@@ -50,7 +51,7 @@ const AdminRolesForm = () => {
             navigate('/admin/admin-roles');
         } catch (error) {
             console.error('Error saving admin role:', error);
-            toast.error(error.response?.data?.message || 'Failed to save admin role');
+            toast.error(getErrorMessage(error, 'Failed to save admin role'));
         } finally {
             setIsSubmitting(false);
         }

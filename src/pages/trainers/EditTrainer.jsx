@@ -8,6 +8,7 @@ import { Users, Save } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import { getCommonFieldValidation } from '../../lib/utils/validation';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 
 const FormContext = createContext();
 
@@ -156,7 +157,7 @@ const EditTrainer = () => {
                 }
             } catch (error) {
                 console.error("Error fetching trainer:", error);
-                toast.error("Failed to load trainer data.");
+                toast.error(getErrorMessage(error, "Failed to load trainer data."));
                 navigate('/trainers');
             } finally {
                 setLoading(false);
@@ -210,7 +211,7 @@ const EditTrainer = () => {
             navigate('/trainers');
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || 'Failed to update trainer.');
+            toast.error(getErrorMessage(error, 'Failed to update trainer.'));
         } finally {
             setIsSubmitting(false);
         }

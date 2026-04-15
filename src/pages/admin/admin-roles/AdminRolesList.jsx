@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import Meta from "../../../components/common/Meta";
 import { Search, Plus, Edit, Trash2, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -49,7 +50,7 @@ const AdminRolesList = () => {
       }
     } catch (error) {
       console.error("Error fetching admin roles:", error);
-      toast.error("Failed to load admin roles.");
+      toast.error(getErrorMessage(error, "Failed to load admin roles."));
       setRoles([]);
     } finally {
       setLoading(false);
@@ -79,7 +80,7 @@ const AdminRolesList = () => {
       toast.success("Admin role deleted successfully.");
       fetchRoles();
     } catch (error) {
-      toast.error("Failed to delete admin role.");
+      toast.error(getErrorMessage(error, "Failed to delete admin role."));
     } finally {
       setDeleteModalOpen(false);
       setRoleToDelete(null);

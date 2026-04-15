@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Edit, Loader2, ReceiptText } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -34,7 +35,7 @@ const ReimbursementDetails = () => {
         setReimbursement(response?.data || response);
       } catch (error) {
         console.error("Failed to load reimbursement details:", error);
-        toast.error("Failed to load reimbursement details");
+        toast.error(getErrorMessage(error, "Failed to load reimbursement details"));
       } finally {
         setLoading(false);
       }

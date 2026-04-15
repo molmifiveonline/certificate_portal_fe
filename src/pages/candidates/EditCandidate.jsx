@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { useNavigate, useParams } from 'react-router-dom';
@@ -52,7 +53,7 @@ const EditCandidate = () => {
                 setCandidateData(mappedData);
             } catch (error) {
                 console.error("Error fetching candidate:", error);
-                toast.error("Failed to load candidate data");
+                toast.error(getErrorMessage(error, "Failed to load candidate data"));
                 navigate('/candidates/molmi');
             } finally {
                 setLoading(false);
@@ -104,7 +105,7 @@ const EditCandidate = () => {
             navigate(payload.registration_type === 'Others' ? '/candidates/others' : '/candidates/molmi');
         } catch (error) {
             console.error("Update Candidate Error:", error);
-            toast.error(error.response?.data?.message || "Failed to update candidate.");
+            toast.error(getErrorMessage(error, "Failed to update candidate."));
         } finally {
             setIsSubmitting(false);
         }

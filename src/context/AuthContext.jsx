@@ -57,8 +57,17 @@ export const AuthProvider = ({ children }) => {
         return (user.permissions || []).includes(permissionSlug);
     };
 
+    const hasAnyPermission = (permissionSlugs = []) => {
+        if (!permissionSlugs || permissionSlugs.length === 0) return false;
+        return permissionSlugs.some((permissionSlug) => hasPermission(permissionSlug));
+    };
+
+    const isRestrictedAdmin =
+        (user?.role || '').toLowerCase() === 'admin' &&
+        Array.isArray(user?.adminRolePermissions);
+
     return (
-        <AuthContext.Provider value={{ user, token: user?.token, login, logout, loading, hasPermission }}>
+        <AuthContext.Provider value={{ user, token: user?.token, login, logout, loading, hasPermission, hasAnyPermission, isRestrictedAdmin }}>
             {!loading && children}
         </AuthContext.Provider>
     );

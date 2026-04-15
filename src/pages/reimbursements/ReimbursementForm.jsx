@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Loader2, Save, Send, Wallet } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -50,7 +51,7 @@ const ReimbursementForm = () => {
         setActiveCourses(response.data?.data || []);
       } catch (error) {
         console.error("Failed to load active courses:", error);
-        toast.error("Failed to load active courses");
+        toast.error(getErrorMessage(error, "Failed to load active courses"));
       }
     };
 
@@ -71,7 +72,7 @@ const ReimbursementForm = () => {
         setAttachments(reimbursement?.attachments || []);
       } catch (error) {
         console.error("Failed to load reimbursement:", error);
-        toast.error("Failed to load reimbursement");
+        toast.error(getErrorMessage(error, "Failed to load reimbursement"));
       } finally {
         setLoading(false);
       }
@@ -162,9 +163,7 @@ const ReimbursementForm = () => {
       );
     } catch (error) {
       console.error("Failed to save reimbursement:", error);
-      toast.error(
-        error?.response?.data?.message || "Failed to save reimbursement",
-      );
+      toast.error(getErrorMessage(error, "Failed to save reimbursement"));
     } finally {
       setSaving(false);
     }

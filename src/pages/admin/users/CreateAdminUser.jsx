@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import Meta from "../../../components/common/Meta";
 import PageHeader from '../../../components/common/PageHeader';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +19,7 @@ const CreateAdminUser = () => {
             navigate('/admin/users');
         } catch (error) {
             console.error('Error creating admin user:', error);
-            toast.error(error.response?.data?.message || 'Failed to create admin user');
+            toast.error(getErrorMessage(error, 'Failed to create admin user'));
         } finally {
             setIsSubmitting(false);
         }

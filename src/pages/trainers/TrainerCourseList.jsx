@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useNavigate } from "react-router-dom";
 import { Search, Edit, BookOpen, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -57,7 +58,7 @@ const TrainerCourseList = () => {
       setTotalPages(result?.totalPages || Math.ceil(total / limit) || 1);
     } catch (error) {
       console.error("Error fetching trainer courses:", error);
-      toast.error("Failed to load your courses.");
+      toast.error(getErrorMessage(error, "Failed to load your courses."));
       setCourses([]);
     } finally {
       setLoading(false);

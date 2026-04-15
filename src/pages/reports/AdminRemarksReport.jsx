@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Search, Printer, Download, FileText, Calendar, Filter, User, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
@@ -84,7 +85,7 @@ const AdminRemarksReport = () => {
             setReports(data || []);
             setCurrentPage(1);
         } catch (error) {
-            toast.error("Failed to fetch admin remarks report");
+            toast.error(getErrorMessage(error, "Failed to fetch admin remarks report"));
         } finally {
             setLoading(false);
         }

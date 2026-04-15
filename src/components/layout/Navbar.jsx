@@ -8,19 +8,20 @@ import notificationService from "../../services/notificationService";
 
 const Navbar = () => {
   const { toggleSidebar } = useLayout();
-  const { user, logout } = useAuth();
+  const { user, logout, isRestrictedAdmin } = useAuth();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
 
   const role = user?.role?.toLowerCase();
   const isAdminUser = role === "admin" || role === "superadmin";
+  const canViewNotifications = isAdminUser && !isRestrictedAdmin;
 
   useEffect(() => {
     let ignore = false;
 
     const loadNotificationCount = async () => {
-      if (!isAdminUser) {
+      if (!canViewNotifications) {
         setNotificationCount(0);
         return;
       }
@@ -42,7 +43,7 @@ const Navbar = () => {
     return () => {
       ignore = true;
     };
-  }, [isAdminUser]);
+  }, [canViewNotifications]);
 
   const getInitials = () => {
     const firstInitial = user?.first_name?.[0] || user?.name?.[0] || "U";
@@ -84,7 +85,7 @@ const Navbar = () => {
 
         {/* Right Side Icons */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {isAdminUser && (
+          {canViewNotifications && (
             <button
               type="button"
               onClick={() => navigate("/admin/notifications")}

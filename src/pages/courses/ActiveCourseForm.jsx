@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
@@ -165,7 +166,7 @@ const ActiveCourseForm = () => {
         setTrainers(getArrayData(trRes));
       } catch (error) {
         console.error("Error fetching dependencies:", error);
-        toast.error("Failed to load form dependencies");
+        toast.error(getErrorMessage(error, "Failed to load form dependencies"));
       }
     };
     fetchDependencies();
@@ -208,7 +209,7 @@ const ActiveCourseForm = () => {
           setEnrolledCandidates(candidates);
         } catch (error) {
           console.error("Error fetching data:", error);
-          toast.error("Failed to load course data");
+          toast.error(getErrorMessage(error, "Failed to load course data"));
           navigate(backRoute);
         } finally {
           setIsLoading(false);
@@ -242,7 +243,7 @@ const ActiveCourseForm = () => {
       setSelectedCandidates([]);
       setIsCandidateModalOpen(true);
     } catch (error) {
-      toast.error("Failed to load candidates");
+      toast.error(getErrorMessage(error, "Failed to load candidates"));
     }
   };
 
@@ -290,7 +291,7 @@ const ActiveCourseForm = () => {
       }
     } catch (error) {
       console.error("Error saving course:", error);
-      toast.error(error.response?.data?.message || "Failed to save course");
+      toast.error(getErrorMessage(error, "Failed to save course"));
     } finally {
       setIsSubmitting(false);
     }
@@ -308,7 +309,7 @@ const ActiveCourseForm = () => {
       const updated = await activeCourseService.getEnrolledCandidates(id);
       setEnrolledCandidates(updated);
     } catch (error) {
-      toast.error("Failed to enroll candidates");
+      toast.error(getErrorMessage(error, "Failed to enroll candidates"));
     }
   };
 
@@ -329,7 +330,7 @@ const ActiveCourseForm = () => {
       toast.success("Candidate removed");
       setDeleteModal({ isOpen: false, candidateId: null, remark: "" });
     } catch (error) {
-      toast.error("Failed to remove candidate");
+      toast.error(getErrorMessage(error, "Failed to remove candidate"));
     }
   };
 
@@ -343,7 +344,7 @@ const ActiveCourseForm = () => {
       );
       toast.success("Status pool updated");
     } catch (error) {
-      toast.error("Failed to update status pool");
+      toast.error(getErrorMessage(error, "Failed to update status pool"));
     }
   };
 
@@ -366,7 +367,7 @@ const ActiveCourseForm = () => {
       setValue("status", updated.status);
       setActionModal({ isOpen: false, type: null, reason: "" });
     } catch (error) {
-      toast.error(`Failed to ${actionModal.type} course`);
+      toast.error(getErrorMessage(error, `Failed to ${actionModal.type} course`));
     }
   };
 
@@ -381,7 +382,7 @@ const ActiveCourseForm = () => {
       await activeCourseService.emailPrimaryTrainer(id);
       toast.success("Emails sent to Trainers");
     } catch (error) {
-      toast.error("Failed to send email");
+      toast.error(getErrorMessage(error, "Failed to send email"));
     }
   };
 
@@ -394,7 +395,7 @@ const ActiveCourseForm = () => {
       const updated = await activeCourseService.getEnrolledCandidates(id);
       setEnrolledCandidates(updated);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to send email");
+      toast.error(getErrorMessage(error, "Failed to send email"));
     }
   };
 
@@ -406,7 +407,7 @@ const ActiveCourseForm = () => {
       const updated = await activeCourseService.getEnrolledCandidates(id);
       setEnrolledCandidates(updated);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to send email");
+      toast.error(getErrorMessage(error, "Failed to send email"));
     }
   };
 
@@ -415,7 +416,7 @@ const ActiveCourseForm = () => {
       const data = await activeCourseService.getCandidateVenue(id, candidateId);
       setVenueModal({ isOpen: true, candidateId, data: data || {} });
     } catch (error) {
-      toast.error("Failed to load venue details");
+      toast.error(getErrorMessage(error, "Failed to load venue details"));
     }
   };
 
@@ -432,7 +433,7 @@ const ActiveCourseForm = () => {
       toast.success("Venue details updated");
       setVenueModal({ isOpen: false, candidateId: null, data: null });
     } catch (error) {
-      toast.error("Failed to update venue");
+      toast.error(getErrorMessage(error, "Failed to update venue"));
     }
   };
 

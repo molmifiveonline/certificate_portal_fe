@@ -9,6 +9,7 @@ import Meta from "../../components/common/Meta";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import questionBankService from "../../services/questionBankService";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Save, BookOpen, RefreshCcw } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../../components/common/PageHeader";
@@ -173,7 +174,7 @@ const QuestionBankForm = () => {
         setMasterCourses(response.data.data || []);
       } catch (error) {
         console.error("Error fetching master courses:", error);
-        toast.error("Failed to load master courses.");
+        toast.error(getErrorMessage(error, "Failed to load master courses."));
       }
     };
     fetchMasterCourses();
@@ -209,7 +210,7 @@ const QuestionBankForm = () => {
           });
         } catch (error) {
           console.error("Error fetching question:", error);
-          toast.error("Failed to load question details.");
+          toast.error(getErrorMessage(error, "Failed to load question details."));
         }
       };
       fetchQuestion();
@@ -331,7 +332,7 @@ const QuestionBankForm = () => {
       navigate("/assessment/question-bank");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to save question.");
+      toast.error(getErrorMessage(error, "Failed to save question."));
     } finally {
       setIsSubmitting(false);
     }

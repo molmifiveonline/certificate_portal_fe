@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Search, FileDown, Plus, Edit, LayoutDashboard } from "lucide-react";
@@ -53,7 +54,7 @@ const ActiveCourseList = () => {
       setTotalCount(result.total || 0);
     } catch (error) {
       console.error("Error fetching active courses:", error);
-      toast.error("Failed to load active courses.");
+      toast.error(getErrorMessage(error, "Failed to load active courses."));
       setCourses([]);
     } finally {
       setLoading(false);
@@ -118,7 +119,7 @@ const ActiveCourseList = () => {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      toast.error("Failed to export data.");
+      toast.error(getErrorMessage(error, "Failed to export data."));
     }
   };
 

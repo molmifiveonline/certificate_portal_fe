@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { Shield, Users, User, ArrowRight } from "lucide-react";
@@ -70,10 +71,7 @@ const Login = () => {
       else navigate("/dashboard/candidate");
     } catch (err) {
       console.error(err);
-      toast.error(
-        err.response?.data?.message ||
-          "Login failed. Please check your credentials.",
-      );
+      toast.error(getErrorMessage(err, "Login failed. Please check your credentials."));
     } finally {
       setIsSubmitting(false);
     }

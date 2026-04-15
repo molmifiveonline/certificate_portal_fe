@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/Button";
@@ -23,7 +24,7 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
                 const result = await feedbackCategoryService.getAll({ limit: 1000 });
                 setCategories(result.data);
             } catch (error) {
-                toast.error("Failed to load categories");
+                toast.error(getErrorMessage(error, "Failed to load categories"));
             }
         };
         if (isOpen) {
@@ -90,9 +91,7 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
             onClose();
         } catch (error) {
             console.error("Error saving feedback question:", error);
-            toast.error(
-                error.response?.data?.message || "Failed to save feedback question"
-            );
+            toast.error(getErrorMessage(error, "Failed to save feedback question"));
         } finally {
             setLoading(false);
         }
