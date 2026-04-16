@@ -44,7 +44,7 @@ const SelectField = ({
   </div>
 );
 
-const InputField = ({ label, name, error, required, ...props }) => (
+const InputField = ({ label, name, error, required, className = "", ...props }) => (
   <div className="space-y-1">
     <label className="text-sm font-medium text-slate-700 block text-left">
       {label} {required && <span className="text-red-500">*</span>}
@@ -52,7 +52,7 @@ const InputField = ({ label, name, error, required, ...props }) => (
     <Input
       name={name}
       error={error}
-      className={error ? "border-red-500" : "border-slate-200"}
+      className={`${error ? "border-red-500" : "border-slate-200"} ${className}`.trim()}
       placeholder={props.placeholder || (props.type === "date" ? "DD-MM-YYYY" : "")}
       {...props}
     />
@@ -99,6 +99,9 @@ const PreActiveCourseForm = () => {
       fetchCourseDetails();
     }
   }, [id, isEditMode]);
+
+  const getSelectedMasterCourse = (masterCourseId) =>
+    masterCourses.find((course) => String(course.id) === String(masterCourseId));
 
   const fetchDependancies = async () => {
     try {
@@ -163,14 +166,16 @@ const PreActiveCourseForm = () => {
 
   const handleMasterCourseChange = (e) => {
     const mcId = e.target.value;
-    const selected = masterCourses.find((c) => c.id === mcId);
+    const selected = getSelectedMasterCourse(mcId);
 
     setFormData((prev) => ({
       ...prev,
       topic: mcId,
-      course_name: selected ? selected.master_course_name : prev.course_name,
+      course_name: selected?.master_course_name || "",
+      description: selected?.description || "",
+      remarks: selected?.remarks || "",
     }));
-    
+
     // Clear errors for both topic and course_name
     setErrors((prev) => {
       const newErrors = { ...prev };
@@ -299,10 +304,11 @@ const PreActiveCourseForm = () => {
                         label="Master Course Name"
                         name="course_name"
                         value={formData.course_name}
-                        onChange={handleChange}
+                        readOnly
                         placeholder="Course Name"
                         error={errors.course_name}
                         required
+                        className="bg-slate-100 cursor-not-allowed"
                       />
                     </div>
 
