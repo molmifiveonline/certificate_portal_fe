@@ -32,8 +32,8 @@ const Register = () => {
                 employee_id: data.employeeId,
                 manager: data.manager,
                 other_manager: null, // Default or add field if needed
-                rank: data.rank,
-                other_rank: null,
+                rank: data.rank === "Others" ? data.otherRank : data.rank,
+                other_rank: data.rank === "Others" ? data.otherRank : null,
                 whatsapp_number: data.whatsapp,
                 alternate_mobile: data.alternateNumber,
                 indos_number: data.indosNo,
@@ -95,7 +95,14 @@ const Register = () => {
                 </div>
 
                 <div className="p-8 md:p-12 bg-white/40 backdrop-blur-md">
-                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" showPassword={false} defaultValues={{ employeeType: "Others" }} />
+                    <CandidateForm
+                        onSubmit={onSubmit}
+                        isSubmitting={isSubmitting}
+                        submitLabel="Register Now"
+                        showPassword={false}
+                        defaultValues={{ employeeType: "Others" }}
+                        useLegacyRegistrationRank={true}
+                    />
                 </div>
             </div>
         </div>

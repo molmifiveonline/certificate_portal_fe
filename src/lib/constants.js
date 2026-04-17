@@ -424,6 +424,13 @@ export const RANK_OPTIONS = [
   { value: "Chief Officer", label: "Chief Officer" },
 ];
 
+export const RANK_LAST_SERVED_OPTIONS = [
+  { value: "Captain", label: "Captain" },
+  { value: "First Officer", label: "First Officer" },
+  { value: "Second Officer", label: "Second Officer" },
+  { value: "Others", label: "Others (please specify)" },
+];
+
 export const ASSESSMENT_TYPES = [
   { value: "3", label: "Daily" },
   { value: "1", label: "Pre Course" },

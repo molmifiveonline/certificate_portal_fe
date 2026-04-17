@@ -1,20 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2, Save } from "lucide-react";
 import { PasswordInput } from "../../components/ui/PasswordInput";
-import locationService from "../../services/locationService";
 import { getCommonFieldValidation } from "../../lib/utils/validation";
-
-const getLocationRows = (response) => {
-  if (Array.isArray(response?.data?.data?.data)) return response.data.data.data;
-  if (Array.isArray(response?.data?.data)) return response.data.data;
-  if (Array.isArray(response?.data)) return response.data;
-  if (Array.isArray(response)) return response;
-  return [];
-};
-
-const getLocationOptionValue = (location) =>
-  location?.location_name || location?.name || "";
 
 const NominatorForm = ({
   initialData,
@@ -24,8 +12,6 @@ const NominatorForm = ({
   submitLabel,
 }) => {
   const isEditMode = Boolean(initialData?.id);
-  const [locations, setLocations] = useState([]);
-  const [loadingLocations, setLoadingLocations] = useState(true);
 
   const defaultValues = useMemo(
     () => ({
@@ -34,9 +20,7 @@ const NominatorForm = ({
       email: initialData?.email || "",
       mobile: initialData?.mobile || "",
       password: "",
-      gender: initialData?.gender || "",
-      status:
-        initialData?.status === 0 || initialData?.status === "0" ? 0 : 1,
+      status: initialData?.status === 0 || initialData?.status === "0" ? 0 : 1,
       location:
         initialData?.location ||
         initialData?.location_name ||
@@ -50,71 +34,14 @@ const NominatorForm = ({
     register,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm({
     defaultValues,
   });
 
-  const selectedLocation = watch("location");
-
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
-
-  useEffect(() => {
-    let ignore = false;
-
-    const loadLocations = async () => {
-      setLoadingLocations(true);
-      try {
-        const response = await locationService.getLocations({ limit: 200 });
-        if (!ignore) {
-          setLocations(getLocationRows(response));
-        }
-      } catch (_error) {
-        if (!ignore) {
-          setLocations([]);
-        }
-      } finally {
-        if (!ignore) {
-          setLoadingLocations(false);
-        }
-      }
-    };
-
-    loadLocations();
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!defaultValues.location) return;
-    setValue("location", defaultValues.location, {
-      shouldDirty: false,
-      shouldTouch: false,
-      shouldValidate: false,
-    });
-  }, [defaultValues.location, locations, setValue]);
-
-  const locationOptions = useMemo(() => {
-    const baseOptions = [...locations];
-    const hasSelectedLocation = baseOptions.some(
-      (location) => getLocationOptionValue(location) === defaultValues.location,
-    );
-
-    if (!hasSelectedLocation && defaultValues.location) {
-      baseOptions.unshift({
-        id: `saved-${defaultValues.location}`,
-        location_name: defaultValues.location,
-      });
-    }
-
-    return baseOptions;
-  }, [defaultValues.location, locations]);
 
   const emailValidation = getCommonFieldValidation({
     label: "Email",
@@ -213,8 +140,7 @@ const NominatorForm = ({
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700 ml-1">
-              Password{" "}
-              {!isEditMode && <span className="text-red-500">*</span>}
+              Password {!isEditMode && <span className="text-red-500">*</span>}
             </label>
             <PasswordInput
               {...register("password", {
@@ -242,50 +168,16 @@ const NominatorForm = ({
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700 ml-1">
-              Gender <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register("gender", {
-                required: "Gender is required",
-              })}
-              className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.gender ? "border-red-500" : "border-slate-200"} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Others">Others</option>
-            </select>
-            {errors.gender && (
-              <span className="text-xs text-red-500 ml-1">
-                {errors.gender.message}
-              </span>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700 ml-1">
               Location <span className="text-red-500">*</span>
             </label>
-            <select
+            <input
+              type="text"
               {...register("location", {
                 required: "Location is required",
               })}
-              value={selectedLocation || ""}
               className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors.location ? "border-red-500" : "border-slate-200"} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
-              disabled={loadingLocations}
-            >
-              <option value="">
-                {loadingLocations ? "Loading locations..." : "Select Location"}
-              </option>
-              {locationOptions.map((location) => (
-                <option
-                  key={location.id}
-                  value={getLocationOptionValue(location)}
-                >
-                  {location.location_name}
-                </option>
-              ))}
-            </select>
+              placeholder="Location"
+            />
             {errors.location && (
               <span className="text-xs text-red-500 ml-1">
                 {errors.location.message}

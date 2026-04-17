@@ -18,6 +18,7 @@ import {
   PREFIX_OPTIONS,
   GENDER_OPTIONS,
   TRAINER_NATIONALITY_OPTIONS,
+  RANK_LAST_SERVED_OPTIONS,
 } from "../../lib/constants";
 import { getCommonFieldValidation } from "../../lib/utils/validation";
 
@@ -44,7 +45,7 @@ const InputField = ({
   onChange: customOnChange,
   ...props
 }) => {
-  const { register, errors, trigger } = useContext(FormContext);
+  const { register, errors } = useContext(FormContext);
   const validation = getCommonFieldValidation({
     label,
     name,
@@ -79,7 +80,14 @@ const InputField = ({
   );
 };
 
-const SelectField = ({ label, name, required, options, className }) => {
+const SelectField = ({
+  label,
+  name,
+  required,
+  options,
+  className,
+  placeholder = "Select...",
+}) => {
   const { register, errors } = useContext(FormContext);
   return (
     <div className={`space-y-1 ${className}`}>
@@ -93,7 +101,7 @@ const SelectField = ({ label, name, required, options, className }) => {
           })}
           className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? "border-red-500" : "border-slate-200"} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm cursor-pointer`}
         >
-          <option value="">Select...</option>
+          <option value="">{placeholder}</option>
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -116,6 +124,7 @@ const CandidateForm = ({
   showPassword = true,
   isAdmin = false,
   onCancel,
+  useLegacyRegistrationRank = false,
 }) => {
   // Pre-process defaultValues for Manager "Others" case
   const formattedDefaultValues = { status: false, ...defaultValues };
@@ -125,6 +134,17 @@ const CandidateForm = ({
   ) {
     formattedDefaultValues.otherManager = formattedDefaultValues.manager;
     formattedDefaultValues.manager = "Others";
+  }
+  if (
+    useLegacyRegistrationRank &&
+    formattedDefaultValues.rank &&
+    !RANK_LAST_SERVED_OPTIONS.some(
+      (option) => option.value === formattedDefaultValues.rank,
+    )
+  ) {
+    formattedDefaultValues.otherRank =
+      formattedDefaultValues.otherRank || formattedDefaultValues.rank;
+    formattedDefaultValues.rank = "Others";
   }
 
   const {
@@ -142,6 +162,7 @@ const CandidateForm = ({
   const profileImage = watch("profileImage");
   const employeeType = watch("employeeType");
   const selectedManager = watch("manager");
+  const selectedRank = watch("rank");
 
   // If parent handles submission state, use it, otherwise local (though for now we assume parent handles it)
   const isSubmitting = parentIsSubmitting;
@@ -152,6 +173,11 @@ const CandidateForm = ({
       data.manager = data.otherManager;
     }
     delete data.otherManager; // Clean up aux field
+
+    if (!useLegacyRegistrationRank || data.rank !== "Others") {
+      delete data.otherRank;
+    }
+
     onSubmit(data);
   };
 
@@ -263,11 +289,31 @@ const CandidateForm = ({
                 <SectionHeader title="Professional Info" icon={FileText} />
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <InputField
-                      label="Rank On Vessel"
-                      name="rank"
-                      required
-                    />
+                    {useLegacyRegistrationRank ? (
+                      <>
+                        <SelectField
+                          label="Rank Last Served on Vessel"
+                          name="rank"
+                          required
+                          options={RANK_LAST_SERVED_OPTIONS}
+                          placeholder="Select Rank"
+                        />
+                        {selectedRank === "Others" && (
+                          <InputField
+                            label="Specify Rank"
+                            name="otherRank"
+                            required
+                            placeholder="Please specify"
+                          />
+                        )}
+                      </>
+                    ) : (
+                      <InputField
+                        label="Rank On Vessel"
+                        name="rank"
+                        required
+                      />
+                    )}
                     <SelectField
                       label="Manager"
                       name="manager"

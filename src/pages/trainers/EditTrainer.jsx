@@ -9,6 +9,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import { getCommonFieldValidation } from '../../lib/utils/validation';
 import { getErrorMessage } from '../../lib/utils/errorUtils';
+import { 
+    TRAINER_NATIONALITY_OPTIONS, 
+    PREFIX_OPTIONS 
+} from "../../lib/constants";
 
 const FormContext = createContext();
 
@@ -76,7 +80,9 @@ const SelectField = ({ label, name, options, required }) => {
             >
                 <option value="">Select {label}</option>
                 {options.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                    <option key={opt.value || opt} value={opt.value || opt}>
+                        {opt.label || opt}
+                    </option>
                 ))}
             </select>
             {errors[name] && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
@@ -105,28 +111,6 @@ const EditTrainer = () => {
         }
     };
 
-    const nationalities = [
-        "Afghani", "Albanian", "Algerian", "American", "Andorran", "Angolan", "Antiguans", "Argentinean", "Armenian", "Australian",
-        "Austrian", "Azerbaijani", "Bahamian", "Bahraini", "Bangladeshi", "Barbadian", "Barbudans", "Batswana", "Belarusian", "Belgian",
-        "Belizean", "Beninese", "Bhutanese", "Bolivian", "Bosnian", "Brazilian", "British", "Bruneian", "Bulgarian", "Burkinabe",
-        "Burmese", "Burundian", "Cambodian", "Cameroonian", "Canadian", "Cape Verdean", "Central African", "Chadian", "Chilean", "Chinese",
-        "Colombian", "Comoran", "Congolese", "Costa Rican", "Croatian", "Cuban", "Cypriot", "Czech", "Danish", "Djibouti",
-        "Dominican", "Dutch", "East Timorese", "Ecuadorean", "Egyptian", "Emirian", "Equatorial Guinean", "Eritrean", "Estonian", "Ethiopian",
-        "Fijian", "Filipino", "Finnish", "French", "Gabonese", "Gambian", "Georgian", "German", "Ghanaian", "Greek",
-        "Grenadian", "Guatemalan", "Guinea-Bissauan", "Guinean", "Guyanese", "Haitian", "Herzegovinian", "Honduran", "Hungarian", "Icelander",
-        "Indian", "Indonesian", "Iranian", "Iraqi", "Irish", "Israeli", "Italian", "Ivorian", "Jamaican", "Japanese",
-        "Jordanian", "Kazakhstani", "Kenyan", "Kittian and Nevisian", "Kuwaiti", "Kyrgyz", "Laotian", "Latvian", "Lebanese", "Liberian",
-        "Libyan", "Liechtensteiner", "Lithuanian", "Luxembourger", "Macedonian", "Malagasy", "Malawian", "Malaysian", "Maldivian", "Malian",
-        "Maltese", "Marshallese", "Mauritanian", "Mauritian", "Mexican", "Micronesian", "Moldovan", "Monacan", "Mongolian", "Moroccan",
-        "Mosotho", "Motswana", "Mozambican", "Namibian", "Nauruan", "Nepalese", "New Zealander", "Ni-Vanuatu", "Nicaraguan", "Nigerian",
-        "Nigerien", "North Korean", "Northern Irish", "Norwegian", "Omani", "Pakistani", "Palauan", "Panamanian", "Papua New Guinean", "Paraguayan",
-        "Peruvian", "Polish", "Portuguese", "Qatari", "Romanian", "Russian", "Rwandan", "Saint Lucian", "Salvadoran", "Samoan",
-        "San Marinese", "Sao Tomean", "Saudi", "Scottish", "Senegalese", "Serbian", "Seychellois", "Sierra Leonean", "Singaporean", "Slovakian",
-        "Slovenian", "Solomon Islander", "Somali", "South African", "South Korean", "Spanish", "Sri Lankan", "Sudanese", "Surinamer",
-        "Swazi", "Swedish", "Swiss", "Syrian", "Taiwanese", "Tajik", "Tanzanian", "Thai", "Togolese", "Tongan",
-        "Trinidadian or Tobagonian", "Tunisian", "Turkish", "Tuvaluan", "Ugandan", "Ukrainian", "Uruguayan", "Uzbekistani", "Venezuelan", "Vietnamese",
-        "Welsh", "Yemenite", "Zambian", "Zimbabwean"
-    ];
 
     useEffect(() => {
         const fetchTrainer = async () => {
@@ -254,7 +238,7 @@ const EditTrainer = () => {
                                 <div className="space-y-6">
                                     <div className="grid grid-cols-12 gap-6">
                                         <div className="col-span-3">
-                                            <SelectField label="Prefix" name="prefix" options={["Mr", "Mrs", "Ms", "Dr", "Capt"]} required />
+                                            <SelectField label="Prefix" name="prefix" options={PREFIX_OPTIONS} required />
                                         </div>
                                         <div className="col-span-9">
                                             <InputField label="Trainer Name" name="trainer_name" required placeholder="Full Name" />
@@ -264,7 +248,7 @@ const EditTrainer = () => {
                                     <InputField label="Email Address" name="email" type="text" required />
 
                                     <div className="grid grid-cols-2 gap-6">
-                                        <SelectField label="Nationality" name="nationality" options={nationalities} required />
+                                        <SelectField label="Nationality" name="nationality" options={TRAINER_NATIONALITY_OPTIONS} required />
                                         <div className="space-y-1">
                                             <label className="text-sm font-medium text-gray-700 block text-xs">
                                                 New Password (leave empty to keep current)
