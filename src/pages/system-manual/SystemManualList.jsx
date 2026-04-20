@@ -19,10 +19,12 @@ import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { systemManualService } from "../../services/systemManualService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const SystemManualList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [manuals, setManuals] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -172,20 +174,24 @@ const SystemManualList = () => {
                             <ExternalLink className="w-4 h-4" />
                         )}
                     </button>
-                    <button
-                        onClick={() => navigate(`/system-manual/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit Manual"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete Manual"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission("manage_system_manuals") && (
+                        <>
+                            <button
+                                onClick={() => navigate(`/system-manual/edit/${row.id}`)}
+                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                                title="Edit Manual"
+                            >
+                                <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={() => handleDelete(row.id)}
+                                className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                                title="Delete Manual"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </>
+                    )}
                 </div>
             ),
         }
@@ -199,13 +205,15 @@ const SystemManualList = () => {
                 subtitle="Manage system documents, forms and policy files."
                 icon={FileText}
                 actions={
-                    <Button
-                        onClick={() => navigate('/system-manual/create')}
-                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Manual
-                    </Button>
+                    hasPermission("manage_system_manuals") ? (
+                        <Button
+                            onClick={() => navigate('/system-manual/create')}
+                            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Manual
+                        </Button>
+                    ) : null
                 }
             />
 

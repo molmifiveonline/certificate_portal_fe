@@ -12,8 +12,10 @@ import feedbackFormService from "../../services/feedbackFormService";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
+import { useAuth } from "../../context/AuthContext";
 
 const FeedbackFormList = () => {
+    const { hasPermission } = useAuth();
     const navigate = useNavigate();
     const [forms, setForms] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -114,20 +116,24 @@ const FeedbackFormList = () => {
             label: "Actions",
             render: (_val, row) => (
                 <div className="flex items-center gap-2">
-                    <Link
-                        to={`/feedback/forms/edit/${row.id}`}
-                        className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </Link>
-                    <button
-                        onClick={() => handleDeleteClick(row)}
-                        className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission("manage_active_course_feedback") && (
+                        <>
+                            <Link
+                                to={`/feedback/forms/edit/${row.id}`}
+                                className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
+                                title="Edit"
+                            >
+                                <Edit className="w-4 h-4" />
+                            </Link>
+                            <button
+                                onClick={() => handleDeleteClick(row)}
+                                className="p-1.5 rounded-full text-red-600 hover:bg-red-50 transition-all"
+                                title="Delete"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </>
+                    )}
                 </div>
             ),
         },
@@ -150,13 +156,15 @@ const FeedbackFormList = () => {
                         Manage feedback forms and questions
                     </p>
                 </div>
-                <Button
-                    onClick={() => navigate("/feedback/forms/create")}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95 h-auto text-white"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add New Form
-                </Button>
+                {hasPermission("manage_active_course_feedback") && (
+                    <Button
+                        onClick={() => navigate("/feedback/forms/create")}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95 h-auto text-white"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add New Form
+                    </Button>
+                )}
             </div>
 
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">

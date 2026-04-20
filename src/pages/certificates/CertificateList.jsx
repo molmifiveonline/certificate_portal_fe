@@ -16,8 +16,10 @@ import { Button } from "../../components/ui/Button";
 import { formatDate } from "../../lib/utils/dateUtils";
 import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const CertificateList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -185,13 +187,15 @@ const CertificateList = () => {
                     >
                         <Printer className="w-4 h-4" />
                     </button>
-                    <button
-                        onClick={() => navigate(`/certificates/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
+                    {hasPermission("manage_active_course_certificates") && (
+                        <button
+                            onClick={() => navigate(`/certificates/edit/${row.id}`)}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                            title="Edit"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
                     {/* <button
                         onClick={() => handleDelete(row.id)}
                         className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
@@ -219,13 +223,15 @@ const CertificateList = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Manage and view all generated certificates</p>
                 </div>
-                <Button
-                    onClick={() => navigate("/certificates/create")}
-                    className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                >
-                    <Award className="w-4 h-4" />
-                    Add Certificate
-                </Button>
+                {hasPermission("manage_active_course_certificates") && (
+                    <Button
+                        onClick={() => navigate("/certificates/create")}
+                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                    >
+                        <Award className="w-4 h-4" />
+                        Add Certificate
+                    </Button>
+                )}
             </div>
 
             {/* Filter Bar */}
@@ -256,13 +262,15 @@ const CertificateList = () => {
 
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} certificate{totalCount !== 1 ? 's' : ''}</span>
-                        <Button
-                            onClick={handleExport}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                            <FileDown className="w-4 h-4" />
-                            Export Certificate Excel
-                        </Button>
+                        {hasPermission("manage_active_course_certificates") && (
+                            <Button
+                                onClick={handleExport}
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                                <FileDown className="w-4 h-4" />
+                                Export Certificate Excel
+                            </Button>
+                        )}
                     </div>
                 </CardContent>
             </Card>

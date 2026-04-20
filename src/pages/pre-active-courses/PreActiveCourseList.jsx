@@ -33,6 +33,7 @@ const PreActiveCourseList = () => {
     const [convertModalOpen, setConvertModalOpen] = useState(false);
     const [courseToConvert, setCourseToConvert] = useState(null);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     const { hasPermission, isRestrictedAdmin } = useAuth();
     const canCreateCourse = !isRestrictedAdmin && hasPermission("create_pre_active_course");
@@ -84,12 +85,15 @@ const PreActiveCourseList = () => {
 
     const handleConfirmDelete = async () => {
         try {
+            setIsActionLoading(true);
             await preActiveCourseService.delete(courseToDelete.id);
             toast.success("Pre-Active course deleted successfully");
             setDeleteModalOpen(false);
             fetchCourses();
         } catch (error) {
             toast.error(getErrorMessage(error, "Failed to delete course"));
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
@@ -101,6 +105,7 @@ const PreActiveCourseList = () => {
 
     const handleConfirmNotify = async () => {
         try {
+            setIsActionLoading(true);
             if (notifyType === 'nominator') {
                 const res = await preActiveCourseService.notifyNominators(courseToNotify.id);
                 toast.success(res.message || "Emails sent to nominators");
@@ -111,6 +116,8 @@ const PreActiveCourseList = () => {
             setNotifyModalOpen(false);
         } catch (error) {
             toast.error(getErrorMessage(error, `Failed to notify ${notifyType}s`));
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
@@ -121,12 +128,15 @@ const PreActiveCourseList = () => {
 
     const handleConfirmConvert = async () => {
         try {
+            setIsActionLoading(true);
             await preActiveCourseService.convertToActiveCourse(courseToConvert.id);
             toast.success("Converted to Active Course successfully");
             setConvertModalOpen(false);
             fetchCourses();
         } catch (error) {
             toast.error(getErrorMessage(error, "Failed to convert course"));
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
@@ -378,6 +388,7 @@ const PreActiveCourseList = () => {
                 message={`Are you sure you want to delete the course "${courseToDelete?.course_name}"? This action cannot be undone.`}
                 confirmText="Delete"
                 variant="danger"
+                isLoading={isActionLoading}
             />
 
             <ConfirmationModal
@@ -388,6 +399,7 @@ const PreActiveCourseList = () => {
                 message={`Are you sure you want to send email notifications to all ${notifyType === 'nominator' ? 'nominators' : 'pending candidates'} for "${courseToNotify?.course_name}"?`}
                 confirmText="Send Emails"
                 variant="primary"
+                isLoading={isActionLoading}
             />
 
             <ConfirmationModal
@@ -398,6 +410,7 @@ const PreActiveCourseList = () => {
                 message={`Are you sure you want to convert "${courseToConvert?.course_name}" to an Active Course? This action cannot be reversed.`}
                 confirmText="Convert"
                 variant="primary"
+                isLoading={isActionLoading}
             />
 
             <CourseImportPreviewModal

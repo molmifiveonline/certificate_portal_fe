@@ -15,12 +15,14 @@ import { Button } from "../../components/ui/Button";
 import { formatDate } from "../../lib/utils/dateUtils";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
+import { useAuth } from "../../context/AuthContext";
 
 import api from "../../lib/api";
 import { toast } from "sonner";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 
 const MasterCourseList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -176,13 +178,15 @@ const MasterCourseList = () => {
             align: "right",
             render: (_val, row) => (
                 <div className="flex items-center justify-end gap-2">
-                    <button
-                        onClick={() => navigate(`/courses/edit/${row.id}`)}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Edit"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
+                    {hasPermission("edit_master_course") && (
+                        <button
+                            onClick={() => navigate(`/courses/edit/${row.id}`)}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                            title="Edit"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             ),
         },
@@ -198,13 +202,15 @@ const MasterCourseList = () => {
                 subtitle="Manage and view all master courses"
                 icon={GraduationCap}
                 actions={
-                    <Button
-                        onClick={() => navigate('/courses/add')}
-                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Master Course
-                    </Button>
+                    hasPermission("create_master_course") ? (
+                        <Button
+                            onClick={() => navigate('/courses/add')}
+                            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Master Course
+                        </Button>
+                    ) : null
                 }
             />
 
@@ -223,13 +229,15 @@ const MasterCourseList = () => {
                     </div>
                     <div className="flex gap-3 w-full md:w-auto items-center">
                         <span className="text-xs text-slate-400">{totalCount} course{totalCount !== 1 ? 's' : ''}</span>
-                        <Button
-                            onClick={handleExport}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                            <FileDown className="w-4 h-4" />
-                            Export Course Excel
-                        </Button>
+                        {hasPermission("export_master_courses") && (
+                            <Button
+                                onClick={handleExport}
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                                <FileDown className="w-4 h-4" />
+                                Export Course Excel
+                            </Button>
+                        )}
                     </div>
                 </CardContent>
             </Card>

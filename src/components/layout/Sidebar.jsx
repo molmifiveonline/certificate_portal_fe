@@ -317,30 +317,36 @@ const Sidebar = () => {
                               : "-translate-y-4 opacity-0 scale-95",
                           )}
                         >
-                          {item.subItems.map((subItem) => {
-                            const nestedUrls = item.subItems.map((i) => i.url);
-                            const isSubActive = isLinkActive(
-                              subItem.url,
-                              nestedUrls,
-                            );
-                            return (
-                              <Link
-                                key={subItem.title}
-                                to={subItem.url}
-                                onClick={() => {
-                                  if (window.innerWidth < 768) setIsOpen(false);
-                                }}
-                                className={cn(
-                                  "flex items-center py-2 px-3 rounded-md text-sm transition-all duration-300 ease-out",
-                                  isSubActive
-                                    ? "text-[#3a5f9e] bg-blue-100 font-bold shadow-sm ring-1 ring-blue-200 scale-[1.02]"
-                                    : "text-slate-500 hover:text-[#3a5f9e] hover:bg-[#3a5f9e]/5 hover:translate-x-2 hover:shadow-sm",
-                                )}
-                              >
-                                {subItem.title}
-                              </Link>
-                            );
-                          })}
+                          {item.subItems
+                             .filter((subItem) => {
+                               if (!isRestrictedAdmin) return true;
+                               if (!subItem.permissionSlug) return true;
+                               return hasAnyPermission([subItem.permissionSlug]);
+                             })
+                             .map((subItem) => {
+                               const nestedUrls = item.subItems.map((i) => i.url);
+                               const isSubActive = isLinkActive(
+                                 subItem.url,
+                                 nestedUrls,
+                               );
+                               return (
+                                 <Link
+                                   key={subItem.title}
+                                   to={subItem.url}
+                                   onClick={() => {
+                                     if (window.innerWidth < 768) setIsOpen(false);
+                                   }}
+                                   className={cn(
+                                     "flex items-center py-2 px-3 rounded-md text-sm transition-all duration-300 ease-out",
+                                     isSubActive
+                                       ? "text-[#3a5f9e] bg-blue-100 font-bold shadow-sm ring-1 ring-blue-200 scale-[1.02]"
+                                       : "text-slate-500 hover:text-[#3a5f9e] hover:bg-[#3a5f9e]/5 hover:translate-x-2 hover:shadow-sm",
+                                   )}
+                                 >
+                                   {subItem.title}
+                                 </Link>
+                               );
+                             })}
                         </div>
                       </div>
                     </div>
