@@ -39,7 +39,7 @@ const QuickLinkCard = ({ title, description, icon: Icon, gradient, onClick }) =>
 
 const RestrictedAdminDashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, hasAnyPermission } = useAuth();
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -65,27 +65,33 @@ const RestrictedAdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <QuickLinkCard
-          title="Master Courses"
-          description="Browse and manage the main course catalog."
-          icon={BookOpen}
-          gradient="from-blue-500 to-indigo-600"
-          onClick={() => navigate("/courses")}
-        />
-        <QuickLinkCard
-          title="Pre-Active Courses"
-          description="Review upcoming nominations and notify nominators."
-          icon={Clock}
-          gradient="from-amber-500 to-orange-600"
-          onClick={() => navigate("/pre-active-courses")}
-        />
-        <QuickLinkCard
-          title="Active Courses"
-          description="Open current course runs and their ongoing workflows."
-          icon={CheckCircle2}
-          gradient="from-emerald-500 to-teal-600"
-          onClick={() => navigate("/active-courses")}
-        />
+        {hasAnyPermission(["view_master_courses"]) && (
+          <QuickLinkCard
+            title="Master Courses"
+            description="Browse and manage the main course catalog."
+            icon={BookOpen}
+            gradient="from-blue-500 to-indigo-600"
+            onClick={() => navigate("/courses")}
+          />
+        )}
+        {hasAnyPermission(["view_pre_active_courses"]) && (
+          <QuickLinkCard
+            title="Pre-Active Courses"
+            description="Review upcoming nominations and notify nominators."
+            icon={Clock}
+            gradient="from-amber-500 to-orange-600"
+            onClick={() => navigate("/pre-active-courses")}
+          />
+        )}
+        {hasAnyPermission(["view_active_courses"]) && (
+          <QuickLinkCard
+            title="Active Courses"
+            description="Open current course runs and their ongoing workflows."
+            icon={CheckCircle2}
+            gradient="from-emerald-500 to-teal-600"
+            onClick={() => navigate("/active-courses")}
+          />
+        )}
       </div>
     </div>
   );

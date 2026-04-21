@@ -2,6 +2,7 @@ import React from "react";
 import { FileDown, Calendar, Filter, Users } from "lucide-react";
 import { inputStyles, selectStyles } from "./reportFormStyles";
 import { Input } from "../../../components/ui/Input";
+import { useAuth } from "../../../context/AuthContext";
 
 const FeedbackReportCard = ({
   dates,
@@ -15,6 +16,7 @@ const FeedbackReportCard = ({
   loadingBulk,
   today,
 }) => {
+  const { hasPermission } = useAuth();
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-sky-100 bg-white/85 shadow-lg shadow-slate-200/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-500 via-emerald-500 to-green-500" />
@@ -141,42 +143,46 @@ const FeedbackReportCard = ({
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <button
-            type="submit"
-            disabled={loading || loadingBulk}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-sky-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {loading ? (
-              <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <FileDown className="h-4 w-4" />
-                Export Excel
-              </>
-            )}
-          </button>
+          {hasPermission("export_reports") && (
+            <>
+              <button
+                type="submit"
+                disabled={loading || loadingBulk}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-sky-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {loading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <FileDown className="h-4 w-4" />
+                    Export Excel
+                  </>
+                )}
+              </button>
 
-          <button
-            type="button"
-            onClick={onBulkDownload}
-            disabled={loading || loadingBulk}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-red-700 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-red-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {loadingBulk ? (
-              <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Downloading...
-              </>
-            ) : (
-              <>
-                <FileDown className="h-4 w-4" />
-                Bulk Download PDFs
-              </>
-            )}
-          </button>
+              <button
+                type="button"
+                onClick={onBulkDownload}
+                disabled={loading || loadingBulk}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-red-700 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-red-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {loadingBulk ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <FileDown className="h-4 w-4" />
+                    Bulk Download PDFs
+                  </>
+                )}
+              </button>
+            </>
+          )}
         </div>
       </form>
     </div>

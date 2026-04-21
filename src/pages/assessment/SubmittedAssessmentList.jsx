@@ -10,8 +10,10 @@ import assessmentService from "../../services/assessmentService";
 import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const SubmittedAssessmentList = () => {
+  const { hasPermission } = useAuth();
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -239,14 +241,16 @@ const SubmittedAssessmentList = () => {
         subtitle="View assessment submissions by course"
         icon={ClipboardList}
         actions={
-          <Button
-            onClick={handleExport}
-            disabled={isExporting}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            <FileDown className="w-4 h-4" />
-            {isExporting ? "Exporting..." : "Export to Excel"}
-          </Button>
+          hasPermission("manage_active_course_assessment") && (
+            <Button
+              onClick={handleExport}
+              disabled={isExporting}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <FileDown className="w-4 h-4" />
+              {isExporting ? "Exporting..." : "Export to Excel"}
+            </Button>
+          )
         }
       />
       <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">

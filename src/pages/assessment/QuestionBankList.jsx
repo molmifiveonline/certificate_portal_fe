@@ -21,8 +21,10 @@ import questionBankService from "../../services/questionBankService";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
+import { useAuth } from "../../context/AuthContext";
 
 const QuestionBankList = () => {
+    const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -176,20 +178,24 @@ const QuestionBankList = () => {
             align: "center",
             render: (_val, row) => (
                 <div className="flex items-center justify-center gap-2">
-                    <Link
-                        to={`/assessment/question-bank/edit/${row.id}`}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all inline-flex"
-                        title="Edit"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </Link>
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all inline-flex"
-                        title="Delete"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {hasPermission("edit_question") && (
+                        <Link
+                            to={`/assessment/question-bank/edit/${row.id}`}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all inline-flex"
+                            title="Edit"
+                        >
+                            <Edit className="w-4 h-4" />
+                        </Link>
+                    )}
+                    {hasPermission("delete_question") && (
+                        <button
+                            onClick={() => handleDelete(row.id)}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all inline-flex"
+                            title="Delete"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             ),
         },
@@ -211,21 +217,25 @@ const QuestionBankList = () => {
                     <p className="text-slate-500 mt-1">Manage and view all questions</p>
                 </div>
                 <div className="flex gap-3">
-                    <Button
-                        variant="outline"
-                        onClick={() => { setBulkModalOpen(true); setBulkFile(null); setBulkResult(null); }}
-                        className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-xl font-semibold shadow-sm flex items-center gap-2 active:scale-95"
-                    >
-                        <Upload className="w-4 h-4" />
-                        Bulk Upload
-                    </Button>
-                    <Button
-                        onClick={() => navigate('/assessment/question-bank/add')}
-                        className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Question
-                    </Button>
+                    {hasPermission("create_question") && (
+                        <>
+                            <Button
+                                variant="outline"
+                                onClick={() => { setBulkModalOpen(true); setBulkFile(null); setBulkResult(null); }}
+                                className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-xl font-semibold shadow-sm flex items-center gap-2 active:scale-95"
+                            >
+                                <Upload className="w-4 h-4" />
+                                Bulk Upload
+                            </Button>
+                            <Button
+                                onClick={() => navigate('/assessment/question-bank/add')}
+                                className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Add Question
+                            </Button>
+                        </>
+                    )}
                 </div>
             </div>
 

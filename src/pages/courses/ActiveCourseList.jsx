@@ -9,11 +9,13 @@ import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 
 import { Button } from "../../components/ui/Button";
-import { formatDate } from "../../lib/utils/dateUtils";
 import activeCourseService from "../../services/activeCourseService";
 import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const ActiveCourseList = () => {
+  const { hasPermission } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -215,13 +217,15 @@ const ActiveCourseList = () => {
       align: "right",
       render: (_val, row) => (
         <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => navigate(`/active-courses/edit/${row.id}`)}
-            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-            title="Edit"
-          >
-            <Edit className="w-4 h-4" />
-          </button>
+          {hasPermission("edit_active_course") && (
+            <button
+              onClick={() => navigate(`/active-courses/edit/${row.id}`)}
+              className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+              title="Edit"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+          )}
         </div>
       ),
     },
@@ -236,13 +240,15 @@ const ActiveCourseList = () => {
         subtitle="Manage and track ongoing course sessions"
         icon={LayoutDashboard}
         actions={
-          <Button
-            onClick={() => navigate("/active-courses/add")}
-            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            Add Course
-          </Button>
+          hasPermission("create_active_course") ? (
+            <Button
+              onClick={() => navigate("/active-courses/add")}
+              className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              Add Course
+            </Button>
+          ) : null
         }
       />
 
@@ -304,13 +310,15 @@ const ActiveCourseList = () => {
             <span className="text-xs text-slate-400 whitespace-nowrap">
               {totalCount} course{totalCount !== 1 ? "s" : ""}
             </span>
-            <Button
-              onClick={handleExport}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70 whitespace-nowrap"
-            >
-              <FileDown className="w-4 h-4" />
-              Export Active Excel
-            </Button>
+            {hasPermission("export_active_courses") && (
+              <Button
+                onClick={handleExport}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70 whitespace-nowrap"
+              >
+                <FileDown className="w-4 h-4" />
+                Export Active Excel
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

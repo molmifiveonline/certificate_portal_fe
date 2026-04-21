@@ -5,15 +5,19 @@ import { useForm } from "react-hook-form";
 import { Shield, Users, User, ArrowRight } from "lucide-react";
 import { PasswordInput } from "../../components/ui/PasswordInput";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 
 import ForgotPasswordModal from "../../components/auth/ForgotPasswordModal";
 import Meta from "../../components/common/Meta";
 import { getCommonFieldValidation } from "../../lib/utils/validation";
 
 const Login = () => {
+  const [searchParams] = useSearchParams();
+  const VALID_TABS = ["Admin", "Trainer", "Candidate"];
+  const tabParam = searchParams.get("tab");
+  const initialRole = VALID_TABS.includes(tabParam) ? tabParam : "Candidate";
   // const [role, setRole] = useState('Candidate'); // Role is now coming from backend
-  const [selectedRole, setSelectedRole] = useState("Candidate");
+  const [selectedRole, setSelectedRole] = useState(initialRole);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   // const [showPassword, setShowPassword] = useState(false); // Managed by PasswordInput
   // const [loginError, setLoginError] = useState(null); // Removed for toast
@@ -71,7 +75,9 @@ const Login = () => {
       else navigate("/dashboard/candidate");
     } catch (err) {
       console.error(err);
-      toast.error(getErrorMessage(err, "Login failed. Please check your credentials."));
+      toast.error(
+        getErrorMessage(err, "Login failed. Please check your credentials."),
+      );
     } finally {
       setIsSubmitting(false);
     }
