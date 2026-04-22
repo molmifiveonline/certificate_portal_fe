@@ -65,6 +65,7 @@ const OuthouseCourseList = () => {
         page: currentPage,
         limit,
         search: searchTerm.trim(),
+        status: statusFilter,
         from_date: fromDate,
         to_date: toDate,
         sort_by: sortBy,
@@ -305,7 +306,7 @@ const OuthouseCourseList = () => {
         emptyMessage="No outhouse courses found."
         rowClassName={(row) =>
           isOngoingCourse(row)
-            ? "border-l-4 border-l-orange-500 bg-orange-50/70 hover:bg-orange-100/70"
+            ? "border-l-4 border-l-orange-500 bg-orange-100/60 hover:bg-orange-200/40"
             : ""
         }
       />

@@ -258,11 +258,7 @@ function App() {
 
               <Route
                 path="/acknowledge"
-                element={
-                  <PrivateRoute allowedRoles={ALL_APP_ROLES}>
-                    <Acknowledge />
-                  </PrivateRoute>
-                }
+                element={<Acknowledge />}
               />
 
               <Route path="/" element={<Navigate to="/login" replace />} />
@@ -419,7 +415,7 @@ function App() {
                 element={
                   <PrivateRoute
                     allowedRoles={ADMIN_ROLES}
-                    requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
+                    requiredPermission="view_pre_active_approvals"
                   >
                     <AdminPreActiveApprovals />
                   </PrivateRoute>
@@ -966,7 +962,10 @@ function App() {
               <Route
                 path="/reports/admin-remarks"
                 element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                  <PrivateRoute
+                    allowedRoles={["SuperAdmin", "Admin", "admin"]}
+                    requiredPermission="view_admin_remarks"
+                  >
                     <AdminRemarksReport />
                   </PrivateRoute>
                 }

@@ -41,6 +41,11 @@ const preActiveCourseService = {
     return response.data;
   },
 
+  closeAndConvert: async (id) => {
+    const response = await api.post(`/pre-active/${id}/close`);
+    return response.data;
+  },
+
   getEnrolledCandidates: async (id) => {
     const response = await api.get(`/pre-active/${id}/candidates`);
     return response.data;
@@ -66,9 +71,21 @@ const preActiveCourseService = {
     return response.data;
   },
 
+  getNominatorToken: async (id) => {
+    const response = await api.get(`/pre-active/${id}/token`);
+    return response.data;
+  },
+
   // Public Endpoints
   getCourseByToken: async (token) => {
     const response = await api.get(`/pre-active/public/token/${token}`);
+    return response.data;
+  },
+
+  getAvailableOthersCandidates: async (token) => {
+    const response = await api.get(
+      `/pre-active/public/token/${token}/available-candidates`,
+    );
     return response.data;
   },
 

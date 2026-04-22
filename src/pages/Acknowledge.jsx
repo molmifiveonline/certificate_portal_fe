@@ -1,17 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import outhouseCourseService from '../services/outhouseCourseService';
 
 const Acknowledge = () => {
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
     const action = searchParams.get('action');
+    const courseType = (searchParams.get('course_type') || searchParams.get('courseType') || 'active').toLowerCase();
     const navigate = useNavigate();
 
     const [status, setStatus] = useState('loading'); // loading, success, error
     const [message, setMessage] = useState('');
     const [remark, setRemark] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const submitAcknowledgment = useCallback(async (submitAction, submitRemark = '') => {
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                token,
+                action: submitAction,
+                remark: submitRemark
+            };
+            const response = courseType === 'outhouse'
+                ? await outhouseCourseService.acknowledgeEnrollment(payload)
+                : (await api.post('/active-courses/acknowledge-enrollment', payload)).data;
+            setStatus('success');
+            setMessage(
+                response?.message ||
+                (submitAction === 'approve'
+                    ? 'I approve and I will be attending.'
+                    : 'Acknowledgment submitted successfully.')
+            );
+        } catch (error) {
+            setStatus('error');
+            setMessage(error.response?.data?.message || 'Failed to submit acknowledgment.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    }, [courseType, token]);
 
     useEffect(() => {
         if (!token || !action) {
@@ -28,25 +56,7 @@ const Acknowledge = () => {
             setStatus('error');
             setMessage('Invalid action specified.');
         }
-    }, [token, action]);
-
-    const submitAcknowledgment = async (submitAction, submitRemark = '') => {
-        setIsSubmitting(true);
-        try {
-            const response = await api.post('/active-courses/acknowledge-enrollment', {
-                token,
-                action: submitAction,
-                remark: submitRemark
-            });
-            setStatus('success');
-            setMessage(response.data.message || 'Acknowledgment submitted successfully.');
-        } catch (error) {
-            setStatus('error');
-            setMessage(error.response?.data?.message || 'Failed to submit acknowledgment.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    }, [token, action, submitAcknowledgment]);
 
     const handleRejectSubmit = (e) => {
         e.preventDefault();
@@ -71,6 +81,9 @@ const Acknowledge = () => {
                             <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                         </div>
                         <h2 className="text-2xl font-bold text-green-600 mb-2">Success!</h2>
+                        {action === 'approve' && (
+                            <p className="text-slate-700 font-medium mb-2">I approve and I will be attending.</p>
+                        )}
                         <p className="text-slate-600">{message}</p>
                     </div>
                 )}
