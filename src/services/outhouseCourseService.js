@@ -128,6 +128,24 @@ const outhouseCourseService = {
     return response.data;
   },
 
+  downloadFeedback: async (id, candidateId) => {
+    const response = await api.get(
+      `/outhouse-courses/${id}/feedback/${candidateId}/download`,
+      {
+        responseType: "blob",
+      },
+    );
+    return response.data;
+  },
+
+  acknowledgeEnrollment: async (data) => {
+    const response = await api.post(
+      "/outhouse-courses/acknowledge-enrollment",
+      data,
+    );
+    return response.data;
+  },
+
   getCertificates: async (id) => {
     const response = await api.get(`/outhouse-courses/${id}/certificates`);
     return response.data;

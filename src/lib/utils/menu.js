@@ -13,6 +13,9 @@ import {
   Shield,
   History,
   MessageSquare,
+  Book,
+  Award,
+  Receipt,
 } from "lucide-react";
 
 export const MenuItems = [
@@ -52,8 +55,16 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_candidates",
     subItems: [
-      { title: "MOLMI Candidates", url: "/candidates/molmi", permissionSlug: "view_candidates" },
-      { title: "Other Candidates", url: "/candidates/others", permissionSlug: "view_candidates" },
+      {
+        title: "MOLMI Candidates",
+        url: "/candidates/molmi",
+        permissionSlug: "view_candidates",
+      },
+      {
+        title: "Other Candidates",
+        url: "/candidates/others",
+        permissionSlug: "view_candidates",
+      },
     ],
   },
   {
@@ -76,10 +87,26 @@ export const MenuItems = [
       "view_outhouse_courses",
     ],
     subItems: [
-      { title: "Master Courses", url: "/courses", permissionSlug: "view_master_courses" },
-      { title: "Pre-Active Courses", url: "/pre-active-courses", permissionSlug: "view_pre_active_courses" },
-      { title: "Active Courses", url: "/active-courses", permissionSlug: "view_active_courses" },
-      { title: "Outhouse Courses", url: "/outhouse-courses", permissionSlug: "view_outhouse_courses" },
+      {
+        title: "Master Courses",
+        url: "/courses",
+        permissionSlug: "view_master_courses",
+      },
+      {
+        title: "Pre-Active Courses",
+        url: "/pre-active-courses",
+        permissionSlug: "view_pre_active_courses",
+      },
+      {
+        title: "Active Courses",
+        url: "/active-courses",
+        permissionSlug: "view_active_courses",
+      },
+      {
+        title: "Outhouse Courses",
+        url: "/outhouse-courses",
+        permissionSlug: "view_outhouse_courses",
+      },
     ],
   },
 
@@ -105,9 +132,21 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_questions",
     subItems: [
-      { title: "Question Bank", url: "/assessment/question-bank", permissionSlug: "view_questions" },
-      { title: "Assessments", url: "/assessment/assessments", permissionSlug: "view_questions" },
-      { title: "Submitted Assessments", url: "/assessment/submitted", permissionSlug: "view_questions" },
+      {
+        title: "Question Bank",
+        url: "/assessment/question-bank",
+        permissionSlug: "view_questions",
+      },
+      {
+        title: "Assessments",
+        url: "/assessment/assessments",
+        permissionSlug: "view_questions",
+      },
+      {
+        title: "Submitted Assessments",
+        url: "/assessment/submitted",
+        permissionSlug: "view_questions",
+      },
     ],
   },
 
@@ -118,10 +157,28 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_feedback",
     subItems: [
-      { title: "Feedback Category", url: "/feedback", permissionSlug: "view_feedback" },
-      { title: "Feedback Question", url: "/feedback/forms", permissionSlug: "view_feedback" },
-      { title: "Submitted Feedback", url: "/feedback/submitted", permissionSlug: "view_feedback" },
+      {
+        title: "Feedback Category",
+        url: "/feedback",
+        permissionSlug: "view_feedback",
+      },
+      {
+        title: "Feedback Question",
+        url: "/feedback/forms",
+        permissionSlug: "view_feedback",
+      },
+      {
+        title: "Submitted Feedback",
+        url: "/feedback/submitted",
+        permissionSlug: "view_feedback",
+      },
     ],
+  },
+  {
+    title: "Certificates",
+    url: "/certificates",
+    icon: Award,
+    allowedRoles: ["admin", "superadmin"],
   },
   {
     title: "Reports",
@@ -131,8 +188,21 @@ export const MenuItems = [
     permissionSlug: "view_reports",
     subItems: [
       { title: "Reports", url: "/reports", permissionSlug: "view_reports" },
+      // { title: "Hotel Report", url: "/reports/hotel" },
+      {
+        title: "Admin Remarks",
+        url: "/reports/admin-remarks",
+        permissionSlug: "view_admin_remarks",
+      },
     ],
   },
+  // {
+  //   title: "Reimbursements",
+  //   url: "/admin/reimbursements",
+  //   icon: Receipt,
+  //   allowedRoles: ["admin", "superadmin"],
+  //   permissionSlug: "manage_reimbursements",
+  // },
   {
     title: "System Manual",
     icon: FileText,
@@ -154,4 +224,52 @@ export const MenuItems = [
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "manage_permissions",
   },
+  // Trainer Specific
+  // {
+  //   title: "My Courses",
+  //   url: "/my-courses",
+  //   icon: Book,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_courses",
+  // },
+  // {
+  //   title: "Assessments",
+  //   url: "/trainer-assessments",
+  //   icon: ClipboardList,
+  //   allowedRoles: ["trainer"],
+  // },
+  // {
+  //   title: "Feedback",
+  //   url: "/trainer-feedback",
+  //   icon: MessageSquare,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_feedback",
+  // },
+  // {
+  //   title: "Certificates",
+  //   url: "/trainer-certificates",
+  //   icon: Award,
+  //   allowedRoles: ["trainer"],
+  //   requiredPermission: "view_certificates",
+  // },
+
+  // Candidate Specific
+  // {
+  //   title: "My Courses",
+  //   url: "/candidate-courses",
+  //   icon: Book,
+  //   allowedRoles: ["candidate"],
+  // },
+  // {
+  //   title: "My Certificates",
+  //   url: "/candidate-certificates",
+  //   icon: Award,
+  //   allowedRoles: ["candidate"],
+  // },
+  // {
+  //   title: "Reimbursements",
+  //   url: "/reimbursements",
+  //   icon: Receipt,
+  //   allowedRoles: ["candidate"],
+  // },
 ];
