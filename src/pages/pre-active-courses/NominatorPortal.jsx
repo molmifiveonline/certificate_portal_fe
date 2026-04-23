@@ -6,18 +6,17 @@ import {
   Plus,
   Trash2,
   Send,
-  Edit2,
   X,
   Users,
-  Calendar,
-  Fingerprint,
   Mail,
   Phone,
 } from "lucide-react";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
-import { isValidEmail, sanitizeNumericValue } from "../../lib/utils/validation";
+import CandidateForm from "../../components/candidates/CandidateForm";
+import api from "../../lib/api";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
 
 const NominatorPortal = () => {
   const { token } = useParams();
@@ -35,18 +34,9 @@ const NominatorPortal = () => {
   const [poolSearch, setPoolSearch] = useState("");
   const [selectedPoolIds, setSelectedPoolIds] = useState([]);
 
-  // Manual Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [modalData, setModalData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    mobile_no: "",
-    date_of_birth: "",
-    indos_number: "",
-    registration_type: "Others",
-  });
+  // Add Candidate Full Form State
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [isAddingCandidate, setIsAddingCandidate] = useState(false);
 
   useEffect(() => {
     const fetchContext = async () => {
@@ -162,76 +152,82 @@ const NominatorPortal = () => {
     closePoolModal();
   };
 
-  const openModal = (index = null) => {
-    if (index !== null) {
-      setEditingIndex(index);
-      setModalData({ ...candidates[index] });
-    } else {
-      setEditingIndex(null);
-      setModalData({
-        first_name: "",
-        last_name: "",
-        email: "",
-        mobile_no: "",
-        date_of_birth: "",
-        indos_number: "",
-        registration_type: "Others",
-      });
-    }
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingIndex(null);
-  };
-
-  const handleModalChange = (field, value) => {
-    setModalData((prev) => ({
-      ...prev,
-      [field]: field === "mobile_no" ? sanitizeNumericValue(value) : value,
-    }));
-  };
-
-  const handleSaveCandidate = (e) => {
-    e.preventDefault();
-
-    if (!modalData.first_name || !modalData.email) {
-      toast.error("First Name and Email are required.");
-      return;
-    }
-    if (!isValidEmail(modalData.email)) {
-      toast.error("Invalid email format.");
-      return;
-    }
-
-    const newCandidates = [...candidates];
-    if (editingIndex !== null) {
-      newCandidates[editingIndex] = {
-        ...modalData,
-        registration_type: modalData.registration_type || "Others",
-      };
-      toast.success("Candidate updated in list.");
-    } else {
+  const handleAddNewCandidate = async (data) => {
+    setIsAddingCandidate(true);
+    try {
       // Check for duplicate email in current list
       if (
         candidates.some(
-          (c) => c.email.toLowerCase() === modalData.email.toLowerCase(),
+          (c) => c.email.toLowerCase() === data.email.toLowerCase(),
         )
       ) {
         toast.error("This email is already in your nomination list.");
         return;
       }
-      newCandidates.push({
-        ...modalData,
-        registration_type: modalData.registration_type || "Others",
-      });
-      toast.success("Candidate added to list.");
-    }
 
-    setCandidates(newCandidates);
-    closeModal();
+      // Build payload — same as admin register, but always inactive (status: 0)
+      const payload = {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        middle_name: data.middleName,
+        email: data.email,
+        mobile: data.whatsapp,
+        prefix: data.prefix,
+        gender: data.gender,
+        dob: data.dob,
+        nationality: data.nationality,
+        passport_no: data.passportNumber,
+        employee_id: data.employeeId,
+        manager: data.manager,
+        other_manager: null,
+        rank: data.rank,
+        other_rank: null,
+        whatsapp_number: data.whatsapp,
+        alternate_mobile: data.alternateNumber,
+        indos_number: data.indosNo,
+        registration_type: data.employeeType || "Others",
+        designation: data.designation,
+        vessel_type: data.vesselType,
+        last_vessel_name: data.lastVesselName,
+        next_vessel_name: data.nextVesselName,
+        manning_company: data.manningCompany,
+        sign_on_date: data.signOnDate || null,
+        sign_off_date: data.signOffDate || null,
+        officer: data.officer,
+        seaman_book_no: data.seamanBookNo,
+        profile_image: data.profileImage,
+        status: 0, // Always inactive — admin must approve/activate
+      };
+
+      // Register the candidate via the public register endpoint
+      await api.post("/auth/register/candidate", payload);
+
+      // Add them to the local nominations list (for enrollment)
+      setCandidates((prev) => [
+        ...prev,
+        {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email,
+          mobile_no: data.whatsapp || "",
+          date_of_birth: data.dob || "",
+          indos_number: data.indosNo || "",
+          registration_type: data.employeeType || "Others",
+        },
+      ]);
+
+      toast.success(
+        `${data.firstName} ${data.lastName} registered and added to your nomination list. Admin will activate their account.`,
+      );
+      setIsAddFormOpen(false);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to register candidate."));
+    } finally {
+      setIsAddingCandidate(false);
+    }
   };
+
+
 
   const handleRemoveCandidate = (index) => {
     const newCandidates = [...candidates];
@@ -458,7 +454,7 @@ const NominatorPortal = () => {
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => openModal()}
+                  onClick={() => setIsAddFormOpen(true)}
                   className="bg-[#3a5f9e] hover:bg-blue-700 text-white font-bold h-11 px-6 shadow-md hover:shadow-lg transition-all"
                 >
                   <Plus className="mr-2 h-5 w-5" /> Add New
@@ -556,13 +552,6 @@ const NominatorPortal = () => {
                           {!candidate.isPersisted && (
                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
-                                onClick={() => openModal(index)}
-                                className="p-2 text-[#3a5f9e] hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Edit"
-                              >
-                                <Edit2 size={16} />
-                              </button>
-                              <button
                                 onClick={() => handleRemoveCandidate(index)}
                                 className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                 title="Remove"
@@ -618,138 +607,43 @@ const NominatorPortal = () => {
         </div>
       </div>
 
-      {/* Candidate Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-b border-slate-100">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <Users size={18} className="text-[#3a5f9e]" />
-                {editingIndex !== null ? "Edit Nominee" : "Add New Nominee"}
-              </h3>
-              <button
-                onClick={closeModal}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X size={20} />
-              </button>
+      {/* Full Candidate Registration Form Overlay */}
+      {isAddFormOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="min-h-screen py-8 px-4">
+            <div className="max-w-5xl mx-auto">
+              {/* Overlay Header */}
+              <div className="bg-[#3a5f9e] rounded-t-2xl px-6 py-4 flex justify-between items-center">
+                <div>
+                  <h2 className="text-white font-bold text-lg">Register New Candidate</h2>
+                  <p className="text-blue-200 text-xs mt-0.5">
+                    Candidate will be created as <strong>Inactive</strong> — Admin must activate their account.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsAddFormOpen(false)}
+                  className="text-white/70 hover:text-white transition-colors p-1"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+              {/* Form */}
+              <div className="bg-slate-50 rounded-b-2xl p-4">
+                <CandidateForm
+                  onSubmit={handleAddNewCandidate}
+                  isSubmitting={isAddingCandidate}
+                  submitLabel="Register & Add to Nomination"
+                  showPassword={false}
+                  isAdmin={false}
+                  defaultValues={{ employeeType: "Others" }}
+                  onCancel={() => setIsAddFormOpen(false)}
+                />
+              </div>
             </div>
-            <form onSubmit={handleSaveCandidate} className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-                <div className="space-y-1.5 md:col-span-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">
-                    First Name <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    placeholder="John"
-                    value={modalData.first_name}
-                    onChange={(e) =>
-                      handleModalChange("first_name", e.target.value)
-                    }
-                    required
-                    className="h-11 rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">
-                    Last Name
-                  </label>
-                  <Input
-                    placeholder="Doe"
-                    value={modalData.last_name}
-                    onChange={(e) =>
-                      handleModalChange("last_name", e.target.value)
-                    }
-                    className="h-11 rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">
-                    Email address <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Input
-                      type="email"
-                      placeholder="nominee@example.com"
-                      value={modalData.email}
-                      onChange={(e) =>
-                        handleModalChange("email", e.target.value)
-                      }
-                      required
-                      className="h-11 rounded-xl pl-10"
-                    />
-                    <Mail
-                      size={16}
-                      className="absolute left-3.5 top-3 text-slate-300"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">
-                    Mobile number
-                  </label>
-                  <div className="relative">
-                    <Input
-                      placeholder="Enter digits only"
-                      value={modalData.mobile_no}
-                      onChange={(e) =>
-                        handleModalChange("mobile_no", e.target.value)
-                      }
-                      className="h-11 rounded-xl pl-10"
-                    />
-                    <Phone
-                      size={16}
-                      className="absolute left-3.5 top-3 text-slate-300"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5 md:col-span-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-                    <Calendar size={10} /> Date of Birth
-                  </label>
-                  <Input
-                    type="date"
-                    value={modalData.date_of_birth}
-                    onChange={(e) =>
-                      handleModalChange("date_of_birth", e.target.value)
-                    }
-                    className="h-11 rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-                    <Fingerprint size={10} /> INDos Number
-                  </label>
-                  <Input
-                    placeholder="Enter INDoS"
-                    value={modalData.indos_number}
-                    onChange={(e) =>
-                      handleModalChange("indos_number", e.target.value)
-                    }
-                    className="h-11 rounded-xl"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-3 mt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={closeModal}
-                  className="flex-1 h-12 rounded-xl text-slate-400 font-bold"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 h-12 rounded-xl bg-[#3a5f9e] hover:bg-blue-700 text-white font-bold"
-                >
-                  {editingIndex !== null ? "Update Item" : "Add to List"}
-                </Button>
-              </div>
-            </form>
           </div>
         </div>
       )}
+
 
       {/* Selection Pool Modal */}
       {isPoolModalOpen && (

@@ -34,9 +34,9 @@ const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
   }, [initialData, reset]);
 
   useEffect(() => {
-    api
-      .get("/admin-roles")
-      .then((res) => {
+    const fetchRoles = async () => {
+      try {
+        const res = await api.get("/admin-roles");
         const data = res.data?.data;
         const rows = Array.isArray(data?.data)
           ? data.data
@@ -45,13 +45,19 @@ const AdminUserForm = ({ initialData, onSubmit, isSubmitting, onCancel }) => {
             : [];
         const activeRoles = rows.filter((r) => r.status === 1);
         setAdminRoles(activeRoles);
-        // Re-apply value after options load so dropdown shows correct selection in edit mode
-        if (initialData?.admin_role_id) {
-          setValue("admin_role_id", initialData.admin_role_id);
-        }
-      })
-      .catch(() => setAdminRoles([]));
-  }, [initialData, setValue]);
+      } catch (error) {
+        console.error("Error fetching admin roles:", error);
+        setAdminRoles([]);
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  useEffect(() => {
+    if (initialData?.admin_role_id && adminRoles.length > 0) {
+      setValue("admin_role_id", initialData.admin_role_id);
+    }
+  }, [initialData, adminRoles, setValue]);
 
   const isEditMode = !!initialData?.id;
 
