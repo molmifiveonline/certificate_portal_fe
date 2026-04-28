@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
+import { formatDate } from "../../../lib/utils/dateUtils";
 
 const AttendanceRemarkModal = ({
   isOpen,
@@ -11,17 +12,6 @@ const AttendanceRemarkModal = ({
   date,
 }) => {
   const [reason, setReason] = useState("");
-
-  const formatDateDMY = (dateStr) => {
-    if (!dateStr) return "-";
-    if (dateStr.includes("-")) {
-      const parts = dateStr.split("-");
-      if (parts[0].length === 4) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      }
-    }
-    return dateStr;
-  };
 
   if (!isOpen) return null;
 
@@ -34,7 +24,7 @@ const AttendanceRemarkModal = ({
               {status === "holiday" ? "Mark Holiday" : "Mark Absent"}
             </h3>
             <p className="text-sm text-slate-500">
-              {candidateName} - {formatDateDMY(date)}
+              {candidateName} - {formatDate(date)}
             </p>
           </div>
           <button

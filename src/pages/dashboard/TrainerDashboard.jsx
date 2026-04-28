@@ -12,6 +12,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from "../../lib/utils/utils";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const StatsCard = ({ title, value, icon: Icon, gradient, loading, onClick }) => {
     return (
@@ -102,7 +103,7 @@ const TrainerDashboard = () => {
                 <div className="flex items-center gap-3 bg-white/60 backdrop-blur-xl p-2 rounded-2xl border border-white/40 shadow-sm px-4">
                     <Calendar className="text-blue-600 w-5 h-5" />
                     <span className="text-sm font-bold text-slate-700">
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        {formatDate(new Date())}
                     </span>
                 </div>
             </div>

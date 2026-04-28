@@ -106,13 +106,6 @@ const TrainerCourseList = () => {
 
   const columns = [
     {
-      key: "sr_no",
-      label: "Sr. No.",
-      render: (_value, _row, index) => (
-        <span>{(currentPage - 1) * limit + index + 1}</span>
-      ),
-    },
-    {
       key: "course_name",
       label: "Course Name",
       render: (value) => (

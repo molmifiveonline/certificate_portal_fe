@@ -85,7 +85,7 @@ const AssessmentList = () => {
         },
         {
             key: "course_name",
-            label: "Course",
+            label: "Active Course Name",
             render: (val) => val || "N/A",
         },
         {

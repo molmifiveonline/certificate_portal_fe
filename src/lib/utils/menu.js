@@ -225,13 +225,13 @@ export const MenuItems = [
     permissionSlug: "manage_permissions",
   },
   // Trainer Specific
-  // {
-  //   title: "My Courses",
-  //   url: "/my-courses",
-  //   icon: Book,
-  //   allowedRoles: ["trainer"],
-  //   requiredPermission: "view_courses",
-  // },
+  {
+    title: "My Courses",
+    url: "/my-courses",
+    icon: Book,
+    allowedRoles: ["trainer"],
+    requiredPermission: "view_courses",
+  },
   // {
   //   title: "Assessments",
   //   url: "/trainer-assessments",

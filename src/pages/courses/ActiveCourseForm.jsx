@@ -102,6 +102,7 @@ const ActiveCourseForm = () => {
   const isTrainerRole = (user?.role || "").toLowerCase() === "trainer";
   const isTrainerCourseRoute = location.pathname.startsWith("/my-courses");
   const backRoute = isTrainerCourseRoute ? "/my-courses" : "/active-courses";
+  const isTrainerCourseReadOnly = isTrainerRole && isTrainerCourseRoute;
 
   const typeOfLocation = watch("type_of_location");
   const selectedTopic = watch("topic");
@@ -256,15 +257,20 @@ const ActiveCourseForm = () => {
         if (mc) data.master_course_name = mc.master_course_name;
       }
 
-      const payload = {
-        ...data,
-        secondary_trainer_ids: Array.isArray(data.secondary_trainer_ids)
-          ? data.secondary_trainer_ids.join(",")
-          : data.secondary_trainer_ids,
-      };
+      const payload = isTrainerCourseReadOnly
+        ? {
+            description: data.description,
+            remarks: data.remarks,
+          }
+        : {
+            ...data,
+            secondary_trainer_ids: Array.isArray(data.secondary_trainer_ids)
+              ? data.secondary_trainer_ids.join(",")
+              : data.secondary_trainer_ids,
+          };
 
       // Normalize location field
-      if (payload.type_of_location === "Offline") {
+      if (!isTrainerCourseReadOnly && payload.type_of_location === "Offline") {
         if (payload.location_id === "Other") {
           payload.location = payload.other_location;
         } else {
@@ -277,7 +283,7 @@ const ActiveCourseForm = () => {
             // Check DB: existing code uses `location` column.
           }
         }
-      } else {
+      } else if (!isTrainerCourseReadOnly) {
         payload.location = payload.other_location || "";
       }
 
@@ -437,6 +443,18 @@ const ActiveCourseForm = () => {
     }
   };
 
+  const courseTabs = [
+    { id: "details", label: "Details" },
+    { id: "candidates", label: "Candidates" },
+    { id: "attendance", label: "Attendance" },
+    {
+      id: "assessment",
+      label: isTrainerCourseReadOnly ? "Submissions" : "Assessment",
+    },
+    { id: "feedbacks", label: "Feedbacks" },
+    { id: "certificates", label: "Certificates" },
+  ];
+
   if (isLoading)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -500,25 +518,18 @@ const ActiveCourseForm = () => {
           {/* Tabs */}
           {id && (
             <div className="flex border-b border-slate-200">
-              {[
-                "details",
-                "candidates",
-                "attendance",
-                "assessment",
-                "feedbacks",
-                "certificates",
-              ].map((tab) => (
+              {courseTabs.map((tab) => (
                 <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
                   className={cn(
                     "px-6 py-3 text-sm font-medium border-b-2 transition-colors capitalize",
-                    activeTab === tab
+                    activeTab === tab.id
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-slate-500 hover:text-slate-700",
                   )}
                 >
-                  {tab}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -541,7 +552,7 @@ const ActiveCourseForm = () => {
                             label="Topic"
                             name="topic"
                             required
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                             options={masterCourses.map((mc) => ({
@@ -553,7 +564,7 @@ const ActiveCourseForm = () => {
                             label="Course Name"
                             name="course_name"
                             required
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                           />
@@ -596,7 +607,7 @@ const ActiveCourseForm = () => {
                           <SelectField
                             label="Course Level"
                             name="course_level"
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                             options={[
@@ -609,7 +620,7 @@ const ActiveCourseForm = () => {
                           <SelectField
                             label="Type of Course"
                             name="course_type"
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                             options={[
@@ -638,7 +649,7 @@ const ActiveCourseForm = () => {
                             name="start_date"
                             type="date"
                             required
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             max={endDate}
                             register={register}
                             errors={errors}
@@ -648,7 +659,7 @@ const ActiveCourseForm = () => {
                             name="end_date"
                             type="date"
                             required
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             min={startDate}
                             register={register}
                             errors={errors}
@@ -659,7 +670,7 @@ const ActiveCourseForm = () => {
                             label="Start Time"
                             name="start_time"
                             type="time"
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                           />
@@ -667,7 +678,7 @@ const ActiveCourseForm = () => {
                             label="End Time"
                             name="end_time"
                             type="time"
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                           />
@@ -684,7 +695,7 @@ const ActiveCourseForm = () => {
                           <SelectField
                             label="Location Type"
                             name="type_of_location"
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                             options={[
@@ -697,9 +708,9 @@ const ActiveCourseForm = () => {
                         {/* Conditional Location Fields */}
                         {typeOfLocation === "Offline" && (
                           <SelectField
-                            label="Venue / Location"
+                            label="Location of Training"
                             name="location_id"
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                             options={[
@@ -719,7 +730,7 @@ const ActiveCourseForm = () => {
                             label="Specify Location"
                             name="other_location"
                             required
-                            disabled={isTrainerRole}
+                            disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
                             placeholder="Enter location"
@@ -732,30 +743,30 @@ const ActiveCourseForm = () => {
                               <InputField
                                 label="Zoom Link"
                                 name="zoom_link"
-                                disabled={isTrainerRole}
+                                disabled={isTrainerCourseReadOnly}
                                 register={register}
                                 errors={errors}
                               />
                               <InputField
-                                label="WhatsApp Link"
+                                label="WhatsApp Group"
                                 name="whatsapp_link"
-                                disabled={isTrainerRole}
+                                disabled={isTrainerCourseReadOnly}
                                 register={register}
                                 errors={errors}
                               />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <InputField
-                                label="Zoom Username"
+                                label="Zoom ID"
                                 name="zoom_username"
-                                disabled={isTrainerRole}
+                                disabled={isTrainerCourseReadOnly}
                                 register={register}
                                 errors={errors}
                               />
                               <InputField
                                 label="Zoom Password"
                                 name="zoom_password"
-                                disabled={isTrainerRole}
+                                disabled={isTrainerCourseReadOnly}
                                 register={register}
                                 errors={errors}
                               />
@@ -777,7 +788,7 @@ const ActiveCourseForm = () => {
                           label="Primary Trainer"
                           name="primary_trainer_id"
                           required
-                          disabled={isTrainerRole}
+                          disabled={isTrainerCourseReadOnly}
                           register={register}
                           errors={errors}
                           options={trainers.map((t) => ({
@@ -788,7 +799,7 @@ const ActiveCourseForm = () => {
 
                         <div className="space-y-1">
                           <label className="text-sm font-medium text-slate-700 block">
-                            Secondary Trainers
+                            Secondary Trainer
                           </label>
                           <Controller
                             control={control}
@@ -797,7 +808,7 @@ const ActiveCourseForm = () => {
                               <MultiSelectInput
                                 value={field.value}
                                 onChange={field.onChange}
-                                disabled={isTrainerRole}
+                                disabled={isTrainerCourseReadOnly}
                                 options={trainers.map((t) => ({
                                   value: t.id,
                                   label: `${t.first_name} ${t.last_name}`,
@@ -921,7 +932,13 @@ const ActiveCourseForm = () => {
                       ) : (
                         <Save className="w-4 h-4" />
                       )}
-                      <span>{id ? "Save Changes" : "Create Course"}</span>
+                      <span>
+                        {isTrainerCourseReadOnly
+                          ? "Save Description & Remarks"
+                          : id
+                            ? "Save Changes"
+                            : "Create Course"}
+                      </span>
                     </Button>
                   </div>
                 </div>
@@ -953,7 +970,7 @@ const ActiveCourseForm = () => {
             <AttendanceTab courseId={id} isTrainerRole={isTrainerRole} />
           )}
 
-          {/* Assessment Tab */}
+          {/* Assessment / Submissions Tab */}
           {activeTab === "assessment" && (
             <AssessmentTab courseId={id} isTrainerRole={isTrainerRole} />
           )}

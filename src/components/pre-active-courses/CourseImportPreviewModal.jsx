@@ -5,6 +5,7 @@ import DataTable from "../ui/DataTable";
 import TablePagination from "../ui/TablePagination";
 import { toast } from "sonner";
 import preActiveCourseService from "../../services/preActiveCourseService";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const CourseImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
     const [previewData, setPreviewData] = useState([]);
@@ -94,12 +95,12 @@ const CourseImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
         { 
             key: "start_date", 
             label: "Start Date",
-            render: (val) => val ? new Date(val).toLocaleDateString() : 'N/A'
+            render: (val) => val ? formatDate(val) : 'N/A'
         },
         { 
             key: "end_date", 
             label: "End Date",
-            render: (val) => val ? new Date(val).toLocaleDateString() : 'N/A'
+            render: (val) => val ? formatDate(val) : 'N/A'
         },
         { key: "days", label: "Days" },
     ];

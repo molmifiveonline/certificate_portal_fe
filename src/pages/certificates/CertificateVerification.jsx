@@ -3,15 +3,7 @@ import { useParams } from "react-router-dom";
 import Meta from "../../components/common/Meta";
 import certificateService from "../../services/certificateService";
 import { Loader2 } from "lucide-react";
-
-const formatDate = (value) => {
-  if (!value) return "-";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-
-  return date.toLocaleDateString("en-GB");
-};
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const CertificateVerification = () => {
   const { id } = useParams();

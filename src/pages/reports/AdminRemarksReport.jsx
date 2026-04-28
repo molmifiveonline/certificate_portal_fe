@@ -20,6 +20,7 @@ import { Input } from "../../components/ui/Input";
 import TablePagination from "../../components/ui/TablePagination";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const SelectField = ({
   label,
@@ -151,9 +152,7 @@ const AdminRemarksReport = () => {
         r.candidate_remark || "-",
         r.admin_approval_status,
         r.admin_remark || "-",
-        r.admin_action_date
-          ? new Date(r.admin_action_date).toLocaleDateString()
-          : "-",
+        formatDate(r.admin_action_date),
       ]);
     });
 
@@ -178,9 +177,7 @@ const AdminRemarksReport = () => {
         "Candidate Remark": r.candidate_remark || "-",
         "Admin Status": r.admin_approval_status,
         "Admin Remark": r.admin_remark || "-",
-        "Action Date": r.admin_action_date
-          ? new Date(r.admin_action_date).toLocaleDateString()
-          : "-",
+        "Action Date": formatDate(r.admin_action_date),
       })),
     );
 
@@ -413,9 +410,7 @@ const AdminRemarksReport = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2 text-slate-600 font-medium">
                           <Calendar size={14} className="text-slate-300" />
-                          {r.admin_action_date
-                            ? new Date(r.admin_action_date).toLocaleDateString()
-                            : "-"}
+                          {formatDate(r.admin_action_date)}
                         </div>
                       </td>
                     </tr>

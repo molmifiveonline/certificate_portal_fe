@@ -17,6 +17,7 @@ import { Button } from "../../components/ui/Button";
 import CandidateForm from "../../components/candidates/CandidateForm";
 import api from "../../lib/api";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const NominatorPortal = () => {
   const { token } = useParams();
@@ -392,21 +393,8 @@ const NominatorPortal = () => {
                     Duration
                   </p>
                   <p className="font-semibold text-slate-700">
-                    {new Date(
-                      courseContext?.course?.start_date,
-                    ).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}{" "}
-                    -{" "}
-                    {new Date(
-                      courseContext?.course?.end_date,
-                    ).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
+                    {formatDate(courseContext?.course?.start_date)} -{" "}
+                    {formatDate(courseContext?.course?.end_date)}
                   </p>
                 </div>
                 <div className="space-y-1">
@@ -516,7 +504,7 @@ const NominatorPortal = () => {
                                 )}
                                 {candidate.date_of_birth && (
                                   <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">
-                                    DOB: {candidate.date_of_birth}
+                                    DOB: {formatDate(candidate.date_of_birth)}
                                   </span>
                                 )}
                               </div>

@@ -7,6 +7,7 @@ import { ClipboardList, Play, CheckCircle2, History, AlertCircle } from "lucide-
 import api from '../../../lib/api';
 import { toast } from "sonner";
 import AssessmentPlayer from './AssessmentPlayer';
+import { formatDate } from '../../../lib/utils/dateUtils';
 
 const CandidateAssessmentTab = ({ courseId }) => {
     const [assessments, setAssessments] = useState([]);
@@ -101,7 +102,7 @@ const CandidateAssessmentTab = ({ courseId }) => {
                                     
                                     <div className="flex items-center text-sm text-slate-500">
                                         <History className="h-4 w-4 mr-2" />
-                                        <span>Latest Attempt: {assessment.latest_attempt_date ? new Date(assessment.latest_attempt_date).toLocaleDateString() : 'N/A'}</span>
+                                        <span>Latest Attempt: {assessment.latest_attempt_date ? formatDate(assessment.latest_attempt_date) : 'N/A'}</span>
                                     </div>
                                 </CardContent>
                                 <CardFooter className="bg-slate-50/50 border-t border-slate-100 flex gap-2">

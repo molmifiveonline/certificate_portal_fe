@@ -7,7 +7,7 @@ import { Badge } from "../../../components/ui/Badge";
 import { generateDateRange, formatDateDMY } from "./courseUtils";
 import { cn } from "../../../lib/utils/utils";
 
-const CertificateTab = ({ courseId, isTrainerRole = false }) => {
+const CertificateTab = ({ courseId }) => {
   const [candidates, setCandidates] = useState([]);
   const [dates, setDates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -127,7 +127,8 @@ const CertificateTab = ({ courseId, isTrainerRole = false }) => {
             <FileText size={20} className="text-blue-600" /> Certificates
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            <span className="font-semibold">Criteria:</span> 100% Attendance + (≥60% test OR ≥70% retest) + Feedback
+            <span className="font-semibold">Criteria:</span> 100% Attendance +
+            (≥60% test OR ≥70% retest) + Feedback
           </p>
         </div>
       </div>
@@ -135,15 +136,39 @@ const CertificateTab = ({ courseId, isTrainerRole = false }) => {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left">
             <tr>
-              <th className="px-4 py-3 font-semibold text-slate-600">Sr. No.</th>
-              <th className="px-4 py-3 font-semibold text-slate-600">Employee ID</th>
-              <th className="px-4 py-3 font-semibold text-slate-600">Candidate Name</th>
-              <th className="px-4 py-3 font-semibold text-slate-600 text-center">Assessment</th>
-              <th className="px-4 py-3 font-semibold text-slate-600 text-center">Attendance</th>
-              <th className="px-4 py-3 font-semibold text-slate-600 text-center">Feedback</th>
-              <th className="px-4 py-3 font-semibold text-slate-600 text-center">Generated</th>
-              <th className="px-4 py-3 font-semibold text-slate-600 text-center">Issue Date</th>
-              <th className="px-4 py-3 font-semibold text-slate-600 text-center">Actions</th>
+              <th className="px-4 py-3 font-semibold text-slate-600">
+                Sr. No.
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600">
+                Employee ID
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600">
+                Candidate Name
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                Post Assessment Score
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                Attendance
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                Feedback
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                Generate Certificate
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                Active
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                Generation Date
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                View Certificate
+              </th>
+              <th className="px-4 py-3 font-semibold text-slate-600 text-center">
+                Hide
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -164,7 +189,9 @@ const CertificateTab = ({ courseId, isTrainerRole = false }) => {
                     key={c.candidate_id}
                     className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
                   >
-                    <td className="px-4 py-3 text-slate-500 font-medium">{i + 1}</td>
+                    <td className="px-4 py-3 text-slate-500 font-medium">
+                      {i + 1}
+                    </td>
                     <td className="px-4 py-3 font-mono text-slate-600">
                       {c.empId || "-"}
                     </td>
@@ -175,7 +202,9 @@ const CertificateTab = ({ courseId, isTrainerRole = false }) => {
                       <span
                         className={cn(
                           "px-2 py-0.5 rounded text-xs font-bold",
-                          c.post_score >= 60 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                          c.post_score >= 60
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700",
                         )}
                       >
                         {c.post_score ?? "-"}%
@@ -185,18 +214,22 @@ const CertificateTab = ({ courseId, isTrainerRole = false }) => {
                       <span
                         className={cn(
                           "font-bold",
-                          attendanceSet >= 100 ? "text-green-600" : "text-amber-600"
+                          attendanceSet >= 100
+                            ? "text-green-600"
+                            : "text-amber-600",
                         )}
                       >
                         {attendanceSet}%
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className={cn(
                           "capitalize",
-                          hasFeedback ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-slate-50 text-slate-400 border-slate-200"
+                          hasFeedback
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                            : "bg-slate-50 text-slate-400 border-slate-200",
                         )}
                       >
                         {hasFeedback ? "Completed" : "Pending"}
@@ -208,72 +241,86 @@ const CertificateTab = ({ courseId, isTrainerRole = false }) => {
                           Generated
                         </Badge>
                       ) : (
-                        !isTrainerRole ? (
-                          <Button
-                            size="sm"
-                            variant={eligible ? "default" : "outline"}
-                            disabled={!eligible}
-                            onClick={() => handleGenerateCertificate(c.candidate_id)}
-                            className={cn(
-                              "text-xs px-3 py-1 h-auto",
-                              eligible ? "bg-indigo-600 hover:bg-indigo-700" : "text-slate-400 border-slate-200"
-                            )}
-                          >
-                            Generate
-                          </Button>
-                        ) : (
-                          <span className="text-slate-400 text-xs">Pending</span>
-                        )
+                        <Button
+                          size="sm"
+                          variant={eligible ? "default" : "outline"}
+                          disabled={!eligible}
+                          onClick={() =>
+                            handleGenerateCertificate(c.candidate_id)
+                          }
+                          className={cn(
+                            "text-xs px-3 py-1 h-auto",
+                            eligible
+                              ? "bg-indigo-600 hover:bg-indigo-700"
+                              : "text-slate-400 border-slate-200",
+                          )}
+                        >
+                          Generate
+                        </Button>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {c.certficate_generated && c.certificate_id ? (
+                        <button
+                          onClick={() =>
+                            handleToggleActive(c.candidate_id, c.active)
+                          }
+                          className={cn(
+                            "text-[10px] font-bold px-2 py-1 rounded transition-colors uppercase border",
+                            c.active
+                              ? "bg-green-50 text-green-700 border-green-200"
+                              : "bg-slate-100 text-slate-500 border-slate-200",
+                          )}
+                          title="Toggle Active Status"
+                        >
+                          {c.active ? "Active" : "Inactive"}
+                        </button>
+                      ) : (
+                        <span className="text-slate-300">-</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-center text-slate-600 text-xs font-medium">
                       {c.generated_date ? formatDateDMY(c.generated_date) : "-"}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-2">
-                        {c.certficate_generated && c.certificate_id ? (
-                          <>
-                            <button
-                              onClick={() => window.open(`/certificates/print/${c.certificate_id}`, "_blank")}
-                              className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
-                              title="View Certificate"
-                            >
-                              <FileText size={18} />
-                            </button>
-                            
-                            {!isTrainerRole && (
-                              <>
-                                <div className="flex items-center gap-2 ml-1 px-2 py-1 rounded-lg bg-slate-50 border border-slate-100">
-                                  <span className="text-[10px] uppercase font-bold text-slate-400">
-                                    {c.is_hidden ? "Hidden" : "Public"}
-                                  </span>
-                                  <button
-                                    onClick={() => handleToggleHide(c.certificate_id, c.is_hidden)}
-                                    className={`w-8 h-4 rounded-full relative transition-colors ${c.is_hidden ? "bg-rose-500" : "bg-emerald-500"}`}
-                                  >
-                                    <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${c.is_hidden ? "left-4.5" : "left-0.5"}`} />
-                                  </button>
-                                </div>
-
-                                <button
-                                  onClick={() => handleToggleActive(c.candidate_id, c.active)}
-                                  className={cn(
-                                    "text-[10px] font-bold px-2 py-1 rounded transition-colors uppercase border",
-                                    c.active 
-                                      ? "bg-green-50 text-green-700 border-green-200" 
-                                      : "bg-slate-100 text-slate-500 border-slate-200"
-                                  )}
-                                  title="Toggle Active Status"
-                                >
-                                  {c.active ? "Active" : "Inactive"}
-                                </button>
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-slate-300">-</span>
-                        )}
-                      </div>
+                    <td className="px-4 py-3 text-center">
+                      {c.certficate_generated && c.certificate_id ? (
+                        <button
+                          onClick={() =>
+                            window.open(
+                              `/certificates/print/${c.certificate_id}`,
+                              "_blank",
+                            )
+                          }
+                          className="inline-flex p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
+                          title="View Certificate"
+                        >
+                          <FileText size={18} />
+                        </button>
+                      ) : (
+                        <span className="text-slate-300">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {c.certficate_generated && c.certificate_id ? (
+                        <div className="inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-50 border border-slate-100">
+                          <span className="text-[10px] uppercase font-bold text-slate-400">
+                            {c.is_hidden ? "Hidden" : "Public"}
+                          </span>
+                          <button
+                            onClick={() =>
+                              handleToggleHide(c.certificate_id, c.is_hidden)
+                            }
+                            className={`w-8 h-4 rounded-full relative transition-colors ${c.is_hidden ? "bg-rose-500" : "bg-emerald-500"}`}
+                            title="Toggle Certificate Visibility"
+                          >
+                            <span
+                              className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${c.is_hidden ? "left-4.5" : "left-0.5"}`}
+                            />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-300">-</span>
+                      )}
                     </td>
                   </tr>
                 );

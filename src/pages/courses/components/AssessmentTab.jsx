@@ -8,6 +8,9 @@ import { Button } from "../../../components/ui/Button";
 import { Badge } from "../../../components/ui/Badge";
 import { cn } from "../../../lib/utils/utils";
 
+const DEFAULT_TRAINER_EVALUATION =
+  "TRAINING SUCCESSFULLY CONDUCTED TO IMPART KNOWLEDGE AND PRACTICAL SKILLS FOR REQUIRED LEVEL OF COMPETENCY TO PERFORM DUTIES EFFECTIVELY.";
+
 const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
   const navigate = useNavigate();
   const [candidates, setCandidates] = useState([]);
@@ -27,7 +30,7 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
         setCandidates(scoresRes.candidates || []);
         setCourseData(courseRes);
         setEvaluation(
-          courseRes.trainer_evaluation || "TRAINING IS PROGRESSING SATISFACTORILY",
+          courseRes.trainer_evaluation || DEFAULT_TRAINER_EVALUATION,
         );
       } catch (err) {
         toast.error("Failed to load assessment data");
@@ -126,7 +129,8 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <FileText size={20} className="text-blue-600" /> Assessment Scores
+            <FileText size={20} className="text-blue-600" />{" "}
+            {isTrainerRole ? "Submissions" : "Assessment Scores"}
           </h3>
           <div className="flex gap-2">
             {!isTrainerRole && (

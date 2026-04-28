@@ -9,6 +9,7 @@ import { Card, CardContent } from "../../components/ui/Card";
 import DataTable from "../../components/ui/DataTable";
 import TablePagination from "../../components/ui/TablePagination";
 import { Badge } from "../../components/ui/Badge";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const CandidateCourseList = () => {
   const [courses, setCourses] = useState([]);
@@ -65,15 +66,6 @@ const CandidateCourseList = () => {
 
   const columns = [
     {
-      key: "sr_no",
-      label: "Sr. No.",
-      render: (_, __, index) => (
-        <span className="text-slate-500 font-medium">
-          {(currentPage - 1) * limit + index + 1}
-        </span>
-      ),
-    },
-    {
       key: "course_name",
       label: "Course Details",
       render: (_, row) => (
@@ -93,8 +85,7 @@ const CandidateCourseList = () => {
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3 text-slate-400" />
             <span>
-              {new Date(row.start_date).toLocaleDateString()} -{" "}
-              {new Date(row.end_date).toLocaleDateString()}
+              {formatDate(row.start_date)} - {formatDate(row.end_date)}
             </span>
           </div>
           <div className="flex items-center gap-1">
