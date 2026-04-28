@@ -8,6 +8,7 @@ import { BookOpen, Calendar, Clock, ArrowLeft, CheckCircle2, AlertCircle } from 
 import Meta from '../../components/common/Meta';
 import { toast } from "sonner";
 import api from '../../lib/api';
+import { formatDate } from '../../lib/utils/dateUtils';
 
 // Tab Components
 import CandidateAttendanceTab from './tabs/CandidateAttendanceTab';
@@ -91,11 +92,11 @@ const CandidateCourseDetails = () => {
                     <div className="flex flex-wrap gap-3">
                         <div className="flex flex-col px-4 py-2 bg-white/50 border border-white rounded-xl backdrop-blur-sm">
                             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Start Date</span>
-                            <span className="font-semibold text-slate-700">{new Date(course.start_date).toLocaleDateString()}</span>
+                            <span className="font-semibold text-slate-700">{formatDate(course.start_date)}</span>
                         </div>
                         <div className="flex flex-col px-4 py-2 bg-white/50 border border-white rounded-xl backdrop-blur-sm">
                             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">End Date</span>
-                            <span className="font-semibold text-slate-700">{new Date(course.end_date).toLocaleDateString()}</span>
+                            <span className="font-semibold text-slate-700">{formatDate(course.end_date)}</span>
                         </div>
                     </div>
                 </div>

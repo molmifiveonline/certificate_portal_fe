@@ -181,10 +181,7 @@ const AttendanceTab = ({ courseId }) => {
                   key={date}
                   className="px-2 py-3 font-semibold text-slate-600 text-center text-xs whitespace-nowrap"
                 >
-                  {new Date(date + "T00:00:00").toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                  })}
+                  {formatDateDMY(date)}
                 </th>
               ))}
             </tr>

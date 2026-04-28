@@ -6,6 +6,7 @@ import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const CandidateApprovalPortal = () => {
   const { token } = useParams();
@@ -158,17 +159,13 @@ const CandidateApprovalPortal = () => {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Start Date</p>
                     <p className="font-medium text-gray-900">
-                      {new Date(
-                        courseContext?.course?.start_date,
-                      ).toLocaleDateString()}
+                      {formatDate(courseContext?.course?.start_date)}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">End Date</p>
                     <p className="font-medium text-gray-900">
-                      {new Date(
-                        courseContext?.course?.end_date,
-                      ).toLocaleDateString()}
+                      {formatDate(courseContext?.course?.end_date)}
                     </p>
                   </div>
                 </div>

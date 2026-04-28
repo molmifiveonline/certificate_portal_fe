@@ -1,3 +1,5 @@
+import { formatDate } from "../../../lib/utils/dateUtils";
+
 export const generateDateRange = (start, end) => {
   const dates = [];
   const startDate = new Date(start);
@@ -11,14 +13,5 @@ export const generateDateRange = (start, end) => {
 };
 
 export const formatDateDMY = (dateStr) => {
-  if (!dateStr) return "-";
-  // dateStr can be YYYY-MM-DD or DD-MM-YY based on context
-  if (dateStr.includes("-")) {
-    const parts = dateStr.split("-");
-    if (parts[0].length === 4) {
-      // YYYY-MM-DD
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-  }
-  return dateStr;
+  return formatDate(dateStr);
 };

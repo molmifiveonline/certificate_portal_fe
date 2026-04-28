@@ -1,3 +1,14 @@
+const getDateOnlyParts = (date) => {
+  if (typeof date !== "string") return null;
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})(?:T00:00:00(?:\.000)?Z?)?$/);
+  if (!match) return null;
+  return {
+    day: match[3],
+    month: match[2],
+    year: match[1],
+  };
+};
+
 /**
  * Format a date object or string to DD/MM/YYYY
  * @param {string|Date} date - The date to format
@@ -5,8 +16,14 @@
  */
 export const formatDate = (date) => {
   if (!date) return "-";
+
+  const dateOnlyParts = getDateOnlyParts(date);
+  if (dateOnlyParts) {
+    return `${dateOnlyParts.day}/${dateOnlyParts.month}/${dateOnlyParts.year}`;
+  }
+
   const d = new Date(date);
-  if (isNaN(d.getTime())) return "-";
+  if (Number.isNaN(d.getTime())) return "-";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
@@ -23,7 +40,7 @@ export const formatDate = (date) => {
 export const formatDateTime = (date) => {
   if (!date) return "-";
   const d = new Date(date);
-  if (isNaN(d.getTime())) return "-";
+  if (Number.isNaN(d.getTime())) return "-";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",

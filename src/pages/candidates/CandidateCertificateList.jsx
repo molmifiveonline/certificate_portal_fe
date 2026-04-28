@@ -102,15 +102,6 @@ const CandidateCertificateList = () => {
 
   const columns = [
     {
-      key: "sr_no",
-      label: "Sr. No.",
-      render: (_, __, index) => (
-        <span className="text-slate-500 font-medium">
-          {(currentPage - 1) * limit + index + 1}
-        </span>
-      ),
-    },
-    {
       key: "topic",
       label: "Topic",
       sortable: true,

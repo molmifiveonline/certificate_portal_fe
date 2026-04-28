@@ -8,6 +8,7 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import Meta from "../../components/common/Meta";
 import BackButton from "../../components/common/BackButton";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
@@ -217,11 +218,7 @@ const AdminPreActiveApprovals = () => {
                       </td>
                       <td className="px-6 py-4 text-slate-600">
                         <div className="text-xs">
-                          {appr.admin_action_date
-                            ? new Date(
-                                appr.admin_action_date,
-                              ).toLocaleDateString()
-                            : "-"}
+                          {formatDate(appr.admin_action_date)}
                         </div>
                         <div
                           className="max-w-[180px] truncate text-xs text-slate-400"

@@ -5,6 +5,7 @@ import { Badge } from "../../../components/ui/Badge";
 import { CheckCircle2, XCircle, Clock } from "lucide-react";
 import api from '../../../lib/api';
 import { toast } from "sonner";
+import { formatDate } from '../../../lib/utils/dateUtils';
 
 const CandidateAttendanceTab = ({ courseId }) => {
     const [attendance, setAttendance] = useState([]);
@@ -94,7 +95,7 @@ const CandidateAttendanceTab = ({ courseId }) => {
                                         <tr key={index} className="hover:bg-slate-50/30 transition-colors">
                                             <td className="px-6 py-4 text-slate-500 font-medium">{index + 1}</td>
                                             <td className="px-6 py-4 font-medium text-slate-700">
-                                                {new Date(record.attendance_date).toLocaleDateString()}
+                                                {formatDate(record.attendance_date)}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">

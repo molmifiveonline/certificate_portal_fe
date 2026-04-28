@@ -17,6 +17,7 @@ import {
   buildLoggedInCandidateIdentity,
   isCertificateOwnedByCandidate,
 } from "../../lib/utils/candidateUtils";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const StatsCard = ({
   title,
@@ -166,12 +167,7 @@ const CandidateDashboard = () => {
         <div className="flex items-center gap-3 rounded-2xl border border-white/40 bg-white/60 px-4 py-2 shadow-sm backdrop-blur-xl">
           <Calendar className="h-5 w-5 text-blue-600" />
           <span className="text-sm font-bold text-slate-700">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            {formatDate(new Date())}
           </span>
         </div>
       </div>

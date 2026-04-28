@@ -6,6 +6,7 @@ import { Badge } from "../../../components/ui/Badge";
 import { MessageSquare, CheckCircle2, Send, Star, AlertCircle } from "lucide-react";
 import api from '../../../lib/api';
 import { toast } from "sonner";
+import { formatDate } from '../../../lib/utils/dateUtils';
 
 const CandidateFeedbackTab = ({ courseId, course }) => {
     const [status, setStatus] = useState(null);
@@ -105,7 +106,7 @@ const CandidateFeedbackTab = ({ courseId, course }) => {
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Thank You!</h2>
                     <p className="text-slate-600 mb-8 max-w-sm">
                         You have already submitted your feedback for this course on 
-                        <span className="font-bold text-slate-900"> {new Date(status.submittedDate).toLocaleDateString()}</span>.
+                        <span className="font-bold text-slate-900"> {formatDate(status.submittedDate)}</span>.
                     </p>
                     <Badge variant="outline" className="bg-white text-emerald-600 border-emerald-200 px-4 py-1">
                         Feedback Recorded
