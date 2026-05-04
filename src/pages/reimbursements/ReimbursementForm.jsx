@@ -6,7 +6,12 @@ import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Button } from "../../components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/Card";
 import api from "../../lib/api";
 import reimbursementService from "../../services/reimbursementService";
 import ReimbursementFormFields from "../../components/reimbursements/ReimbursementFormFields";
@@ -43,6 +48,7 @@ const ReimbursementForm = () => {
   const [activeCourses, setActiveCourses] = useState([]);
   const [loading, setLoading] = useState(isEditMode);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchActiveCourses = async () => {
@@ -88,6 +94,15 @@ const ReimbursementForm = () => {
 
   const handleChange = (key, value) => {
     setValues((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      if (!prev[key]) {
+        return prev;
+      }
+
+      const nextErrors = { ...prev };
+      delete nextErrors[key];
+      return nextErrors;
+    });
   };
 
   const handleAddFiles = (fileList) => {
@@ -103,27 +118,26 @@ const ReimbursementForm = () => {
   };
 
   const validateForm = () => {
+    const nextErrors = {};
+
     if (!values.active_course_id) {
-      toast.error("Please select an active course");
-      return false;
+      nextErrors.active_course_id = "Please select an active course";
     }
     if (!values.claim_date) {
-      toast.error("Please select a claim date");
-      return false;
+      nextErrors.claim_date = "Please select a claim date";
     }
     if (!values.expense_category) {
-      toast.error("Please select an expense category");
-      return false;
+      nextErrors.expense_category = "Please select an expense category";
     }
     if (!values.expense_description?.trim()) {
-      toast.error("Please enter expense description");
-      return false;
+      nextErrors.expense_description = "Please enter expense description";
     }
     if (!values.amount) {
-      toast.error("Please enter amount");
-      return false;
+      nextErrors.amount = "Please enter amount";
     }
-    return true;
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
   const persistForm = async (shouldSubmit = false) => {
@@ -150,7 +164,9 @@ const ReimbursementForm = () => {
         toast.success("Reimbursement submitted successfully");
       } else {
         toast.success(
-          isEditMode ? "Reimbursement updated successfully" : "Draft saved successfully",
+          isEditMode
+            ? "Reimbursement updated successfully"
+            : "Draft saved successfully",
         );
       }
 
@@ -211,13 +227,16 @@ const ReimbursementForm = () => {
         <CardContent className="space-y-8">
           <ReimbursementFormFields
             values={values}
+            errors={errors}
             onChange={handleChange}
             activeCourses={activeCourses}
             disabled={!editable || saving}
           />
 
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-slate-800">Attachments</h2>
+            <h2 className="text-lg font-semibold text-slate-800">
+              Attachments
+            </h2>
             <ReimbursementAttachments
               attachments={attachments}
               editable={editable && !saving}
@@ -249,7 +268,11 @@ const ReimbursementForm = () => {
           disabled={saving || !editable}
           className="gap-2 rounded-xl border-slate-200 bg-white"
         >
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
           Save Draft
         </Button>
         <Button
@@ -258,7 +281,11 @@ const ReimbursementForm = () => {
           disabled={saving || !editable}
           className="gap-2 rounded-xl"
         >
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
           Submit Claim
         </Button>
       </div>
@@ -267,5 +294,3 @@ const ReimbursementForm = () => {
 };
 
 export default ReimbursementForm;
-
-

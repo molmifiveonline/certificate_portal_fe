@@ -232,19 +232,19 @@ export const MenuItems = [
     allowedRoles: ["trainer"],
     requiredPermission: "view_courses",
   },
-  // {
-  //   title: "Assessments",
-  //   url: "/trainer-assessments",
-  //   icon: ClipboardList,
-  //   allowedRoles: ["trainer"],
-  // },
-  // {
-  //   title: "Feedback",
-  //   url: "/trainer-feedback",
-  //   icon: MessageSquare,
-  //   allowedRoles: ["trainer"],
-  //   requiredPermission: "view_feedback",
-  // },
+  {
+    title: "Assessments",
+    url: "/trainer-assessments",
+    icon: ClipboardList,
+    allowedRoles: ["trainer"],
+  },
+  {
+    title: "Feedback",
+    url: "/trainer-feedback",
+    icon: MessageSquare,
+    allowedRoles: ["trainer"],
+    requiredPermission: "view_feedback",
+  },
   // {
   //   title: "Certificates",
   //   url: "/trainer-certificates",
