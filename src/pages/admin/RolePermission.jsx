@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
-import { Shield, Check, X, Save, Users, Loader2 } from "lucide-react";
+import { Shield, Check, X, Save, Users, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import { Card, CardContent } from "../../components/ui/Card";
@@ -16,6 +16,7 @@ const RolePermission = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadingRolePermissions, setLoadingRolePermissions] = useState(false);
+  const [permissionSearch, setPermissionSearch] = useState("");
 
   // Fetch all roles and permissions on mount
   useEffect(() => {
@@ -32,7 +33,9 @@ const RolePermission = () => {
         setPermissions(permissionsRes.data.data || []);
       } catch (error) {
         console.error("Error fetching initial data:", error);
-        toast.error(getErrorMessage(error, "Failed to load roles and permissions."));
+        toast.error(
+          getErrorMessage(error, "Failed to load roles and permissions."),
+        );
       } finally {
         setLoading(false);
       }
@@ -74,6 +77,38 @@ const RolePermission = () => {
     });
     return grouped;
   }, [permissions]);
+
+  const filteredGroupedPermissions = useMemo(() => {
+    const searchValue = permissionSearch.trim().toLowerCase();
+    if (!searchValue) {
+      return groupedPermissions;
+    }
+
+    return Object.entries(groupedPermissions).reduce(
+      (filtered, [groupName, perms]) => {
+        const matchingPermissions = perms.filter((perm) => {
+          const searchableText = [
+            groupName,
+            perm.name,
+            perm.description,
+            perm.slug,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+          return searchableText.includes(searchValue);
+        });
+
+        if (matchingPermissions.length > 0) {
+          filtered[groupName] = matchingPermissions;
+        }
+
+        return filtered;
+      },
+      {},
+    );
+  }, [groupedPermissions, permissionSearch]);
 
   const handleTogglePermission = (permissionId) => {
     setRolePermissions((prev) =>
@@ -173,19 +208,43 @@ const RolePermission = () => {
           {selectedRole ? (
             <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg overflow-hidden">
               <CardContent className="p-0">
-                <div className="p-4 border-b border-slate-200/60 bg-white/40 flex items-center justify-between">
+                <div className="p-4 border-b border-slate-200/60 bg-white/40 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
                     Permissions for{" "}
                     <span className="text-blue-600 capitalize">
                       {selectedRole.role_name || selectedRole.name}
                     </span>
                   </h2>
-                  {loadingRolePermissions && (
-                    <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                  )}
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-full sm:w-72">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        value={permissionSearch}
+                        onChange={(event) =>
+                          setPermissionSearch(event.target.value)
+                        }
+                        placeholder="Search permissions..."
+                        className="w-full rounded-xl border border-slate-200/70 bg-white/70 py-2 pl-9 pr-9 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                      />
+                      {permissionSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setPermissionSearch("")}
+                          className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                          aria-label="Clear permission search"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    {loadingRolePermissions && (
+                      <Loader2 className="w-4 h-4 shrink-0 animate-spin text-blue-600" />
+                    )}
+                  </div>
                 </div>
                 <div className="p-4 space-y-6 max-h-[calc(100vh-300px)] overflow-y-auto">
-                  {Object.entries(groupedPermissions).map(
+                  {Object.entries(filteredGroupedPermissions).map(
                     ([groupName, perms]) => (
                       <div key={groupName}>
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
@@ -240,6 +299,12 @@ const RolePermission = () => {
                       No permissions available.
                     </div>
                   )}
+                  {Object.keys(groupedPermissions).length > 0 &&
+                    Object.keys(filteredGroupedPermissions).length === 0 && (
+                      <div className="py-12 text-center text-slate-500">
+                        No permissions match your search.
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>
@@ -264,5 +329,3 @@ const RolePermission = () => {
 };
 
 export default RolePermission;
-
-
