@@ -51,8 +51,8 @@ const FeedbackCategoryList = () => {
                 search: debouncedSearch,
                 page: currentPage,
                 limit: limit,
-                // sort_by: sortBy,
-                // sort_order: sortOrder,
+                sort_by: sortBy,
+                sort_order: sortOrder,
             });
 
             setCategories(result.data);
