@@ -230,7 +230,7 @@ const formatLogDetails = (log, resolvedResourceNames) => {
   const isAutoLog = /Method:\s+[A-Z]+,\s+URL:.+,\s+Status:\s+\d+/i.test(details);
   
   if (isAutoLog) {
-    return targetName || "";
+    return targetName || "-";
   }
 
   // For custom logs, just remove Method and URL keywords if they exist to keep it clean
