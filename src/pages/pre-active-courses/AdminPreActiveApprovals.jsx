@@ -136,6 +136,7 @@ const AdminPreActiveApprovals = () => {
                 <tr className="text-slate-600 font-semibold">
                   <th className="px-6 py-4">Candidate</th>
                   <th className="px-6 py-4">Nominator</th>
+                  <th className="px-6 py-4">Certificate Date</th>
                   <th className="px-6 py-4">Candidate Status</th>
                   <th className="px-6 py-4">Candidate Remark</th>
                   <th className="px-6 py-4">Admin Status</th>
@@ -147,7 +148,7 @@ const AdminPreActiveApprovals = () => {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="8"
                       className="px-6 py-12 text-center text-slate-400"
                     >
                       <div className="flex flex-col items-center gap-3">
@@ -159,7 +160,7 @@ const AdminPreActiveApprovals = () => {
                 ) : approvals.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="8"
                       className="px-6 py-12 text-center text-slate-400"
                     >
                       No pending or processed approvals found for this course.
@@ -181,6 +182,9 @@ const AdminPreActiveApprovals = () => {
                       </td>
                       <td className="px-6 py-4 text-slate-600">
                         {appr.nominator_name || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 whitespace-nowrap">
+                        {formatDate(appr.previous_certificate_date)}
                       </td>
                       <td className="px-6 py-4">
                         <span
