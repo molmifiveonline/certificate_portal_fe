@@ -1232,21 +1232,7 @@ const OuthouseCourseForm = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <SelectField
-                  label="Creation Mode"
-                  required
-                  name="creation_mode"
-                  value={formData.creation_mode}
-                  onChange={handleFormChange}
-                  options={[
-                    { value: "manual", label: "Manual Creation" },
-                    {
-                      value: "conversion",
-                      label: "Conversion From Pre-Active",
-                    },
-                  ]}
-                />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <InputField
                   label="Course ID"
                   value={formData.course_id || courseIdPreview}

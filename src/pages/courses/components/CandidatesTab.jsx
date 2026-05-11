@@ -56,8 +56,11 @@ const CandidatesTab = ({
     },
     {
       label: "DOB",
-      render: (candidate) =>
-        formatDate(candidate.dob),
+      render: (candidate) => formatDate(candidate.dob),
+    },
+    {
+      label: "Certificate Date",
+      render: (candidate) => formatDate(candidate.previous_certificate_date),
     },
     {
       label: "Designation",
@@ -145,6 +148,7 @@ const CandidatesTab = ({
                 <th className="px-4 py-3">Sr. No.</th>
                 <th className="px-4 py-3">Candidate Name</th>
                 <th className="px-4 py-3">DOB</th>
+                <th className="px-4 py-3">Certificate Date</th>
                 <th className="px-4 py-3">Nationality</th>
                 <th className="px-4 py-3">CDC/Passport</th>
                 <th className="px-4 py-3">Rank</th>
@@ -158,7 +162,7 @@ const CandidatesTab = ({
             <tbody className="divide-y divide-slate-100">
               {candidates.length === 0 ? (
                 <tr>
-                  <td colSpan="11" className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan="12" className="px-4 py-8 text-center text-slate-500">
                     No candidates enrolled yet.
                   </td>
                 </tr>
@@ -173,6 +177,9 @@ const CandidatesTab = ({
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
                       {formatDate(candidate.dob)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
+                      {formatDate(candidate.previous_certificate_date)}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600">
                       {candidate.nationality || "-"}
