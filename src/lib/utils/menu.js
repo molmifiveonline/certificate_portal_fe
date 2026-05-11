@@ -245,13 +245,13 @@ export const MenuItems = [
     allowedRoles: ["trainer"],
     requiredPermission: "view_feedback",
   },
-  // {
-  //   title: "Certificates",
-  //   url: "/trainer-certificates",
-  //   icon: Award,
-  //   allowedRoles: ["trainer"],
-  //   requiredPermission: "view_certificates",
-  // },
+  {
+    title: "Certificates",
+    url: "/trainer-certificates",
+    icon: Award,
+    allowedRoles: ["trainer"],
+    requiredPermission: "view_certificates",
+  },
 
   // Candidate Specific
   // {
@@ -266,10 +266,10 @@ export const MenuItems = [
   //   icon: Award,
   //   allowedRoles: ["candidate"],
   // },
-  // {
-  //   title: "Reimbursements",
-  //   url: "/reimbursements",
-  //   icon: Receipt,
-  //   allowedRoles: ["candidate"],
-  // },
+  {
+    title: "Reimbursements",
+    url: "/reimbursements",
+    icon: Receipt,
+    allowedRoles: ["candidate"],
+  },
 ];
