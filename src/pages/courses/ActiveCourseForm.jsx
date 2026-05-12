@@ -38,7 +38,6 @@ import CertificateTab from "./components/CertificateTab";
 import CandidateDeleteModal from "./components/CandidateDeleteModal";
 import CandidateSelectionModal from "./components/CandidateSelectionModal";
 import CourseActionModal from "./components/CourseActionModal";
-import EmailTypeModal from "./components/EmailTypeModal";
 import VenueModal from "./components/VenueModal";
 
 // ==========================================
@@ -75,6 +74,7 @@ const ActiveCourseForm = () => {
   const [availableCandidates, setAvailableCandidates] = useState([]);
   const [selectedCandidates, setSelectedCandidates] = useState([]);
   const [candidateSearch, setCandidateSearch] = useState("");
+  const [bulkEmailLoading, setBulkEmailLoading] = useState(false);
 
   // Action Modals
   const [actionModal, setActionModal] = useState({
@@ -82,11 +82,6 @@ const ActiveCourseForm = () => {
     type: null,
     reason: "",
   });
-  const [emailModal, setEmailModal] = useState({
-    isOpen: false,
-    candidateId: null,
-    type: null,
-  }); // type: 'online' | 'offline'
 
   const [venueModal, setVenueModal] = useState({
     isOpen: false,
@@ -184,7 +179,7 @@ const ActiveCourseForm = () => {
           // Reset form
           reset({
             ...course,
-            topic: course.topic || "",
+            topic: course.master_course_id || "",
             start_date: course.start_date
               ? new Date(course.start_date).toISOString().split("T")[0]
               : "",
@@ -223,7 +218,9 @@ const ActiveCourseForm = () => {
   // Auto-populate from Master Course
   useEffect(() => {
     if (selectedTopic && masterCourses.length > 0) {
-      const selectedMC = masterCourses.find((mc) => mc.id === selectedTopic);
+      const selectedMC = masterCourses.find(
+        (mc) => String(mc.id) === String(selectedTopic),
+      );
       if (selectedMC) {
         setValue("master_course_id", selectedMC.id);
         setValue("master_course_name", selectedMC.master_course_name);
@@ -253,7 +250,9 @@ const ActiveCourseForm = () => {
     setIsSubmitting(true);
     try {
       if (!data.master_course_name) {
-        const mc = masterCourses.find((m) => m.id === data.topic);
+        const mc = masterCourses.find(
+          (m) => String(m.id) === String(data.topic),
+        );
         if (mc) data.master_course_name = mc.master_course_name;
       }
 
@@ -392,14 +391,16 @@ const ActiveCourseForm = () => {
     }
   };
 
+  const refreshEnrolledCandidates = async () => {
+    const updated = await activeCourseService.getEnrolledCandidates(id);
+    setEnrolledCandidates(updated);
+  };
+
   const handleSendOnlineEmail = async (candidateId) => {
     try {
       await activeCourseService.emailCandidate(id, candidateId, "online");
       toast.success("Online Welcome Letter sent");
-      setEmailModal({ isOpen: false, candidateId: null, type: null });
-      // Refresh list to update status if needed
-      const updated = await activeCourseService.getEnrolledCandidates(id);
-      setEnrolledCandidates(updated);
+      await refreshEnrolledCandidates();
     } catch (error) {
       toast.error(getErrorMessage(error, "Failed to send email"));
     }
@@ -409,11 +410,49 @@ const ActiveCourseForm = () => {
     try {
       await activeCourseService.emailCandidate(id, candidateId, "offline");
       toast.success("Offline Welcome Letter sent");
-      setEmailModal({ isOpen: false, candidateId: null, type: null });
-      const updated = await activeCourseService.getEnrolledCandidates(id);
-      setEnrolledCandidates(updated);
+      await refreshEnrolledCandidates();
     } catch (error) {
       toast.error(getErrorMessage(error, "Failed to send email"));
+    }
+  };
+
+  const handleSendWelcomeEmail = (candidateId) => {
+    if (typeOfLocation === "Online") {
+      return handleSendOnlineEmail(candidateId);
+    }
+    return handleSendOfflineEmail(candidateId);
+  };
+
+  const handleSendBulkOnlineEmail = async (candidateIds) => {
+    if (typeOfLocation !== "Online") {
+      toast.error("Bulk welcome mail is available for online courses only.");
+      return;
+    }
+    if (!candidateIds || candidateIds.length === 0) {
+      toast.error("Select at least one candidate.");
+      return;
+    }
+
+    try {
+      setBulkEmailLoading(true);
+      const result = await activeCourseService.emailCandidatesBulk(
+        id,
+        candidateIds,
+      );
+      const sentCount = result?.sentCount || 0;
+      const failedCount = result?.failed?.length || 0;
+      if (failedCount > 0) {
+        toast.warning(
+          `Online Welcome Letter sent to ${sentCount} candidate(s). ${failedCount} failed.`,
+        );
+      } else {
+        toast.success(`Online Welcome Letter sent to ${sentCount} candidate(s).`);
+      }
+      await refreshEnrolledCandidates();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to send bulk email"));
+    } finally {
+      setBulkEmailLoading(false);
     }
   };
 
@@ -750,6 +789,7 @@ const ActiveCourseForm = () => {
                               <InputField
                                 label="WhatsApp Group"
                                 name="whatsapp_link"
+                                required
                                 disabled={isTrainerCourseReadOnly}
                                 register={register}
                                 errors={errors}
@@ -951,17 +991,17 @@ const ActiveCourseForm = () => {
             <CandidatesTab
               candidates={enrolledCandidates}
               onAdd={openCandidateModal}
-              onEmail={(cid) =>
-                setEmailModal({ isOpen: true, candidateId: cid })
-              }
+              onEmail={handleSendWelcomeEmail}
               onVenue={openVenueModal}
               onDelete={(cid) =>
                 setDeleteModal({ isOpen: true, candidateId: cid, remark: "" })
               }
               onStatusPoolChange={handleStatusPoolChange}
+              onBulkEmail={handleSendBulkOnlineEmail}
               isTrainerRole={isTrainerRole}
               courseEnded={courseEnded}
               typeOfLocation={typeOfLocation}
+              bulkEmailLoading={bulkEmailLoading}
             />
           )}
 
@@ -1019,14 +1059,6 @@ const ActiveCourseForm = () => {
           setReason={(val) => setActionModal({ ...actionModal, reason: val })}
         />
 
-        <EmailTypeModal
-          isOpen={emailModal.isOpen}
-          onClose={() => setEmailModal({ isOpen: false, candidateId: null })}
-          onSendOnline={handleSendOnlineEmail}
-          onSendOffline={handleSendOfflineEmail}
-          candidateId={emailModal.candidateId}
-        />
-
         <VenueModal
           isOpen={venueModal.isOpen}
           onClose={() =>
@@ -1034,6 +1066,7 @@ const ActiveCourseForm = () => {
           }
           onSubmit={handleSaveVenue}
           data={venueModal.data}
+          courseDates={{ start_date: startDate, end_date: endDate }}
         />
       </div>
     </div>

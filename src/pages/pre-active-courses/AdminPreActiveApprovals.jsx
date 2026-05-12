@@ -138,6 +138,7 @@ const AdminPreActiveApprovals = () => {
                   <th className="px-6 py-4">Nominator</th>
                   <th className="px-6 py-4">Certificate Date</th>
                   <th className="px-6 py-4">Candidate Status</th>
+                  <th className="px-6 py-4">Rejection Reason</th>
                   <th className="px-6 py-4">Candidate Remark</th>
                   <th className="px-6 py-4">Admin Status</th>
                   <th className="px-6 py-4">Admin Action</th>
@@ -148,7 +149,7 @@ const AdminPreActiveApprovals = () => {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan="8"
+                      colSpan="9"
                       className="px-6 py-12 text-center text-slate-400"
                     >
                       <div className="flex flex-col items-center gap-3">
@@ -160,7 +161,7 @@ const AdminPreActiveApprovals = () => {
                 ) : approvals.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="8"
+                      colSpan="9"
                       className="px-6 py-12 text-center text-slate-400"
                     >
                       No pending or processed approvals found for this course.
@@ -198,6 +199,22 @@ const AdminPreActiveApprovals = () => {
                         >
                           {appr.candidate_approval_status}
                         </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {appr.candidate_approval_status === "Rejected" && appr.candidate_rejection_reason ? (
+                          <div>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                              {appr.candidate_rejection_reason}
+                            </span>
+                            {appr.candidate_rejection_reason === "Not Available" && appr.candidate_available_date && (
+                              <div className="text-xs text-slate-500 mt-1">
+                                Available: {formatDate(appr.candidate_available_date)}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <div

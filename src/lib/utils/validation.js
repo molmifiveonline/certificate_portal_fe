@@ -1,6 +1,13 @@
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const NUMERIC_ONLY_REGEX = /^\d+$/;
 export const PHONE_REGEX = /^\+?\d+$/;
+export const WHATSAPP_GROUP_REGEX =
+  /^(https?:\/\/)?(chat\.whatsapp\.com\/[a-zA-Z0-9]{22,})$/;
+
+export const WHATSAPP_GROUP_REQUIRED_MESSAGE =
+  "Please Enter WhatsApp Group Link";
+export const WHATSAPP_GROUP_INVALID_MESSAGE =
+  "Please Enter a Valid WhatsApp Group Link";
 
 
 const DEFAULT_LABEL = "This field";
@@ -23,6 +30,11 @@ const isPhoneField = ({ name = "", label = "" }) => {
     "phone",
     "contact",
   ].some((keyword) => fieldText.includes(keyword));
+};
+
+const isWhatsAppGroupField = ({ name = "", label = "" }) => {
+  const fieldText = getFieldText({ name, label });
+  return fieldText.includes("whatsapp") && fieldText.includes("group");
 };
 
 const isNumericField = ({ name = "", label = "" }) => {
@@ -64,6 +76,10 @@ export const isValidEmail = (value = "") =>
 export const isNumericOnly = (value = "") =>
   !String(value ?? "").trim() || NUMERIC_ONLY_REGEX.test(String(value).trim());
 
+export const isValidWhatsAppGroupLink = (value = "") =>
+  !String(value ?? "").trim() ||
+  WHATSAPP_GROUP_REGEX.test(String(value).trim());
+
 const isDobField = ({ name = "", label = "" }) => {
   const fieldText = getFieldText({ name, label });
   return name === "dob" || fieldText.includes("date of birth");
@@ -90,7 +106,16 @@ export const getCommonFieldValidation = ({
     inputProps.inputMode = "email";
   }
 
-  if (isPhoneField({ name, label })) {
+  if (isWhatsAppGroupField({ name, label })) {
+    if (required) {
+      nextRules.required = WHATSAPP_GROUP_REQUIRED_MESSAGE;
+    }
+    nextRules.pattern = {
+      value: WHATSAPP_GROUP_REGEX,
+      message: WHATSAPP_GROUP_INVALID_MESSAGE,
+    };
+    inputProps.inputMode = "url";
+  } else if (isPhoneField({ name, label })) {
     nextRules.pattern = {
       value: PHONE_REGEX,
       message: `${label || DEFAULT_LABEL} must contain digits and may start with +`,

@@ -14,15 +14,16 @@ const EmailTypeModal = ({ isOpen, onClose, onSendOnline, onSendOffline, candidat
         </p>
         <div className="flex flex-col gap-3">
           <Button
+            variant="outline"
             onClick={() => onSendOnline(candidateId)}
-            className="w-full justify-start gap-2"
+            className="w-full justify-start gap-2 bg-white text-slate-900 border-slate-200 hover:!bg-[#0060AA] hover:!border-[#0060AA] hover:!text-white focus-visible:!bg-[#0060AA] focus-visible:!border-[#0060AA] focus-visible:!text-white"
           >
             <Video size={16} /> Online Class (Zoom)
           </Button>
           <Button
             variant="outline"
             onClick={() => onSendOffline(candidateId)}
-            className="w-full justify-start gap-2"
+            className="w-full justify-start gap-2 bg-white text-slate-900 border-slate-200 hover:!bg-[#0060AA] hover:!border-[#0060AA] hover:!text-white focus-visible:!bg-[#0060AA] focus-visible:!border-[#0060AA] focus-visible:!text-white"
           >
             <MapPin size={16} /> Offline Class (Venue)
           </Button>

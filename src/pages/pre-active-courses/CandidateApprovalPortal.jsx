@@ -7,6 +7,18 @@ import preActiveCourseService from "../../services/preActiveCourseService";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { formatDate } from "../../lib/utils/dateUtils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/Select";
+
+const REJECTION_REASONS = [
+  { value: "Other", label: "Other" },
+  { value: "Not Available", label: "Not Available" },
+];
 
 const CandidateApprovalPortal = () => {
   const { token } = useParams();
@@ -14,6 +26,9 @@ const CandidateApprovalPortal = () => {
   const [courseContext, setCourseContext] = useState(null);
   const [status, setStatus] = useState(""); // 'Approved' or 'Rejected'
   const [remark, setRemark] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [availableDate, setAvailableDate] = useState("");
+  const [showRejectFields, setShowRejectFields] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -33,21 +48,49 @@ const CandidateApprovalPortal = () => {
     if (token) fetchContext();
   }, [token]);
 
+  const handleRejectClick = () => {
+    setShowRejectFields(true);
+  };
+
+  const handleCancelReject = () => {
+    setShowRejectFields(false);
+    setRejectionReason("");
+    setRemark("");
+    setAvailableDate("");
+  };
+
   const handleSubmit = async (e, selectedStatus) => {
     e?.preventDefault();
 
-    if (selectedStatus === "Rejected" && !remark.trim()) {
-      toast.error("Please provide a reason for rejecting the nomination.");
-      return;
+    if (selectedStatus === "Rejected") {
+      if (!rejectionReason) {
+        toast.error("Please select a reason for rejection.");
+        return;
+      }
+      if (!remark.trim()) {
+        toast.error("Please provide a remark for rejecting the nomination.");
+        return;
+      }
+      if (rejectionReason === "Not Available" && !availableDate) {
+        toast.error("Please select an available date.");
+        return;
+      }
     }
 
     try {
       setSubmitting(true);
       setStatus(selectedStatus);
-      await preActiveCourseService.candidateApproval(token, {
+      const payload = {
         status: selectedStatus,
         remark: remark.trim(),
-      });
+      };
+      if (selectedStatus === "Rejected") {
+        payload.rejection_reason = rejectionReason;
+        if (rejectionReason === "Not Available" && availableDate) {
+          payload.available_date = availableDate;
+        }
+      }
+      await preActiveCourseService.candidateApproval(token, payload);
       setSuccess(true);
       toast.success(`Nomination ${selectedStatus.toLowerCase()} successfully.`);
     } catch (err) {
@@ -182,43 +225,140 @@ const CandidateApprovalPortal = () => {
 
             {/* Action Form */}
             <div className="space-y-6">
-              <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
-                <Input
-                  label="Remarks (Optional for Approval, Required for Rejection)"
-                  placeholder="Add any comments or reasons here..."
-                  value={remark}
-                  onChange={(e) => setRemark(e.target.value)}
-                  className="bg-white"
-                />
-              </div>
+              {/* Rejection Fields - shown when user clicks Reject */}
+              {showRejectFields && (
+                <div className="bg-red-50 rounded-lg p-5 border border-red-200 space-y-4">
+                  <h3 className="text-sm font-semibold text-red-700 uppercase tracking-wider mb-2">
+                    Rejection Details
+                  </h3>
+
+                  {/* Reason Dropdown */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Reason <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      value={rejectionReason}
+                      onValueChange={(val) => {
+                        setRejectionReason(val);
+                        // Reset available date when switching reasons
+                        if (val !== "Not Available") {
+                          setAvailableDate("");
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select a reason..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {REJECTION_REASONS.map((reason) => (
+                          <SelectItem key={reason.value} value={reason.value}>
+                            {reason.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Available Date - only shown when "Not Available" is selected */}
+                  {rejectionReason === "Not Available" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Available Date <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="date"
+                        value={availableDate}
+                        onChange={(e) => setAvailableDate(e.target.value)}
+                        className="bg-white"
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+                    </div>
+                  )}
+
+                  {/* Remark - shown for both "Other" and "Not Available" */}
+                  {rejectionReason && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Remarks <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        placeholder="Please provide additional details..."
+                        value={remark}
+                        onChange={(e) => setRemark(e.target.value)}
+                        rows={3}
+                        className="flex w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/10 focus-visible:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all resize-none"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Approval remark - shown only when NOT in reject mode */}
+              {!showRejectFields && (
+                <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
+                  <Input
+                    label="Remarks (Optional)"
+                    placeholder="Add any comments here..."
+                    value={remark}
+                    onChange={(e) => setRemark(e.target.value)}
+                    className="bg-white"
+                  />
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <Button
-                  onClick={(e) => handleSubmit(e, "Approved")}
-                  disabled={submitting}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 text-lg h-auto"
-                >
-                  {submitting && status === "Approved" ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  ) : (
-                    <CheckCircle2 className="mr-2 h-5 w-5" />
-                  )}
-                  Accept Nomination
-                </Button>
+                {!showRejectFields ? (
+                  <>
+                    <Button
+                      onClick={(e) => handleSubmit(e, "Approved")}
+                      disabled={submitting}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 text-lg h-auto"
+                    >
+                      {submitting && status === "Approved" ? (
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="mr-2 h-5 w-5" />
+                      )}
+                      Accept Nomination
+                    </Button>
 
-                <Button
-                  onClick={(e) => handleSubmit(e, "Rejected")}
-                  disabled={submitting}
-                  variant="danger"
-                  className="flex-1 py-3 text-lg h-auto"
-                >
-                  {submitting && status === "Rejected" ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  ) : (
-                    <XCircle className="mr-2 h-5 w-5" />
-                  )}
-                  Reject Nomination
-                </Button>
+                    <Button
+                      onClick={handleRejectClick}
+                      disabled={submitting}
+                      variant="danger"
+                      className="flex-1 py-3 text-lg h-auto"
+                    >
+                      <XCircle className="mr-2 h-5 w-5" />
+                      Reject Nomination
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      onClick={handleCancelReject}
+                      disabled={submitting}
+                      variant="outline"
+                      className="flex-1 py-3 text-lg h-auto"
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      onClick={(e) => handleSubmit(e, "Rejected")}
+                      disabled={submitting}
+                      variant="danger"
+                      className="flex-1 py-3 text-lg h-auto"
+                    >
+                      {submitting && status === "Rejected" ? (
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      ) : (
+                        <XCircle className="mr-2 h-5 w-5" />
+                      )}
+                      Confirm Rejection
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

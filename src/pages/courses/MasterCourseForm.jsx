@@ -189,10 +189,11 @@ const MasterCourseForm = () => {
                           <option value="Others">Others</option>
                         </SelectField>
                         <SelectField
-                          label="Expiry (Years)"
+                          label="Expiry"
                           name="expiry_date"
                           required
                         >
+                          <option value="No Expiry">No Expiry</option>
                           <option value="1">1 Year</option>
                           <option value="2">2 Years</option>
                           <option value="3">3 Years</option>

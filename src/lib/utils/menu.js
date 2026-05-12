@@ -83,6 +83,7 @@ export const MenuItems = [
     permissionSlugsAny: [
       "view_master_courses",
       "view_pre_active_courses",
+      "view_pre_active_approvals",
       "view_active_courses",
       "view_outhouse_courses",
     ],
@@ -96,6 +97,11 @@ export const MenuItems = [
         title: "Pre-Active Courses",
         url: "/pre-active-courses",
         permissionSlug: "view_pre_active_courses",
+      },
+      {
+        title: "Rejected Candidate Approvals",
+        url: "/pre-active-courses/rejected-approvals",
+        permissionSlug: "view_pre_active_approvals",
       },
       {
         title: "Active Courses",
