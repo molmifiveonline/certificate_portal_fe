@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Mail, Trash2, MapPin } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { formatDate } from "../../../lib/utils/dateUtils";
@@ -10,10 +10,25 @@ const CandidatesTab = ({
   onDelete,
   onAdd,
   onStatusPoolChange,
+  onBulkEmail,
   isTrainerRole = false,
   courseEnded = false,
   typeOfLocation = "Online",
+  bulkEmailLoading = false,
 }) => {
+  const [selectedEmailCandidates, setSelectedEmailCandidates] = useState([]);
+  const isOnlineCourse = typeOfLocation === "Online";
+  const showBulkEmail = !isTrainerRole && isOnlineCourse;
+
+  const candidateIds = useMemo(
+    () => candidates.map((candidate) => candidate.candidate_id).filter(Boolean),
+    [candidates],
+  );
+
+  useEffect(() => {
+    setSelectedEmailCandidates([]);
+  }, [candidateIds, typeOfLocation]);
+
   const getCandidateValue = (candidate, keys, fallback = "-") => {
     const keyList = Array.isArray(keys) ? keys : [keys];
     for (const key of keyList) {
@@ -78,22 +93,71 @@ const CandidatesTab = ({
     {
       label: "Location Type",
       render: (candidate) =>
-        getCandidateValue(candidate, ["location_type", "type_of_location"], typeOfLocation),
+        getCandidateValue(
+          candidate,
+          ["location_type", "type_of_location"],
+          typeOfLocation,
+        ),
     },
   ];
 
+  const allEmailCandidatesSelected =
+    candidateIds.length > 0 &&
+    candidateIds.every((candidateId) =>
+      selectedEmailCandidates.includes(candidateId),
+    );
+
+  const toggleEmailCandidate = (candidateId, checked) => {
+    setSelectedEmailCandidates((current) => {
+      if (checked) {
+        return current.includes(candidateId)
+          ? current
+          : [...current, candidateId];
+      }
+      return current.filter((id) => id !== candidateId);
+    });
+  };
+
+  const toggleAllEmailCandidates = (checked) => {
+    setSelectedEmailCandidates(checked ? candidateIds : []);
+  };
+
+  const handleBulkEmail = async () => {
+    await onBulkEmail?.(selectedEmailCandidates);
+    setSelectedEmailCandidates([]);
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mt-8">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-slate-800">Enrolled Candidates</h3>
-        {!isTrainerRole && (
-          <Button
-            onClick={onAdd}
-            className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-          >
-            Add Candidates
-          </Button>
-        )}
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <h3 className="text-lg font-bold text-slate-800">
+          Enrolled Candidates
+        </h3>
+        <div className="flex items-center gap-2">
+          {showBulkEmail && (
+            <Button
+              variant="outline"
+              onClick={handleBulkEmail}
+              disabled={
+                bulkEmailLoading || selectedEmailCandidates.length === 0
+              }
+              className="gap-2"
+            >
+              <Mail size={16} />
+              {bulkEmailLoading
+                ? "Sending..."
+                : `Send Online Mail (${selectedEmailCandidates.length})`}
+            </Button>
+          )}
+          {!isTrainerRole && (
+            <Button
+              onClick={onAdd}
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+            >
+              Add Candidates
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -145,6 +209,19 @@ const CandidatesTab = ({
           <table className="w-full">
             <thead className="bg-slate-50 text-left text-sm font-semibold text-slate-600">
               <tr>
+                {showBulkEmail && (
+                  <th className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={allEmailCandidatesSelected}
+                      onChange={(event) =>
+                        toggleAllEmailCandidates(event.target.checked)
+                      }
+                      className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      aria-label="Select all candidates for online mail"
+                    />
+                  </th>
+                )}
                 <th className="px-4 py-3">Sr. No.</th>
                 <th className="px-4 py-3">Candidate Name</th>
                 <th className="px-4 py-3">DOB</th>
@@ -162,13 +239,34 @@ const CandidatesTab = ({
             <tbody className="divide-y divide-slate-100">
               {candidates.length === 0 ? (
                 <tr>
-                  <td colSpan="12" className="px-4 py-8 text-center text-slate-500">
+                  <td
+                    colSpan={showBulkEmail ? 13 : 12}
+                    className="px-4 py-8 text-center text-slate-500"
+                  >
                     No candidates enrolled yet.
                   </td>
                 </tr>
               ) : (
                 candidates.map((candidate, idx) => (
                   <tr key={candidate.id} className="hover:bg-slate-50">
+                    {showBulkEmail && (
+                      <td className="px-4 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedEmailCandidates.includes(
+                            candidate.candidate_id,
+                          )}
+                          onChange={(event) =>
+                            toggleEmailCandidate(
+                              candidate.candidate_id,
+                              event.target.checked,
+                            )
+                          }
+                          className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          aria-label={`Select ${candidate.candidate_name} for online mail`}
+                        />
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-sm text-slate-600 font-medium">
                       {idx + 1}
                     </td>
@@ -203,7 +301,10 @@ const CandidatesTab = ({
                       <select
                         value={candidate.status_pool || ""}
                         onChange={(e) =>
-                          onStatusPoolChange(candidate.candidate_id, e.target.value)
+                          onStatusPoolChange(
+                            candidate.candidate_id,
+                            e.target.value,
+                          )
                         }
                         className="h-9 px-2 rounded-lg border border-slate-200 text-sm focus:border-blue-500 outline-none w-24"
                       >
@@ -216,22 +317,6 @@ const CandidatesTab = ({
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEmail(candidate.candidate_id)}
-                          title="Send Welcome Letter"
-                          className="h-8 w-8 p-0"
-                        >
-                          <Mail
-                            size={16}
-                            className={
-                              candidate.candidate_email_status
-                                ? "text-green-500"
-                                : "text-slate-400"
-                            }
-                          />
-                        </Button>
                         {typeOfLocation !== "Online" && (
                           <Button
                             variant="ghost"
@@ -243,6 +328,27 @@ const CandidatesTab = ({
                             <MapPin size={16} className="text-slate-500" />
                           </Button>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEmail(candidate.candidate_id)}
+                          title={
+                            isOnlineCourse
+                              ? "Send Online Welcome Letter"
+                              : "Send Offline Welcome Letter"
+                          }
+                          className="h-8 w-8 p-0"
+                        >
+                          <Mail
+                            size={16}
+                            className={
+                              candidate.candidate_email_status
+                                ? "text-green-500"
+                                : "text-slate-400"
+                            }
+                          />
+                        </Button>
+
                         <Button
                           variant="ghost"
                           size="sm"

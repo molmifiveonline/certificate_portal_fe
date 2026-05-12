@@ -56,6 +56,13 @@ const preActiveCourseService = {
     return response.data;
   },
 
+  getRejectedCandidateApprovals: async (params) => {
+    const response = await api.get("/pre-active/rejected-approvals", {
+      params,
+    });
+    return response.data;
+  },
+
   adminApproval: async (enrollmentId, data) => {
     const response = await api.post(
       `/pre-active/admin-approval/${enrollmentId}`,

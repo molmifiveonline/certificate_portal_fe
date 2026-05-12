@@ -92,6 +92,14 @@ const activeCourseService = {
     return response.data;
   },
 
+  emailCandidatesBulk: async (id, candidateIds) => {
+    const response = await api.post(
+      `/active-courses/${id}/candidates/email/bulk`,
+      { candidateIds },
+    );
+    return response.data;
+  },
+
   getCandidateVenue: async (id, candidateId) => {
     const response = await api.get(
       `/active-courses/${id}/candidates/${candidateId}/venue`,

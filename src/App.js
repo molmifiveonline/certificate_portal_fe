@@ -78,6 +78,9 @@ const PreActiveCourseForm = lazy(
 const AdminPreActiveApprovals = lazy(
   () => import("./pages/pre-active-courses/AdminPreActiveApprovals"),
 );
+const RejectedCandidateApprovals = lazy(
+  () => import("./pages/pre-active-courses/RejectedCandidateApprovals"),
+);
 const NominatorPortal = lazy(
   () => import("./pages/pre-active-courses/NominatorPortal"),
 );
@@ -407,6 +410,17 @@ function App() {
                     requiredAnyPermissions={COURSE_ROUTE_PERMISSIONS}
                   >
                     <PreActiveCourseForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/pre-active-courses/rejected-approvals"
+                element={
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_pre_active_approvals"
+                  >
+                    <RejectedCandidateApprovals />
                   </PrivateRoute>
                 }
               />

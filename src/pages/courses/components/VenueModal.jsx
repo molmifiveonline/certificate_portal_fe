@@ -5,32 +5,34 @@ import { toast } from "sonner";
 import hotelService from "../../../services/hotelService";
 import { getErrorMessage } from "../../../lib/utils/errorUtils";
 
-const getInitialVenueDetails = (data) => ({
+const formatDateInputValue = (value) =>
+  value ? String(value).slice(0, 10) : "";
+
+const getInitialVenueDetails = (data, courseDates = {}) => ({
   venue_name: data?.venue_name || "",
   venue_address: data?.venue_address || "",
   venue_contact: data?.venue_contact || "",
   venue_email: data?.venue_email || "",
   venue_map_link: data?.venue_map_link || "",
-  offline_date: data?.offline_date
-    ? String(data.offline_date).slice(0, 10)
-    : "",
+  from_date: formatDateInputValue(data?.from_date || courseDates.start_date),
+  to_date: formatDateInputValue(data?.to_date || courseDates.end_date),
   remarks: data?.remarks || "",
 });
 
-const VenueModal = ({ isOpen, onClose, onSubmit, data }) => {
+const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
   const [hotels, setHotels] = useState([]);
   const [isLoadingHotels, setIsLoadingHotels] = useState(false);
   const [selectedHotelId, setSelectedHotelId] = useState("");
   const [venueDetails, setVenueDetails] = useState(() =>
-    getInitialVenueDetails(data),
+    getInitialVenueDetails(data, courseDates),
   );
 
   useEffect(() => {
     if (!isOpen) return;
 
     setSelectedHotelId("");
-    setVenueDetails(getInitialVenueDetails(data));
-  }, [data, isOpen]);
+    setVenueDetails(getInitialVenueDetails(data, courseDates));
+  }, [courseDates, data, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -163,12 +165,22 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <InputField
-              label="Offline Date"
-              name="offline_date"
+              label="From Date"
+              name="from_date"
               type="date"
-              value={venueDetails.offline_date}
+              value={venueDetails.from_date}
               onChange={handleFieldChange}
             />
+            <InputField
+              label="To Date"
+              name="to_date"
+              type="date"
+              value={venueDetails.to_date}
+              onChange={handleFieldChange}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
             <InputField
               label="Remarks"
               name="remarks"

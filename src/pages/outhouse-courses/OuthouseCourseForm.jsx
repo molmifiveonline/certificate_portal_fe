@@ -32,8 +32,11 @@ import {
 } from "../../components/ui/Tabs";
 import { formatDate } from "../../lib/utils/dateUtils";
 import {
+  WHATSAPP_GROUP_INVALID_MESSAGE,
+  WHATSAPP_GROUP_REQUIRED_MESSAGE,
   isNumericOnly,
   isValidEmail,
+  isValidWhatsAppGroupLink,
   sanitizeNumericValue,
 } from "../../lib/utils/validation";
 import candidateService from "../../services/candidateService";
@@ -866,6 +869,12 @@ const OuthouseCourseForm = () => {
       nextErrors.course_level = "Course level is required";
     if (!formData.feedback_type)
       nextErrors.feedback_type = "Feedback type is required";
+    const whatsappGroup = String(formData.whatsapp_group || "").trim();
+    if (!whatsappGroup) {
+      nextErrors.whatsapp_group = WHATSAPP_GROUP_REQUIRED_MESSAGE;
+    } else if (!isValidWhatsAppGroupLink(whatsappGroup)) {
+      nextErrors.whatsapp_group = WHATSAPP_GROUP_INVALID_MESSAGE;
+    }
     if (!formData.description.trim())
       nextErrors.description = "Description is required";
     if (
@@ -1394,9 +1403,11 @@ const OuthouseCourseForm = () => {
                 />
                 <InputField
                   label="WhatsApp Group"
+                  required
                   name="whatsapp_group"
                   value={formData.whatsapp_group}
                   onChange={handleFormChange}
+                  error={errors.whatsapp_group}
                 />
                 <InputField
                   label="Zoom Link"

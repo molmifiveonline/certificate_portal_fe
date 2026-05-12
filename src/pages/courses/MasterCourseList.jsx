@@ -35,6 +35,13 @@ const MasterCourseList = () => {
 
     const navigate = useNavigate();
 
+    const formatExpiry = (value) => {
+        if (!value) return "";
+        if (value === "No Expiry") return "No Expiry";
+
+        return `${value} ${String(value) === "1" ? "Year" : "Years"}`;
+    };
+
     const fetchCourses = useCallback(async () => {
         setLoading(true);
         try {
@@ -80,7 +87,7 @@ const MasterCourseList = () => {
         }
 
         try {
-            const headers = ['Sr No.', 'Topic', 'Course Name', 'Certificate Type', 'Expiry (Years)', 'Material Link', 'Created At'];
+            const headers = ['Sr No.', 'Topic', 'Course Name', 'Certificate Type', 'Expiry', 'Material Link', 'Created At'];
             const csvContent = [
                 headers.join(','),
                 ...courses.map((course, index) => [
@@ -88,7 +95,7 @@ const MasterCourseList = () => {
                     `"${course.topic}"`,
                     `"${course.master_course_name}"`,
                     `"${course.certificate_type || ''}"`,
-                    `"${course.expiry_date ? course.expiry_date + ' Year(s)' : ''}"`,
+                    `"${formatExpiry(course.expiry_date)}"`,
                     `"${course.material_link || ''}"`,
                     formatDate(course.created_at)
                 ].join(','))
@@ -146,9 +153,9 @@ const MasterCourseList = () => {
         },
         {
             key: "expiry_date",
-            label: "Expiry (Years)",
+            label: "Expiry",
             sortable: true,
-            render: (val) => val ? `${val} Year(s)` : <span className="text-slate-400">—</span>,
+            render: (val) => val ? formatExpiry(val) : <span className="text-slate-400">—</span>,
         },
         {
             key: "material_link",
