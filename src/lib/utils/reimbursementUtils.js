@@ -1,3 +1,5 @@
+import { formatDateForInput } from "./dateUtils";
+
 export const REIMBURSEMENT_STATUS = {
   DRAFT: "draft",
   SUBMITTED: "submitted",
@@ -66,7 +68,7 @@ export const canAdminTakeDecision = (status) =>
 
 export const getReimbursementPayload = (values) => ({
   active_course_id: values.active_course_id || "",
-  claim_date: values.claim_date || "",
+  claim_date: formatDateForInput(values.claim_date),
   expense_category: values.expense_category || "",
   expense_description: values.expense_description || "",
   amount: values.amount || "",
