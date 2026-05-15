@@ -273,6 +273,7 @@ const SuperAdminDashboard = () => {
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [loadingExpiry, setLoadingExpiry] = useState(true);
+  const [notifyingId, setNotifyingId] = useState(null);
   const [filters, setFilters] = useState({
     trainer_id: "",
     master_course_id: "",
@@ -375,6 +376,28 @@ const SuperAdminDashboard = () => {
       toast.error("Failed to fetch course reports");
     } finally {
       setLoadingCourses(false);
+    }
+  };
+
+  const handleNotify = async (alert) => {
+    const notifyKey = `${alert.candidate_id}_${alert.course_id}`;
+    setNotifyingId(notifyKey);
+    try {
+      await api.post("/dashboard/expiry/notify", {
+        email: alert.email,
+        first_name: alert.first_name,
+        last_name: alert.last_name,
+        course_name: alert.course_name,
+        certificate_expiry_date: alert.certificate_expiry_date,
+      });
+      toast.success(`Notification sent to ${alert.first_name}`);
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to send notification",
+      );
+    } finally {
+      setNotifyingId(null);
     }
   };
 
@@ -620,14 +643,17 @@ const SuperAdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button
-                          onClick={() =>
-                            toast.info(
-                              `Notification sent to ${alert.first_name}`,
-                            )
+                          onClick={() => handleNotify(alert)}
+                          disabled={
+                            notifyingId ===
+                            `${alert.candidate_id}_${alert.course_id}`
                           }
-                          className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                          className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Notify
+                          {notifyingId ===
+                          `${alert.candidate_id}_${alert.course_id}`
+                            ? "Sending..."
+                            : "Notify"}
                         </button>
                       </td>
                     </tr>
