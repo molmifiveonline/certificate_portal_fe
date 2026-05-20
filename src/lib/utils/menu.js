@@ -202,13 +202,13 @@ export const MenuItems = [
       },
     ],
   },
-  // {
-  //   title: "Reimbursements",
-  //   url: "/admin/reimbursements",
-  //   icon: Receipt,
-  //   allowedRoles: ["admin", "superadmin"],
-  //   permissionSlug: "manage_reimbursements",
-  // },
+  {
+    title: "Reimbursements",
+    url: "/admin/reimbursements",
+    icon: Receipt,
+    allowedRoles: ["admin", "superadmin"],
+    permissionSlug: "manage_reimbursements",
+  },
   {
     title: "System Manual",
     icon: FileText,
@@ -260,12 +260,12 @@ export const MenuItems = [
   },
 
   // Candidate Specific
-  // {
-  //   title: "My Courses",
-  //   url: "/candidate-courses",
-  //   icon: Book,
-  //   allowedRoles: ["candidate"],
-  // },
+  {
+    title: "My Courses",
+    url: "/candidate-courses",
+    icon: Book,
+    allowedRoles: ["candidate"],
+  },
   // {
   //   title: "My Certificates",
   //   url: "/candidate-certificates",

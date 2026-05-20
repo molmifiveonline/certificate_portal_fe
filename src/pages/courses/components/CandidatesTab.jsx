@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Mail, Trash2, MapPin } from "lucide-react";
+import { Mail, Trash2, MapPin, Eye } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { formatDate } from "../../../lib/utils/dateUtils";
 
@@ -10,6 +10,7 @@ const CandidatesTab = ({
   onDelete,
   onAdd,
   onStatusPoolChange,
+  onObserverToggle,
   onBulkEmail,
   isTrainerRole = false,
   courseEnded = false,
@@ -233,6 +234,7 @@ const CandidatesTab = ({
                 <th className="px-4 py-3">Designation</th>
                 <th className="px-4 py-3">Manning co / Manager</th>
                 <th className="px-4 py-3">Status Pool</th>
+                <th className="px-4 py-3 text-center">Observer</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -240,7 +242,7 @@ const CandidatesTab = ({
               {candidates.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={showBulkEmail ? 13 : 12}
+                    colSpan={showBulkEmail ? 14 : 13}
                     className="px-4 py-8 text-center text-slate-500"
                   >
                     No candidates enrolled yet.
@@ -271,7 +273,14 @@ const CandidatesTab = ({
                       {idx + 1}
                     </td>
                     <td className="px-4 py-3 text-sm font-semibold text-slate-900">
-                      {candidate.candidate_name}
+                      <div className="flex items-center gap-2">
+                        {candidate.candidate_name}
+                        {candidate.is_observer ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                            <Eye size={12} /> Observer
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
                       {formatDate(candidate.dob)}
@@ -314,6 +323,22 @@ const CandidatesTab = ({
                         <option value="DRY">DRY</option>
                         <option value="TANKERS">TANKERS</option>
                       </select>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!candidate.is_observer}
+                          onChange={(e) =>
+                            onObserverToggle(
+                              candidate.candidate_id,
+                              e.target.checked,
+                            )
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                      </label>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">

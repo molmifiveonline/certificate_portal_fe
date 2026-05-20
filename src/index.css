@@ -214,3 +214,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   z-index: 20;
 }
+
+/* Rich-text content overflow protection */
+.prose {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.prose p {
+  margin-bottom: 0.5em;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+

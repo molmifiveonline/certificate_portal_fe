@@ -353,6 +353,20 @@ const ActiveCourseForm = () => {
     }
   };
 
+  const handleObserverToggle = async (candidateId, isObserver) => {
+    try {
+      await activeCourseService.updateObserverStatus(id, candidateId, isObserver);
+      setEnrolledCandidates((prev) =>
+        prev.map((c) =>
+          c.candidate_id === candidateId ? { ...c, is_observer: isObserver ? 1 : 0 } : c,
+        ),
+      );
+      toast.success(isObserver ? "Candidate marked as Observer" : "Observer status removed");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to update observer status"));
+    }
+  };
+
   const handleCourseAction = async () => {
     if (!actionModal.reason) {
       toast.error("Please provide a reason");
@@ -997,6 +1011,7 @@ const ActiveCourseForm = () => {
                 setDeleteModal({ isOpen: true, candidateId: cid, remark: "" })
               }
               onStatusPoolChange={handleStatusPoolChange}
+              onObserverToggle={handleObserverToggle}
               onBulkEmail={handleSendBulkOnlineEmail}
               isTrainerRole={isTrainerRole}
               courseEnded={courseEnded}

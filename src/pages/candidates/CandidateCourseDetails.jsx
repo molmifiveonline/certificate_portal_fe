@@ -122,7 +122,14 @@ const CandidateCourseDetails = () => {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="text-slate-600 leading-relaxed">
-                                    {course.description || "No description provided for this course."}
+                                    {course.description ? (
+                                        <div
+                                            className="prose prose-slate prose-sm max-w-none break-words overflow-hidden"
+                                            dangerouslySetInnerHTML={{ __html: course.description }}
+                                        />
+                                    ) : (
+                                        "No description provided for this course."
+                                    )}
                                 </CardContent>
                             </Card>
                             

@@ -70,6 +70,14 @@ const activeCourseService = {
     return response.data;
   },
 
+  updateObserverStatus: async (id, candidateId, isObserver) => {
+    const response = await api.put(
+      `/active-courses/${id}/candidates/${candidateId}/observer`,
+      { isObserver },
+    );
+    return response.data;
+  },
+
   getAvailableCandidates: async (id) => {
     const response = await api.get(
       `/active-courses/${id}/available-candidates`,
