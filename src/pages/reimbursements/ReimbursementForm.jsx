@@ -22,7 +22,10 @@ import {
   REIMBURSEMENT_STATUS,
   toMultipartFormData,
 } from "../../lib/utils/reimbursementUtils";
-import { getCurrentDateForInput } from "../../lib/utils/dateUtils";
+import {
+  formatDateForInput,
+  getCurrentDateForInput,
+} from "../../lib/utils/dateUtils";
 
 const initialValues = {
   active_course_id: "",
@@ -74,7 +77,11 @@ const ReimbursementForm = () => {
         setLoading(true);
         const response = await reimbursementService.getReimbursementById(id);
         const reimbursement = response?.data || response;
-        setValues((prev) => ({ ...prev, ...reimbursement }));
+        setValues((prev) => ({
+          ...prev,
+          ...reimbursement,
+          claim_date: formatDateForInput(reimbursement?.claim_date),
+        }));
         setAttachments(reimbursement?.attachments || []);
       } catch (error) {
         console.error("Failed to load reimbursement:", error);

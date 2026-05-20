@@ -10,6 +10,27 @@ const getDateOnlyParts = (date) => {
 };
 
 /**
+ * Format a date object or string to YYYY-MM-DD for input type="date"
+ * @param {string|Date} date - The date to format
+ * @returns {string} - Date input value or empty string if invalid
+ */
+export const formatDateForInput = (date) => {
+  if (!date) return "";
+
+  if (typeof date === "string") {
+    const dateOnlyMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (dateOnlyMatch) {
+      return `${dateOnlyMatch[1]}-${dateOnlyMatch[2]}-${dateOnlyMatch[3]}`;
+    }
+  }
+
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+
+  return d.toISOString().split("T")[0];
+};
+
+/**
  * Format a date object or string to DD/MM/YYYY
  * @param {string|Date} date - The date to format
  * @returns {string} - Formatted date string or "-" if invalid
@@ -60,5 +81,5 @@ export const formatDateTime = (date) => {
  * @returns {string}
  */
 export const getCurrentDateForInput = () => {
-  return new Date().toISOString().split("T")[0];
+  return formatDateForInput(new Date());
 };

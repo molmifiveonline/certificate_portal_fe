@@ -100,8 +100,15 @@ const FeedbackTab = ({ courseId }) => {
                     <input
                       type="checkbox"
                       checked={!!c.feedback_completed}
+                      disabled
                       readOnly
-                      className="h-4 w-4 accent-blue-600"
+                      aria-label={`Feedback ${c.feedback_completed ? "submitted" : "pending"} for ${c.candidate_name}`}
+                      title={
+                        c.feedback_completed
+                          ? "Feedback submitted by candidate"
+                          : "Feedback pending from candidate"
+                      }
+                      className="h-4 w-4 accent-blue-600 cursor-not-allowed"
                     />
                   </td>
                 </tr>
