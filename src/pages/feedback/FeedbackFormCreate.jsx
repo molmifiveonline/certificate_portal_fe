@@ -24,6 +24,8 @@ import feedbackFormService from "../../services/feedbackFormService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import PageHeader from "../../components/common/PageHeader";
 
+const FEEDBACK_COURSE_MODE_OPTIONS = ["Online", "Offline"];
+
 const MultiSelect = ({
   options,
   selectedValues,
@@ -115,7 +117,7 @@ const FeedbackFormCreate = () => {
   const [formErrors, setFormErrors] = useState({});
 
   const [title, setTitle] = useState("");
-  const [typeOfCourse, setTypeOfCourse] = useState("All");
+  const [typeOfCourse, setTypeOfCourse] = useState("Online");
   const [status, setStatus] = useState(1);
 
   const [selectedCategories, setSelectedCategories] = useState([]); // List of category IDs
@@ -133,7 +135,11 @@ const FeedbackFormCreate = () => {
         if (isEditMode) {
           const form = await feedbackFormService.getById(id);
           setTitle(form.title);
-          setTypeOfCourse(form.type_of_course);
+          setTypeOfCourse(
+            FEEDBACK_COURSE_MODE_OPTIONS.includes(form.type_of_course)
+              ? form.type_of_course
+              : "Online",
+          );
           setStatus(form.status);
 
           const loadedSelectedCats = Object.keys(form.questions);
@@ -259,8 +265,17 @@ const FeedbackFormCreate = () => {
     if (!title.trim()) {
       errors.title = "Form title is required";
     }
+    if (!FEEDBACK_COURSE_MODE_OPTIONS.includes(typeOfCourse)) {
+      errors.typeOfCourse = "Course mode is required";
+    }
     if (selectedCategories.length === 0) {
       errors.categories = "Please select at least one category";
+    }
+    const hasQuestion = Object.values(categoryQuestions).some(
+      (questions) => Array.isArray(questions) && questions.length > 0,
+    );
+    if (!hasQuestion) {
+      errors.questions = "Please add at least one feedback question";
     }
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -377,18 +392,32 @@ const FeedbackFormCreate = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Type Of Course
+                  Course Mode <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={typeOfCourse}
-                  onChange={(e) => setTypeOfCourse(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  onChange={(e) => {
+                    setTypeOfCourse(e.target.value);
+                    if (formErrors.typeOfCourse) {
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        typeOfCourse: undefined,
+                      }));
+                    }
+                  }}
+                  className={`w-full px-4 py-2 bg-white/50 border ${formErrors.typeOfCourse ? "border-red-500" : "border-slate-200/60"} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all`}
                 >
-                  <option value="All">All Courses</option>
-                  <option value="STCW">STCW</option>
-                  <option value="Offshore">Offshore</option>
-                  <option value="Value Added">Value Added</option>
+                  {FEEDBACK_COURSE_MODE_OPTIONS.map((mode) => (
+                    <option key={mode} value={mode}>
+                      {mode}
+                    </option>
+                  ))}
                 </select>
+                {formErrors.typeOfCourse && (
+                  <span className="text-red-500 text-xs mt-1 block">
+                    {formErrors.typeOfCourse}
+                  </span>
+                )}
               </div>
 
               <div>
@@ -443,7 +472,15 @@ const FeedbackFormCreate = () => {
                       {category.name}
                     </CardTitle>
                     <button
-                      onClick={() => handleAddQuestion(catId)}
+                      onClick={() => {
+                        handleAddQuestion(catId);
+                        if (formErrors.questions) {
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            questions: undefined,
+                          }));
+                        }
+                      }}
                       className="text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-medium hover:bg-blue-100 transition-colors flex items-center gap-1"
                     >
                       <Plus className="w-4 h-4" /> Add Question
@@ -571,6 +608,11 @@ const FeedbackFormCreate = () => {
             })
           )}
         </div>
+        {formErrors.questions && (
+          <div className="text-red-500 text-sm mt-4 px-1">
+            {formErrors.questions}
+          </div>
+        )}
       </div>
 
       {/* Sticky Footer */}

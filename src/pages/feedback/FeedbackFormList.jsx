@@ -3,8 +3,7 @@ import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import { Plus, Search, Edit, Trash2, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/Card";
-import { Button, buttonVariants } from "../../components/ui/Button";
-import { cn } from "../../lib/utils/utils";
+import { Button } from "../../components/ui/Button";
 import { toast } from "sonner";
 import { debounce } from "lodash";
 import { Link, useNavigate } from "react-router-dom";
@@ -95,7 +94,7 @@ const FeedbackFormList = () => {
         },
         {
             key: "type_of_course",
-            label: "Type of Course",
+            label: "Course Mode",
         },
         {
             key: "status",
