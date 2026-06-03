@@ -184,7 +184,7 @@ const CandidateFeedbackTab = ({ courseId }) => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-20">
+        <div className="max-w-4xl mx-auto space-y-8 pb-8">
             <div className="flex flex-col gap-2">
                 <h3 className="text-2xl font-bold text-slate-900 leading-tight">
                     Your Opinion Matters
@@ -294,9 +294,9 @@ const CandidateFeedbackTab = ({ courseId }) => {
                 </Card>
             ))}
 
-            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-6">
+            <div className="flex justify-end mt-8">
                 <Button 
-                    className="w-full h-14 bg-primary hover:bg-primary/90 text-lg font-bold shadow-2xl shadow-primary/30 rounded-2xl group"
+                    className="h-12 px-8 bg-primary hover:bg-primary/90 text-base font-semibold shadow-lg shadow-primary/30 rounded-xl group"
                     onClick={handleSubmit}
                     disabled={submitting}
                 >
@@ -307,8 +307,8 @@ const CandidateFeedbackTab = ({ courseId }) => {
                         </span>
                     ) : (
                         <span className="flex items-center">
-                            <Send className="h-5 w-5 mr-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                            Submit Comprehensive Feedback
+                            <Send className="h-4 w-4 mr-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            Submit Feedback
                         </span>
                     )}
                 </Button>
@@ -318,5 +318,3 @@ const CandidateFeedbackTab = ({ courseId }) => {
 };
 
 export default CandidateFeedbackTab;
-
-
