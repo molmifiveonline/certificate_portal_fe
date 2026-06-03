@@ -266,12 +266,12 @@ export const MenuItems = [
     icon: Book,
     allowedRoles: ["candidate"],
   },
-  // {
-  //   title: "My Certificates",
-  //   url: "/candidate-certificates",
-  //   icon: Award,
-  //   allowedRoles: ["candidate"],
-  // },
+  {
+    title: "My Certificates",
+    url: "/candidate-certificates",
+    icon: Award,
+    allowedRoles: ["candidate"],
+  },
   {
     title: "Reimbursements",
     url: "/reimbursements",

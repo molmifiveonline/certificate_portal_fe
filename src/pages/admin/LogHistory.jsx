@@ -230,7 +230,29 @@ const formatLogDetails = (log, resolvedResourceNames) => {
   const isAutoLog = /Method:\s+[A-Z]+,\s+URL:.+,\s+Status:\s+\d+/i.test(details);
   
   if (isAutoLog) {
-    return targetName || "-";
+    if (targetName) return targetName;
+    
+    // Fallback: Parse the Method and URL from details to generate a readable summary
+    const parts = normalizeRouteParts(log.details);
+    const apiIndex = parts.indexOf("api");
+    if (apiIndex !== -1 && parts.length > apiIndex + 1) {
+      let moduleName = parts[apiIndex + 1];
+      moduleName = moduleName
+        .split(/[- ]+/)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+      
+      const methodMatch = log.details.match(/Method:\s*([A-Z]+)/i);
+      const method = methodMatch ? methodMatch[1].toUpperCase() : "";
+      let actionType = "Modified";
+      if (method === "POST") actionType = "Created";
+      else if (method === "DELETE") actionType = "Deleted";
+      else if (method === "PUT" || method === "PATCH") actionType = "Updated";
+
+      return `${actionType} ${moduleName}`;
+    }
+    
+    return "-";
   }
 
   // For custom logs, just remove Method and URL keywords if they exist to keep it clean
@@ -238,6 +260,32 @@ const formatLogDetails = (log, resolvedResourceNames) => {
   details = details.replace(/URL:\s*[^,]+,?\s*/i, "");
   
   return details.replace(/^(,\s*)+|(,\s*)+$/g, "").trim() || "-";
+};
+
+const renderDateTime = (createdAt) => {
+  if (!createdAt) return "-";
+  const d = new Date(createdAt);
+  if (Number.isNaN(d.getTime())) return "-";
+
+  const dateStr = new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d);
+
+  const timeStr = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).format(d).toUpperCase();
+
+  return (
+    <div className="flex flex-col">
+      <span className="text-slate-800 font-semibold">{dateStr}</span>
+      <span className="text-xs text-slate-400 font-normal mt-0.5">{timeStr}</span>
+    </div>
+  );
 };
 
 const LogHistory = () => {
@@ -447,8 +495,8 @@ const LogHistory = () => {
                     key={log.id}
                     className="hover:bg-white/40 transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
-                      {formatDateTime(log.created_at)}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {renderDateTime(log.created_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">

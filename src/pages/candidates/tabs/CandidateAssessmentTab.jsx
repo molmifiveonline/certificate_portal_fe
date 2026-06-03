@@ -64,24 +64,26 @@ const CandidateAssessmentTab = ({ courseId }) => {
                     assessments.map((assessment) => {
                         const score = assessment.latest_score;
                         const attempts = assessment.attempts || 0;
-                        const isPassed = score !== null && score >= 60;
-                        const canReTest = attempts < assessment.max_attempts && (!isPassed);
+                        const hasAttempted = score != null;
+                        const isPassed = hasAttempted && score >= 60;
+                        const canReTest = attempts < (assessment.max_attempts || 3) && (!isPassed);
+                        const typeLabel = { '1': 'Pre Course', '2': 'Post Course', '3': 'Daily' }[String(assessment.type_of_test)] || assessment.type_of_test;
 
                         return (
                             <Card key={assessment.id} className="bg-white/80 backdrop-blur-xl border-white/60 shadow-sm overflow-hidden group">
                                 <CardHeader className="pb-4">
                                     <div className="flex justify-between items-start">
                                         <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider">
-                                            {assessment.type_of_test}
+                                            {typeLabel}
                                         </Badge>
-                                        {score !== null && (
+                                        {hasAttempted && (
                                             <Badge className={isPassed ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200"}>
                                                 {isPassed ? "PASSED" : "RE-TEST REQUIRED"}
                                             </Badge>
                                         )}
                                     </div>
                                     <CardTitle className="mt-2 text-lg group-hover:text-primary transition-colors">
-                                        {assessment.type_of_test}
+                                        {assessment.title || typeLabel}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -89,13 +91,13 @@ const CandidateAssessmentTab = ({ courseId }) => {
                                         <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
                                             <div className="text-[10px] uppercase text-slate-400 font-bold mb-1">Score</div>
                                             <div className="text-xl font-bold text-slate-700">
-                                                {score !== null ? `${score}%` : '--'}
+                                                {hasAttempted ? `${Math.round(score)}%` : '--'}
                                             </div>
                                         </div>
                                         <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
                                             <div className="text-[10px] uppercase text-slate-400 font-bold mb-1">Attempts</div>
                                             <div className="text-xl font-bold text-slate-700">
-                                                {attempts} / {assessment.max_attempts}
+                                                {attempts} / {assessment.max_attempts || 3}
                                             </div>
                                         </div>
                                     </div>
@@ -111,7 +113,7 @@ const CandidateAssessmentTab = ({ courseId }) => {
                                             <CheckCircle2 className="h-5 w-5 mr-2" />
                                             Assessment Completed
                                         </div>
-                                    ) : attempts >= assessment.max_attempts ? (
+                                    ) : attempts >= (assessment.max_attempts || 3) ? (
                                         <div className="w-full flex items-center justify-center p-2 text-rose-500 font-medium">
                                             <AlertCircle className="h-5 w-5 mr-2" />
                                             Max Attempts Reached

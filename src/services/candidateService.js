@@ -127,6 +127,16 @@ const candidateService = {
     const response = await api.get("/candidate/sync-history", { params });
     return response.data;
   },
+
+  getMergePreview: async (candidateIds = []) => {
+    const response = await api.post("/candidate/merge-preview", { candidate_ids: candidateIds });
+    return response.data;
+  },
+
+  mergeCandidates: async (payload = {}) => {
+    const response = await api.post("/candidate/merge", payload);
+    return response.data;
+  },
 };
 
 export default candidateService;
