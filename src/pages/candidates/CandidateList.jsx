@@ -31,6 +31,7 @@ import { useAuth } from "../../context/AuthContext";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import CandidateImportPreviewModal from "../../components/candidates/CandidateImportPreviewModal";
 import CandidateSyncHistoryModal from "../../components/candidates/CandidateSyncHistoryModal";
+import CandidateMergeModal from "../../components/candidates/CandidateMergeModal";
 
 const CandidateList = ({ registrationType }) => {
   const navigate = useNavigate();
@@ -52,6 +53,8 @@ const CandidateList = ({ registrationType }) => {
   // Two-Step Sync States
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showSyncHistoryModal, setShowSyncHistoryModal] = useState(false);
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState([]);
 
   // Filter States
   const [showFilters, setShowFilters] = useState(false);
@@ -93,6 +96,7 @@ const CandidateList = ({ registrationType }) => {
       setCandidates(result.data);
       setTotalPages(result.totalPages);
       setTotalCount(result.total);
+      setSelectedCandidateIds([]); // Clear selection on reload
     } catch (error) {
       console.error("Error fetching candidates:", error);
       toast.error(getErrorMessage(error, "Failed to load candidates"));
@@ -170,6 +174,40 @@ const CandidateList = ({ registrationType }) => {
 
   const columns = useMemo(() => {
     const cols = [];
+
+    if (hasPermission("edit_candidate")) {
+      cols.push({
+        key: "selection",
+        label: (
+          <input
+            type="checkbox"
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            checked={candidates.length > 0 && selectedCandidateIds.length === candidates.length}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedCandidateIds(candidates.map((c) => c.id));
+              } else {
+                setSelectedCandidateIds([]);
+              }
+            }}
+          />
+        ),
+        render: (_val, row) => (
+          <input
+            type="checkbox"
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            checked={selectedCandidateIds.includes(row.id)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedCandidateIds((prev) => [...prev, row.id]);
+              } else {
+                setSelectedCandidateIds((prev) => prev.filter((id) => id !== row.id));
+              }
+            }}
+          />
+        ),
+      });
+    }
 
     if (registrationType !== "Others") {
       cols.push({
@@ -254,7 +292,7 @@ const CandidateList = ({ registrationType }) => {
     }
 
     return cols;
-  }, [registrationType, navigate, hasPermission]);
+  }, [registrationType, navigate, hasPermission, selectedCandidateIds, candidates]);
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -302,6 +340,17 @@ const CandidateList = ({ registrationType }) => {
                   Sync API
                 </Button>
               </>
+            )}
+
+            {hasPermission("edit_candidate") && (
+              <Button
+                onClick={() => setShowMergeModal(true)}
+                disabled={selectedCandidateIds.length < 2}
+                className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:brightness-110 px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <Users className="w-4 h-4" />
+                Merge Candidates {selectedCandidateIds.length >= 2 ? `(${selectedCandidateIds.length})` : ""}
+              </Button>
             )}
 
             {hasPermission("create_candidate") && (
@@ -507,6 +556,22 @@ const CandidateList = ({ registrationType }) => {
         isOpen={showSyncHistoryModal}
         onClose={() => setShowSyncHistoryModal(false)}
       />
+
+      {showMergeModal && (
+        <CandidateMergeModal
+          isOpen={showMergeModal}
+          onClose={() => {
+            setShowMergeModal(false);
+            setSelectedCandidateIds([]);
+          }}
+          selectedCandidateIds={selectedCandidateIds}
+          onMergeSuccess={() => {
+            setShowMergeModal(false);
+            setSelectedCandidateIds([]);
+            fetchCandidates();
+          }}
+        />
+      )}
     </div>
   );
 };
