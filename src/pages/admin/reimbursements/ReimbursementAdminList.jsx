@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { debounce } from "lodash";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import { Eye, ReceiptText, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +38,20 @@ const normalizeListResponse = (response) => ({
 const ReimbursementAdminList = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(search);
+    }, [search, updateDebouncedSearch]);
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -49,8 +64,7 @@ const ReimbursementAdminList = () => {
       setLoading(true);
       const response = await reimbursementService.getAdminReimbursements({
         page,
-        limit,
-        search,
+        limit, debouncedSearch,
         status: status === "all" ? undefined : status,
       });
       const { rows: data, total } = normalizeListResponse(response);
@@ -62,7 +76,7 @@ const ReimbursementAdminList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, status]);
+  }, [page, limit, debouncedSearch, status]);
 
   useEffect(() => {
     fetchRows();

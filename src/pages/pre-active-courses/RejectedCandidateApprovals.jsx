@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { debounce } from "lodash";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { Check, Search, ShieldAlert, UserX, X } from "lucide-react";
 import { toast } from "sonner";
 import BackButton from "../../components/common/BackButton";
@@ -123,6 +124,20 @@ const RejectedCandidateApprovals = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [adminStatus, setAdminStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -147,7 +162,7 @@ const RejectedCandidateApprovals = () => {
         await preActiveCourseService.getRejectedCandidateApprovals({
           page: currentPage,
           limit,
-          search: searchTerm,
+          search: debouncedSearch,
           admin_status: adminStatus,
           sort_by: sortBy,
           sort_order: sortOrder,
@@ -162,7 +177,7 @@ const RejectedCandidateApprovals = () => {
     } finally {
       setLoading(false);
     }
-  }, [adminStatus, currentPage, limit, searchTerm, sortBy, sortOrder]);
+  }, [adminStatus, currentPage, limit, debouncedSearch, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchApprovals();
@@ -173,7 +188,7 @@ const RejectedCandidateApprovals = () => {
       setCurrentPage(1);
     }, 400);
     return () => clearTimeout(timeout);
-  }, [adminStatus, searchTerm]);
+  }, [adminStatus, debouncedSearch]);
 
   const handleSort = (column) => {
     if (sortBy === column) {

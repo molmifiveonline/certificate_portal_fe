@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import Meta from "../../components/common/Meta";
@@ -22,6 +23,20 @@ import { useAuth } from "../../context/AuthContext";
 const NominatorList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [nominators, setNominators] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -36,7 +51,7 @@ const NominatorList = () => {
         setLoading(true);
         try {
             const params = { page: currentPage, limit };
-            if (searchTerm.trim()) params.search = searchTerm.trim();
+            if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
 
             const result = await nominatorService.getAllNominators(params);
             setNominators(Array.isArray(result.data) ? result.data : []);
@@ -49,7 +64,7 @@ const NominatorList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, searchTerm]);
+    }, [currentPage, limit, debouncedSearch]);
 
     useEffect(() => {
         fetchNominators();

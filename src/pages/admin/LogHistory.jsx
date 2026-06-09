@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { Card, CardContent } from "../../components/ui/Card";
 import TablePagination from "../../components/ui/TablePagination";
 import { formatDateTime } from "../../lib/utils/dateUtils";
+import { debounce } from "lodash";
 
 const UUID_PATTERN =
   /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/i;
@@ -248,7 +249,7 @@ const formatLogDetails = (log, resolvedResourceNames) => {
       if (method === "POST") actionType = "Created";
       else if (method === "DELETE") actionType = "Deleted";
       else if (method === "PUT" || method === "PATCH") actionType = "Updated";
-
+ 
       return `${actionType} ${moduleName}`;
     }
     
@@ -293,9 +294,8 @@ const LogHistory = () => {
   const [resolvedResourceNames, setResolvedResourceNames] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-  const searchTimeoutRef = useRef(null);
-  const latestSearchTermRef = useRef("");
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -305,6 +305,19 @@ const LogHistory = () => {
   // Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [logToDelete, setLogToDelete] = useState(null);
+
+  const updateDebouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        setDebouncedSearch(value);
+        setCurrentPage(1);
+      }, 500),
+    []
+  );
+
+  useEffect(() => {
+    updateDebouncedSearch(searchTerm);
+  }, [searchTerm, updateDebouncedSearch]);
 
   const fetchLogs = useCallback(async (page, limit, search) => {
     setLoading(true);
@@ -329,8 +342,8 @@ const LogHistory = () => {
   }, []);
 
   useEffect(() => {
-    fetchLogs(currentPage, itemsPerPage, latestSearchTermRef.current);
-  }, [currentPage, itemsPerPage, fetchLogs]);
+    fetchLogs(currentPage, itemsPerPage, debouncedSearch);
+  }, [currentPage, itemsPerPage, debouncedSearch, fetchLogs]);
 
   useEffect(() => {
     const unresolvedResources = [
@@ -376,27 +389,8 @@ const LogHistory = () => {
     };
   }, [logs, resolvedResourceNames]);
 
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    latestSearchTermRef.current = value;
-    setCurrentPage(1);
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      fetchLogs(1, itemsPerPage, value);
-    }, 500);
+    setSearchTerm(e.target.value);
   };
 
   const confirmDelete = async () => {
@@ -428,7 +422,7 @@ const LogHistory = () => {
 
   const totalPages = Math.ceil(totalLogs / itemsPerPage);
 
-  if (loading && logs.length === 0 && !searchTerm && !latestSearchTermRef.current) return <LoadingSpinner />;
+  if (loading && logs.length === 0 && !searchTerm && !debouncedSearch) return <LoadingSpinner />;
 
   return (
     <div className="flex-1 overflow-y-auto">

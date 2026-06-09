@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Meta from "../../components/common/Meta";
+import AnimatedCounter from "../../components/common/AnimatedCounter";
 import PageHeader from "../../components/common/PageHeader";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
@@ -68,7 +69,7 @@ const StatsCard = ({
           <div className="h-10 w-24 animate-pulse rounded-md bg-slate-200" />
         ) : (
           <h3 className="text-4xl font-bold tracking-tight text-slate-800">
-            {value}
+            <AnimatedCounter value={value} />
           </h3>
         )}
         <p className="mt-1 text-sm font-semibold text-slate-500">{title}</p>

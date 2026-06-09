@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
@@ -17,6 +18,20 @@ import { formatDate } from "../../lib/utils/dateUtils";
 const ActiveCourseList = () => {
   const { hasPermission } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,8 +59,8 @@ const ActiveCourseList = () => {
         from_date: dateRange.start,
         to_date: dateRange.end,
       };
-      if (searchTerm.trim()) {
-        params.search = searchTerm.trim();
+      if (debouncedSearch.trim()) {
+        params.search = debouncedSearch.trim();
       }
       const result = await activeCourseService.getAllCourses(params);
 
@@ -65,8 +80,7 @@ const ActiveCourseList = () => {
     currentPage,
     limit,
     sortBy,
-    sortOrder,
-    searchTerm,
+    sortOrder, debouncedSearch,
     statusFilter,
     dateRange,
   ]);
@@ -75,12 +89,7 @@ const ActiveCourseList = () => {
     fetchCourses();
   }, [fetchCourses]);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setCurrentPage(1);
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, [searchTerm]);
+  
 
   const handleExport = async () => {
     try {
