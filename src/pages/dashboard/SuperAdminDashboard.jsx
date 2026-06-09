@@ -27,6 +27,7 @@ import {
   CardTitle,
 } from "../../components/ui/Card";
 import Meta from "../../components/common/Meta";
+import AnimatedCounter from "../../components/common/AnimatedCounter";
 import api from "../../lib/api";
 import { toast } from "sonner";
 import { formatDate } from "../../lib/utils/dateUtils";
@@ -83,7 +84,7 @@ const StatsCard = ({
           <div className="h-10 w-24 bg-slate-200 animate-pulse rounded-md" />
         ) : (
           <h3 className="text-4xl font-bold text-slate-800 tracking-tight">
-            {value}
+            <AnimatedCounter value={value} />
           </h3>
         )}
         <p className="text-sm font-semibold text-slate-500 mt-1">{title}</p>

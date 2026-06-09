@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Meta from '../../components/common/Meta';
+import AnimatedCounter from '../../components/common/AnimatedCounter';
 import PageHeader from '../../components/common/PageHeader';
 import { useAuth } from '../../context/AuthContext';
 import trainerService from '../../services/trainerService';
@@ -48,7 +49,9 @@ const StatsCard = ({ title, value, icon: Icon, gradient, loading, onClick }) => 
                 {loading ? (
                     <div className="h-10 w-24 bg-slate-200 animate-pulse rounded-md" />
                 ) : (
-                    <h3 className="text-4xl font-bold text-slate-800 tracking-tight">{value}</h3>
+                    <h3 className="text-4xl font-bold text-slate-800 tracking-tight">
+                        <AnimatedCounter value={value} />
+                    </h3>
                 )}
                 <p className="text-sm font-semibold text-slate-500 mt-1">{title}</p>
             </div>
