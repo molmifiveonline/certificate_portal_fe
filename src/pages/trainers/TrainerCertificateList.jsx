@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
@@ -14,6 +15,20 @@ import { toast } from "sonner";
 const TrainerCertificateList = () => {
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -29,8 +44,8 @@ const TrainerCertificateList = () => {
                 limit,
                 trainer_id: user?.id,
             };
-            if (searchTerm.trim()) {
-                params.search = searchTerm.trim();
+            if (debouncedSearch.trim()) {
+                params.search = debouncedSearch.trim();
             }
             const result = await certificateService.getAllCertificates(params);
 
@@ -47,7 +62,7 @@ const TrainerCertificateList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, searchTerm, user?.id]);
+    }, [currentPage, limit, debouncedSearch, user?.id]);
 
     useEffect(() => {
         if (user?.id) {

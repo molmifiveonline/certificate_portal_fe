@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import PageHeader from "../../../components/common/PageHeader";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +28,20 @@ const AdminUserList = () => {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
@@ -41,7 +56,7 @@ const AdminUserList = () => {
       const response = await adminUserService.getAdmins({
         page,
         limit,
-        search: searchTerm,
+        search: debouncedSearch,
       });
       setAdmins(response.data);
       setTotalCount(response.meta?.total || response.data.length || 0);
@@ -52,18 +67,13 @@ const AdminUserList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, searchTerm]);
+  }, [page, limit, debouncedSearch]);
 
   useEffect(() => {
     fetchAdmins();
   }, [fetchAdmins]);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setPage(1);
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, [searchTerm]);
+  
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);

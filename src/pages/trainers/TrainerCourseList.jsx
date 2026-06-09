@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useNavigate } from "react-router-dom";
 import { Search, Edit, BookOpen, RotateCcw } from "lucide-react";
@@ -26,6 +27,20 @@ const STATUS_OPTIONS = [
 const TrainerCourseList = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,8 +60,8 @@ const TrainerCourseList = () => {
         from_date: dateRange.start,
         to_date: dateRange.end,
       };
-      if (searchTerm.trim()) {
-        params.search = searchTerm.trim();
+      if (debouncedSearch.trim()) {
+        params.search = debouncedSearch.trim();
       }
 
       const result = await activeCourseService.getAllCourses(params);
@@ -63,7 +78,7 @@ const TrainerCourseList = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, limit, searchTerm, statusFilter, dateRange]);
+  }, [currentPage, limit, debouncedSearch, statusFilter, dateRange]);
 
   useEffect(() => {
     fetchCourses();

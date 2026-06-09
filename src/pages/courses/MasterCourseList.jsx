@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Meta from "../../components/common/Meta";
 import {
     Search,
@@ -24,6 +25,20 @@ import { getErrorMessage } from "../../lib/utils/errorUtils";
 const MasterCourseList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -51,8 +66,8 @@ const MasterCourseList = () => {
                 sort_by: sortBy,
                 sort_order: sortOrder,
             };
-            if (searchTerm.trim()) {
-                params.search = searchTerm.trim();
+            if (debouncedSearch.trim()) {
+                params.search = debouncedSearch.trim();
             }
             const response = await api.get('/master-courses', { params });
             const result = response.data;
@@ -67,18 +82,13 @@ const MasterCourseList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, sortBy, sortOrder, searchTerm]);
+    }, [currentPage, limit, sortBy, sortOrder, debouncedSearch]);
 
     useEffect(() => {
         fetchCourses();
     }, [fetchCourses]);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setCurrentPage(1);
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [searchTerm]);
+    
 
     const handleExport = async () => {
         if (!courses.length) {

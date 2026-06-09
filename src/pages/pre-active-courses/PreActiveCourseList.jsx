@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import {
   Plus,
@@ -128,6 +129,20 @@ const PreActiveCourseList = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -169,7 +184,7 @@ const PreActiveCourseList = () => {
       const response = await preActiveCourseService.getAll({
         page: currentPage,
         limit,
-        search: searchTerm,
+        search: debouncedSearch,
         sort_by: sortBy,
         sort_order: sortOrder,
       });
@@ -183,18 +198,13 @@ const PreActiveCourseList = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, limit, searchTerm, sortBy, sortOrder]);
+  }, [currentPage, limit, debouncedSearch, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setCurrentPage(1);
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, [searchTerm]);
+  
 
   const handleDeleteClick = (course) => {
     setCourseToDelete(course);

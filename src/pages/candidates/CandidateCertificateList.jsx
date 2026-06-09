@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { debounce } from "lodash";
+import React, { useEffect, useState, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Printer, Award, Search } from "lucide-react";
 import Meta from "../../components/common/Meta";
@@ -19,6 +20,20 @@ const CandidateCertificateList = () => {
   const { user } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -98,7 +113,7 @@ const CandidateCertificateList = () => {
     return () => {
       isMounted = false;
     };
-  }, [currentPage, limit, searchTerm, user]);
+  }, [currentPage, limit, debouncedSearch, user]);
 
   const columns = [
     {

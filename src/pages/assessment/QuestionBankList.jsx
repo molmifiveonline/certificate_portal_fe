@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Meta from "../../components/common/Meta";
 import {
     Search,
@@ -26,6 +27,20 @@ import { useAuth } from "../../context/AuthContext";
 const QuestionBankList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -56,7 +71,7 @@ const QuestionBankList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, searchTerm, selectedCourse]);
+    }, [currentPage, limit, debouncedSearch, selectedCourse]);
 
     useEffect(() => {
         const fetchMasterCourses = async () => {

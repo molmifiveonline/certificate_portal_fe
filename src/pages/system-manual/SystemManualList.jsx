@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
@@ -26,6 +27,20 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 const SystemManualList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [manuals, setManuals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -47,8 +62,8 @@ const SystemManualList = () => {
                 sort_by: sortBy,
                 sort_order: sortOrder,
             };
-            if (searchTerm.trim()) {
-                params.search = searchTerm.trim();
+            if (debouncedSearch.trim()) {
+                params.search = debouncedSearch.trim();
             }
             const response = await systemManualService.getSystemManuals(params);
 
@@ -68,18 +83,13 @@ const SystemManualList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, sortBy, sortOrder, searchTerm]);
+    }, [currentPage, limit, sortBy, sortOrder, debouncedSearch]);
 
     useEffect(() => {
         fetchManuals();
     }, [fetchManuals]);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setCurrentPage(1);
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [searchTerm]);
+    
 
     const handleDelete = (id) => {
         setManualToDelete(id);

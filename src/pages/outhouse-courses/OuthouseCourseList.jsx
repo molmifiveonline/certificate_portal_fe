@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { debounce } from "lodash";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { BookOpen, Edit, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -48,6 +49,20 @@ const OuthouseCourseList = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [statusFilter, setStatusFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -64,7 +79,7 @@ const OuthouseCourseList = () => {
       const response = await outhouseCourseService.getAll({
         page: currentPage,
         limit,
-        search: searchTerm.trim(),
+        search: debouncedSearch.trim(),
         status: statusFilter,
         from_date: fromDate,
         to_date: toDate,
@@ -94,8 +109,7 @@ const OuthouseCourseList = () => {
     currentPage,
     fromDate,
     toDate,
-    limit,
-    searchTerm,
+    limit, debouncedSearch,
     sortBy,
     sortOrder,
     statusFilter,

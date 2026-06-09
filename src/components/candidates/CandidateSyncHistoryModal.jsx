@@ -1,3 +1,4 @@
+import { debounce } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { History, Search, X } from "lucide-react";
 import { Button } from "../ui/Button";
@@ -13,6 +14,20 @@ const CandidateSyncHistoryModal = ({ isOpen, onClose }) => {
   const [historyRows, setHistoryRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
@@ -35,7 +50,7 @@ const CandidateSyncHistoryModal = ({ isOpen, onClose }) => {
         const result = await candidateService.getSyncHistory({
           page: currentPage,
           limit,
-          search: searchTerm.trim(),
+          search: debouncedSearch.trim(),
           days: HISTORY_DAYS,
         });
 
@@ -60,7 +75,7 @@ const CandidateSyncHistoryModal = ({ isOpen, onClose }) => {
     return () => {
       isMounted = false;
     };
-  }, [isOpen, currentPage, limit, searchTerm]);
+  }, [isOpen, currentPage, limit, debouncedSearch]);
 
   const totalPages = Math.ceil(totalCount / limit) || 1;
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import PageSubtitle from "../../components/common/PageSubtitle";
@@ -25,6 +26,20 @@ import { getErrorMessage } from "../../lib/utils/errorUtils";
 const TrainerList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [trainers, setTrainers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -46,8 +61,8 @@ const TrainerList = () => {
                 sort_by: sortBy,
                 sort_order: sortOrder,
             };
-            if (searchTerm.trim()) {
-                params.search = searchTerm.trim();
+            if (debouncedSearch.trim()) {
+                params.search = debouncedSearch.trim();
             }
             const response = await api.get('/trainer', { params });
             const result = response.data;
@@ -63,19 +78,14 @@ const TrainerList = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, limit, sortBy, sortOrder, searchTerm]);
+    }, [currentPage, limit, sortBy, sortOrder, debouncedSearch]);
 
     useEffect(() => {
         fetchTrainers();
     }, [fetchTrainers]);
 
     // Debounced search: reset to page 1 when search changes
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setCurrentPage(1);
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [searchTerm]);
+    
 
     const handleExport = async () => {
         try {

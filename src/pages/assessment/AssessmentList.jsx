@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import {
@@ -21,6 +22,20 @@ import { useAuth } from "../../context/AuthContext";
 const AssessmentList = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [assessments, setAssessments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +51,7 @@ const AssessmentList = () => {
         setLoading(true);
         try {
             const response = await assessmentService.getAssessments({
-                search: searchTerm,
+                search: debouncedSearch,
                 page: currentPage,
                 limit,
             });
@@ -55,12 +70,7 @@ const AssessmentList = () => {
         fetchAssessments();
     }, [fetchAssessments]);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setCurrentPage(1);
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [searchTerm]);
+    
 
 
 

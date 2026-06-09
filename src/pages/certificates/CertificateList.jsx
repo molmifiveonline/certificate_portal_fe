@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Meta from "../../components/common/Meta";
 import {
     Search,
@@ -21,6 +22,20 @@ import { useAuth } from "../../context/AuthContext";
 const CertificateList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const updateDebouncedSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearch(value);
+                setCurrentPage(1);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        updateDebouncedSearch(searchTerm);
+    }, [searchTerm, updateDebouncedSearch]);
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -41,8 +56,8 @@ const CertificateList = () => {
                 limit,
                 status: statusFilter,
             };
-            if (searchTerm.trim()) {
-                params.search = searchTerm.trim();
+            if (debouncedSearch.trim()) {
+                params.search = debouncedSearch.trim();
             }
             const result = await certificateService.getAllCertificates(params);
 
@@ -60,7 +75,7 @@ const CertificateList = () => {
             setLoading(false);
         }
 
-    }, [currentPage, limit, searchTerm, statusFilter]);
+    }, [currentPage, limit, debouncedSearch, statusFilter]);
 
     useEffect(() => {
         fetchCertificates();
