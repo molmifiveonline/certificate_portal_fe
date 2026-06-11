@@ -15,6 +15,7 @@ const Register = lazy(() => import("./pages/auth/Register"));
 //   () => import("./pages/dashboard/CandidateDashboard"),
 // );
 const CandidateList = lazy(() => import("./pages/candidates/CandidateList"));
+const AllCandidateList = lazy(() => import("./pages/candidates/AllCandidateList"));
 const CreateTrainer = lazy(() => import("./pages/trainers/CreateTrainer"));
 const EditTrainer = lazy(() => import("./pages/trainers/EditTrainer"));
 const TrainerList = lazy(() => import("./pages/trainers/TrainerList"));
@@ -503,6 +504,17 @@ function App() {
                     requiredPermission="view_candidates"
                   >
                     <CandidateList key="others" registrationType="Others" />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/candidates/all"
+                element={
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_candidates"
+                  >
+                    <AllCandidateList />
                   </PrivateRoute>
                 }
               />

@@ -754,12 +754,13 @@ const ActiveCourseForm = () => {
                             options={[
                               { value: "Online", label: "Online" },
                               { value: "Offline", label: "Offline" },
+                              { value: "Hybrid", label: "Hybrid" },
                               { value: "Manual", label: "Manual" },
                             ]}
                           />
                         </div>
                         {/* Conditional Location Fields */}
-                        {typeOfLocation === "Offline" && (
+                        {(typeOfLocation === "Offline" || typeOfLocation === "Hybrid") && (
                           <SelectField
                             label="Location of Training"
                             name="location_id"
@@ -776,7 +777,7 @@ const ActiveCourseForm = () => {
                           />
                         )}
 
-                        {((typeOfLocation === "Offline" &&
+                        {(((typeOfLocation === "Offline" || typeOfLocation === "Hybrid") &&
                           watch("location_id") === "Other") ||
                           typeOfLocation === "Manual") && (
                           <InputField

@@ -50,7 +50,7 @@ const COURSE_STATUSES = [
   "Course Completed",
   "Certificate Generated",
 ];
-const LOCATION_TYPES = ["Online", "Offline", "Manual"];
+const LOCATION_TYPES = ["Online", "Offline", "Hybrid", "Manual"];
 const FEEDBACK_TYPES = ["Document", "Manual"];
 const COURSE_LEVELS = ["Operational", "Management", "Support", "Advanced"];
 const COURSE_TYPES = [

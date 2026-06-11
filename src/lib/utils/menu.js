@@ -65,6 +65,11 @@ export const MenuItems = [
         url: "/candidates/others",
         permissionSlug: "view_candidates",
       },
+      {
+        title: "All Candidates",
+        url: "/candidates/all",
+        permissionSlug: "view_candidates",
+      },
     ],
   },
   {

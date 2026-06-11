@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-// TWO-STEP IMPORT FLOW IMPLEMENTED
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import {
@@ -10,10 +9,7 @@ import {
   Search,
   FileDown,
   RefreshCcw,
-  UserPlus,
   Edit,
-  Zap,
-  History,
   Users,
   SlidersHorizontal,
 } from "lucide-react";
@@ -29,10 +25,9 @@ import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
 import { useAuth } from "../../context/AuthContext";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
-import CandidateImportPreviewModal from "../../components/candidates/CandidateImportPreviewModal";
-import CandidateSyncHistoryModal from "../../components/candidates/CandidateSyncHistoryModal";
+import CandidateMergeModal from "../../components/candidates/CandidateMergeModal";
 
-const CandidateList = ({ registrationType }) => {
+const AllCandidateList = () => {
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
   const [candidates, setCandidates] = useState([]);
@@ -49,16 +44,16 @@ const CandidateList = ({ registrationType }) => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Two-Step Sync States
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [showSyncHistoryModal, setShowSyncHistoryModal] = useState(false);
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState([]);
 
   // Filter States
   const [showFilters, setShowFilters] = useState(false);
   const [filterManager, setFilterManager] = useState("");
   const [filterRank, setFilterRank] = useState("");
   const [filterNationality, setFilterNationality] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all"); // Default All
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterRegistrationType, setFilterRegistrationType] = useState("");
 
   // Debounce search
   const updateDebouncedSearch = useMemo(
@@ -87,12 +82,13 @@ const CandidateList = ({ registrationType }) => {
         rank: filterRank,
         nationality: filterNationality,
         status: filterStatus,
-        registration_type: registrationType,
+        registration_type: filterRegistrationType || undefined,
       });
 
       setCandidates(result.data);
       setTotalPages(result.totalPages);
       setTotalCount(result.total);
+      setSelectedCandidateIds([]); // Clear selection on reload
     } catch (error) {
       console.error("Error fetching candidates:", error);
       toast.error(getErrorMessage(error, "Failed to load candidates"));
@@ -109,7 +105,7 @@ const CandidateList = ({ registrationType }) => {
     filterRank,
     filterNationality,
     filterStatus,
-    registrationType,
+    filterRegistrationType,
   ]);
 
   const handleResetFilters = () => {
@@ -118,7 +114,8 @@ const CandidateList = ({ registrationType }) => {
     setFilterManager("");
     setFilterRank("");
     setFilterNationality("");
-    setFilterStatus("1");
+    setFilterStatus("all");
+    setFilterRegistrationType("");
     setCurrentPage(1);
     toast.success("Filters cleared");
   };
@@ -146,12 +143,12 @@ const CandidateList = ({ registrationType }) => {
         rank: filterRank,
         nationality: filterNationality,
         status: filterStatus,
-        registration_type: registrationType,
+        registration_type: filterRegistrationType || undefined,
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "candidates.csv");
+      link.setAttribute("download", "all-candidates.csv");
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -164,23 +161,71 @@ const CandidateList = ({ registrationType }) => {
     }
   };
 
-  const handleSyncFromApi = () => {
-    setShowPreviewModal(true);
-  };
-
   const columns = useMemo(() => {
     const cols = [];
 
-    if (registrationType !== "Others") {
+    if (hasPermission("edit_candidate")) {
       cols.push({
-        key: "employee_id",
-        label: "Employee ID",
-        sortable: true,
-        render: (val) => (
-          <span className="font-medium text-slate-700">{val || "N/A"}</span>
+        key: "selection",
+        label: (
+          <input
+            type="checkbox"
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            checked={candidates.length > 0 && selectedCandidateIds.length === candidates.length}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedCandidateIds(candidates.map((c) => c.id));
+              } else {
+                setSelectedCandidateIds([]);
+              }
+            }}
+          />
+        ),
+        render: (_val, row) => (
+          <input
+            type="checkbox"
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            checked={selectedCandidateIds.includes(row.id)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedCandidateIds((prev) => [...prev, row.id]);
+              } else {
+                setSelectedCandidateIds((prev) => prev.filter((id) => id !== row.id));
+              }
+            }}
+          />
         ),
       });
     }
+
+    cols.push({
+      key: "employee_id",
+      label: "Employee ID",
+      sortable: true,
+      render: (val) => (
+        <span className="font-medium text-slate-700">{val || "N/A"}</span>
+      ),
+    });
+
+    cols.push({
+      key: "registration_type",
+      label: "Reg. Type",
+      sortable: true,
+      render: (val) => {
+        const isMolmi = val === "MOLMI Employee";
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              isMolmi
+                ? "bg-indigo-100 text-indigo-700"
+                : "bg-orange-100 text-orange-700"
+            }`}
+          >
+            {isMolmi ? "MOLMI" : "Others"}
+          </span>
+        );
+      },
+    });
 
     cols.push(
       {
@@ -254,65 +299,28 @@ const CandidateList = ({ registrationType }) => {
     }
 
     return cols;
-  }, [registrationType, navigate, hasPermission]);
+  }, [navigate, hasPermission, selectedCandidateIds, candidates]);
 
   return (
     <div className="flex-1 overflow-y-auto">
       <Meta
-        title={
-          registrationType === "MOLMI Employee"
-            ? "MOLMI Candidates"
-            : registrationType === "Others"
-              ? "Other Candidates"
-              : "All Candidates"
-        }
-        description="Manage Candidates"
+        title="All Candidates"
+        description="Manage All Candidates"
       />
       <PageHeader
-        title={
-          registrationType === "MOLMI Employee"
-            ? "MOLMI Candidates"
-            : registrationType === "Others"
-              ? "Other Candidates"
-              : "All Candidates"
-        }
-        subtitle="Manage and view all registered candidates"
+        title="All Candidates"
+        subtitle="Manage and view all registered MOLMI & Other candidates"
         icon={Users}
         actions={
           <div className="flex flex-wrap gap-3">
-            {registrationType === "MOLMI Employee" && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowSyncHistoryModal(true)}
-                  className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
-                  style={{ borderColor: "rgb(99 102 241 / 35%)" }}
-                >
-                  <History className="w-4 h-4 text-indigo-500" />
-                  Synced History
-                </Button>
-
-                <Button
-                  variant="outline"
-                  onClick={handleSyncFromApi}
-                  className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
-                  style={{ borderColor: "rgb(49 46 129 / 90%)" }}
-                >
-                  <Zap className="w-4 h-4 text-amber-500" />
-                  Sync API
-                </Button>
-              </>
-            )}
-
-            {hasPermission("create_candidate") && (
+            {hasPermission("edit_candidate") && (
               <Button
-                onClick={() =>
-                  navigate("/candidates/add", { state: { registrationType } })
-                }
-                className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+                onClick={() => setShowMergeModal(true)}
+                disabled={selectedCandidateIds.length < 2}
+                className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:brightness-110 px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                <UserPlus className="w-4 h-4" />
-                Add Candidate
+                <Users className="w-4 h-4" />
+                Merge Candidates {selectedCandidateIds.length >= 2 ? `(${selectedCandidateIds.length})` : ""}
               </Button>
             )}
           </div>
@@ -357,7 +365,28 @@ const CandidateList = ({ registrationType }) => {
             </div>
           </div>
           {showFilters && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Registration Type
+                </label>
+                <select
+                  className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                  value={filterRegistrationType}
+                  onChange={(e) => setFilterRegistrationType(e.target.value)}
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: `right 0.5rem center`,
+                    backgroundRepeat: `no-repeat`,
+                    backgroundSize: `1.5em 1.5em`,
+                    paddingRight: `2.5rem`,
+                  }}
+                >
+                  <option value="">All Types</option>
+                  <option value="MOLMI Employee">MOLMI Employee</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Manager
@@ -497,18 +526,23 @@ const CandidateList = ({ registrationType }) => {
         ]}
       />
 
-      <CandidateImportPreviewModal
-        isOpen={showPreviewModal}
-        onClose={() => setShowPreviewModal(false)}
-        onImportSuccess={fetchCandidates}
-      />
-
-      <CandidateSyncHistoryModal
-        isOpen={showSyncHistoryModal}
-        onClose={() => setShowSyncHistoryModal(false)}
-      />
+      {showMergeModal && (
+        <CandidateMergeModal
+          isOpen={showMergeModal}
+          onClose={() => {
+            setShowMergeModal(false);
+            setSelectedCandidateIds([]);
+          }}
+          selectedCandidateIds={selectedCandidateIds}
+          onMergeSuccess={() => {
+            setShowMergeModal(false);
+            setSelectedCandidateIds([]);
+            fetchCandidates();
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default CandidateList;
+export default AllCandidateList;
