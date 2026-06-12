@@ -354,6 +354,15 @@ const ActiveCourseForm = () => {
   };
 
   const handleObserverToggle = async (candidateId, isObserver) => {
+    const candidate = enrolledCandidates.find((c) => c.candidate_id === candidateId);
+    const courseStatus = courseData?.status;
+    const isObserverDisabled = candidate?.certficate_generated || ["Certificate Generated", "Course Completed"].includes(courseStatus);
+
+    if (isObserverDisabled) {
+      toast.error("Cannot change observer status after certificate generation or course completion process.");
+      return;
+    }
+
     try {
       await activeCourseService.updateObserverStatus(id, candidateId, isObserver);
       setEnrolledCandidates((prev) =>
@@ -1018,6 +1027,7 @@ const ActiveCourseForm = () => {
               courseEnded={courseEnded}
               typeOfLocation={typeOfLocation}
               bulkEmailLoading={bulkEmailLoading}
+              courseStatus={courseData?.status}
             />
           )}
 
