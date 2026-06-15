@@ -45,19 +45,17 @@ const FeedbackCourseList = () => {
                 limit,
                 search: debouncedSearch,
             };
-            const response = isTrainerRoute
-                ? await feedbackAnswerService.getSubmissions(params)
-                : await feedbackAnswerService.getFeedbackCourses(params);
+            const response = await feedbackAnswerService.getSubmissions(params);
             setCourses(response.data || []);
             setTotalPages(response.totalPages || 1);
             setTotalCount(response.totalCount || response.total || 0);
         } catch (err) {
             console.error(err);
-            toast.error(getErrorMessage(err, "Failed to fetch feedback courses."));
+            toast.error(getErrorMessage(err, "Failed to fetch feedback submissions."));
         } finally {
             setLoading(false);
         }
-    }, [page, limit, debouncedSearch, isTrainerRoute]);
+    }, [page, limit, debouncedSearch]);
 
     useEffect(() => {
         fetchCourses();
@@ -87,11 +85,21 @@ const FeedbackCourseList = () => {
         }
     };
 
-    const trainerColumns = [
+    const columns = [
         {
             key: "active_course_name",
             label: "Active Course Name",
-            render: (val) => val || "N/A",
+            render: (val, row) => (
+                <div>
+                    <div className="font-medium text-slate-800">{val || "N/A"}</div>
+                    {row.start_date && (
+                        <div className="text-xs text-slate-500 mt-0.5">
+                            {formatDate(row.start_date)}
+                            {row.end_date && ` - ${formatDate(row.end_date)}`}
+                        </div>
+                    )}
+                </div>
+            ),
         },
         {
             key: "employee_id",
@@ -100,7 +108,7 @@ const FeedbackCourseList = () => {
         },
         {
             key: "first_name",
-            label: "Employee Name",
+            label: "Candidate Name",
             render: (_val, row) => (
                 <span className="font-medium text-slate-700">
                     {[row.first_name, row.last_name].filter(Boolean).join(" ") ||
@@ -111,19 +119,9 @@ const FeedbackCourseList = () => {
             ),
         },
         {
-            key: "feedback_type",
-            label: "Feedback Type",
-            render: (val) => (
-                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    val === "Online"
-                        ? "bg-blue-100 text-blue-800"
-                        : val === "Offline"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-slate-100 text-slate-800"
-                }`}>
-                    {val || "N/A"}
-                </span>
-            ),
+            key: "effective_date",
+            label: "Submitted On",
+            render: (val) => val ? formatDate(val) : "N/A",
         },
         {
             key: "view",
@@ -131,7 +129,7 @@ const FeedbackCourseList = () => {
             align: "center",
             render: (_val, row) => (
                 <Link
-                    to={`${basePath}/submitted/${row.candidate_id}/${row.active_course_id}`}
+                    to={`${isTrainerRoute ? '/trainer-feedback' : '/feedback'}/submitted/${row.candidate_id}/${row.active_course_id}`}
                     className="inline-flex p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
                     title="View Details"
                 >
@@ -155,60 +153,9 @@ const FeedbackCourseList = () => {
         },
     ];
 
-    const courseColumns = [
-        {
-            key: "active_course_code",
-            label: "Course Code",
-            render: (val) => val || "N/A",
-        },
-        {
-            key: "active_course_name",
-            label: "Active Course Name",
-            render: (val, row) => (
-                <div>
-                    <span className="font-medium text-slate-700 block">{val}</span>
-                    <span className="text-xs text-slate-500">
-                        {formatDate(row.start_date)} - {formatDate(row.end_date)}
-                    </span>
-                </div>
-            )
-        },
-        {
-            key: "total_candidates",
-            label: "Feedback Count",
-            render: (val) => (
-                <div className="flex items-center gap-1.5 text-blue-600 font-medium">
-                    <Users className="w-4 h-4" />
-                    {val} Submissions
-                </div>
-            )
-        },
-        {
-            key: "latest_feedback_date",
-            label: "Latest Feedback",
-            render: (val) => formatDate(val),
-        },
-        {
-            key: "actions",
-            label: "Actions",
-            render: (_val, row) => (
-                <div className="flex items-center gap-2">
-                    <Link
-                        to={`${basePath}/candidates/${row.active_course_id}`}
-                        className="px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors"
-                        title="View Candidates"
-                    >
-                        View Candidates
-                    </Link>
-                </div>
-            ),
-        },
-    ];
-    const columns = isTrainerRoute ? trainerColumns : courseColumns;
-
     return (
         <div className="flex-1 overflow-y-auto">
-            <Meta title="Feedback Courses" description="View Courses with Submitted Feedback" />
+            <Meta title="Feedback Submissions" description="View Submitted Feedback" />
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
@@ -216,9 +163,7 @@ const FeedbackCourseList = () => {
                         Submitted Feedback
                     </h1>
                     <p className="text-slate-500 mt-1">
-                        {isTrainerRoute
-                            ? "View and download candidate feedback submissions"
-                            : "Select an active course to view submitted candidate feedback"}
+                        View and download candidate feedback submissions
                     </p>
                 </div>
             </div>
@@ -244,14 +189,10 @@ const FeedbackCourseList = () => {
                 columns={columns}
                 data={courses}
                 loading={loading}
-                emptyMessage={
-                    isTrainerRoute
-                        ? "No submitted feedback found."
-                        : "No feedback courses found."
-                }
+                emptyMessage="No submitted feedback found."
                 currentPage={page}
                 limit={limit}
-                rowKey={isTrainerRoute ? "candidate_id" : "active_course_id"}
+                rowKey={(row) => `${row.candidate_id}_${row.active_course_id}`}
             />
 
             <TablePagination
@@ -267,5 +208,3 @@ const FeedbackCourseList = () => {
 };
 
 export default FeedbackCourseList;
-
-

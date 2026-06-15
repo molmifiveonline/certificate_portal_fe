@@ -15,6 +15,9 @@ const PublicRoute = ({ children }) => {
 
     if (user) {
         // Redirect based on role if user is already logged in
+        if (user.nominator_id) {
+            return <Navigate to="/pre-active-courses" replace />;
+        }
         return <Navigate to="/dashboard" replace />;
     }
 

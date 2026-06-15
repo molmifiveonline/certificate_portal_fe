@@ -84,7 +84,9 @@ const MasterCourseForm = () => {
             master_course_name: data.master_course_name || "",
             certificate_type: data.certificate_type || "",
             expiry_date: data.expiry_date || "",
-            material_link: data.material_link || "",
+            trainer_material_link: data.trainer_material_link || "",
+            candidate_material_link: data.candidate_material_link || "",
+            study_material_link: data.study_material_link || "",
             description: data.description || "",
             remarks: data.remarks || "",
           });
@@ -201,11 +203,21 @@ const MasterCourseForm = () => {
                           <option value="5">5 Years</option>
                         </SelectField>
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-4">
                         <InputField
-                          label="Material Link"
-                          name="material_link"
-                          placeholder="https://example.com/materials"
+                          label="Trainer Material Link"
+                          name="trainer_material_link"
+                          placeholder="https://example.com/trainer-materials"
+                        />
+                        <InputField
+                          label="Candidate Material Link"
+                          name="candidate_material_link"
+                          placeholder="https://example.com/candidate-materials"
+                        />
+                        <InputField
+                          label="Study Material Link"
+                          name="study_material_link"
+                          placeholder="https://example.com/study-materials"
                         />
                       </div>
                     </div>

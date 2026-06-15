@@ -378,7 +378,7 @@ const PreActiveCourseList = () => {
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0 text-green-600 hover:bg-green-50 rounded-lg"
-                title="View Candidate Approvals"
+                title="View Candidates & Approvals"
               >
                 <CheckCircle className="h-4 w-4" />
               </Button>

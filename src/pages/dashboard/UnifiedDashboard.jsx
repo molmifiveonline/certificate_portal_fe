@@ -1,4 +1,5 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import SuperAdminDashboard from './SuperAdminDashboard';
 import TrainerDashboard from './TrainerDashboard';
@@ -9,6 +10,10 @@ const UnifiedDashboard = () => {
     const { user, isRestrictedAdmin } = useAuth();
 
     if (!user) return null; // Or a loading spinner, though PrivateRoute handles this
+
+    if (user.nominator_id) {
+        return <Navigate to="/pre-active-courses" replace />;
+    }
 
     const role = user.role?.toLowerCase();
 

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Form, Formik, Field } from "formik";
 import * as Yup from "yup";
-import { Save, X, FileText, Link as LinkIcon, Upload } from "lucide-react";
+import { Save, FileText, Link as LinkIcon, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
 import { toast } from "sonner";
+import { systemManualCategoryService } from "../../services/systemManualCategoryService";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -13,6 +13,8 @@ const validationSchema = Yup.object().shape({
     title: Yup.string()
         .required("Title is required")
         .max(255, "Title must be at most 255 characters"),
+    category_id: Yup.string()
+        .required("Category is required"),
     document_type: Yup.string()
         .oneOf(['file', 'url'])
         .required("Document type is required"),
@@ -33,6 +35,7 @@ const SystemManualForm = ({
 }) => {
     const defaultValues = {
         title: "",
+        category_id: "",
         document_type: "file",
         url_link: "",
         document_file: null
@@ -41,11 +44,29 @@ const SystemManualForm = ({
     const initialValues = initialData
         ? {
             title: initialData.title || "",
+            category_id: initialData.category_id || "",
             document_type: initialData.document_type || "file",
             url_link: initialData.url_link || "",
             document_file: null // Edit mode will show existing file name but we don't bind it here
         }
         : defaultValues;
+
+    const [categories, setCategories] = useState([]);
+    
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await systemManualCategoryService.getCategories({ limit: 100 });
+                if (response.success && response.data) {
+                    setCategories(Array.isArray(response.data.data) ? response.data.data : []);
+                }
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+                toast.error("Failed to load categories");
+            }
+        };
+        fetchCategories();
+    }, []);
 
     const [filePreview, setFilePreview] = useState(
         initialData?.file_original_name || null
@@ -147,6 +168,35 @@ const SystemManualForm = ({
                                     />
                                     {errors.title && touched.title && (
                                         <div className="text-red-500 text-sm mt-1">{errors.title}</div>
+                                    )}
+                                </div>
+
+                                {/* Category Field */}
+                                <div className="space-y-2 relative col-span-1 md:col-span-2">
+                                    <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                        Category <span className="text-red-500">*</span>
+                                    </label>
+                                    <Field
+                                        as="select"
+                                        name="category_id"
+                                        className={`w-full px-4 py-3 bg-white/80 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${errors.category_id && touched.category_id
+                                            ? "border-red-300 focus:border-red-500 bg-red-50/50"
+                                            : "border-slate-200 focus:border-indigo-500"
+                                            }`}
+                                        onBlur={(e) => {
+                                            handleBlur(e);
+                                            setFieldTouched('category_id', true, false);
+                                        }}
+                                    >
+                                        <option value="">Select Category</option>
+                                        {categories.map((cat) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                    {errors.category_id && touched.category_id && (
+                                        <div className="text-red-500 text-sm mt-1">{errors.category_id}</div>
                                     )}
                                 </div>
 

@@ -65,27 +65,23 @@ const ActionModal = ({
         </div>
         <div className="p-6 space-y-4">
           <div
-            className={`p-4 rounded-md ${
-              isApproval ? "bg-green-50" : "bg-red-50"
-            } flex items-start gap-3`}
+            className={`p-4 rounded-md ${isApproval ? "bg-green-50" : "bg-red-50"
+              } flex items-start gap-3`}
           >
             <ShieldAlert
-              className={`h-5 w-5 ${
-                isApproval ? "text-green-600" : "text-red-600"
-              } mt-0.5 flex-shrink-0`}
+              className={`h-5 w-5 ${isApproval ? "text-green-600" : "text-red-600"
+                } mt-0.5 flex-shrink-0`}
             />
             <div>
               <h4
-                className={`text-sm font-medium ${
-                  isApproval ? "text-green-800" : "text-red-800"
-                }`}
+                className={`text-sm font-medium ${isApproval ? "text-green-800" : "text-red-800"
+                  }`}
               >
                 Candidate: {candidate?.first_name} {candidate?.last_name || ""}
               </h4>
               <p
-                className={`mt-1 text-sm ${
-                  isApproval ? "text-green-700" : "text-red-700"
-                }`}
+                className={`mt-1 text-sm ${isApproval ? "text-green-700" : "text-red-700"
+                  }`}
               >
                 You are about to {actionStatus.toLowerCase()} this rejected
                 candidate nomination.
@@ -124,20 +120,20 @@ const RejectedCandidateApprovals = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    const updateDebouncedSearch = useMemo(
-        () =>
-            debounce((value) => {
-                setDebouncedSearch(value);
-                setCurrentPage(1);
-            }, 500),
-        []
-    );
+  const updateDebouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        setDebouncedSearch(value);
+        setCurrentPage(1);
+      }, 500),
+    []
+  );
 
-    useEffect(() => {
-        updateDebouncedSearch(searchTerm);
-    }, [searchTerm, updateDebouncedSearch]);
+  useEffect(() => {
+    updateDebouncedSearch(searchTerm);
+  }, [searchTerm, updateDebouncedSearch]);
   const [adminStatus, setAdminStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -172,7 +168,7 @@ const RejectedCandidateApprovals = () => {
       setTotalCount(response.meta?.total || 0);
     } catch (error) {
       toast.error(
-        getErrorMessage(error, "Failed to load rejected candidate approvals"),
+        getErrorMessage(error, "Failed to load candidate declined requests"),
       );
     } finally {
       setLoading(false);
@@ -385,7 +381,7 @@ const RejectedCandidateApprovals = () => {
   return (
     <div className="flex-1 overflow-y-auto w-full pb-8">
       <Meta
-        title="Rejected Candidate Approvals"
+        title="Candidate Declined Requests"
         description="Review rejected pre-active candidate approvals"
       />
 
@@ -397,7 +393,7 @@ const RejectedCandidateApprovals = () => {
               <div className="bg-red-100 p-2 rounded-xl shadow-inner">
                 <UserX className="w-8 h-8 text-red-600" />
               </div>
-              Rejected Candidate Approvals
+              Candidate Declined Requests
             </h1>
             <p className="text-slate-500 mt-1">
               Review candidate rejections across pre-active courses
@@ -442,7 +438,7 @@ const RejectedCandidateApprovals = () => {
         columns={columns}
         data={approvals}
         loading={loading}
-        emptyMessage="No rejected candidate approvals found."
+        emptyMessage="No candidate Declined Requests found."
         currentPage={currentPage}
         limit={limit}
         sortBy={sortBy}

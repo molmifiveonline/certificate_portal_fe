@@ -52,7 +52,7 @@ const AllCandidateList = () => {
   const [filterManager, setFilterManager] = useState("");
   const [filterRank, setFilterRank] = useState("");
   const [filterNationality, setFilterNationality] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("1");
   const [filterRegistrationType, setFilterRegistrationType] = useState("");
 
   // Debounce search
@@ -114,7 +114,7 @@ const AllCandidateList = () => {
     setFilterManager("");
     setFilterRank("");
     setFilterNationality("");
-    setFilterStatus("all");
+    setFilterStatus("1");
     setFilterRegistrationType("");
     setCurrentPage(1);
     toast.success("Filters cleared");

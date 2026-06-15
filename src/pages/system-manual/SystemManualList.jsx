@@ -16,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import TablePagination from "../../components/ui/TablePagination";
-import DataTable from "../../components/ui/DataTable";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { systemManualService } from "../../services/systemManualService";
 import { toast } from "sonner";
@@ -41,17 +40,28 @@ const SystemManualList = () => {
     useEffect(() => {
         updateDebouncedSearch(searchTerm);
     }, [searchTerm, updateDebouncedSearch]);
+
     const [manuals, setManuals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
-    const [sortBy, setSortBy] = useState("created_at");
-    const [sortOrder, setSortOrder] = useState("desc");
+    const [sortBy] = useState("created_at");
+    const [sortOrder] = useState("desc");
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [manualToDelete, setManualToDelete] = useState(null);
     const navigate = useNavigate();
+
+    // Accordion state
+    const [openCategories, setOpenCategories] = useState({});
+
+    const toggleCategory = (catName) => {
+        setOpenCategories(prev => ({
+            ...prev,
+            [catName]: !prev[catName]
+        }));
+    };
 
     const fetchManuals = useCallback(async () => {
         setLoading(true);
@@ -89,7 +99,27 @@ const SystemManualList = () => {
         fetchManuals();
     }, [fetchManuals]);
 
-    
+    // Grouping logic
+    const groupedManuals = useMemo(() => {
+        return manuals.reduce((acc, manual) => {
+            const catName = manual.category_name || "Uncategorized";
+            if (!acc[catName]) acc[catName] = [];
+            acc[catName].push(manual);
+            return acc;
+        }, {});
+    }, [manuals]);
+
+    // Auto-expand all categories by default when manuals are loaded/changed
+    useEffect(() => {
+        if (manuals.length > 0) {
+            const initialOpen = {};
+            manuals.forEach(m => {
+                const catName = m.category_name || "Uncategorized";
+                initialOpen[catName] = true;
+            });
+            setOpenCategories(initialOpen);
+        }
+    }, [manuals]);
 
     const handleDelete = (id) => {
         setManualToDelete(id);
@@ -108,16 +138,6 @@ const SystemManualList = () => {
             setDeleteModalOpen(false);
             setManualToDelete(null);
         }
-    };
-
-    const handleSort = (column) => {
-        if (sortBy === column) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-        } else {
-            setSortBy(column);
-            setSortOrder("asc");
-        }
-        setCurrentPage(1);
     };
 
     const handleActionClick = async (row) => {
@@ -139,7 +159,6 @@ const SystemManualList = () => {
                 window.URL.revokeObjectURL(blobUrl);
             } catch (error) {
                 console.error("Download failed:", error);
-                // Fallback to direct URL if fetch fails
                 window.open(fileUrl, "_blank");
             }
         } else if (row.document_type === 'url' && row.url_link) {
@@ -147,65 +166,7 @@ const SystemManualList = () => {
         } else {
             toast.error("Document link not found.");
         }
-    }
-
-    const columns = [
-        {
-            key: "title",
-            label: "Title",
-            sortable: true,
-            render: (val) => <span className="font-semibold text-slate-800">{val}</span>,
-        },
-        {
-            key: "document_type",
-            label: "Type",
-            sortable: true,
-            render: (val) => (
-                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${val === 'file' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'
-                    }`}>
-                    {val === 'file' ? 'DOCUMENT' : 'URL'}
-                </span>
-            ),
-        },
-        {
-            key: "actions",
-            label: "Actions",
-            align: "right",
-            render: (_val, row) => (
-                <div className="flex items-center justify-end gap-2">
-                    <button
-                        onClick={() => handleActionClick(row)}
-                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-all"
-                        title={row.document_type === 'file' ? "Download Document" : "View URL"}
-                    >
-                        {row.document_type === 'file' ? (
-                            <Download className="w-4 h-4" />
-                        ) : (
-                            <ExternalLink className="w-4 h-4" />
-                        )}
-                    </button>
-                    {hasPermission("manage_system_manuals") && (
-                        <>
-                            <button
-                                onClick={() => navigate(`/system-manual/edit/${row.id}`)}
-                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                                title="Edit Manual"
-                            >
-                                <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => handleDelete(row.id)}
-                                className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                                title="Delete Manual"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                        </>
-                    )}
-                </div>
-            ),
-        }
-    ];
+    };
 
     return (
         <div className="flex-1 overflow-y-auto w-full">
@@ -249,20 +210,131 @@ const SystemManualList = () => {
                 </CardContent>
             </Card>
 
-            {/* Table */}
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                <DataTable
-                    columns={columns}
-                    data={manuals}
-                    loading={loading}
-                    emptyMessage="No system manuals found."
-                    currentPage={currentPage}
-                    limit={limit}
-                    sortBy={sortBy}
-                    sortOrder={sortOrder}
-                    onSort={handleSort}
-                />
-            </div>
+            {/* Accordion Grouped List */}
+            {loading ? (
+                <div className="flex items-center justify-center p-12 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                    <div className="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                </div>
+            ) : Object.keys(groupedManuals).length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-12 bg-white rounded-3xl border border-slate-200 shadow-sm text-slate-550">
+                    <FileText className="w-12 h-12 mb-3 text-slate-300" />
+                    <p className="font-semibold text-slate-700">No system manuals found.</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {Object.entries(groupedManuals).map(([categoryName, manualsInCat]) => (
+                        <div key={categoryName} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-200 hover:shadow-md">
+                            {/* Accordion Header */}
+                            <button
+                                onClick={() => toggleCategory(categoryName)}
+                                className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-slate-50/50 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600">
+                                        <FileText className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base sm:text-lg font-bold text-slate-800">
+                                            {categoryName}
+                                        </h3>
+                                        <p className="text-xs text-slate-500 mt-0.5">
+                                            {manualsInCat.length} manual{manualsInCat.length !== 1 ? 's' : ''}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="p-1 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors text-slate-500">
+                                    <svg
+                                        className={`w-5 h-5 transform transition-transform duration-200 ${
+                                            openCategories[categoryName] ? 'rotate-180' : ''
+                                        }`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 9l-7 7-7-7"
+                                        />
+                                    </svg>
+                                </div>
+                            </button>
+
+                            {/* Accordion Body */}
+                            {openCategories[categoryName] && (
+                                <div className="border-t border-slate-100 bg-slate-50/30 p-4 sm:p-6 space-y-3">
+                                    {manualsInCat.map((row) => (
+                                        <div
+                                            key={row.id}
+                                            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-2xl border border-slate-200 hover:shadow-sm hover:border-slate-300 transition-all gap-4"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-indigo-50/60 rounded-xl text-indigo-600">
+                                                    <FileText className="w-4 h-4" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold text-slate-800 text-sm sm:text-base">
+                                                        {row.title}
+                                                    </h4>
+                                                    <span
+                                                        className={`inline-block mt-1.5 px-2.5 py-0.5 text-[10px] font-bold rounded-full ${
+                                                            row.document_type === 'file'
+                                                                ? 'bg-indigo-100 text-indigo-700'
+                                                                : 'bg-emerald-100 text-emerald-700'
+                                                        }`}
+                                                    >
+                                                        {row.document_type === 'file' ? 'DOCUMENT' : 'URL'}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Actions */}
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleActionClick(row)}
+                                                    className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-all"
+                                                    title={
+                                                        row.document_type === 'file'
+                                                            ? "Download Document"
+                                                            : "View URL"
+                                                    }
+                                                >
+                                                    {row.document_type === 'file' ? (
+                                                        <Download className="w-4 h-4" />
+                                                    ) : (
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    )}
+                                                </button>
+                                                {hasPermission("manage_system_manuals") && (
+                                                    <>
+                                                        <button
+                                                            onClick={() =>
+                                                                navigate(`/system-manual/edit/${row.id}`)
+                                                            }
+                                                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                                                            title="Edit Manual"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(row.id)}
+                                                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                                                            title="Delete Manual"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <div className="mt-6">
                 <TablePagination
@@ -292,5 +364,3 @@ const SystemManualList = () => {
 };
 
 export default SystemManualList;
-
-

@@ -51,6 +51,11 @@ const Sidebar = () => {
   };
 
   const visibleItems = MenuItems.filter((item) => {
+    // Hide Home/Dashboard menu item for nominators
+    if (user?.nominator_id && (item.url === "/dashboard" || item.title === "Home")) {
+      return false;
+    }
+
     if (!item.allowedRoles) {
       return true;
     }

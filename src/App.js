@@ -114,6 +114,9 @@ const CreateSystemManual = lazy(
 const EditSystemManual = lazy(
   () => import("./pages/system-manual/EditSystemManual"),
 );
+const SystemManualCategoryList = lazy(
+  () => import("./pages/system-manual/SystemManualCategoryList"),
+);
 
 const NominatorList = lazy(() => import("./pages/nominators/NominatorList"));
 const CreateNominator = lazy(
@@ -175,9 +178,7 @@ const FeedbackCourseList = lazy(
   () => import("./pages/feedback/FeedbackCourseList"),
 );
 
-const FeedbackCandidateList = lazy(
-  () => import("./pages/feedback/FeedbackCandidateList"),
-);
+
 
 const CandidateCourseList = lazy(
   () => import("./pages/candidates/CandidateCourseList"),
@@ -710,6 +711,14 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/system-manual-categories"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <SystemManualCategoryList />
+                  </PrivateRoute>
+                }
+              />
 
               {/* Location Routes */}
               <Route
@@ -832,14 +841,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route
-                path="/feedback/submitted/candidates/:activeCourseId"
-                element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <FeedbackCandidateList />
-                  </PrivateRoute>
-                }
-              />
+
               <Route
                 path="/feedback/submitted/:candidateId/:activeCourseId"
                 element={
@@ -1046,14 +1048,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route
-                path="/trainer-feedback/candidates/:activeCourseId"
-                element={
-                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
-                    <FeedbackCandidateList />
-                  </PrivateRoute>
-                }
-              />
+
               <Route
                 path="/trainer-feedback/submitted/:candidateId/:activeCourseId"
                 element={

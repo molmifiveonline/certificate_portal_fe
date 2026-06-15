@@ -4,8 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import MainLayout from '../layout/MainLayout';
 
 // Helper to get the correct dashboard path per role
-const getDashboardByRole = (role) => {
-    const r = (role || '').toLowerCase();
+const getDashboardByRole = (user) => {
+    if (user?.nominator_id) return '/pre-active-courses';
+    const r = (user?.role || '').toLowerCase();
     if (r === 'superadmin' || r === 'admin') return '/dashboard';
     if (r === 'trainer') return '/dashboard/trainer';
     if (r === 'candidate') return '/dashboard/candidate';
@@ -38,7 +39,7 @@ const PrivateRoute = ({
 
     // Role not allowed → redirect to user's own dashboard (not login)
     if (allowedRoles && !allowedRoles.some(role => role.toLowerCase() === user.role.toLowerCase())) {
-        const userDashboard = getDashboardByRole(user.role);
+        const userDashboard = getDashboardByRole(user);
         return <Navigate to={userDashboard} replace />;
     }
 
@@ -50,7 +51,8 @@ const PrivateRoute = ({
                 : allowRestrictedAdminWithoutPermissions;
 
         if (!hasRoutePermission) {
-            return <Navigate to="/dashboard" replace />;
+            const redirectPath = user?.nominator_id ? "/pre-active-courses" : "/dashboard";
+            return <Navigate to={redirectPath} replace />;
         }
     }
 

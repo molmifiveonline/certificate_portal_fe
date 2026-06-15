@@ -113,8 +113,11 @@ const AdminPreActiveApprovals = () => {
         {approvals.length > 0 && (
           <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
             {
-              approvals.filter((a) => a.admin_approval_status === "Pending")
-                .length
+              approvals.filter(
+                (a) =>
+                  a.admin_approval_status === "Pending" &&
+                  a.candidate_approval_status !== "Pending",
+              ).length
             }{" "}
             Pending Review
           </span>
@@ -251,28 +254,34 @@ const AdminPreActiveApprovals = () => {
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           {appr.admin_approval_status === "Pending" ? (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  handleActionClick(appr, "Approved")
-                                }
-                                className="h-8 border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300"
-                              >
-                                <Check className="h-4 w-4 mr-1" /> Approve
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  handleActionClick(appr, "Rejected")
-                                }
-                                className="h-8 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                              >
-                                <X className="h-4 w-4 mr-1" /> Reject
-                              </Button>
-                            </>
+                            appr.candidate_approval_status === "Pending" ? (
+                              <span className="text-xs text-amber-500 font-medium whitespace-nowrap bg-amber-50 border border-amber-100 px-2 py-1 rounded">
+                                Awaiting Candidate
+                              </span>
+                            ) : (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleActionClick(appr, "Approved")
+                                  }
+                                  className="h-8 border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300"
+                                >
+                                  <Check className="h-4 w-4 mr-1" /> Approve
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleActionClick(appr, "Rejected")
+                                  }
+                                  className="h-8 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                                >
+                                  <X className="h-4 w-4 mr-1" /> Reject
+                                </Button>
+                              </>
+                            )
                           ) : (
                             <span className="text-xs text-slate-400 font-medium">
                               Processed
