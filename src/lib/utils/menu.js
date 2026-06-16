@@ -65,6 +65,11 @@ export const MenuItems = [
         url: "/candidates/others",
         permissionSlug: "view_candidates",
       },
+      {
+        title: "All Candidates",
+        url: "/candidates/all",
+        permissionSlug: "view_candidates",
+      },
     ],
   },
   {
@@ -99,7 +104,7 @@ export const MenuItems = [
         permissionSlug: "view_pre_active_courses",
       },
       {
-        title: "Rejected Candidate Approvals",
+        title: "Candidate Declined Requests",
         url: "/pre-active-courses/rejected-approvals",
         permissionSlug: "view_pre_active_approvals",
       },
@@ -215,6 +220,18 @@ export const MenuItems = [
     url: "/system-manual",
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_system_manuals",
+    subItems: [
+      {
+        title: "Manuals",
+        url: "/system-manual",
+        permissionSlug: "view_system_manuals",
+      },
+      {
+        title: "Categories",
+        url: "/system-manual-categories",
+        permissionSlug: "view_system_manuals",
+      },
+    ],
   },
   {
     title: "Log History",

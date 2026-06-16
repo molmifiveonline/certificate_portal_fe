@@ -16,6 +16,7 @@ const CandidatesTab = ({
   courseEnded = false,
   typeOfLocation = "Online",
   bulkEmailLoading = false,
+  courseStatus = "",
 }) => {
   const [selectedEmailCandidates, setSelectedEmailCandidates] = useState([]);
   const isOnlineCourse = typeOfLocation === "Online";
@@ -325,20 +326,26 @@ const CandidatesTab = ({
                       </select>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!!candidate.is_observer}
-                          onChange={(e) =>
-                            onObserverToggle(
-                              candidate.candidate_id,
-                              e.target.checked,
-                            )
-                          }
-                          className="sr-only peer"
-                        />
-                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                      </label>
+                      {(() => {
+                        const isObserverDisabled = !!candidate.certficate_generated || ["Certificate Generated", "Course Completed"].includes(courseStatus);
+                        return (
+                          <label className={`relative inline-flex items-center ${isObserverDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+                            <input
+                              type="checkbox"
+                              checked={!!candidate.is_observer}
+                              disabled={isObserverDisabled}
+                              onChange={(e) =>
+                                onObserverToggle(
+                                  candidate.candidate_id,
+                                  e.target.checked,
+                                )
+                              }
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                          </label>
+                        );
+                      })()}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">

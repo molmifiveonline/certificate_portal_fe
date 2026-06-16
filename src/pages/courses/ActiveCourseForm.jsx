@@ -354,6 +354,15 @@ const ActiveCourseForm = () => {
   };
 
   const handleObserverToggle = async (candidateId, isObserver) => {
+    const candidate = enrolledCandidates.find((c) => c.candidate_id === candidateId);
+    const courseStatus = courseData?.status;
+    const isObserverDisabled = candidate?.certficate_generated || ["Certificate Generated", "Course Completed"].includes(courseStatus);
+
+    if (isObserverDisabled) {
+      toast.error("Cannot change observer status after certificate generation or course completion process.");
+      return;
+    }
+
     try {
       await activeCourseService.updateObserverStatus(id, candidateId, isObserver);
       setEnrolledCandidates((prev) =>
@@ -754,12 +763,13 @@ const ActiveCourseForm = () => {
                             options={[
                               { value: "Online", label: "Online" },
                               { value: "Offline", label: "Offline" },
+                              { value: "Hybrid", label: "Hybrid" },
                               { value: "Manual", label: "Manual" },
                             ]}
                           />
                         </div>
                         {/* Conditional Location Fields */}
-                        {typeOfLocation === "Offline" && (
+                        {(typeOfLocation === "Offline" || typeOfLocation === "Hybrid") && (
                           <SelectField
                             label="Location of Training"
                             name="location_id"
@@ -776,7 +786,7 @@ const ActiveCourseForm = () => {
                           />
                         )}
 
-                        {((typeOfLocation === "Offline" &&
+                        {(((typeOfLocation === "Offline" || typeOfLocation === "Hybrid") &&
                           watch("location_id") === "Other") ||
                           typeOfLocation === "Manual") && (
                           <InputField
@@ -873,6 +883,56 @@ const ActiveCourseForm = () => {
                         </div>
                       </div>
                     </div>
+
+                    {id && (courseData?.trainer_material_link || (!isTrainerRole && (courseData?.candidate_material_link || courseData?.study_material_link))) && (
+                      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="flex items-center gap-2 mb-6 text-lg font-bold text-slate-800">
+                          <BookOpen size={20} className="text-blue-600" />
+                          <h3>Course Material Links</h3>
+                        </div>
+                        <div className="space-y-4">
+                          {courseData?.trainer_material_link && (
+                            <div>
+                              <span className="text-sm font-semibold text-slate-700 block">Trainer Material Link:</span>
+                              <a
+                                href={courseData.trainer_material_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline break-all"
+                              >
+                                {courseData.trainer_material_link}
+                              </a>
+                            </div>
+                          )}
+                          {!isTrainerRole && courseData?.candidate_material_link && (
+                            <div>
+                              <span className="text-sm font-semibold text-slate-700 block">Candidate Material Link:</span>
+                              <a
+                                href={courseData.candidate_material_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline break-all"
+                              >
+                                {courseData.candidate_material_link}
+                              </a>
+                            </div>
+                          )}
+                          {!isTrainerRole && courseData?.study_material_link && (
+                            <div>
+                              <span className="text-sm font-semibold text-slate-700 block">Study Material Link:</span>
+                              <a
+                                href={courseData.study_material_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline break-all"
+                              >
+                                {courseData.study_material_link}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                       <div className="flex items-center gap-2 mb-6 text-lg font-bold text-slate-800">
@@ -1017,6 +1077,7 @@ const ActiveCourseForm = () => {
               courseEnded={courseEnded}
               typeOfLocation={typeOfLocation}
               bulkEmailLoading={bulkEmailLoading}
+              courseStatus={courseData?.status}
             />
           )}
 

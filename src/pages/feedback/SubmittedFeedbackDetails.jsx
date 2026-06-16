@@ -3,7 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import feedbackAnswerService from "../../services/feedbackAnswerService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Meta from "../../components/common/Meta";
-import { User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Download } from "lucide-react";
+import { User, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Download, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/Card";
 import PageHeader from "../../components/common/PageHeader";
 
@@ -150,6 +150,13 @@ const SubmittedFeedbackDetails = () => {
                                     <div>
                                         <p className="text-xs text-slate-500 font-medium">Active Course ID</p>
                                         <p className="text-slate-700 font-medium break-all">{activeCourseId}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <ClipboardList className="w-4 h-4 text-slate-400 mt-1" />
+                                    <div>
+                                        <p className="text-xs text-slate-500 font-medium">Feedback Type</p>
+                                        <p className="text-slate-700 font-medium">{submission.feedback_type || "N/A"}</p>
                                     </div>
                                 </div>
                             </div>

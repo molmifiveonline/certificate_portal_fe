@@ -15,6 +15,7 @@ const Register = lazy(() => import("./pages/auth/Register"));
 //   () => import("./pages/dashboard/CandidateDashboard"),
 // );
 const CandidateList = lazy(() => import("./pages/candidates/CandidateList"));
+const AllCandidateList = lazy(() => import("./pages/candidates/AllCandidateList"));
 const CreateTrainer = lazy(() => import("./pages/trainers/CreateTrainer"));
 const EditTrainer = lazy(() => import("./pages/trainers/EditTrainer"));
 const TrainerList = lazy(() => import("./pages/trainers/TrainerList"));
@@ -113,6 +114,9 @@ const CreateSystemManual = lazy(
 const EditSystemManual = lazy(
   () => import("./pages/system-manual/EditSystemManual"),
 );
+const SystemManualCategoryList = lazy(
+  () => import("./pages/system-manual/SystemManualCategoryList"),
+);
 
 const NominatorList = lazy(() => import("./pages/nominators/NominatorList"));
 const CreateNominator = lazy(
@@ -174,9 +178,7 @@ const FeedbackCourseList = lazy(
   () => import("./pages/feedback/FeedbackCourseList"),
 );
 
-const FeedbackCandidateList = lazy(
-  () => import("./pages/feedback/FeedbackCandidateList"),
-);
+
 
 const CandidateCourseList = lazy(
   () => import("./pages/candidates/CandidateCourseList"),
@@ -506,6 +508,17 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/candidates/all"
+                element={
+                  <PrivateRoute
+                    allowedRoles={ADMIN_ROLES}
+                    requiredPermission="view_candidates"
+                  >
+                    <AllCandidateList />
+                  </PrivateRoute>
+                }
+              />
 
               <Route
                 path="/candidates/add"
@@ -698,6 +711,14 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/system-manual-categories"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <SystemManualCategoryList />
+                  </PrivateRoute>
+                }
+              />
 
               {/* Location Routes */}
               <Route
@@ -820,14 +841,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route
-                path="/feedback/submitted/candidates/:activeCourseId"
-                element={
-                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
-                    <FeedbackCandidateList />
-                  </PrivateRoute>
-                }
-              />
+
               <Route
                 path="/feedback/submitted/:candidateId/:activeCourseId"
                 element={
@@ -1034,14 +1048,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route
-                path="/trainer-feedback/candidates/:activeCourseId"
-                element={
-                  <PrivateRoute allowedRoles={["Trainer", "trainer"]}>
-                    <FeedbackCandidateList />
-                  </PrivateRoute>
-                }
-              />
+
               <Route
                 path="/trainer-feedback/submitted/:candidateId/:activeCourseId"
                 element={

@@ -351,77 +351,65 @@ const NominatorPortal = () => {
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <Toaster position="top-right" richColors />
 
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-5xl bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200">
         {/* Header Card */}
-        <div className="bg-white shadow-sm rounded-xl overflow-hidden mb-8 border border-slate-200">
-          <div className="bg-[#3a5f9e] px-8 py-5">
-            <h1 className="text-xl font-bold text-white tracking-tight">
-              Course Nomination Portal
-            </h1>
-          </div>
-          <div className="p-8">
-            <div className="flex items-center gap-5 mb-8">
-              <div className="h-14 w-14 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0 text-[#3a5f9e] font-bold text-xl border border-blue-100">
-                {courseContext?.entity?.first_name?.charAt(0) || "N"}
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-0.5">
-                  Nominator
-                </p>
-                <p className="font-bold text-slate-800 text-2xl">
-                  {courseContext?.entity?.first_name}{" "}
-                  {courseContext?.entity?.last_name || ""}
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
-                Course Context
-              </h3>
-              <div className="bg-slate-50/50 rounded-xl p-6 grid grid-cols-1 md:grid-cols-3 gap-8 border border-slate-100">
-                <div className="space-y-1">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">
-                    Course Name
-                  </p>
-                  <p className="font-semibold text-slate-700">
-                    {courseContext?.course?.course_name}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">
-                    Duration
-                  </p>
-                  <p className="font-semibold text-slate-700">
-                    {formatDate(courseContext?.course?.start_date)} -{" "}
-                    {formatDate(courseContext?.course?.end_date)}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">
-                    Location / Venue
-                  </p>
-                  <p className="font-semibold text-slate-700">
-                    {courseContext?.course?.type_of_location === "Online" ? (
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold">
-                        Online
-                      </span>
-                    ) : (
-                      courseContext?.course?.other_location ||
-                      courseContext?.course?.location_name ||
-                      "TBA"
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="bg-[#3a5f9e] px-8 py-5">
+          <h1 className="text-xl font-bold text-white tracking-tight">
+            Course Nomination Portal
+          </h1>
         </div>
 
-        {/* Nomination Table Card */}
-        <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200">
-          <div className="p-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="p-8 space-y-8">
+          {/* Course Context Section */}
+          <div>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
+              Course Context
+            </h3>
+            <div className="bg-slate-50/50 rounded-xl p-6 grid grid-cols-1 md:grid-cols-3 gap-8 border border-slate-100">
+              <div className="space-y-1">
+                <p className="text-[10px] text-slate-400 font-bold uppercase">
+                  Course Name
+                </p>
+                <p className="font-semibold text-slate-700 mb-1">
+                  {courseContext?.course?.course_name}
+                </p>
+                {courseContext?.course?.course_type && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
+                    {courseContext.course.course_type}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] text-slate-400 font-bold uppercase">
+                  Duration
+                </p>
+                <p className="font-semibold text-slate-700">
+                  {formatDate(courseContext?.course?.start_date)} -{" "}
+                  {formatDate(courseContext?.course?.end_date)}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] text-slate-400 font-bold uppercase">
+                  Location / Venue
+                </p>
+                <p className="font-semibold text-slate-700">
+                  {courseContext?.course?.type_of_location === "Online" ? (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold">
+                      Online
+                    </span>
+                  ) : (
+                    courseContext?.course?.other_location ||
+                    courseContext?.course?.location_name ||
+                    "TBA"
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Nomination Section */}
+          <div className="pt-8 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div>
                 <h2 className="text-xl font-bold text-slate-800">
                   Nominate Candidates
@@ -450,27 +438,27 @@ const NominatorPortal = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto -mx-8">
+            <div className="overflow-x-auto rounded-lg border border-slate-200">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest border-y border-slate-100">
-                    <th className="px-8 py-4 w-16 text-center">#</th>
-                    <th className="px-4 py-4">Nominee Name</th>
-                    <th className="px-4 py-4">Contact Details</th>
-                    <th className="px-4 py-4">Status</th>
-                    <th className="px-8 py-4 text-right">Actions</th>
+                  <tr className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest border-b border-slate-200">
+                    <th className="px-4 py-3 w-16 text-center border-r border-slate-200">#</th>
+                    <th className="px-4 py-3 border-r border-slate-200">Nominee Name</th>
+                    <th className="px-4 py-3 border-r border-slate-200">Contact Details</th>
+                    <th className="px-4 py-3 border-r border-slate-200">Status</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-200">
                   {candidates.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="px-8 py-20 text-center">
-                        <div className="flex flex-col items-center gap-4">
-                          <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-300">
-                            <Plus className="h-8 w-8" />
+                      <td colSpan="5" className="px-4 py-12 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="h-12 w-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-300">
+                            <Plus className="h-6 w-6" />
                           </div>
                           <div>
-                            <p className="text-slate-500 font-semibold">
+                            <p className="text-slate-500 font-semibold text-sm">
                               No candidates added yet
                             </p>
                             <p className="text-xs text-slate-400 mt-1">
@@ -486,12 +474,12 @@ const NominatorPortal = () => {
                         key={index}
                         className="hover:bg-slate-50 transition-colors group"
                       >
-                        <td className="px-8 py-5 text-center font-bold text-slate-400 text-sm">
+                        <td className="px-4 py-3 text-center font-bold text-slate-400 text-sm border-r border-slate-200">
                           {index + 1}
                         </td>
-                        <td className="px-4 py-5">
+                        <td className="px-4 py-3 border-r border-slate-200">
                           <div>
-                            <p className="font-bold text-slate-800">
+                            <p className="font-bold text-slate-800 text-sm">
                               {candidate.first_name} {candidate.last_name}
                             </p>
                             {(candidate.indos_number ||
@@ -511,7 +499,7 @@ const NominatorPortal = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-5">
+                        <td className="px-4 py-3 border-r border-slate-200">
                           <div className="space-y-1">
                             <p className="text-xs text-slate-600 flex items-center gap-1.5">
                               <Mail size={12} className="text-slate-400" />{" "}
@@ -525,7 +513,7 @@ const NominatorPortal = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-5 font-medium">
+                        <td className="px-4 py-3 font-medium border-r border-slate-200">
                           {candidate.isPersisted ? (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[9px] font-bold uppercase tracking-widest">
                               Nominated ({candidate.status})
@@ -536,15 +524,15 @@ const NominatorPortal = () => {
                             </span>
                           )}
                         </td>
-                        <td className="px-8 py-5 text-right">
+                        <td className="px-4 py-3 text-right">
                           {!candidate.isPersisted && (
                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => handleRemoveCandidate(index)}
-                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
                                 title="Remove"
                               >
-                                <Trash2 size={16} />
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           )}
@@ -557,7 +545,7 @@ const NominatorPortal = () => {
             </div>
 
             {candidates.some((c) => !c.isPersisted) && (
-              <div className="mt-12 flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-100">
+              <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-100">
                 <p className="text-sm text-slate-400 italic">
                   New candidates to nominate:{" "}
                   <strong>
@@ -568,16 +556,16 @@ const NominatorPortal = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="w-full sm:w-auto bg-[#3a5f9e] hover:bg-blue-800 text-white min-w-[240px] h-12 text-lg font-bold shadow-lg shadow-blue-900/10"
+                  className="w-full sm:w-auto bg-[#3a5f9e] hover:bg-blue-800 text-white min-w-[240px] h-11 text-base font-bold shadow-md transition-all"
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />{" "}
+                      <Loader2 className="mr-2 h-4 w-5 animate-spin" />{" "}
                       Submitting...
                     </>
                   ) : (
                     <>
-                      <Send className="mr-2 h-5 w-5" /> Submit Nominations
+                      <Send className="mr-2 h-4 w-5" /> Submit Nominations
                     </>
                   )}
                 </Button>
@@ -585,14 +573,14 @@ const NominatorPortal = () => {
             )}
           </div>
         </div>
+      </div>
 
-        {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-slate-400 text-sm font-medium tracking-wide">
-            &copy; {new Date().getFullYear()} MOLMI &bull; Certificate
-            Management Portal
-          </p>
-        </div>
+      {/* Footer */}
+      <div className="mt-8 text-center">
+        <p className="text-slate-400 text-xs font-medium tracking-wide">
+          &copy; {new Date().getFullYear()} MOLMI &bull; Certificate
+          Management Portal
+        </p>
       </div>
 
       {/* Full Candidate Registration Form Overlay */}

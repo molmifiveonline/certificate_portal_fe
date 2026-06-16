@@ -17,6 +17,9 @@ const CreateSystemManual = () => {
         try {
             const formData = new FormData();
             formData.append('title', data.title);
+            if (data.category_id) {
+                formData.append('category_id', data.category_id);
+            }
             formData.append('document_type', data.document_type);
 
             if (data.document_type === 'file' && data.document_file) {

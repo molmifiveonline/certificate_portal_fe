@@ -383,11 +383,12 @@ const PreActiveCourseForm = () => {
                           { label: "Select Location Type", value: "" },
                           { label: "Online", value: "Online" },
                           { label: "Offline", value: "Offline" },
+                          { label: "Hybrid", value: "Hybrid" },
                         ]}
                       />
                     </div>
 
-                    {formData.type_of_location === "Offline" && (
+                    {(formData.type_of_location === "Offline" || formData.type_of_location === "Hybrid") && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <SelectField
                           label="Training Venue"

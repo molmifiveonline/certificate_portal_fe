@@ -173,6 +173,32 @@ const CandidateCourseDetails = () => {
                                         <div className="w-2 h-2 rounded-full bg-primary mr-3" />
                                         <span>Venue: {course.venue_name || 'TBD'}</span>
                                     </div>
+                                    {course.candidate_material_link && (
+                                        <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                            <span className="font-semibold text-slate-700 mb-1">Candidate Material:</span>
+                                            <a
+                                                href={course.candidate_material_link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-primary hover:underline break-all"
+                                            >
+                                                {course.candidate_material_link}
+                                            </a>
+                                        </div>
+                                    )}
+                                    {course.study_material_link && (
+                                        <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                            <span className="font-semibold text-slate-700 mb-1">Study Material Link:</span>
+                                            <a
+                                                href={course.study_material_link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-primary hover:underline break-all"
+                                            >
+                                                {course.study_material_link}
+                                            </a>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </div>

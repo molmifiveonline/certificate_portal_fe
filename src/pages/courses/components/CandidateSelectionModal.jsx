@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../../../components/ui/Button";
+import { formatDate } from "../../../lib/utils/dateUtils";
 
 const CandidateSelectionModal = ({
   isOpen,
@@ -51,6 +52,7 @@ const CandidateSelectionModal = ({
                 <th className="px-4 py-2">Select</th>
                 <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Emp ID</th>
+                <th className="px-4 py-2">Last Certificate Date</th>
                 <th className="px-4 py-2">Rank</th>
                 <th className="px-4 py-2">Passport</th>
                 <th className="px-4 py-2">Seaman No.</th>
@@ -88,6 +90,9 @@ const CandidateSelectionModal = ({
                   </td>
                   <td className="px-4 py-3 text-slate-500">
                     {candidate.empId}
+                  </td>
+                  <td className="px-4 py-3 text-slate-500">
+                    {formatDate(candidate.previous_certificate_date)}
                   </td>
                   <td className="px-4 py-3 text-slate-500">{candidate.rank}</td>
                   <td className="px-4 py-3 text-slate-500">

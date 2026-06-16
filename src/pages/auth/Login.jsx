@@ -69,10 +69,15 @@ const Login = () => {
 
       toast.success("Login Successful");
 
-      if (roleLower === "superadmin" || roleLower === "admin")
+      if (userData.nominator_id) {
+        navigate("/pre-active-courses");
+      } else if (roleLower === "superadmin" || roleLower === "admin") {
         navigate("/dashboard/super-admin");
-      else if (roleLower === "trainer") navigate("/dashboard/trainer");
-      else navigate("/dashboard/candidate");
+      } else if (roleLower === "trainer") {
+        navigate("/dashboard/trainer");
+      } else {
+        navigate("/dashboard/candidate");
+      }
     } catch (err) {
       console.error(err);
       toast.error(
