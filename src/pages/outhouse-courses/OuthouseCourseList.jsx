@@ -246,7 +246,7 @@ const OuthouseCourseList = () => {
         {hasPermission("create_outhouse_course") && (
           <Button
             onClick={() => navigate("/outhouse-courses/add")}
-            className="flex items-center gap-2 rounded-xl px-6 py-2.5 font-semibold shadow-lg shadow-orange-500/20"
+            className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
           >
             <Plus className="h-4 w-4" />
             Add Outhouse Course
