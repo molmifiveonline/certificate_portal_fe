@@ -7,10 +7,12 @@ import ReportService from "../../services/reportService";
 import FeedbackReportCard from "./components/FeedbackReportCard";
 import CertificateReportCard from "./components/CertificateReportCard";
 import TrainingRecordReportCard from "./components/TrainingRecordReportCard";
+import TrainingActivitiesReportCard from "./components/TrainingActivitiesReportCard";
 import { parseBlobError } from "../../lib/utils/blobUtils";
 
 const TODAY = new Date().toISOString().split("T")[0];
 const CURRENT_YEAR = new Date().getFullYear();
+const CURRENT_MONTH = new Date().getMonth() + 1;
 
 const getDateRangeError = (dates, maxDays) => {
   const { start_date, end_date } = dates;
@@ -55,10 +57,15 @@ const ReportDashboard = () => {
   const [feedbackDates, setFeedbackDates] = useState({ start_date: "", end_date: "" });
   const [certificateDates, setCertificateDates] = useState({ start_date: "", end_date: "" });
   const [trainingRecordYear, setTrainingRecordYear] = useState(String(CURRENT_YEAR));
+  const [trainingActivitiesForm, setTrainingActivitiesForm] = useState({
+    start_month: String(CURRENT_MONTH),
+    year: String(CURRENT_YEAR),
+  });
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [loadingBulkFeedback, setLoadingBulkFeedback] = useState(false);
   const [loadingCertificate, setLoadingCertificate] = useState(false);
   const [loadingTrainingRecord, setLoadingTrainingRecord] = useState(false);
+  const [loadingTrainingActivities, setLoadingTrainingActivities] = useState(false);
 
   const [filterOptions, setFilterOptions] = useState({ topics: [], managers: [], companies: [] });
   const [feedbackFilters, setFeedbackFilters] = useState({ topic: "", manager: "" });
@@ -91,6 +98,13 @@ const ReportDashboard = () => {
 
   const handleTrainingRecordYearChange = (e) => {
     setTrainingRecordYear(e.target.value);
+  };
+
+  const handleTrainingActivitiesChange = (e) => {
+    setTrainingActivitiesForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleFeedbackExport = async (e) => {
@@ -237,6 +251,60 @@ const ReportDashboard = () => {
     }
   };
 
+  const handleTrainingActivitiesExport = async (e) => {
+    e.preventDefault();
+
+    const parsedMonth = Number(trainingActivitiesForm.start_month);
+    const parsedYear = Number(trainingActivitiesForm.year);
+
+    if (
+      !trainingActivitiesForm.start_month ||
+      !Number.isInteger(parsedMonth) ||
+      parsedMonth < 1 ||
+      parsedMonth > 12
+    ) {
+      toast.error("Please select a valid start month.");
+      return;
+    }
+
+    if (
+      !trainingActivitiesForm.year ||
+      !Number.isInteger(parsedYear) ||
+      parsedYear < 2000 ||
+      parsedYear > 2100
+    ) {
+      toast.error("Please enter a valid year between 2000 and 2100.");
+      return;
+    }
+
+    setLoadingTrainingActivities(true);
+    try {
+      const response = await ReportService.exportTrainingActivitiesReport({
+        start_month: parsedMonth,
+        year: parsedYear,
+      });
+      downloadReport(
+        response.data,
+        `TRG-219_Training_Activities_${parsedMonth}_${parsedYear}.xlsx`,
+      );
+      toast.success("TRG-219 report downloaded successfully!");
+    } catch (error) {
+      console.error(error);
+      let msg = "Failed to export report.";
+      if (error instanceof Blob) {
+        const errorData = await parseBlobError(error);
+        if (errorData?.message) msg = errorData.message;
+      } else if (typeof error === "string") {
+        msg = error;
+      } else if (error?.message) {
+        msg = error.message;
+      }
+      toast.error(msg);
+    } finally {
+      setLoadingTrainingActivities(false);
+    }
+  };
+
   return (
     <div className="relative overflow-hidden p-4 sm:p-6 lg:p-8">
       <Helmet>
@@ -289,6 +357,15 @@ const ReportDashboard = () => {
           loading={loadingTrainingRecord}
           minYear={2000}
           maxYear={CURRENT_YEAR}
+        />
+
+        <TrainingActivitiesReportCard
+          form={trainingActivitiesForm}
+          onChange={handleTrainingActivitiesChange}
+          onSubmit={handleTrainingActivitiesExport}
+          loading={loadingTrainingActivities}
+          minYear={2000}
+          maxYear={2100}
         />
       </div>
     </div>

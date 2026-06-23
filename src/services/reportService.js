@@ -43,6 +43,21 @@ const ReportService = {
     }
   },
 
+  exportTrainingActivitiesReport: async (data) => {
+    try {
+      const response = await api.post(
+        `/reports/training-activities/export`,
+        data,
+        {
+          responseType: "blob",
+        },
+      );
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   getHotelReport: async (params) => {
     try {
       const response = await api.get(`/reports/hotel`, { params });
