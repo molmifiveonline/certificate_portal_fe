@@ -359,14 +359,14 @@ const ReportDashboard = () => {
           maxYear={CURRENT_YEAR}
         />
 
-        <TrainingActivitiesReportCard
+        {/* <TrainingActivitiesReportCard
           form={trainingActivitiesForm}
           onChange={handleTrainingActivitiesChange}
           onSubmit={handleTrainingActivitiesExport}
           loading={loadingTrainingActivities}
           minYear={2000}
           maxYear={2100}
-        />
+        /> */}
       </div>
     </div>
   );
