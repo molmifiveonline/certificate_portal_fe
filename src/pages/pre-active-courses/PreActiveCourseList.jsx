@@ -14,6 +14,8 @@ import {
   BookOpen,
   Zap,
   Clock,
+  MapPin,
+  Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -569,17 +571,112 @@ const PreActiveCourseList = () => {
       </Card>
 
       {/* Content Area */}
-      <DataTable
-        columns={columns}
-        data={courses}
-        loading={loading}
-        emptyMessage="No pre-active courses found."
-        currentPage={currentPage}
-        limit={limit}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        onSort={handleSort}
-      />
+      {isRestrictedAdmin ? (
+        loading ? (
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+          </div>
+        ) : courses.length === 0 ? (
+          <Card className="rounded-2xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg p-12 text-center border">
+            <p className="text-slate-500 font-medium">No pre-active courses found.</p>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {courses.map((course) => {
+              const locationVal = course.location_name || course.other_location || "Onsite/TBD";
+              return (
+                <Card key={course.id} className="rounded-2xl border border-slate-100 bg-white shadow-md hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden">
+                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      {/* Top Info */}
+                      <div className="flex justify-between items-start gap-2 mb-4">
+                        <div className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded border border-blue-100/50">
+                          {course.course_id}
+                        </div>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                          {getCourseType(course) || "Course"}
+                        </span>
+                      </div>
+
+                      {/* Course Title */}
+                      <h3 className="font-semibold text-slate-800 text-lg mb-2 line-clamp-2">
+                        {course.course_name}
+                      </h3>
+
+                      {/* Topic */}
+                      <div className="text-xs text-slate-500 capitalize flex items-center gap-1.5 mb-4">
+                        <BookOpen size={14} className="text-slate-400" />
+                        <span>{course.topic}</span>
+                      </div>
+
+                      {/* Details Info List */}
+                      <div className="space-y-2.5 border-t border-slate-100 pt-4 mb-6">
+                        {/* Dates */}
+                        <div className="flex items-center gap-2.5 text-xs text-slate-600">
+                          <Calendar size={14} className="text-blue-500" />
+                          <span className="font-medium">
+                            {formatDate(course.start_date)} - {formatDate(course.end_date)}
+                          </span>
+                        </div>
+
+                        {/* Location / Venue */}
+                        <div className="flex items-center gap-2.5 text-xs text-slate-600">
+                          <MapPin size={14} className="text-indigo-500" />
+                          <span className="font-medium truncate" title={locationVal}>
+                            {locationVal}
+                          </span>
+                        </div>
+
+                        {/* Nominated Candidates Count */}
+                        <div className="flex items-center gap-2.5 text-xs text-slate-600">
+                          <Users size={14} className="text-emerald-500" />
+                          <span className="font-medium">
+                            Nominated Candidates: <strong className="text-slate-800 font-bold bg-emerald-50 px-2 py-0.5 rounded text-emerald-700">{course.nominated_count || 0}</strong>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <div className="pt-2">
+                      <Button
+                        variant="primary"
+                        onClick={async () => {
+                          try {
+                            setIsActionLoading(true);
+                            const { token } = await preActiveCourseService.getNominatorToken(course.id);
+                            window.open(`/nominate/${token}`, "_blank");
+                          } catch (error) {
+                            toast.error(getErrorMessage(error, "Failed to access nomination portal"));
+                          } finally {
+                            setIsActionLoading(false);
+                          }
+                        }}
+                        className="w-full h-10 bg-blue-600 text-white hover:bg-blue-700 font-semibold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 active:scale-98 transition-all shadow-md shadow-blue-500/10"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Nominate</span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )
+      ) : (
+        <DataTable
+          columns={columns}
+          data={courses}
+          loading={loading}
+          emptyMessage="No pre-active courses found."
+          currentPage={currentPage}
+          limit={limit}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSort={handleSort}
+        />
+      )}
 
       {!loading && courses.length > 0 && (
         <TablePagination
