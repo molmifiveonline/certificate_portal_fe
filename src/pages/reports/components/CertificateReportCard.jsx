@@ -23,7 +23,7 @@ const CertificateReportCard = ({
         <div className="mb-3 inline-flex items-center rounded-xl bg-emerald-50 p-2 text-emerald-600">
           <Building2 className="h-5 w-5" />
         </div>
-        <h2 className="text-xl font-semibold text-slate-900">Certificate Report 12</h2>
+        <h2 className="text-xl font-semibold text-slate-900">Certificate Report</h2>
         <p className="mt-2 text-sm text-slate-600">
           Export certificates issued across topics, managers, and companies.
         </p>
