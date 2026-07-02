@@ -148,27 +148,98 @@ const CandidateFeedbackTab = ({ courseId }) => {
         }
     };
 
+
     if (loading) return <div className="text-center py-10 text-slate-400">Loading feedback form...</div>;
 
     const feedbackCategories = normalizeFeedbackCategories(status?.form);
 
     if (status?.hasSubmitted) {
+        const groupedAnswers = {};
+        if (status?.answers) {
+            status.answers.forEach(ans => {
+                const catName = ans.category_name || "General";
+                if (!groupedAnswers[catName]) {
+                    groupedAnswers[catName] = [];
+                }
+                groupedAnswers[catName].push(ans);
+            });
+        }
+
         return (
-            <Card className="max-w-2xl mx-auto border-emerald-100 bg-emerald-50/30">
-                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="bg-emerald-100 p-4 rounded-full mb-6 text-emerald-600">
-                        <CheckCircle2 className="h-12 w-12" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Thank You!</h2>
-                    <p className="text-slate-600 mb-8 max-w-sm">
-                        You have already submitted your feedback for this course on 
-                        <span className="font-bold text-slate-900"> {formatDate(status.submittedDate)}</span>.
-                    </p>
-                    <Badge variant="outline" className="bg-white text-emerald-600 border-emerald-200 px-4 py-1">
-                        Feedback Recorded
-                    </Badge>
-                </CardContent>
-            </Card>
+            <div className="max-w-4xl mx-auto space-y-8 pb-8">
+                <Card className="border-emerald-100 bg-emerald-50/30">
+                    <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+                        <div className="bg-emerald-100 p-3 rounded-full mb-4 text-emerald-600">
+                            <CheckCircle2 className="h-8 w-8" />
+                        </div>
+                        <h2 className="text-xl font-bold text-slate-900 mb-1">Thank You!</h2>
+                        <p className="text-slate-600 mb-4 max-w-sm text-sm">
+                            You have already submitted your feedback for this course on 
+                            <span className="font-bold text-slate-900"> {formatDate(status.submittedDate)}</span>.
+                        </p>
+                        <Badge variant="outline" className="bg-white text-emerald-600 border-emerald-200 px-4 py-1">
+                            Feedback Recorded
+                        </Badge>
+                    </CardContent>
+                </Card>
+
+                <div className="flex flex-col gap-2">
+                    <h3 className="text-xl font-bold text-slate-900 leading-tight">
+                        Your Submitted Feedback
+                    </h3>
+                </div>
+
+                {Object.entries(groupedAnswers).map(([categoryName, answers]) => (
+                    <Card key={categoryName} className="bg-white/80 backdrop-blur-xl border-white/60 shadow-sm overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 py-4">
+                            <CardTitle className="text-base font-bold text-primary tracking-tight">
+                                {categoryName}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            {answers.map((ans, idx) => {
+                                const isRating = String(ans.type || "").toLowerCase() === 'rating';
+                                const displayAnswer = ans.feedback_question_option_text || ans.answer || "N/A";
+                                return (
+                                    <div key={ans.id || idx} className={`p-6 ${idx !== answers.length - 1 ? 'border-b border-slate-50' : ''}`}>
+                                        <p className="text-slate-700 font-medium mb-3 flex gap-3 text-sm">
+                                            <span className="text-slate-300 font-bold">{idx + 1}.</span>
+                                            {ans.question}
+                                        </p>
+                                        
+                                        {isRating ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex gap-1">
+                                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => {
+                                                        const isSelected = Number(ans.answer) >= rating;
+                                                        return (
+                                                            <Star 
+                                                                key={rating} 
+                                                                className={`h-5 w-5 ${
+                                                                    isSelected 
+                                                                        ? 'text-amber-400 fill-amber-400' 
+                                                                        : 'text-slate-200'
+                                                                }`} 
+                                                            />
+                                                        );
+                                                    })}
+                                                </div>
+                                                <span className="text-sm font-semibold text-slate-700 ml-1">
+                                                    ({ans.answer} / 10)
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-slate-600 text-sm whitespace-pre-wrap">
+                                                {displayAnswer}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
         );
     }
 
