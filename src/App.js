@@ -5,8 +5,27 @@ import { AuthProvider } from "./context/AuthContext";
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 import { HelmetProvider } from "react-helmet-async";
 
-const Login = lazy(() => import("./pages/auth/Login"));
-const Register = lazy(() => import("./pages/auth/Register"));
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyBeenForceRefreshed && error.name === 'ChunkLoadError') {
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        window.location.reload();
+        return { default: () => null };
+      }
+      throw error;
+    }
+  });
+
+const Login = lazyWithRetry(() => import("./pages/auth/Login"));
+const Register = lazyWithRetry(() => import("./pages/auth/Register"));
 // SuperAdminDashboard import removed - /demo route removed for security
 // const TrainerDashboard = lazy(
 //   () => import("./pages/dashboard/TrainerDashboard"),
@@ -14,27 +33,27 @@ const Register = lazy(() => import("./pages/auth/Register"));
 // const CandidateDashboard = lazy(
 //   () => import("./pages/dashboard/CandidateDashboard"),
 // );
-const CandidateList = lazy(() => import("./pages/candidates/CandidateList"));
-const AllCandidateList = lazy(() => import("./pages/candidates/AllCandidateList"));
-const CreateTrainer = lazy(() => import("./pages/trainers/CreateTrainer"));
-const EditTrainer = lazy(() => import("./pages/trainers/EditTrainer"));
-const TrainerList = lazy(() => import("./pages/trainers/TrainerList"));
-const AddCandidate = lazy(() => import("./pages/candidates/AddCandidate"));
-const EditCandidate = lazy(() => import("./pages/candidates/EditCandidate"));
-const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
-const RolePermission = lazy(() => import("./pages/admin/RolePermission"));
-const LogHistory = lazy(() => import("./pages/admin/LogHistory"));
+const CandidateList = lazyWithRetry(() => import("./pages/candidates/CandidateList"));
+const AllCandidateList = lazyWithRetry(() => import("./pages/candidates/AllCandidateList"));
+const CreateTrainer = lazyWithRetry(() => import("./pages/trainers/CreateTrainer"));
+const EditTrainer = lazyWithRetry(() => import("./pages/trainers/EditTrainer"));
+const TrainerList = lazyWithRetry(() => import("./pages/trainers/TrainerList"));
+const AddCandidate = lazyWithRetry(() => import("./pages/candidates/AddCandidate"));
+const EditCandidate = lazyWithRetry(() => import("./pages/candidates/EditCandidate"));
+const ResetPassword = lazyWithRetry(() => import("./pages/auth/ResetPassword"));
+const RolePermission = lazyWithRetry(() => import("./pages/admin/RolePermission"));
+const LogHistory = lazyWithRetry(() => import("./pages/admin/LogHistory"));
 const AdminNotifications = lazy(
   () => import("./pages/admin/AdminNotifications"),
 );
-const AdminUserList = lazy(() => import("./pages/admin/users/AdminUserList"));
+const AdminUserList = lazyWithRetry(() => import("./pages/admin/users/AdminUserList"));
 const CreateAdminUser = lazy(
   () => import("./pages/admin/users/CreateAdminUser"),
 );
-const EditAdminUser = lazy(() => import("./pages/admin/users/EditAdminUser"));
-const HotelList = lazy(() => import("./pages/hotels/HotelList"));
-const CreateHotel = lazy(() => import("./pages/hotels/CreateHotel"));
-const EditHotel = lazy(() => import("./pages/hotels/EditHotel"));
+const EditAdminUser = lazyWithRetry(() => import("./pages/admin/users/EditAdminUser"));
+const HotelList = lazyWithRetry(() => import("./pages/hotels/HotelList"));
+const CreateHotel = lazyWithRetry(() => import("./pages/hotels/CreateHotel"));
+const EditHotel = lazyWithRetry(() => import("./pages/hotels/EditHotel"));
 const AdminRolesList = lazy(
   () => import("./pages/admin/admin-roles/AdminRolesList"),
 );
@@ -58,11 +77,11 @@ const CertificateVerification = lazy(
   () => import("./pages/certificates/CertificateVerification"),
 );
 
-const MasterCourseList = lazy(() => import("./pages/courses/MasterCourseList"));
-const MasterCourseForm = lazy(() => import("./pages/courses/MasterCourseForm"));
+const MasterCourseList = lazyWithRetry(() => import("./pages/courses/MasterCourseList"));
+const MasterCourseForm = lazyWithRetry(() => import("./pages/courses/MasterCourseForm"));
 
-const ActiveCourseList = lazy(() => import("./pages/courses/ActiveCourseList"));
-const ActiveCourseForm = lazy(() => import("./pages/courses/ActiveCourseForm"));
+const ActiveCourseList = lazyWithRetry(() => import("./pages/courses/ActiveCourseList"));
+const ActiveCourseForm = lazyWithRetry(() => import("./pages/courses/ActiveCourseForm"));
 const OuthouseCourseList = lazy(
   () => import("./pages/outhouse-courses/OuthouseCourseList"),
 );
@@ -89,21 +108,21 @@ const CandidateApprovalPortal = lazy(
   () => import("./pages/pre-active-courses/CandidateApprovalPortal"),
 );
 
-const Acknowledge = lazy(() => import("./pages/Acknowledge"));
+const Acknowledge = lazyWithRetry(() => import("./pages/Acknowledge"));
 
 const UnifiedDashboard = lazy(
   () => import("./pages/dashboard/UnifiedDashboard"),
 );
 
-const ReportDashboard = lazy(() => import("./pages/reports/ReportDashboard"));
-const HotelReport = lazy(() => import("./pages/reports/HotelReport"));
+const ReportDashboard = lazyWithRetry(() => import("./pages/reports/ReportDashboard"));
+const HotelReport = lazyWithRetry(() => import("./pages/reports/HotelReport"));
 const AdminRemarksReport = lazy(
   () => import("./pages/reports/AdminRemarksReport"),
 );
 
-const LocationList = lazy(() => import("./pages/locations/LocationList"));
-const CreateLocation = lazy(() => import("./pages/locations/CreateLocation"));
-const EditLocation = lazy(() => import("./pages/locations/EditLocation"));
+const LocationList = lazyWithRetry(() => import("./pages/locations/LocationList"));
+const CreateLocation = lazyWithRetry(() => import("./pages/locations/CreateLocation"));
+const EditLocation = lazyWithRetry(() => import("./pages/locations/EditLocation"));
 
 const SystemManualList = lazy(
   () => import("./pages/system-manual/SystemManualList"),
@@ -118,14 +137,14 @@ const SystemManualCategoryList = lazy(
   () => import("./pages/system-manual/SystemManualCategoryList"),
 );
 
-const NominatorList = lazy(() => import("./pages/nominators/NominatorList"));
+const NominatorList = lazyWithRetry(() => import("./pages/nominators/NominatorList"));
 const CreateNominator = lazy(
   () => import("./pages/nominators/CreateNominator"),
 );
-const EditNominator = lazy(() => import("./pages/nominators/EditNominator"));
+const EditNominator = lazyWithRetry(() => import("./pages/nominators/EditNominator"));
 
-const PrivateRoute = lazy(() => import("./components/routes/PrivateRoute"));
-const PublicRoute = lazy(() => import("./components/routes/PublicRoute"));
+const PrivateRoute = lazyWithRetry(() => import("./components/routes/PrivateRoute"));
+const PublicRoute = lazyWithRetry(() => import("./components/routes/PublicRoute"));
 
 const FeedbackCategoryList = lazy(
   () => import("./pages/feedback/FeedbackCategoryList"),
@@ -151,8 +170,8 @@ const QuestionBankForm = lazy(
   () => import("./pages/assessment/QuestionBankForm"),
 );
 
-const AssessmentList = lazy(() => import("./pages/assessment/AssessmentList"));
-const AssessmentForm = lazy(() => import("./pages/assessment/AssessmentForm"));
+const AssessmentList = lazyWithRetry(() => import("./pages/assessment/AssessmentList"));
+const AssessmentForm = lazyWithRetry(() => import("./pages/assessment/AssessmentForm"));
 
 const SubmittedAssessmentList = lazy(
   () => import("./pages/assessment/SubmittedAssessmentList"),
