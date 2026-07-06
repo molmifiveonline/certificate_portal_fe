@@ -5,64 +5,11 @@ import { toast } from "sonner";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { formatDate } from "../../lib/utils/dateUtils";
 
-const USER_FIELDS = ["first_name", "last_name", "email", "mobile", "status"];
-
-const PROFILE_FIELDS = [
-  "middle_name",
-  "prefix",
-  "gender",
-  "dob",
-  "nationality",
-  "passport_no",
-  "employee_id",
-  "manager",
-  "rank",
-  "whatsapp_number",
-  "alternate_mobile",
-  "indos_number",
-  "registration_type",
-  "designation",
-  "vessel_type",
-  "last_vessel_name",
-  "next_vessel_name",
-  "manning_company",
-  "sign_on_date",
-  "sign_off_date",
-  "officer",
-  "seaman_book_no",
-  "profile_image",
-];
-
-const FIELD_LABELS = {
-  first_name: "First Name",
-  last_name: "Last Name",
-  email: "Email Address",
-  mobile: "Mobile Number",
-  status: "Status",
-  middle_name: "Middle Name",
-  prefix: "Prefix / Title",
-  gender: "Gender",
-  dob: "Date of Birth",
-  nationality: "Nationality",
-  passport_no: "Passport Number",
-  employee_id: "Employee ID",
-  manager: "Manager",
-  rank: "Rank",
-  whatsapp_number: "WhatsApp Number",
-  alternate_mobile: "Alternate Mobile",
-  indos_number: "INDOS Number",
-  registration_type: "Registration Type",
-  designation: "Designation",
-  vessel_type: "Vessel Type",
-  last_vessel_name: "Last Vessel Name",
-  next_vessel_name: "Next Vessel Name",
-  manning_company: "Manning Company",
-  sign_on_date: "Sign On Date",
-  sign_off_date: "Sign Off Date",
-  officer: "Officer Type",
-  seaman_book_no: "Seaman Book No",
-  profile_image: "Profile Image Link",
-};
+import {
+  CANDIDATE_USER_FIELDS as USER_FIELDS,
+  CANDIDATE_PROFILE_FIELDS as PROFILE_FIELDS,
+  CANDIDATE_FIELD_LABELS as FIELD_LABELS,
+} from "../../lib/utils/constants";
 
 const CandidateMergeModal = ({ isOpen, onClose, selectedCandidateIds, onMergeSuccess }) => {
   const [loading, setLoading] = useState(true);

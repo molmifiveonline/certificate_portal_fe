@@ -24,7 +24,7 @@ import feedbackFormService from "../../services/feedbackFormService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import PageHeader from "../../components/common/PageHeader";
 
-const FEEDBACK_COURSE_MODE_OPTIONS = ["Online", "Offline"];
+import { FEEDBACK_COURSE_MODE_OPTIONS } from "../../lib/utils/constants";
 
 const MultiSelect = ({
   options,

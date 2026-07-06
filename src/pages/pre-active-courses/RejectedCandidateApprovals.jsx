@@ -14,12 +14,7 @@ import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { formatDate } from "../../lib/utils/dateUtils";
 import preActiveCourseService from "../../services/preActiveCourseService";
 
-const ADMIN_STATUS_OPTIONS = [
-  { value: "", label: "All admin statuses" },
-  { value: "Pending", label: "Pending" },
-  { value: "Approved", label: "Approved" },
-  { value: "Rejected", label: "Rejected" },
-];
+import { ADMIN_STATUS_OPTIONS } from "../../lib/utils/constants";
 
 const getStatusClassName = (status) => {
   if (status === "Approved") return "bg-blue-100 text-blue-700";

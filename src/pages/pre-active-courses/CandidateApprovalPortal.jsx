@@ -15,10 +15,7 @@ import {
   SelectValue,
 } from "../../components/ui/Select";
 
-const REJECTION_REASONS = [
-  { value: "Other", label: "Other" },
-  { value: "Not Available", label: "Not Available" },
-];
+import { CANDIDATE_REJECTION_REASONS as REJECTION_REASONS } from "../../lib/utils/constants";
 
 const CandidateApprovalPortal = () => {
   const { token } = useParams();

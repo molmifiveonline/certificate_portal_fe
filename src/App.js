@@ -5,6 +5,14 @@ import { AuthProvider } from "./context/AuthContext";
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 import { HelmetProvider } from "react-helmet-async";
 
+import {
+  ADMIN_ROLES,
+  TRAINER_ROLES,
+  CANDIDATE_ROLES,
+  ALL_APP_ROLES,
+  COURSE_ROUTE_PERMISSIONS,
+} from "./lib/utils/constants";
+
 const lazyWithRetry = (componentImport) =>
   lazy(async () => {
     const pageHasAlreadyBeenForceRefreshed = JSON.parse(
@@ -225,17 +233,6 @@ const ReimbursementAdminList = lazy(
 const ReimbursementAdminDetails = lazy(
   () => import("./pages/admin/reimbursements/ReimbursementAdminDetails"),
 );
-
-const ADMIN_ROLES = ["SuperAdmin", "Admin", "admin"];
-const TRAINER_ROLES = ["Trainer", "trainer"];
-const CANDIDATE_ROLES = ["Candidate", "candidate"];
-const ALL_APP_ROLES = [...ADMIN_ROLES, ...TRAINER_ROLES, ...CANDIDATE_ROLES];
-const COURSE_ROUTE_PERMISSIONS = [
-  "view_master_courses",
-  "view_pre_active_courses",
-  "view_active_courses",
-  "view_outhouse_courses",
-];
 
 function App() {
   return (
