@@ -282,7 +282,7 @@ const CandidateFeedbackTab = ({ courseId }) => {
                                 
                                 {question.type === 'rating' ? (
                                     <div className="flex flex-wrap gap-3">
-                                        {[1, 2, 3, 4, 5].map((rating) => {
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => {
                                             const opt = {
                                                 id: null,
                                                 option_text: String(rating),

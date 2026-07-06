@@ -192,7 +192,7 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
                                 paddingRight: `2.5rem`,
                             }}
                         >
-                            <option value="rating">Rating (1-5)</option>
+                            <option value="rating">Rating (1-10)</option>
                             <option value="text">Text Answer</option>
                             <option value="yes_no">Yes/No</option>
                         </select>
