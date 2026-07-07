@@ -80,13 +80,9 @@ const StatsCard = ({
       </div>
 
       <div className="mt-4 relative z-10">
-        {loading ? (
-          <div className="h-10 w-24 bg-slate-200 animate-pulse rounded-md" />
-        ) : (
-          <h3 className="text-4xl font-bold text-slate-800 tracking-tight">
-            <AnimatedCounter value={value} />
-          </h3>
-        )}
+        <h3 className={cn("text-4xl font-bold tracking-tight", loading ? "text-slate-300" : "text-slate-800")}>
+          <AnimatedCounter value={loading ? 0 : value} />
+        </h3>
         <p className="text-sm font-semibold text-slate-500 mt-1">{title}</p>
       </div>
     </div>
@@ -296,25 +292,29 @@ const SuperAdminDashboard = () => {
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      try {
-        const [statsRes, trainersRes, masterCoursesRes] = await Promise.all([
-          api.get("/dashboard/stats"),
-          api.get("/trainer"),
-          api.get("/master-courses"),
-        ]);
+      // Fetch stats independently so they render immediately
+      api.get("/dashboard/stats")
+        .then((res) => {
+          setStats(res.data);
+          setLoadingStats(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching stats:", error);
+          toast.error("Failed to load dashboard stats");
+          setLoadingStats(false);
+        });
 
-        setStats(statsRes.data);
-        setTrainers(trainersRes.data.data || []);
-        setMasterCourses(
-          masterCoursesRes.data.data || masterCoursesRes.data || [],
-        );
-
-        setLoadingStats(false);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-        toast.error("Failed to load dashboard data");
-        setLoadingStats(false);
-      }
+      // Fetch filters data in parallel but independent of stats
+      Promise.all([api.get("/trainer"), api.get("/master-courses")])
+        .then(([trainersRes, masterCoursesRes]) => {
+          setTrainers(trainersRes.data.data || []);
+          setMasterCourses(
+            masterCoursesRes.data.data || masterCoursesRes.data || [],
+          );
+        })
+        .catch((error) => {
+          console.error("Error fetching filters data:", error);
+        });
     };
 
     fetchInitialData();

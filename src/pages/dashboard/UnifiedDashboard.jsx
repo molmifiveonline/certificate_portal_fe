@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import SuperAdminDashboard from './SuperAdminDashboard';
-import TrainerDashboard from './TrainerDashboard';
-import CandidateDashboard from './CandidateDashboard';
-import RestrictedAdminDashboard from './RestrictedAdminDashboard';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+
+const SuperAdminDashboard = lazy(() => import('./SuperAdminDashboard'));
+const TrainerDashboard = lazy(() => import('./TrainerDashboard'));
+const CandidateDashboard = lazy(() => import('./CandidateDashboard'));
+const RestrictedAdminDashboard = lazy(() => import('./RestrictedAdminDashboard'));
 
 const UnifiedDashboard = () => {
     const { user, isRestrictedAdmin } = useAuth();
@@ -17,26 +19,34 @@ const UnifiedDashboard = () => {
 
     const role = user.role?.toLowerCase();
 
-    if (role === 'superadmin' || role === 'admin') {
-        if (isRestrictedAdmin) {
-            return <RestrictedAdminDashboard />;
+    const renderDashboard = () => {
+        if (role === 'superadmin' || role === 'admin') {
+            if (isRestrictedAdmin) {
+                return <RestrictedAdminDashboard />;
+            }
+            return <SuperAdminDashboard />;
         }
-        return <SuperAdminDashboard />;
-    }
 
-    if (role === 'trainer') {
-        return <TrainerDashboard />;
-    }
+        if (role === 'trainer') {
+            return <TrainerDashboard />;
+        }
 
-    if (role === 'candidate') {
-        return <CandidateDashboard />;
-    }
+        if (role === 'candidate') {
+            return <CandidateDashboard />;
+        }
+
+        return (
+            <div className="flex flex-col items-center justify-center p-10 text-center">
+                <h2 className="text-2xl font-bold text-gray-800">Welcome to MOLMI Portal</h2>
+                <p className="mt-2 text-gray-600">You are logged in, but no specific dashboard is available for your role ({user.role}).</p>
+            </div>
+        );
+    };
 
     return (
-        <div className="flex flex-col items-center justify-center p-10 text-center">
-            <h2 className="text-2xl font-bold text-gray-800">Welcome to MOLMI Portal</h2>
-            <p className="mt-2 text-gray-600">You are logged in, but no specific dashboard is available for your role ({user.role}).</p>
-        </div>
+        <Suspense fallback={<LoadingSpinner />}>
+            {renderDashboard()}
+        </Suspense>
     );
 };
 

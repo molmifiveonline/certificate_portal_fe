@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 import { HelmetProvider } from "react-helmet-async";
-
+import UnifiedDashboard from "./pages/dashboard/UnifiedDashboard";
 import {
   ADMIN_ROLES,
   TRAINER_ROLES,
@@ -118,9 +118,7 @@ const CandidateApprovalPortal = lazy(
 
 const Acknowledge = lazyWithRetry(() => import("./pages/Acknowledge"));
 
-const UnifiedDashboard = lazy(
-  () => import("./pages/dashboard/UnifiedDashboard"),
-);
+
 
 const ReportDashboard = lazyWithRetry(() => import("./pages/reports/ReportDashboard"));
 const HotelReport = lazyWithRetry(() => import("./pages/reports/HotelReport"));
