@@ -1,5 +1,3 @@
-import { DEFAULT_VALIDATION_LABEL as DEFAULT_LABEL } from "./constants";
-
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const NUMERIC_ONLY_REGEX = /^\d+$/;
 export const PHONE_REGEX = /^\+?\d+$/;
@@ -10,6 +8,9 @@ export const WHATSAPP_GROUP_REQUIRED_MESSAGE =
   "Please Enter WhatsApp Group Link";
 export const WHATSAPP_GROUP_INVALID_MESSAGE =
   "Please Enter a Valid WhatsApp Group Link";
+
+
+const DEFAULT_LABEL = "This field";
 
 const getFieldText = ({ name = "", label = "", type = "" }) =>
   `${name} ${label} ${type}`.toLowerCase();
