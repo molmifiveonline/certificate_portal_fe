@@ -1,12 +1,13 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import lazyWithRetry from '../../lib/utils/lazyWithRetry';
 
-const SuperAdminDashboard = lazy(() => import('./SuperAdminDashboard'));
-const TrainerDashboard = lazy(() => import('./TrainerDashboard'));
-const CandidateDashboard = lazy(() => import('./CandidateDashboard'));
-const RestrictedAdminDashboard = lazy(() => import('./RestrictedAdminDashboard'));
+const SuperAdminDashboard = lazyWithRetry(() => import('./SuperAdminDashboard'));
+const TrainerDashboard = lazyWithRetry(() => import('./TrainerDashboard'));
+const CandidateDashboard = lazyWithRetry(() => import('./CandidateDashboard'));
+const RestrictedAdminDashboard = lazyWithRetry(() => import('./RestrictedAdminDashboard'));
 
 const UnifiedDashboard = () => {
     const { user, isRestrictedAdmin } = useAuth();
