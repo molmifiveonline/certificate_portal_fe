@@ -1,10 +1,11 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense } from "react";
 import { Toaster } from "sonner";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 import { HelmetProvider } from "react-helmet-async";
-import UnifiedDashboard from "./pages/dashboard/UnifiedDashboard";
+import lazyWithRetry from "./lib/utils/lazyWithRetry";
+
 import {
   ADMIN_ROLES,
   TRAINER_ROLES,
@@ -13,24 +14,6 @@ import {
   COURSE_ROUTE_PERMISSIONS,
 } from "./lib/utils/constants";
 
-const lazyWithRetry = (componentImport) =>
-  lazy(async () => {
-    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
-      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
-    );
-    try {
-      const component = await componentImport();
-      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
-      return component;
-    } catch (error) {
-      if (!pageHasAlreadyBeenForceRefreshed && error.name === 'ChunkLoadError') {
-        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
-        window.location.reload();
-        return { default: () => null };
-      }
-      throw error;
-    }
-  });
 
 const Login = lazyWithRetry(() => import("./pages/auth/Login"));
 const Register = lazyWithRetry(() => import("./pages/auth/Register"));
@@ -51,37 +34,37 @@ const EditCandidate = lazyWithRetry(() => import("./pages/candidates/EditCandida
 const ResetPassword = lazyWithRetry(() => import("./pages/auth/ResetPassword"));
 const RolePermission = lazyWithRetry(() => import("./pages/admin/RolePermission"));
 const LogHistory = lazyWithRetry(() => import("./pages/admin/LogHistory"));
-const AdminNotifications = lazy(
+const AdminNotifications = lazyWithRetry(
   () => import("./pages/admin/AdminNotifications"),
 );
 const AdminUserList = lazyWithRetry(() => import("./pages/admin/users/AdminUserList"));
-const CreateAdminUser = lazy(
+const CreateAdminUser = lazyWithRetry(
   () => import("./pages/admin/users/CreateAdminUser"),
 );
 const EditAdminUser = lazyWithRetry(() => import("./pages/admin/users/EditAdminUser"));
 const HotelList = lazyWithRetry(() => import("./pages/hotels/HotelList"));
 const CreateHotel = lazyWithRetry(() => import("./pages/hotels/CreateHotel"));
 const EditHotel = lazyWithRetry(() => import("./pages/hotels/EditHotel"));
-const AdminRolesList = lazy(
+const AdminRolesList = lazyWithRetry(
   () => import("./pages/admin/admin-roles/AdminRolesList"),
 );
-const AdminRolesForm = lazy(
+const AdminRolesForm = lazyWithRetry(
   () => import("./pages/admin/admin-roles/AdminRolesForm"),
 );
 
-const CertificateList = lazy(
+const CertificateList = lazyWithRetry(
   () => import("./pages/certificates/CertificateList"),
 );
-const CreateCertificate = lazy(
+const CreateCertificate = lazyWithRetry(
   () => import("./pages/certificates/CreateCertificate"),
 );
-const EditCertificate = lazy(
+const EditCertificate = lazyWithRetry(
   () => import("./pages/certificates/EditCertificate"),
 );
-const CertificatePrintView = lazy(
+const CertificatePrintView = lazyWithRetry(
   () => import("./pages/certificates/CertificatePrintView"),
 );
-const CertificateVerification = lazy(
+const CertificateVerification = lazyWithRetry(
   () => import("./pages/certificates/CertificateVerification"),
 );
 
@@ -90,39 +73,41 @@ const MasterCourseForm = lazyWithRetry(() => import("./pages/courses/MasterCours
 
 const ActiveCourseList = lazyWithRetry(() => import("./pages/courses/ActiveCourseList"));
 const ActiveCourseForm = lazyWithRetry(() => import("./pages/courses/ActiveCourseForm"));
-const OuthouseCourseList = lazy(
+const OuthouseCourseList = lazyWithRetry(
   () => import("./pages/outhouse-courses/OuthouseCourseList"),
 );
-const OuthouseCourseForm = lazy(
+const OuthouseCourseForm = lazyWithRetry(
   () => import("./pages/outhouse-courses/OuthouseCourseForm"),
 );
 
-const PreActiveCourseList = lazy(
+const PreActiveCourseList = lazyWithRetry(
   () => import("./pages/pre-active-courses/PreActiveCourseList"),
 );
-const PreActiveCourseForm = lazy(
+const PreActiveCourseForm = lazyWithRetry(
   () => import("./pages/pre-active-courses/PreActiveCourseForm"),
 );
-const AdminPreActiveApprovals = lazy(
+const AdminPreActiveApprovals = lazyWithRetry(
   () => import("./pages/pre-active-courses/AdminPreActiveApprovals"),
 );
-const RejectedCandidateApprovals = lazy(
+const RejectedCandidateApprovals = lazyWithRetry(
   () => import("./pages/pre-active-courses/RejectedCandidateApprovals"),
 );
-const NominatorPortal = lazy(
+const NominatorPortal = lazyWithRetry(
   () => import("./pages/pre-active-courses/NominatorPortal"),
 );
-const CandidateApprovalPortal = lazy(
+const CandidateApprovalPortal = lazyWithRetry(
   () => import("./pages/pre-active-courses/CandidateApprovalPortal"),
 );
 
 const Acknowledge = lazyWithRetry(() => import("./pages/Acknowledge"));
 
-
+const UnifiedDashboard = lazyWithRetry(
+  () => import("./pages/dashboard/UnifiedDashboard"),
+);
 
 const ReportDashboard = lazyWithRetry(() => import("./pages/reports/ReportDashboard"));
 const HotelReport = lazyWithRetry(() => import("./pages/reports/HotelReport"));
-const AdminRemarksReport = lazy(
+const AdminRemarksReport = lazyWithRetry(
   () => import("./pages/reports/AdminRemarksReport"),
 );
 
@@ -130,21 +115,21 @@ const LocationList = lazyWithRetry(() => import("./pages/locations/LocationList"
 const CreateLocation = lazyWithRetry(() => import("./pages/locations/CreateLocation"));
 const EditLocation = lazyWithRetry(() => import("./pages/locations/EditLocation"));
 
-const SystemManualList = lazy(
+const SystemManualList = lazyWithRetry(
   () => import("./pages/system-manual/SystemManualList"),
 );
-const CreateSystemManual = lazy(
+const CreateSystemManual = lazyWithRetry(
   () => import("./pages/system-manual/CreateSystemManual"),
 );
-const EditSystemManual = lazy(
+const EditSystemManual = lazyWithRetry(
   () => import("./pages/system-manual/EditSystemManual"),
 );
-const SystemManualCategoryList = lazy(
+const SystemManualCategoryList = lazyWithRetry(
   () => import("./pages/system-manual/SystemManualCategoryList"),
 );
 
 const NominatorList = lazyWithRetry(() => import("./pages/nominators/NominatorList"));
-const CreateNominator = lazy(
+const CreateNominator = lazyWithRetry(
   () => import("./pages/nominators/CreateNominator"),
 );
 const EditNominator = lazyWithRetry(() => import("./pages/nominators/EditNominator"));
@@ -152,83 +137,83 @@ const EditNominator = lazyWithRetry(() => import("./pages/nominators/EditNominat
 const PrivateRoute = lazyWithRetry(() => import("./components/routes/PrivateRoute"));
 const PublicRoute = lazyWithRetry(() => import("./components/routes/PublicRoute"));
 
-const FeedbackCategoryList = lazy(
+const FeedbackCategoryList = lazyWithRetry(
   () => import("./pages/feedback/FeedbackCategoryList"),
 );
-const FeedbackQuestionList = lazy(
+const FeedbackQuestionList = lazyWithRetry(
   () => import("./pages/feedback/FeedbackQuestionList"),
 );
 // Remove SubmittedFeedbackList import as it is obsolete now
-const SubmittedFeedbackDetails = lazy(
+const SubmittedFeedbackDetails = lazyWithRetry(
   () => import("./pages/feedback/SubmittedFeedbackDetails"),
 );
-const FeedbackFormList = lazy(
+const FeedbackFormList = lazyWithRetry(
   () => import("./pages/feedback/FeedbackFormList"),
 );
-const FeedbackFormCreate = lazy(
+const FeedbackFormCreate = lazyWithRetry(
   () => import("./pages/feedback/FeedbackFormCreate"),
 );
 
-const QuestionBankList = lazy(
+const QuestionBankList = lazyWithRetry(
   () => import("./pages/assessment/QuestionBankList"),
 );
-const QuestionBankForm = lazy(
+const QuestionBankForm = lazyWithRetry(
   () => import("./pages/assessment/QuestionBankForm"),
 );
 
 const AssessmentList = lazyWithRetry(() => import("./pages/assessment/AssessmentList"));
 const AssessmentForm = lazyWithRetry(() => import("./pages/assessment/AssessmentForm"));
 
-const SubmittedAssessmentList = lazy(
+const SubmittedAssessmentList = lazyWithRetry(
   () => import("./pages/assessment/SubmittedAssessmentList"),
 );
-const CourseSubmissions = lazy(
+const CourseSubmissions = lazyWithRetry(
   () => import("./pages/assessment/CourseSubmissions"),
 );
 // const AssessmentSubmissionList = lazy(
 //   () => import("./pages/assessment/AssessmentSubmissionList"),
 // );
-const SubmissionDetail = lazy(
+const SubmissionDetail = lazyWithRetry(
   () => import("./pages/assessment/SubmissionDetail"),
 );
 
-const TrainerCertificateList = lazy(
+const TrainerCertificateList = lazyWithRetry(
   () => import("./pages/trainers/TrainerCertificateList"),
 );
-const TrainerCourseList = lazy(
+const TrainerCourseList = lazyWithRetry(
   () => import("./pages/trainers/TrainerCourseList"),
 );
 
-const FeedbackCourseList = lazy(
+const FeedbackCourseList = lazyWithRetry(
   () => import("./pages/feedback/FeedbackCourseList"),
 );
 
 
 
-const CandidateCourseList = lazy(
+const CandidateCourseList = lazyWithRetry(
   () => import("./pages/candidates/CandidateCourseList"),
 );
 
-const CandidateCertificateList = lazy(
+const CandidateCertificateList = lazyWithRetry(
   () => import("./pages/candidates/CandidateCertificateList"),
 );
 
-const CandidateCourseDetails = lazy(
+const CandidateCourseDetails = lazyWithRetry(
   () => import("./pages/candidates/CandidateCourseDetails"),
 );
-const ReimbursementList = lazy(
+const ReimbursementList = lazyWithRetry(
   () => import("./pages/reimbursements/ReimbursementList"),
 );
-const ReimbursementForm = lazy(
+const ReimbursementForm = lazyWithRetry(
   () => import("./pages/reimbursements/ReimbursementForm"),
 );
-const ReimbursementDetails = lazy(
+const ReimbursementDetails = lazyWithRetry(
   () => import("./pages/reimbursements/ReimbursementDetails"),
 );
-const ReimbursementAdminList = lazy(
+const ReimbursementAdminList = lazyWithRetry(
   () => import("./pages/admin/reimbursements/ReimbursementAdminList"),
 );
-const ReimbursementAdminDetails = lazy(
+const ReimbursementAdminDetails = lazyWithRetry(
   () => import("./pages/admin/reimbursements/ReimbursementAdminDetails"),
 );
 
