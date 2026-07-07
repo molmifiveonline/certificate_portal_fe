@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
 import LocationForm from './LocationForm';
 import locationService from '../../services/locationService';
 import { toast } from 'sonner';
+import PageHeader from '../../components/common/PageHeader';
 
 const LoadingSpinner = () => (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -63,24 +63,15 @@ const EditLocation = () => {
 
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="w-full h-full pb-20">
             <Meta title="Edit Location" description="Edit Location Details" />
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate('/location')}
-                            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm group"
-                        >
-                            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                        </button>
-                        <div>
-                            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Location</h1>
-                            <p className="text-slate-500 mt-1">Update training center information</p>
-                        </div>
-                    </div>
-                </div>
+            <div className="max-w-[1600px] mx-auto">
+                <PageHeader
+                    title="Edit Location"
+                    subtitle="Update training center information"
+                    compact={true}
+                    backTo="/location"
+                />
 
                 <LocationForm
                     initialData={locationData}

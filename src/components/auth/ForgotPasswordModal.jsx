@@ -3,9 +3,16 @@ import { useForm } from 'react-hook-form';
 import { X, Mail, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../../lib/api';
+import { getCommonFieldValidation } from '../../lib/utils/validation';
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
+    const emailValidation = getCommonFieldValidation({
+        label: 'Email',
+        name: 'email',
+        type: 'email',
+        required: true
+    });
 
     const onSubmit = async (data) => {
         try {
@@ -53,11 +60,9 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                                     <Mail size={20} />
                                 </div>
                                 <input
-                                    type="email"
-                                    {...register('email', {
-                                        required: 'Email is required',
-                                        pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" }
-                                    })}
+                                    type="text"
+                                    {...register('email', emailValidation.rules)}
+                                    {...emailValidation.inputProps}
                                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all shadow-sm"
                                     placeholder="name@company.com"
                                 />
@@ -68,7 +73,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-3.5 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`w-full bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white font-bold py-3.5 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
                             <span>{isSubmitting ? 'Sending...' : 'Send Reset Link'}</span>
                             {!isSubmitting && <ArrowRight size={20} />}

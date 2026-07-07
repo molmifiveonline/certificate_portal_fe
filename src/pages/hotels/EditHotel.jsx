@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import Meta from "../../components/common/Meta";
 import { useNavigate, useParams } from 'react-router-dom';
-import { Building, ArrowLeft } from 'lucide-react';
+import { Building } from 'lucide-react';
 import { toast } from 'sonner';
 import HotelForm from './HotelForm';
 import hotelService from '../../services/hotelService';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PageHeader from '../../components/common/PageHeader';
 
 const EditHotel = () => {
     const { id } = useParams();
@@ -27,7 +29,7 @@ const EditHotel = () => {
                 }
             } catch (error) {
                 console.error('Error fetching hotel:', error);
-                toast.error('Failed to load hotel details.');
+                toast.error(getErrorMessage(error, 'Failed to load hotel details.'));
                 navigate('/hotel-details');
             } finally {
                 setLoading(false);
@@ -58,7 +60,7 @@ const EditHotel = () => {
             navigate('/hotel-details');
         } catch (error) {
             console.error('Error updating hotel:', error);
-            toast.error(error.response?.data?.message || 'Failed to update hotel.');
+            toast.error(getErrorMessage(error, 'Failed to update hotel.'));
         } finally {
             setIsSubmitting(false);
         }
@@ -69,28 +71,16 @@ const EditHotel = () => {
 
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="w-full h-full pb-20">
             <Meta title="Edit Hotel" description="Edit Hotel Details" />
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-500/20">
-                            <Building className="w-8 h-8 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Edit Hotel</h1>
-                            <p className="text-slate-500 mt-1">Update details for {hotel?.venue_name}</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => navigate('/hotel-details')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 hover:bg-white px-4 py-2 rounded-xl transition-all text-sm font-semibold border border-transparent hover:border-slate-200 shadow-sm hover:shadow-md"
-                    >
-                        <ArrowLeft size={18} />
-                        Back to List
-                    </button>
-                </div>
+            <div className="max-w-[1600px] mx-auto">
+                <PageHeader
+                    title="Edit Hotel"
+                    subtitle={`Update details for ${hotel?.venue_name}`}
+                    icon={Building}
+                    compact={true}
+                    backTo="/hotel-details"
+                />
 
                 {/* Form Container */}
                 <HotelForm

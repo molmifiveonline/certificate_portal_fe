@@ -26,3 +26,7 @@ yarn-error.log*
 # local env files
 .env
 
+# Custom Rules
+molmi-cer-rules.md
+.agents/rules/login-credentials.md
+.agents/rules/project-context.md

@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import Meta from "../../components/common/Meta";
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import PageHeader from "../../components/common/PageHeader";
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '../../lib/api';
 import CandidateForm from '../../components/candidates/CandidateForm';
-import { Card, CardContent } from "../../components/ui/card";
 
 const AddCandidate = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const registrationType = location.state?.registrationType || 'MOLMI Employee';
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
             // Map frontend fields (camelCase) to backend fields (snake_case)
-            // Note: Reuse logic from Register.jsx or utility if complex mapping grows
             const payload = {
                 first_name: data.firstName,
                 last_name: data.lastName,
@@ -42,55 +43,48 @@ const AddCandidate = () => {
                 last_vessel_name: data.lastVesselName,
                 next_vessel_name: data.nextVesselName,
                 manning_company: data.manningCompany,
-                sign_on_date: data.signOnDate,
-                sign_off_date: data.signOffDate,
+                sign_on_date: data.signOnDate || null,
+                sign_off_date: data.signOffDate || null,
                 officer: data.officer,
                 seaman_book_no: data.seamanBookNo,
-                profile_image: data.profileImage
+                profile_image: data.profileImage,
+                status: data.status ? 1 : 0
             };
 
             await api.post('/auth/register/candidate', payload);
 
             toast.success("Candidate Added Successfully!");
-            navigate('/candidates');
+            navigate(registrationType === 'Others' ? '/candidates/others' : '/candidates/molmi');
         } catch (error) {
             console.error("Add Candidate Error:", error);
-            toast.error(error.response?.data?.message || "Failed to add candidate. Please try again.");
+            toast.error(getErrorMessage(error, "Failed to add candidate. Please try again."));
             window.scrollTo(0, 0);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-
-
     return (
         <div className="space-y-6">
             <Meta title="Add Candidate" description="Add New Candidate" />
-            <div className="flex items-center gap-4">
-                <button
-                    onClick={() => navigate('/candidates')}
-                    className="p-2 hover:bg-slate-200 rounded-full transition-colors"
-                >
-                    <ChevronLeft className="w-6 h-6 text-slate-600" />
-                </button>
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Add New Candidate</h1>
-                    <p className="text-slate-500 mt-1">Register a new candidate manually</p>
-                </div>
-            </div>
+            <PageHeader
+                title="Add New Candidate"
+                subtitle="Register a new candidate manually"
+                compact={true}
+                backTo={registrationType === 'Others' ? '/candidates/others' : '/candidates/molmi'}
+            />
 
-            <Card className="rounded-3xl border-slate-200/60 bg-white shadow-xl overflow-hidden">
-                <CardContent className="p-8">
-                    <CandidateForm
-                        onSubmit={onSubmit}
-                        isSubmitting={isSubmitting}
-                        submitLabel="Create Candidate"
-                        showPassword={true}
-                        isAdmin={true}
-                    />
-                </CardContent>
-            </Card>
+            <div className="w-full">
+                <CandidateForm
+                    onSubmit={onSubmit}
+                    isSubmitting={isSubmitting}
+                    submitLabel="Create Candidate"
+                    showPassword={true}
+                    isAdmin={true}
+                    onCancel={() => navigate(registrationType === 'Others' ? '/candidates/others' : '/candidates/molmi')}
+                    defaultValues={{ employeeType: registrationType }}
+                />
+            </div>
         </div>
     );
 };

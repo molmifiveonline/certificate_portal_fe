@@ -29,6 +29,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Handle global errors like 401 Unauthorized here if needed
+    if (error.response && error.response.status === 401) {
+      const requestUrl = error.config?.url || "";
+      const isLoginRequest =
+        requestUrl === "/auth/login" || requestUrl.endsWith("/auth/login");
+
+      if (!isLoginRequest) {
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
+    }
     return Promise.reject(error);
   },
 );

@@ -1,423 +1,514 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+// TWO-STEP IMPORT FLOW IMPLEMENTED
 import Meta from "../../components/common/Meta";
-import { MANAGER_OPTIONS } from "../../lib/constants";
+import PageHeader from "../../components/common/PageHeader";
 import {
-    Search,
-    Filter,
-    Download,
-    RefreshCcw,
-    UserPlus,
-    Edit,
-    Eye,
-    ArrowUpDown,
-    ArrowUp,
-    ArrowDown,
-    Upload,
-    Zap
+  MANAGER_OPTIONS,
+  TRAINER_NATIONALITY_OPTIONS,
+} from "../../lib/constants";
+import {
+  Search,
+  FileDown,
+  RefreshCcw,
+  UserPlus,
+  Edit,
+  Zap,
+  History,
+  Users,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { formatDate } from "../../lib/utils/dateUtils";
 import candidateService from "../../services/candidateService";
 import TablePagination from "../../components/ui/TablePagination";
+import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
-import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import DetailModal from "../../components/ui/DetailModal";
 import { debounce } from "lodash";
+import { useAuth } from "../../context/AuthContext";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
+import CandidateImportPreviewModal from "../../components/candidates/CandidateImportPreviewModal";
+import CandidateSyncHistoryModal from "../../components/candidates/CandidateSyncHistoryModal";
 
-const CandidateList = () => {
-    const navigate = useNavigate();
-    const [candidates, setCandidates] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
-    const [limit, setLimit] = useState(10);
-    const [sortBy, setSortBy] = useState("created_at");
-    const [sortOrder, setSortOrder] = useState("desc");
-    const [showDetailModal, setShowDetailModal] = useState(false);
-    const [selectedCandidate, setSelectedCandidate] = useState(null);
-    const [isExporting, setIsExporting] = useState(false);
-    const [isSyncing, setIsSyncing] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(null);
+const CandidateList = ({ registrationType }) => {
+  const navigate = useNavigate();
+  const { hasPermission } = useAuth();
+  const [candidates, setCandidates] = useState([]);
+  const [selectedCandidate] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [sortBy, setSortBy] = useState("created_at");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
-    // Filter States
-    const [filterManager, setFilterManager] = useState("");
-    const [filterRank, setFilterRank] = useState("");
-    const [filterNationality, setFilterNationality] = useState("");
-    const [filterStatus, setFilterStatus] = useState("1"); // Default Active
+  // Two-Step Sync States
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showSyncHistoryModal, setShowSyncHistoryModal] = useState(false);
 
-    // Debounce search
-    const updateDebouncedSearch = useCallback(
-        debounce((value) => {
-            setDebouncedSearch(value);
-            setCurrentPage(1);
-        }, 500),
-        []
-    );
+  // Filter States
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterManager, setFilterManager] = useState("");
+  const [filterRank, setFilterRank] = useState("");
+  const [filterNationality, setFilterNationality] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all"); // Default All
 
-    useEffect(() => {
-        updateDebouncedSearch(searchTerm);
-    }, [searchTerm, updateDebouncedSearch]);
-
-    const fetchCandidates = async () => {
-        setLoading(true);
-        try {
-            const result = await candidateService.getAllCandidates({
-                search: debouncedSearch,
-                page: currentPage,
-                limit: limit,
-                sort_by: sortBy,
-                sort_order: sortOrder,
-                manager: filterManager,
-                rank: filterRank,
-                nationality: filterNationality,
-                status: filterStatus
-            });
-
-            setCandidates(result.data);
-            setTotalPages(result.totalPages);
-            setTotalCount(result.totalCount);
-        } catch (error) {
-            console.error("Error fetching candidates:", error);
-            toast.error("Failed to load candidates");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCandidates();
-    }, [currentPage, debouncedSearch, limit, sortBy, sortOrder, filterManager, filterRank, filterNationality, filterStatus]);
-
-    const handleSort = (column) => {
-        if (sortBy === column) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-        } else {
-            setSortBy(column);
-            setSortOrder("asc");
-        }
+  // Debounce search
+  const updateDebouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        setDebouncedSearch(value);
         setCurrentPage(1);
-    };
+      }, 500),
+    [],
+  );
 
-    const handleExport = async () => {
-        setIsExporting(true);
-        try {
-            const response = await candidateService.exportCandidates();
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'candidates.csv');
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            toast.success("Candidates exported successfully");
-        } catch (error) {
-            console.error("Export error:", error);
-            toast.error("Failed to export candidates");
-        } finally {
-            setIsExporting(false);
-        }
-    };
+  useEffect(() => {
+    updateDebouncedSearch(searchTerm);
+  }, [searchTerm, updateDebouncedSearch]);
 
-    const handleSyncFromApi = async () => {
-        setIsSyncing(true);
-        const toastId = toast.loading("Syncing candidates from API...");
-        try {
-            const result = await candidateService.importFromApi("1970-01-01"); // Default to all
-            toast.success(`Sync completed! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
-            fetchCandidates();
-        } catch (error) {
-            console.error("Sync error:", error);
-            toast.error("Failed to sync from API", { id: toastId });
-        } finally {
-            setIsSyncing(false);
-        }
-    };
+  const fetchCandidates = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await candidateService.getAllCandidates({
+        search: debouncedSearch,
+        page: currentPage,
+        limit: limit,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        manager: filterManager,
+        rank: filterRank,
+        nationality: filterNationality,
+        status: filterStatus,
+        registration_type: registrationType,
+      });
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+      setCandidates(result.data);
+      setTotalPages(result.totalPages);
+      setTotalCount(result.total);
+    } catch (error) {
+      console.error("Error fetching candidates:", error);
+      toast.error(getErrorMessage(error, "Failed to load candidates"));
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    debouncedSearch,
+    currentPage,
+    limit,
+    sortBy,
+    sortOrder,
+    filterManager,
+    filterRank,
+    filterNationality,
+    filterStatus,
+    registrationType,
+  ]);
 
-        if (!file.name.endsWith('.csv')) {
-            toast.error("Please upload a CSV file");
-            return;
-        }
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setDebouncedSearch("");
+    setFilterManager("");
+    setFilterRank("");
+    setFilterNationality("");
+    setFilterStatus("1");
+    setCurrentPage(1);
+    toast.success("Filters cleared");
+  };
 
-        setIsUploading(true);
-        const toastId = toast.loading("Uploading candidates...");
-        const formData = new FormData();
-        formData.append("csv", file);
+  useEffect(() => {
+    fetchCandidates();
+  }, [fetchCandidates]);
 
-        try {
-            const result = await candidateService.uploadCandidates(formData);
-            toast.success(`Upload successful! ${result.stats.inserted} new, ${result.stats.updated} updated.`, { id: toastId });
-            fetchCandidates();
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to upload candidates", { id: toastId });
-        } finally {
-            setIsUploading(false);
-            e.target.value = ''; // Reset input
-        }
-    };
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+    setCurrentPage(1);
+  };
 
-    const SortIcon = ({ column }) => {
-        if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
-        return sortOrder === "asc"
-            ? <ArrowUp className="w-3 h-3 ml-1 text-blue-600" />
-            : <ArrowDown className="w-3 h-3 ml-1 text-blue-600" />;
-    };
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const response = await candidateService.exportCandidates({
+        search: debouncedSearch,
+        manager: filterManager,
+        rank: filterRank,
+        nationality: filterNationality,
+        status: filterStatus,
+        registration_type: registrationType,
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "candidates.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success("Candidates exported successfully");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error(getErrorMessage(error, "Failed to export candidates"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
-    const SortableHeader = ({ column, label, className = "" }) => (
-        <th
-            className={`px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors select-none ${className}`}
-            onClick={() => handleSort(column)}
-        >
-            <div className="flex items-center">
-                {label}
-                <SortIcon column={column} />
-            </div>
-        </th>
+  const handleSyncFromApi = () => {
+    setShowPreviewModal(true);
+  };
+
+  const columns = useMemo(() => {
+    const cols = [];
+
+    if (registrationType !== "Others") {
+      cols.push({
+        key: "employee_id",
+        label: "Employee ID",
+        sortable: true,
+        render: (val) => (
+          <span className="font-medium text-slate-700">{val || "N/A"}</span>
+        ),
+      });
+    }
+
+    cols.push(
+      {
+        key: "prefix",
+        label: "Title",
+        sortable: true,
+        render: (val) => val || "-",
+      },
+      {
+        key: "first_name",
+        label: "Candidate Name",
+        sortable: true,
+        render: (_val, row) => (
+          <span className="font-semibold text-slate-800">
+            {`${row.first_name || ""} ${row.last_name || ""}`}
+          </span>
+        ),
+      },
+      {
+        key: "rank",
+        label: "Rank",
+        sortable: true,
+        render: (val) => val || "-",
+      },
+      {
+        key: "created_at",
+        label: "Date",
+        sortable: true,
+        render: (val) => formatDate(val),
+      },
+      {
+        key: "nationality",
+        label: "Nationality",
+        sortable: true,
+        render: (val) => val || "-",
+      },
+      {
+        key: "manager",
+        label: "Manager",
+        sortable: true,
+        render: (val) => val || "-",
+      },
+      {
+        key: "status",
+        label: "Status",
+        sortable: true,
+        render: (val) => (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${val === 1 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+          >
+            {val === 1 ? "Active" : "Inactive"}
+          </span>
+        ),
+      },
     );
 
-    const handleViewDetails = (candidate) => {
-        setSelectedCandidate(candidate);
-        setShowDetailModal(true);
-    };
+    if (hasPermission("edit_candidate")) {
+      cols.push({
+        key: "actions",
+        label: "Edit",
+        render: (_val, row) => (
+          <button
+            onClick={() => navigate(`/candidates/edit/${row.id}`)}
+            className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 transition-all"
+            title="Edit Candidate"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+        ),
+      });
+    }
 
+    return cols;
+  }, [registrationType, navigate, hasPermission]);
 
+  return (
+    <div className="flex-1 overflow-y-auto">
+      <Meta
+        title={
+          registrationType === "MOLMI Employee"
+            ? "MOLMI Candidates"
+            : registrationType === "Others"
+              ? "Other Candidates"
+              : "All Candidates"
+        }
+        description="Manage Candidates"
+      />
+      <PageHeader
+        title={
+          registrationType === "MOLMI Employee"
+            ? "MOLMI Candidates"
+            : registrationType === "Others"
+              ? "Other Candidates"
+              : "All Candidates"
+        }
+        subtitle="Manage and view all registered candidates"
+        icon={Users}
+        actions={
+          <div className="flex flex-wrap gap-3">
+            {registrationType === "MOLMI Employee" && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowSyncHistoryModal(true)}
+                  className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                  style={{ borderColor: "rgb(99 102 241 / 35%)" }}
+                >
+                  <History className="w-4 h-4 text-indigo-500" />
+                  Synced History
+                </Button>
 
-    return (
-        <div className="flex-1 overflow-y-auto">
-            <Meta title="Candidates" description="Manage Candidates" />
-            {/* Page Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Candidates</h1>
-                    <p className="text-slate-500 mt-1">Manage and view all registered candidates</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                    <button
-                        onClick={handleSyncFromApi}
-                        disabled={isSyncing}
-                        className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95 disabled:opacity-50">
-                        <Zap className={`w-4 h-4 text-amber-500 ${isSyncing ? 'animate-pulse' : ''}`} />
-                        {isSyncing ? 'Syncing...' : 'Sync API'}
-                    </button>
+                <Button
+                  variant="outline"
+                  onClick={handleSyncFromApi}
+                  className="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 active:scale-95"
+                  style={{ borderColor: "rgb(49 46 129 / 90%)" }}
+                >
+                  <Zap className="w-4 h-4 text-amber-500" />
+                  Sync API
+                </Button>
+              </>
+            )}
 
-                    <label className="cursor-pointer bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95">
-                        <Upload className="w-4 h-4 text-blue-600" />
-                        Upload
-                        <input
-                            type="file"
-                            className="hidden"
-                            accept=".csv"
-                            onChange={handleFileUpload}
-                            disabled={isUploading}
-                        />
-                    </label>
+            {hasPermission("create_candidate") && (
+              <Button
+                onClick={() =>
+                  navigate("/candidates/add", { state: { registrationType } })
+                }
+                className="px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95"
+              >
+                <UserPlus className="w-4 h-4" />
+                Add Candidate
+              </Button>
+            )}
+          </div>
+        }
+      />
 
-                    <button
-                        onClick={() => navigate('/candidates/add')}
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 active:scale-95">
-                        <UserPlus className="w-4 h-4" />
-                        Add Candidate
-                    </button>
-                </div>
+      <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
+        <CardContent className="p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-
-            <Card className="rounded-3xl border-white/40 bg-white/60 backdrop-blur-2xl shadow-lg mb-8 overflow-visible z-10">
-                <CardContent className="p-4 sm:p-6 space-y-4">
-                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-                        <div className="relative w-full md:w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                className="w-full h-10 pl-10 pr-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="flex gap-3 w-full md:w-auto">
-                            <button
-                                onClick={handleExport}
-                                disabled={isExporting}
-                                className="h-10 px-4 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center gap-2 text-slate-600 text-sm font-medium transition-all disabled:opacity-50">
-                                {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                                Export
-                            </button>
-                            <button
-                                onClick={fetchCandidates}
-                                className="h-10 w-10 bg-white/50 border border-slate-200/60 hover:bg-white/80 rounded-xl flex items-center justify-center text-slate-600 transition-all">
-                                <RefreshCcw className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Additional Filters */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="relative">
-                            <select
-                                className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                                value={filterManager}
-                                onChange={(e) => setFilterManager(e.target.value)}
-                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                            >
-                                <option value="">Last served (All)</option>
-                                {MANAGER_OPTIONS.map(opt => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <select
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                            value={filterRank}
-                            onChange={(e) => setFilterRank(e.target.value)}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                        >
-                            <option value="">All Ranks</option>
-                            <option value="Captain">Captain</option>
-                            <option value="Chief Officer">Chief Officer</option>
-                        </select>
-                        <select
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                            value={filterNationality}
-                            onChange={(e) => setFilterNationality(e.target.value)}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                        >
-                            <option value="">All Nationalities</option>
-                            <option value="Indian">Indian</option>
-                            <option value="Filipino">Filipino</option>
-                        </select>
-                        <select
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
-                        >
-                            <option value="all">All Status</option>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Candidates Table */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-xl overflow-hidden flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white/40 border-b border-slate-200/60">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sr.No.</th>
-                                <SortableHeader column="employee_id" label="Employee ID" />
-                                <SortableHeader column="prefix" label="Title" />
-                                <SortableHeader column="first_name" label="Candidate Name" />
-                                <SortableHeader column="rank" label="Rank" />
-                                <SortableHeader column="created_at" label="Date" />
-                                <SortableHeader column="nationality" label="Nationality" />
-                                <SortableHeader column="manager" label="Manager" />
-                                <SortableHeader column="status" label="Status" />
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Edit</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100/50">
-                            {loading ? (
-                                Array.from({ length: 5 }).map((_, idx) => (
-                                    <tr key={idx} className="animate-pulse">
-                                        <td colSpan="10" className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-full"></div></td>
-                                    </tr>
-                                ))
-                            ) : candidates.map((candidate, index) => (
-                                <tr key={candidate.id} className="hover:bg-white/40 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                        {(currentPage - 1) * limit + index + 1}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{candidate.employee_id || 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.prefix || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-semibold text-slate-800">
-                                                {`${candidate.first_name || ''} ${candidate.last_name || ''}`}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.rank || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                        {candidate.created_at ? new Date(candidate.created_at).toLocaleDateString('en-GB') : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.nationality || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{candidate.manager || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${candidate.status === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                            {candidate.status === 1 ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onClick={() => navigate(`/candidates/edit/${candidate.id}`)}
-                                            className="p-1 rounded-full text-blue-600 hover:bg-blue-50 transition-all font-medium text-xs"
-                                        >
-                                            Edit
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {!loading && candidates.length === 0 && (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500 font-medium">
-                                        No candidates found matching your search.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    onPageChange={setCurrentPage}
-                    limit={limit}
-                    onLimitChange={setLimit}
-                />
+            <div className="flex gap-3 w-full md:w-auto">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${showFilters ? "bg-blue-50 border-blue-200 text-blue-700" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+                title={showFilters ? "Hide Filters" : "Show Filters"}
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+              </button>
+              {hasPermission("export_candidates") && (
+                <Button
+                  onClick={handleExport}
+                  disabled={isExporting}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isExporting ? (
+                    <RefreshCcw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <FileDown className="w-4 h-4" />
+                  )}
+                  Export Candidate Excel
+                </Button>
+              )}
             </div>
+          </div>
+          {showFilters && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6 pt-6 border-t border-slate-200/60 transition-all">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Manager
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by Manager"
+                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    value={filterManager}
+                    onChange={(e) => setFilterManager(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Rank
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by Rank"
+                    className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    value={filterRank}
+                    onChange={(e) => setFilterRank(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Nationality
+                </label>
+                <select
+                  className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                  value={filterNationality}
+                  onChange={(e) => setFilterNationality(e.target.value)}
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: `right 0.5rem center`,
+                    backgroundRepeat: `no-repeat`,
+                    backgroundSize: `1.5em 1.5em`,
+                    paddingRight: `2.5rem`,
+                  }}
+                >
+                  <option value="">All Nationalities</option>
+                  {TRAINER_NATIONALITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Status
+                </label>
+                <select
+                  className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: `right 0.5rem center`,
+                    backgroundRepeat: `no-repeat`,
+                    backgroundSize: `1.5em 1.5em`,
+                    paddingRight: `2.5rem`,
+                  }}
+                >
+                  <option value="all">All Status</option>
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </div>
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  onClick={handleResetFilters}
+                  className="w-full h-10 border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                >
+                  <RefreshCcw className="w-3.5 h-3.5" />
+                  Reset Filters
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={candidates}
+        loading={loading}
+        emptyMessage="No candidates found matching your search."
+        currentPage={currentPage}
+        limit={limit}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
+      />
 
-            <DetailModal
-                isOpen={showDetailModal}
-                onClose={() => setShowDetailModal(false)}
-                title="Candidate Details"
-                data={selectedCandidate}
-                config={[
-                    { key: 'employee_id', label: 'Candidate ID' },
-                    {
-                        key: 'name',
-                        label: 'Full Name',
-                        render: (_, candidate) => `${candidate.prefix || ''} ${candidate.first_name || ''} ${candidate.middle_name || ''} ${candidate.last_name || ''}`.trim()
-                    },
-                    { key: 'email', label: 'Email' },
-                    { key: 'mobile', label: 'Mobile' },
-                    { key: 'gender', label: 'Gender' },
-                    {
-                        key: 'dob',
-                        label: 'DOB',
-                        render: (val) => val ? new Date(val).toLocaleDateString() : "-"
-                    },
-                    { key: 'nationality', label: 'Nationality' },
-                    { key: 'passport_no', label: 'Passport No.' },
-                    { key: 'rank', label: 'Rank' },
-                    { key: 'whatsapp_number', label: 'WhatsApp' },
-                    { key: 'registration_type', label: 'Registration Type' }
-                ]}
-            />
-        </div>
-    );
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        onPageChange={setCurrentPage}
+        limit={limit}
+        onLimitChange={setLimit}
+      />
+
+      <DetailModal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        title="Candidate Details"
+        data={selectedCandidate}
+        config={[
+          { key: "employee_id", label: "Candidate ID" },
+          {
+            key: "name",
+            label: "Full Name",
+            render: (_, candidate) =>
+              `${candidate.prefix || ""} ${candidate.first_name || ""} ${candidate.middle_name || ""} ${candidate.last_name || ""}`.trim(),
+          },
+          { key: "email", label: "Email" },
+          { key: "mobile", label: "Mobile" },
+          { key: "gender", label: "Gender" },
+          {
+            key: "dob",
+            label: "DOB",
+            render: (val) => formatDate(val),
+          },
+          { key: "nationality", label: "Nationality" },
+          { key: "passport_no", label: "Passport No." },
+          { key: "rank", label: "Rank" },
+          { key: "whatsapp_number", label: "WhatsApp" },
+          { key: "registration_type", label: "Registration Type" },
+        ]}
+      />
+
+      <CandidateImportPreviewModal
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        onImportSuccess={fetchCandidates}
+      />
+
+      <CandidateSyncHistoryModal
+        isOpen={showSyncHistoryModal}
+        onClose={() => setShowSyncHistoryModal(false)}
+      />
+    </div>
+  );
 };
 
 export default CandidateList;

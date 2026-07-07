@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Lock, ArrowRight } from 'lucide-react';
 import { PasswordInput } from '../../components/ui/PasswordInput';
@@ -39,8 +40,7 @@ const ResetPassword = () => {
             navigate('/login');
         } catch (error) {
             console.error("Reset Password Error:", error);
-            const message = error.response?.data?.message || "Failed to reset password";
-            toast.error(message);
+            toast.error(getErrorMessage(error, "Failed to reset password"));
         } finally {
             setIsSubmitting(false);
         }
@@ -96,9 +96,10 @@ const ResetPassword = () => {
                                         <PasswordInput
                                             {...register('password', {
                                                 required: 'Password is required',
-                                                minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                                                minLength: { value: 8, message: 'Password must be 8 to 16 characters' },
+                                                maxLength: { value: 16, message: 'Password must be 8 to 16 characters' }
                                             })}
-                                            className="w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto"
+                                            className={`w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border ${errors.password ? 'border-red-500' : 'border-gray-300'} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto`}
                                             placeholder="Enter new password"
                                         />
                                     </div>
@@ -115,11 +116,14 @@ const ResetPassword = () => {
                                         <PasswordInput
                                             {...register('confirm_password', {
                                                 required: 'Please confirm your password',
+                                                minLength: { value: 8, message: 'Confirm Password must be 8 to 16 characters' },
+                                                maxLength: { value: 16, message: 'Confirm Password must be 8 to 16 characters' },
                                                 validate: (val) => {
                                                     if (watch('password') !== val) return "Passwords do not match";
+                                                    return true;
                                                 }
                                             })}
-                                            className="w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border border-gray-300 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto"
+                                            className={`w-full pl-10 pr-12 py-3 rounded-lg bg-white/70 border ${errors.confirm_password ? 'border-red-500' : 'border-gray-300'} focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none shadow-sm h-auto`}
                                             placeholder="Confirm new password"
                                         />
                                     </div>
@@ -130,7 +134,7 @@ const ResetPassword = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`w-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-3.5 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`w-full bg-gradient-to-r from-[#0060AA] to-[#004E8A] hover:opacity-90 text-white font-bold py-3.5 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 <span>{isSubmitting ? 'Resetting...' : 'Reset Password'}</span>
                                 {!isSubmitting && <ArrowRight size={20} />}

@@ -1,10 +1,9 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState } from 'react';
+import { getErrorMessage } from '../../lib/utils/errorUtils';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 
 import api from '../../lib/api';
-import { useState } from 'react';
 import { toast } from 'sonner';
 import CandidateForm from '../../components/candidates/CandidateForm';
 import Meta from '../../components/common/Meta';
@@ -33,8 +32,8 @@ const Register = () => {
                 employee_id: data.employeeId,
                 manager: data.manager,
                 other_manager: null, // Default or add field if needed
-                rank: data.rank,
-                other_rank: null,
+                rank: data.rank === "Others" ? data.otherRank : data.rank,
+                other_rank: data.rank === "Others" ? data.otherRank : null,
                 whatsapp_number: data.whatsapp,
                 alternate_mobile: data.alternateNumber,
                 indos_number: data.indosNo,
@@ -44,8 +43,8 @@ const Register = () => {
                 last_vessel_name: data.lastVesselName,
                 next_vessel_name: data.nextVesselName,
                 manning_company: data.manningCompany,
-                sign_on_date: data.signOnDate,
-                sign_off_date: data.signOffDate,
+                sign_on_date: data.signOnDate || null,
+                sign_off_date: data.signOffDate || null,
                 officer: data.officer,
                 seaman_book_no: data.seamanBookNo,
                 profile_image: data.profileImage
@@ -57,7 +56,7 @@ const Register = () => {
             navigate('/login');
         } catch (error) {
             console.error("Registration Error:", error);
-            toast.error(error.response?.data?.message || "Registration failed. Please try again.");
+            toast.error(getErrorMessage(error, "Registration failed. Please try again."));
             // Scroll to top to show error (optional, but good UX)
             window.scrollTo(0, 0);
         } finally {
@@ -74,20 +73,19 @@ const Register = () => {
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
             <div className="absolute -bottom-32 left-20 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-2000"></div>
 
-            {/* Nav */}
-            <div className="max-w-6xl mx-auto mb-6 flex items-center relative z-10">
-                <Link to="/login" className="flex items-center text-gray-600 hover:text-blue-700 transition-colors bg-white/40 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm hover:shadow-md border border-white/40">
-                    <ChevronLeft size={20} />
-                    <span className="ml-1 font-medium">Back to Login</span>
-                </Link>
-            </div>
 
             <div className="max-w-6xl mx-auto bg-white/60 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/40 relative z-10 transition-all duration-300">
                 {/* Header */}
                 <div className="bg-blue-800/85 p-8 text-white relative overflow-hidden">
-                    <div className="relative z-10">
-                        <h1 className="text-3xl font-bold mb-2">Registration</h1>
-                        <p className="text-blue-100 opacity-80">Create your account to access the portal.</p>
+                    <div className="flex justify-between items-start relative z-10 w-full">
+                        <div>
+                            <h1 className="text-3xl font-bold mb-2">Registration</h1>
+                            <p className="text-blue-100 opacity-80">Create your account to access the portal.</p>
+                        </div>
+                        <Link to="/login" className="flex items-center text-white hover:text-blue-100 transition-colors bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl shadow-sm border border-white/20 text-sm">
+                            <ChevronLeft size={18} />
+                            <span className="ml-1 font-medium">Back</span>
+                        </Link>
                     </div>
                     {/* Decorative background elements */}
                     <div className="absolute inset-0 overflow-hidden">
@@ -97,7 +95,14 @@ const Register = () => {
                 </div>
 
                 <div className="p-8 md:p-12 bg-white/40 backdrop-blur-md">
-                    <CandidateForm onSubmit={onSubmit} isSubmitting={isSubmitting} submitLabel="Register Now" showPassword={false} />
+                    <CandidateForm
+                        onSubmit={onSubmit}
+                        isSubmitting={isSubmitting}
+                        submitLabel="Register Now"
+                        showPassword={false}
+                        defaultValues={{ employeeType: "Others" }}
+                        useLegacyRegistrationRank={true}
+                    />
                 </div>
             </div>
         </div>
