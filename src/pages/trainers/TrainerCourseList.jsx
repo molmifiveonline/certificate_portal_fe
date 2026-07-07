@@ -13,16 +13,7 @@ import TablePagination from "../../components/ui/TablePagination";
 import activeCourseService from "../../services/activeCourseService";
 import { formatDate } from "../../lib/utils/dateUtils";
 
-const STATUS_OPTIONS = [
-  "",
-  "Initiated",
-  "Course Started",
-  "Assessment Initiated",
-  "Feedback Generated",
-  "Certificate Generated",
-  "Course Completed",
-  "Cancelled",
-];
+import { TRAINER_COURSE_STATUSES as STATUS_OPTIONS } from "../../lib/utils/constants";
 
 const TrainerCourseList = () => {
   const navigate = useNavigate();

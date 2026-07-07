@@ -4,6 +4,14 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 import { HelmetProvider } from "react-helmet-async";
+import UnifiedDashboard from "./pages/dashboard/UnifiedDashboard";
+import {
+  ADMIN_ROLES,
+  TRAINER_ROLES,
+  CANDIDATE_ROLES,
+  ALL_APP_ROLES,
+  COURSE_ROUTE_PERMISSIONS,
+} from "./lib/utils/constants";
 
 const lazyWithRetry = (componentImport) =>
   lazy(async () => {
@@ -110,9 +118,7 @@ const CandidateApprovalPortal = lazy(
 
 const Acknowledge = lazyWithRetry(() => import("./pages/Acknowledge"));
 
-const UnifiedDashboard = lazy(
-  () => import("./pages/dashboard/UnifiedDashboard"),
-);
+
 
 const ReportDashboard = lazyWithRetry(() => import("./pages/reports/ReportDashboard"));
 const HotelReport = lazyWithRetry(() => import("./pages/reports/HotelReport"));
@@ -225,17 +231,6 @@ const ReimbursementAdminList = lazy(
 const ReimbursementAdminDetails = lazy(
   () => import("./pages/admin/reimbursements/ReimbursementAdminDetails"),
 );
-
-const ADMIN_ROLES = ["SuperAdmin", "Admin", "admin"];
-const TRAINER_ROLES = ["Trainer", "trainer"];
-const CANDIDATE_ROLES = ["Candidate", "candidate"];
-const ALL_APP_ROLES = [...ADMIN_ROLES, ...TRAINER_ROLES, ...CANDIDATE_ROLES];
-const COURSE_ROUTE_PERMISSIONS = [
-  "view_master_courses",
-  "view_pre_active_courses",
-  "view_active_courses",
-  "view_outhouse_courses",
-];
 
 function App() {
   return (

@@ -44,28 +44,14 @@ import locationService from "../../services/locationService";
 import outhouseCourseService from "../../services/outhouseCourseService";
 import preActiveCourseService from "../../services/preActiveCourseService";
 
-const COURSE_STATUSES = [
-  "Initiated",
-  "Course Started",
-  "Course Completed",
-  "Certificate Generated",
-];
-const LOCATION_TYPES = ["Online", "Offline", "Hybrid", "Manual"];
-const FEEDBACK_TYPES = ["Document", "Manual"];
-const COURSE_LEVELS = ["Operational", "Management", "Support", "Advanced"];
-const COURSE_TYPES = [
-  "Out house",
-  "External Certification",
-  "Third Party",
-  "Refresher",
-];
-const STATUS_POOL_OPTIONS = [
-  "Selected",
-  "Confirmed",
-  "Standby",
-  "Waitlisted",
-  "Completed",
-];
+import {
+  OUTHOUSE_COURSE_STATUSES as COURSE_STATUSES,
+  LOCATION_TYPES,
+  FEEDBACK_TYPES,
+  COURSE_LEVELS,
+  COURSE_TYPES,
+  STATUS_POOL_OPTIONS,
+} from "../../lib/utils/constants";
 
 const emptyFormData = {
   creation_mode: "manual",

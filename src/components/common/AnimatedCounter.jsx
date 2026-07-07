@@ -1,24 +1,28 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 const AnimatedCounter = ({ value, duration = 1500 }) => {
-  const [count, setCount] = useState(0);
+  const nodeRef = useRef(null);
   const prevValueRef = useRef(0);
 
   useEffect(() => {
+    const node = nodeRef.current;
+    if (!node) return;
+
     const start = prevValueRef.current;
     const end = typeof value === "number" ? value : parseInt(value, 10);
     
     if (isNaN(end)) {
-      setCount(value);
+      node.textContent = value;
       return;
     }
 
     if (start === end) {
-      setCount(end);
+      node.textContent = end;
       return;
     }
 
     let startTimestamp = null;
+    let animationFrameId;
     
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
@@ -29,23 +33,28 @@ const AnimatedCounter = ({ value, duration = 1500 }) => {
       const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       
       const currentValue = Math.floor(start + easedProgress * (end - start));
-      setCount(currentValue);
+      
+      if (nodeRef.current) {
+        nodeRef.current.textContent = currentValue;
+      }
       
       if (progress < 1) {
-        window.requestAnimationFrame(step);
+        animationFrameId = window.requestAnimationFrame(step);
       } else {
         prevValueRef.current = end;
       }
     };
     
-    const animationFrameId = window.requestAnimationFrame(step);
+    animationFrameId = window.requestAnimationFrame(step);
     
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
     };
   }, [value, duration]);
 
-  return <>{count}</>;
+  return <span ref={nodeRef}>{prevValueRef.current}</span>;
 };
 
 export default AnimatedCounter;

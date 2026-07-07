@@ -8,7 +8,7 @@ import candidateService from "../../services/candidateService";
 import { formatDateTime } from "../../lib/utils/dateUtils";
 import { toast } from "sonner";
 
-const HISTORY_DAYS = 60;
+import { CANDIDATE_SYNC_HISTORY_DAYS as HISTORY_DAYS } from "../../lib/utils/constants";
 
 const CandidateSyncHistoryModal = ({ isOpen, onClose }) => {
   const [historyRows, setHistoryRows] = useState([]);

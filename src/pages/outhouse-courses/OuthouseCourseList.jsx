@@ -13,19 +13,10 @@ import { formatDate } from "../../lib/utils/dateUtils";
 import outhouseCourseService from "../../services/outhouseCourseService";
 import { useAuth } from "../../context/AuthContext";
 
-const STATUS_OPTIONS = [
-  "Initiated",
-  "Course Started",
-  "Course Completed",
-  "Certificate Generated",
-];
-
-const STATUS_STYLES = {
-  Initiated: "bg-blue-50 text-blue-700 border-blue-100",
-  "Course Started": "bg-orange-50 text-orange-700 border-orange-100",
-  "Course Completed": "bg-emerald-50 text-emerald-700 border-emerald-100",
-  "Certificate Generated": "bg-green-50 text-green-700 border-green-100",
-};
+import {
+  OUTHOUSE_COURSE_STATUSES as STATUS_OPTIONS,
+  OUTHOUSE_COURSE_STATUS_STYLES as STATUS_STYLES,
+} from "../../lib/utils/constants";
 
 const isOngoingCourse = (course) => {
   if (!course?.start_date || !course?.end_date) {

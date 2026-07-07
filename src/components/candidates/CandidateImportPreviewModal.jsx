@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import candidateService from "../../services/candidateService";
 import { formatDate, getCurrentDateForInput } from "../../lib/utils/dateUtils";
 
-const CANDIDATE_LAST_SYNC_STORAGE_KEY = "candidate.lastSyncedDate";
+import { CANDIDATE_LAST_SYNC_STORAGE_KEY } from "../../lib/utils/constants";
 
 const normalizeDateInputValue = (value) => {
     if (!value) return "";
