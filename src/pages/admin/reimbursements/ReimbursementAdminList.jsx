@@ -17,6 +17,7 @@ import {
 import DataTable from "../../../components/ui/DataTable";
 import TablePagination from "../../../components/ui/TablePagination";
 import reimbursementService from "../../../services/reimbursementService";
+import SearchableSelect from "../../../components/ui/SearchableSelect";
 import { formatDate } from "../../../lib/utils/dateUtils";
 import ReimbursementStatusBadge from "../../../components/reimbursements/ReimbursementStatusBadge";
 
@@ -157,24 +158,16 @@ const ReimbursementAdminList = () => {
             />
           </div>
 
-          <Select
+          <SearchableSelect
             value={status}
-            onValueChange={(value) => {
+            onChange={(value) => {
               setStatus(value);
               setPage(1);
             }}
-          >
-            <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-white">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              {statusFilters.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            options={statusFilters}
+            placeholder="Filter by status"
+            required={true}
+          />
         </CardContent>
       </Card>
 

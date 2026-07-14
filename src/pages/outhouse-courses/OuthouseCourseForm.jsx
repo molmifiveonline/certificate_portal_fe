@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import {
   Tabs,
   TabsContent,
@@ -208,6 +209,8 @@ const InputField = ({ label, required, error, className = "", ...props }) => (
   </div>
 );
 
+
+
 const SelectField = ({
   label,
   required,
@@ -215,21 +218,26 @@ const SelectField = ({
   options,
   placeholder = "Select",
   className = "",
+  name,
+  value,
+  onChange,
   ...props
 }) => (
   <div className={className}>
     <FieldLabel label={label} required={required} />
-    <select
+    <SearchableSelect
+      name={name}
+      options={options}
+      value={value}
+      onChange={(val) => {
+        onChange?.({ target: { name, value: val } });
+      }}
+      placeholder={placeholder || `Select ${label}`}
+      error={!!error}
+      required={required}
+      disabled={props.disabled}
       {...props}
-      className={`h-11 w-full rounded-xl border px-3 text-sm outline-none ${error ? "border-red-400" : "border-slate-200"} bg-white shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20`}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+    />
     {error ? <p className="mt-1 text-xs text-red-500">{error}</p> : null}
   </div>
 );

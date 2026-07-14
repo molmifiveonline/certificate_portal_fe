@@ -28,5 +28,5 @@ yarn-error.log*
 
 # Custom Rules
 molmi-cer-rules.md
-.agents/rules/login-credentials.md
-.agents/rules/project-context.md
+.agents/
+.agent/

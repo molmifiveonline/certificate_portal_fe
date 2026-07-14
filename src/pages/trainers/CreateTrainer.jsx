@@ -3,8 +3,9 @@ import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import api from "../../lib/api";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import {
   TRAINER_NATIONALITY_OPTIONS,
   PREFIX_OPTIONS,
@@ -85,25 +86,27 @@ const FileInput = ({ label, name, required }) => {
 };
 
 const SelectField = ({ label, name, options, required }) => {
-  const { register, errors } = useContext(FormContext);
+  const { control, errors } = useContext(FormContext);
   return (
     <div className="space-y-1">
       <label className="text-sm font-medium text-slate-700 block">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <select
-        {...register(name, {
-          required: required ? `${label} is required` : false,
-        })}
-        className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${errors[name] ? "border-red-500" : "border-slate-200"} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm cursor-pointer`}
-      >
-        <option value="">Select {label}</option>
-        {options.map((opt) => (
-          <option key={opt.value || opt} value={opt.value || opt}>
-            {opt.label || opt}
-          </option>
-        ))}
-      </select>
+      <Controller
+        name={name}
+        control={control}
+        rules={{ required: required ? `${label} is required` : false }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <SearchableSelect
+            options={options}
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+            placeholder={`Select ${label}`}
+            error={!!errors[name]}
+          />
+        )}
+      />
       {errors[name] && (
         <span className="text-red-500 text-xs">{errors[name]?.message}</span>
       )}
@@ -116,6 +119,7 @@ const CreateTrainer = () => {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -201,7 +205,7 @@ const CreateTrainer = () => {
       />
 
       <FormContext.Provider
-        value={{ register, errors, handleFileChange, previews }}
+        value={{ register, errors, handleFileChange, previews, control }}
       >
         <div className="min-h-screen bg-slate-50">
           {/* Form Content */}

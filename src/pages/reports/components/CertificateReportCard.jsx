@@ -2,6 +2,7 @@ import React from "react";
 import { FileDown, Calendar, Filter, Building2 } from "lucide-react";
 import { inputStyles, selectStyles } from "./reportFormStyles";
 import { Input } from "../../../components/ui/Input";
+import SearchableSelect from "../../../components/ui/SearchableSelect";
 import { useAuth } from "../../../context/AuthContext";
 
 const CertificateReportCard = ({
@@ -85,24 +86,17 @@ const CertificateReportCard = ({
               >
                 Topic
               </label>
-              <select
-                id="certificate-topic"
+              <SearchableSelect
                 value={filters.topic}
-                onChange={(e) =>
+                onChange={(val) =>
                   onFiltersChange({
                     ...filters,
-                    topic: e.target.value,
+                    topic: val,
                   })
                 }
-                className={`${selectStyles} cursor-pointer`}
-              >
-                <option value="">All Topics</option>
-                {filterOptions.topics.map((topic) => (
-                  <option key={topic} value={topic}>
-                    {topic}
-                  </option>
-                ))}
-              </select>
+                options={filterOptions.topics}
+                placeholder="All Topics"
+              />
             </div>
             <div>
               <label
@@ -111,24 +105,17 @@ const CertificateReportCard = ({
               >
                 Manager
               </label>
-              <select
-                id="certificate-manager"
+              <SearchableSelect
                 value={filters.manager}
-                onChange={(e) =>
+                onChange={(val) =>
                   onFiltersChange({
                     ...filters,
-                    manager: e.target.value,
+                    manager: val,
                   })
                 }
-                className={`${selectStyles} cursor-pointer`}
-              >
-                <option value="">All Managers</option>
-                {filterOptions.managers.map((manager) => (
-                  <option key={manager} value={manager}>
-                    {manager}
-                  </option>
-                ))}
-              </select>
+                options={filterOptions.managers}
+                placeholder="All Managers"
+              />
             </div>
             <div>
               <label
@@ -137,24 +124,17 @@ const CertificateReportCard = ({
               >
                 Company
               </label>
-              <select
-                id="certificate-company"
+              <SearchableSelect
                 value={filters.company}
-                onChange={(e) =>
+                onChange={(val) =>
                   onFiltersChange({
                     ...filters,
-                    company: e.target.value,
+                    company: val,
                   })
                 }
-                className={`${selectStyles} cursor-pointer`}
-              >
-                <option value="">All Companies</option>
-                {filterOptions.companies.map((company) => (
-                  <option key={company} value={company}>
-                    {company}
-                  </option>
-                ))}
-              </select>
+                options={filterOptions.companies}
+                placeholder="All Companies"
+              />
             </div>
           </div>
         </div>

@@ -16,6 +16,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import { formatDate } from "../../lib/utils/dateUtils";
 import candidateService from "../../services/candidateService";
 import TablePagination from "../../components/ui/TablePagination";
@@ -327,7 +328,7 @@ const AllCandidateList = () => {
         }
       />
 
-      <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
+      <Card className="relative rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-20">
         <CardContent className="p-4 sm:p-6 space-y-4">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="relative w-full md:w-96">
@@ -419,25 +420,13 @@ const AllCandidateList = () => {
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Nationality
                 </label>
-                <select
-                  className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                <SearchableSelect
                   value={filterNationality}
-                  onChange={(e) => setFilterNationality(e.target.value)}
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                    backgroundPosition: `right 0.5rem center`,
-                    backgroundRepeat: `no-repeat`,
-                    backgroundSize: `1.5em 1.5em`,
-                    paddingRight: `2.5rem`,
-                  }}
-                >
-                  <option value="">All Nationalities</option>
-                  {TRAINER_NATIONALITY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setFilterNationality(val || "")}
+                  placeholder="All Nationalities"
+                  options={TRAINER_NATIONALITY_OPTIONS}
+                  className="[&>button]:h-10"
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">

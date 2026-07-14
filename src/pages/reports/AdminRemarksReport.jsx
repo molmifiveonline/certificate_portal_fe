@@ -21,6 +21,7 @@ import TablePagination from "../../components/ui/TablePagination";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { formatDate } from "../../lib/utils/dateUtils";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const SelectField = ({
   label,
@@ -30,25 +31,25 @@ const SelectField = ({
   onChange,
   error,
   required,
+  placeholder,
   ...props
 }) => (
   <div className="space-y-1">
     <label className="text-sm font-medium text-slate-700 block">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
-    <select
+    <SearchableSelect
       name={name}
+      options={options}
       value={value}
-      onChange={onChange}
-      className={`w-full h-11 px-4 rounded-xl bg-slate-50/50 border ${error ? "border-red-500" : "border-slate-200"} focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-600 text-sm`}
+      onChange={(val) => {
+        onChange?.({ target: { name, value: val } });
+      }}
+      placeholder={placeholder || `Select ${label}`}
+      error={!!error}
+      required={required}
       {...props}
-    >
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    />
     {error && <span className="text-red-500 text-xs">{error}</span>}
   </div>
 );
