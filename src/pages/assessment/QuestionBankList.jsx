@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import api from "../../lib/api";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useAuth } from "../../context/AuthContext";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const QuestionBankList = () => {
     const { hasPermission } = useAuth();
@@ -268,18 +269,19 @@ const QuestionBankList = () => {
                         />
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-center">
-                        <select
-                            className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm w-full sm:w-64"
+                        <SearchableSelect
+                            className="w-full sm:w-64"
                             value={selectedCourse}
-                            onChange={(e) => setSelectedCourse(e.target.value)}
-                        >
-                            <option value="">All Master Courses</option>
-                            {masterCourses.map((course) => (
-                                <option key={course.id} value={course.id}>
-                                    {course.master_course_name}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(val) => setSelectedCourse(val)}
+                            options={[
+                                { value: "", label: "All Master Courses" },
+                                ...masterCourses.map((course) => ({
+                                    value: course.id,
+                                    label: course.master_course_name,
+                                })),
+                            ]}
+                            placeholder="All Master Courses"
+                        />
                         <span className="text-xs text-slate-400 whitespace-nowrap">{totalCount} question{totalCount !== 1 ? 's' : ''}</span>
                     </div>
                 </CardContent>

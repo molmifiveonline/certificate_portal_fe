@@ -227,7 +227,7 @@ const AdminRemarksReport = () => {
 
       <div className="max-w-[1600px] mx-auto p-8 space-y-6">
         {/* Filters */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 overflow-visible">
           <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4">
             <Filter size={14} />
             Filter Data

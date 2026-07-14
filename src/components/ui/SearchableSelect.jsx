@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Search, X, Check } from "lucide-react";
 import { cn } from "../../lib/utils/utils";
 
@@ -22,8 +23,10 @@ const SearchableSelect = React.forwardRef(
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, height: 0 });
     const containerRef = useRef(null);
     const searchInputRef = useRef(null);
+    const dropdownRef = useRef(null);
 
     // Normalize options to [{ value, label, ... }]
     const normalizedOptions = useMemo(() => {
@@ -62,12 +65,38 @@ const SearchableSelect = React.forwardRef(
       );
     }, [normalizedOptions, searchTerm]);
 
+    const updateCoords = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setCoords({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
+    };
+
+    // Update coordinates when dropdown opens, or window scrolls/resizes
+    useEffect(() => {
+      if (isOpen) {
+        updateCoords();
+        window.addEventListener("resize", updateCoords);
+        window.addEventListener("scroll", updateCoords, { capture: true });
+      }
+      return () => {
+        window.removeEventListener("resize", updateCoords);
+        window.removeEventListener("scroll", updateCoords, { capture: true });
+      };
+    }, [isOpen]);
+
     // Handle clicking outside to close
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (
           containerRef.current &&
-          !containerRef.current.contains(event.target)
+          !containerRef.current.contains(event.target) &&
+          (!dropdownRef.current || !dropdownRef.current.contains(event.target))
         ) {
           setIsOpen(false);
         }
@@ -124,6 +153,10 @@ const SearchableSelect = React.forwardRef(
         setIsOpen(false);
       }
     };
+
+    const spaceBelow = window.innerHeight - (coords.top + coords.height);
+    const spaceAbove = coords.top;
+    const showAbove = spaceBelow < 280 && spaceAbove > spaceBelow;
 
     return (
       <div
@@ -187,55 +220,69 @@ const SearchableSelect = React.forwardRef(
           </span>
         </button>
 
-        {/* Dropdown Menu */}
-        {isOpen && (
-          <div className="absolute z-50 mt-1 w-full min-w-[200px] rounded-xl border border-slate-200 bg-white p-1 text-slate-900 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
-            {/* Search Input */}
-            <div className="relative flex items-center border-b border-slate-100 px-3 pb-2 pt-1">
-              <Search className="absolute left-3.5 h-4 w-4 text-slate-400" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={searchPlaceholder}
-                className="h-9 w-full rounded-lg bg-slate-50 pl-8 pr-3 text-sm outline-none border border-transparent focus:border-slate-200 focus:bg-white transition-all placeholder:text-slate-400"
-              />
-            </div>
+        {/* Dropdown Menu (via Portal) */}
+        {isOpen &&
+          createPortal(
+            <div
+              ref={dropdownRef}
+              style={{
+                position: "fixed",
+                left: `${coords.left}px`,
+                width: `${coords.width}px`,
+                zIndex: 9999,
+                ...(showAbove
+                  ? { bottom: `${window.innerHeight - coords.top + 4}px` }
+                  : { top: `${coords.top + coords.height + 4}px` }),
+              }}
+              className="rounded-xl border border-slate-200 bg-white p-1 text-slate-900 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150"
+            >
+              {/* Search Input */}
+              <div className="relative flex items-center border-b border-slate-100 px-3 pb-2 pt-1">
+                <Search className="absolute left-3.5 h-4 w-4 text-slate-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={searchPlaceholder}
+                  className="h-9 w-full rounded-lg bg-slate-50 pl-8 pr-3 text-sm outline-none border border-transparent focus:border-slate-200 focus:bg-white transition-all placeholder:text-slate-400"
+                />
+              </div>
 
-            {/* Options List */}
-            <div className="max-h-60 overflow-y-auto py-1 scrollbar-thin">
-              {filteredOptions.length === 0 ? (
-                <div className="px-3 py-3 text-center text-xs text-slate-400">
-                  No options found
-                </div>
-              ) : (
-                filteredOptions.map((option) => {
-                  const isChecked = option.value === String(value);
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleSelect(option)}
-                      className={cn(
-                        "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-9 pr-3 text-sm outline-none hover:bg-slate-50 text-slate-700 text-left transition-colors",
-                        isChecked &&
-                          "bg-blue-50/50 font-semibold text-blue-600 hover:bg-blue-50",
-                      )}
-                    >
-                      {isChecked && (
-                        <span className="absolute left-3 flex h-3.5 w-3.5 items-center justify-center text-blue-600">
-                          <Check className="h-4 w-4" />
-                        </span>
-                      )}
-                      <span className="truncate">{option.label}</span>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        )}
+              {/* Options List */}
+              <div className="max-h-60 overflow-y-auto py-1 scrollbar-thin">
+                {filteredOptions.length === 0 ? (
+                  <div className="px-3 py-3 text-center text-xs text-slate-400">
+                    No options found
+                  </div>
+                ) : (
+                  filteredOptions.map((option) => {
+                    const isChecked = option.value === String(value);
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => handleSelect(option)}
+                        className={cn(
+                          "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-9 pr-3 text-sm outline-none hover:bg-slate-50 text-slate-700 text-left transition-colors",
+                          isChecked &&
+                            "bg-blue-50/50 font-semibold text-blue-600 hover:bg-blue-50",
+                        )}
+                      >
+                        {isChecked && (
+                          <span className="absolute left-3 flex h-3.5 w-3.5 items-center justify-center text-blue-600">
+                            <Check className="h-4 w-4" />
+                          </span>
+                        )}
+                        <span className="truncate">{option.label}</span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>,
+            document.body,
+          )}
       </div>
     );
   },
