@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { FileText } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import activeCourseService from "../../../services/activeCourseService";
 import { Button } from "../../../components/ui/Button";
 import { Badge } from "../../../components/ui/Badge";
@@ -11,6 +11,7 @@ const CertificateTab = ({ courseId }) => {
   const [candidates, setCandidates] = useState([]);
   const [dates, setDates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [generatingId, setGeneratingId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,6 +64,7 @@ const CertificateTab = ({ courseId }) => {
   };
 
   const handleGenerateCertificate = async (candidateId) => {
+    setGeneratingId(candidateId);
     try {
       await activeCourseService.generateCertificate(courseId, candidateId);
       toast.success("Certificate generated");
@@ -71,6 +73,8 @@ const CertificateTab = ({ courseId }) => {
       setCandidates(res.candidates || []);
     } catch (err) {
       toast.error("Failed to generate certificate");
+    } finally {
+      setGeneratingId(null);
     }
   };
 
@@ -244,18 +248,25 @@ const CertificateTab = ({ courseId }) => {
                         <Button
                           size="sm"
                           variant={eligible ? "default" : "outline"}
-                          disabled={!eligible}
+                          disabled={!eligible || generatingId === c.candidate_id}
                           onClick={() =>
                             handleGenerateCertificate(c.candidate_id)
                           }
                           className={cn(
-                            "text-xs px-3 py-1 h-auto",
+                            "text-xs px-3 py-1 h-auto flex items-center gap-1.5",
                             eligible
                               ? "bg-indigo-600 hover:bg-indigo-700"
                               : "text-slate-400 border-slate-200",
                           )}
                         >
-                          Generate
+                          {generatingId === c.candidate_id ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            "Generate"
+                          )}
                         </Button>
                       )}
                     </td>

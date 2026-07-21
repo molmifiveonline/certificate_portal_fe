@@ -11,6 +11,7 @@ import {
   Trash2,
   Upload,
   Users,
+  Loader2,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -469,6 +470,7 @@ const OuthouseCourseForm = () => {
   const [candidateSearch, setCandidateSearch] = useState("");
   const [loadingCandidates, setLoadingCandidates] = useState(false);
   const [addingCandidate, setAddingCandidate] = useState(false);
+  const [sendingWelcomeId, setSendingWelcomeId] = useState(null);
   const [deleteState, setDeleteState] = useState({
     open: false,
     candidateId: "",
@@ -987,12 +989,15 @@ const OuthouseCourseForm = () => {
       return;
     }
 
+    setSendingWelcomeId(candidateId);
     try {
       await outhouseCourseService.resendWelcomeLetter(id, candidateId);
       toast.success("Welcome letter sent");
       await loadCandidates();
     } catch (error) {
       toast.error("Failed to send welcome letter");
+    } finally {
+      setSendingWelcomeId(null);
     }
   };
 
@@ -1756,7 +1761,9 @@ const OuthouseCourseForm = () => {
                                     handleWelcomeLetter(candidate.id)
                                   }
                                   disabled={
-                                    !onlineCourse && !hasVenueDetails(candidate)
+                                    (!onlineCourse &&
+                                      !hasVenueDetails(candidate)) ||
+                                    sendingWelcomeId === candidate.id
                                   }
                                   title={
                                     !onlineCourse && !hasVenueDetails(candidate)
@@ -1764,10 +1771,19 @@ const OuthouseCourseForm = () => {
                                       : "Send welcome letter"
                                   }
                                 >
-                                  <Mail className="mr-2 h-4 w-4" />
-                                  {candidate.candidate_email_status
-                                    ? "Resend"
-                                    : "Send"}
+                                  {sendingWelcomeId === candidate.id ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Sending...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Mail className="mr-2 h-4 w-4" />
+                                      {candidate.candidate_email_status
+                                        ? "Resend"
+                                        : "Send"}
+                                    </>
+                                  )}
                                 </Button>
                               </div>
                             </td>

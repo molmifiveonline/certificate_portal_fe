@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { FileText, Mail } from "lucide-react";
+import { FileText, Mail, Loader2 } from "lucide-react";
 import api from "../../../lib/api";
 import activeCourseService from "../../../services/activeCourseService";
 import { Button } from "../../../components/ui/Button";
@@ -255,10 +255,17 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
                               : "No assessment results yet"
                           }
                         >
-                          <Mail size={14} />
-                          {sendingEmail === c.candidate_id
-                            ? "Sending..."
-                            : "Email"}
+                          {sendingEmail === c.candidate_id ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <Mail size={14} />
+                              Email
+                            </>
+                          )}
                         </button>
                       </td>
                     </tr>
