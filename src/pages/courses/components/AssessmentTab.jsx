@@ -11,6 +11,26 @@ import { cn } from "../../../lib/utils/utils";
 const DEFAULT_TRAINER_EVALUATION =
   "TRAINING SUCCESSFULLY CONDUCTED TO IMPART KNOWLEDGE AND PRACTICAL SKILLS FOR REQUIRED LEVEL OF COMPETENCY TO PERFORM DUTIES EFFECTIVELY.";
 
+const getCandidateStatusInfo = (c) => {
+  if (c.is_observer) return { isObserver: true, isAbsent: false, label: "Observer" };
+
+  const present = c.is_present ? String(c.is_present).split(",").filter(Boolean) : [];
+  let absentKeys = [];
+  if (c.absent_reasons) {
+    try {
+      const parsed =
+        typeof c.absent_reasons === "string"
+          ? JSON.parse(c.absent_reasons)
+          : c.absent_reasons;
+      if (parsed && typeof parsed === "object") absentKeys = Object.keys(parsed);
+    } catch (e) {}
+  }
+
+  const isAbsent = present.length === 0 && absentKeys.length > 0;
+  if (isAbsent) return { isObserver: false, isAbsent: true, label: "Absent" };
+  return { isObserver: false, isAbsent: false, label: null };
+};
+
 const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
   const navigate = useNavigate();
   const [candidates, setCandidates] = useState([]);
@@ -186,8 +206,10 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
                 </tr>
               ) : (
                 candidates.map((c, i) => {
+                  const { isObserver, isAbsent, label } = getCandidateStatusInfo(c);
+                  const isBlockedFromEmail = isObserver || isAbsent;
                   const hasAssessment =
-                    c.post_assessment_id || c.pre_assessment_id;
+                    (c.post_assessment_id || c.pre_assessment_id) && !isBlockedFromEmail;
                   return (
                     <tr
                       key={c.candidate_id}
@@ -198,6 +220,18 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
                       </td>
                       <td className="px-4 py-3 font-semibold text-slate-900">
                         {c.candidate_name}
+                        {label && (
+                          <span
+                            className={cn(
+                              "ml-2 px-2 py-0.5 rounded text-xs font-normal border inline-block",
+                              isObserver
+                                ? "bg-amber-50 text-amber-700 border-amber-200"
+                                : "bg-rose-50 text-rose-700 border-rose-200"
+                            )}
+                          >
+                            {label}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 font-mono text-slate-600">
                         {c.empId || "-"}
@@ -250,9 +284,13 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
                               : "bg-slate-50 text-slate-400 border border-slate-200 cursor-not-allowed",
                           )}
                           title={
-                            hasAssessment
-                              ? "Send assessment result email"
-                              : "No assessment results yet"
+                            isObserver
+                              ? "Observer candidate (cannot send email)"
+                              : isAbsent
+                                ? "Candidate was absent in course (cannot send email)"
+                                : hasAssessment
+                                  ? "Send assessment result email"
+                                  : "No assessment results yet"
                           }
                         >
                           {sendingEmail === c.candidate_id ? (
