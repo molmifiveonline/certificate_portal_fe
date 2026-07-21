@@ -3,6 +3,7 @@ import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/Button";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import feedbackQuestionService from "../../services/feedbackQuestionService";
 import feedbackCategoryService from "../../services/feedbackCategoryService";
 import ReactQuill from "react-quill-new";
@@ -119,29 +120,17 @@ const FeedbackQuestionForm = ({ isOpen, onClose, onSuccess, initialData }) => {
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                             Category <span className="text-red-500">*</span>
                         </label>
-                        <select
+                        <SearchableSelect
                             name="category_id"
                             value={formData.category_id}
-                            onChange={(e) => {
-                                handleChange(e);
+                            onChange={(val) => {
+                                handleChange({ target: { name: "category_id", value: val } });
                                 if (formErrors.category_id) setFormErrors(prev => ({ ...prev, category_id: undefined }));
                             }}
-                            className={`w-full px-4 py-2 bg-white/50 border ${formErrors.category_id ? 'border-red-500' : 'border-slate-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer`}
-                            style={{
-                                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                                backgroundPosition: `right 0.5rem center`,
-                                backgroundRepeat: `no-repeat`,
-                                backgroundSize: `1.5em 1.5em`,
-                                paddingRight: `2.5rem`,
-                            }}
-                        >
-                            <option value="">Select Category</option>
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
+                            options={categories.map((cat) => ({ value: cat.id, label: cat.name }))}
+                            placeholder="Select Category"
+                            error={!!formErrors.category_id}
+                        />
                         {formErrors.category_id && <span className="text-red-500 text-xs mt-1 block">{formErrors.category_id}</span>}
                     </div>
 

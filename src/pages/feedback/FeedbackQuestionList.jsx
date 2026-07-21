@@ -14,6 +14,7 @@ import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import "react-quill-new/dist/quill.snow.css";
 import { useAuth } from "../../context/AuthContext";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const FeedbackQuestionList = () => {
     const { hasPermission } = useAuth();
@@ -213,25 +214,16 @@ const FeedbackQuestionList = () => {
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <select
-                            className="w-full h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                        <SearchableSelect
                             value={filterCategory}
-                            onChange={(e) => setFilterCategory(e.target.value)}
-                            style={{
-                                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                                backgroundPosition: `right 0.5rem center`,
-                                backgroundRepeat: `no-repeat`,
-                                backgroundSize: `1.5em 1.5em`,
-                                paddingRight: `2.5rem`,
-                            }}
-                        >
-                            <option value="">All Categories</option>
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(val) => setFilterCategory(val)}
+                            options={[
+                                { value: "", label: "All Categories" },
+                                ...categories.map((cat) => ({ value: cat.id, label: cat.name }))
+                            ]}
+                            placeholder="All Categories"
+                            required={true}
+                        />
                     </div>
                 </CardContent>
             </Card>

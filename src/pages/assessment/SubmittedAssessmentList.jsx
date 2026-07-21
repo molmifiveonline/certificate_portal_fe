@@ -11,6 +11,7 @@ import TablePagination from "../../components/ui/TablePagination";
 import DataTable from "../../components/ui/DataTable";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const SubmittedAssessmentList = () => {
   const { hasPermission } = useAuth();
@@ -271,21 +272,22 @@ const SubmittedAssessmentList = () => {
             {/* Filters */}
             <div className="flex flex-wrap gap-3 items-center">
               {/* Course filter */}
-              <select
+              <SearchableSelect
+                className="w-full sm:w-64"
                 value={courseFilter}
-                onChange={(e) => {
-                  setCourseFilter(e.target.value);
+                onChange={(val) => {
+                  setCourseFilter(val);
                   setPage(1);
                 }}
-                className="h-10 pl-3 pr-8 bg-white/50 border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-600 min-w-[180px]"
-              >
-                <option value="">All Courses</option>
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.course_name}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: "All Courses" },
+                  ...courses.map((c) => ({
+                    value: c.id,
+                    label: c.course_name,
+                  })),
+                ]}
+                placeholder="All Courses"
+              />
 
               {/* Type of Test filter */}
               <select

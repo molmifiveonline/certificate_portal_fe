@@ -11,6 +11,7 @@ import {
   Trash2,
   Upload,
   Users,
+  Loader2,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ import {
   CardTitle,
 } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import {
   Tabs,
   TabsContent,
@@ -208,6 +210,8 @@ const InputField = ({ label, required, error, className = "", ...props }) => (
   </div>
 );
 
+
+
 const SelectField = ({
   label,
   required,
@@ -215,21 +219,26 @@ const SelectField = ({
   options,
   placeholder = "Select",
   className = "",
+  name,
+  value,
+  onChange,
   ...props
 }) => (
   <div className={className}>
     <FieldLabel label={label} required={required} />
-    <select
+    <SearchableSelect
+      name={name}
+      options={options}
+      value={value}
+      onChange={(val) => {
+        onChange?.({ target: { name, value: val } });
+      }}
+      placeholder={placeholder || `Select ${label}`}
+      error={!!error}
+      required={required}
+      disabled={props.disabled}
       {...props}
-      className={`h-11 w-full rounded-xl border px-3 text-sm outline-none ${error ? "border-red-400" : "border-slate-200"} bg-white shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20`}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+    />
     {error ? <p className="mt-1 text-xs text-red-500">{error}</p> : null}
   </div>
 );
@@ -461,6 +470,7 @@ const OuthouseCourseForm = () => {
   const [candidateSearch, setCandidateSearch] = useState("");
   const [loadingCandidates, setLoadingCandidates] = useState(false);
   const [addingCandidate, setAddingCandidate] = useState(false);
+  const [sendingWelcomeId, setSendingWelcomeId] = useState(null);
   const [deleteState, setDeleteState] = useState({
     open: false,
     candidateId: "",
@@ -979,12 +989,15 @@ const OuthouseCourseForm = () => {
       return;
     }
 
+    setSendingWelcomeId(candidateId);
     try {
       await outhouseCourseService.resendWelcomeLetter(id, candidateId);
       toast.success("Welcome letter sent");
       await loadCandidates();
     } catch (error) {
       toast.error("Failed to send welcome letter");
+    } finally {
+      setSendingWelcomeId(null);
     }
   };
 
@@ -1748,7 +1761,9 @@ const OuthouseCourseForm = () => {
                                     handleWelcomeLetter(candidate.id)
                                   }
                                   disabled={
-                                    !onlineCourse && !hasVenueDetails(candidate)
+                                    (!onlineCourse &&
+                                      !hasVenueDetails(candidate)) ||
+                                    sendingWelcomeId === candidate.id
                                   }
                                   title={
                                     !onlineCourse && !hasVenueDetails(candidate)
@@ -1756,10 +1771,19 @@ const OuthouseCourseForm = () => {
                                       : "Send welcome letter"
                                   }
                                 >
-                                  <Mail className="mr-2 h-4 w-4" />
-                                  {candidate.candidate_email_status
-                                    ? "Resend"
-                                    : "Send"}
+                                  {sendingWelcomeId === candidate.id ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Sending...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Mail className="mr-2 h-4 w-4" />
+                                      {candidate.candidate_email_status
+                                        ? "Resend"
+                                        : "Send"}
+                                    </>
+                                  )}
                                 </Button>
                               </div>
                             </td>

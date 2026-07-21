@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/Select";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import { Button } from "../../components/ui/Button";
 import {
   Card,
@@ -130,46 +131,38 @@ const FilterSection = ({
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Trainer
               </label>
-              <Select
-                value={filters.trainer_id}
-                onValueChange={(val) => handleFilterChange("trainer_id", val)}
-              >
-                <SelectTrigger className="bg-white/80 border-slate-200/60 focus:ring-blue-500/20">
-                  <SelectValue placeholder="All Trainers" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Trainers</SelectItem>
-                  {trainers.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.first_name} {t.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={filters.trainer_id || "all"}
+                onChange={(val) => handleFilterChange("trainer_id", val)}
+                options={[
+                  { value: "all", label: "All Trainers" },
+                  ...trainers.map((t) => ({
+                    value: t.id,
+                    label: `${t.first_name} ${t.last_name}`,
+                  })),
+                ]}
+                placeholder="All Trainers"
+                required={true}
+              />
             </div>
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Master Course
               </label>
-              <Select
-                value={filters.master_course_id}
-                onValueChange={(val) =>
-                  handleFilterChange("master_course_id", val)
-                }
-              >
-                <SelectTrigger className="bg-white/80 border-slate-200/60 focus:ring-blue-500/20">
-                  <SelectValue placeholder="All Courses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Courses</SelectItem>
-                  {masterCourses.map((mc) => (
-                    <SelectItem key={mc.id} value={mc.id}>
-                      {mc.master_course_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={filters.master_course_id || "all"}
+                onChange={(val) => handleFilterChange("master_course_id", val)}
+                options={[
+                  { value: "all", label: "All Courses" },
+                  ...masterCourses.map((mc) => ({
+                    value: mc.id,
+                    label: mc.master_course_name,
+                  })),
+                ]}
+                placeholder="All Courses"
+                required={true}
+              />
             </div>
 
             <div className="space-y-2">

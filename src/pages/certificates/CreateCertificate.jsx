@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import PageHeader from "../../components/common/PageHeader";
 import CandidateSelectionModal from "./CandidateSelectionModal";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
 import activeCourseService from "../../services/activeCourseService";
@@ -281,21 +282,16 @@ const CreateCertificate = () => {
                   <label className="text-sm font-semibold text-slate-700">
                     Link to Active Course (Optional)
                   </label>
-                  <select
+                  <SearchableSelect
                     name="active_course_id"
                     value={formData.active_course_id}
-                    onChange={handleChange}
-                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                  >
-                    <option value="">
-                      Select Active Course (Auto-fills details)
-                    </option>
-                    {activeCourses.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.course_id} - {c.course_name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => handleChange({ target: { name: "active_course_id", value: val } })}
+                    placeholder="Select Active Course (Auto-fills details)"
+                    options={activeCourses.map((c) => ({
+                      value: c.id,
+                      label: `${c.course_id} - ${c.course_name}`
+                    }))}
+                  />
                 </div>
 
                 {/* Master Course Selection / Course Name */}
@@ -303,30 +299,28 @@ const CreateCertificate = () => {
                   <label className="text-sm font-semibold text-slate-700">
                     Course Name <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <SearchableSelect
                     name="course_id"
                     value={formData.course_id}
-                    onChange={(e) => {
-                      handleChange(e);
+                    onChange={(val) => {
+                      handleChange({ target: { name: "course_id", value: val } });
                       if (formErrors.course_id)
                         setFormErrors((prev) => ({
                           ...prev,
                           course_id: undefined,
                         }));
                     }}
-                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.course_id ? "border-red-500" : "border-slate-200"} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
-                  >
-                    <option value="">Select Course Name</option>
-                    {masterCourses
+                    placeholder="Select Course Name"
+                    error={!!formErrors.course_id}
+                    options={masterCourses
                       .filter(
                         (c) => !formData.topic || c.topic === formData.topic,
                       )
-                      .map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.master_course_name}
-                        </option>
-                      ))}
-                  </select>
+                      .map((c) => ({
+                        value: c.id,
+                        label: c.master_course_name
+                      }))}
+                  />
                   {formErrors.course_id && (
                     <span className="text-red-500 text-xs mt-1 block">
                       {formErrors.course_id}
@@ -339,26 +333,24 @@ const CreateCertificate = () => {
                   <label className="text-sm font-semibold text-slate-700">
                     Trainer <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <SearchableSelect
                     name="trainer_id"
                     value={formData.trainer_id}
-                    onChange={(e) => {
-                      handleChange(e);
+                    onChange={(val) => {
+                      handleChange({ target: { name: "trainer_id", value: val } });
                       if (formErrors.trainer_id)
                         setFormErrors((prev) => ({
                           ...prev,
                           trainer_id: undefined,
                         }));
                     }}
-                    className={`w-full h-11 px-4 bg-slate-50 border ${formErrors.trainer_id ? "border-red-500" : "border-slate-200"} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm`}
-                  >
-                    <option value="">Select Trainer</option>
-                    {trainers.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.prefix} {t.first_name} {t.last_name}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Select Trainer"
+                    error={!!formErrors.trainer_id}
+                    options={trainers.map((t) => ({
+                      value: t.id,
+                      label: `${t.prefix} ${t.first_name} ${t.last_name}`
+                    }))}
+                  />
                   {formErrors.trainer_id && (
                     <span className="text-red-500 text-xs mt-1 block">
                       {formErrors.trainer_id}

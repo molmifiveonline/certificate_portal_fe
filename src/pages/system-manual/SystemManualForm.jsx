@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Form, Formik, Field } from "formik";
 import * as Yup from "yup";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import { Save, FileText, Link as LinkIcon, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 import { toast } from "sonner";
@@ -176,25 +177,23 @@ const SystemManualForm = ({
                                     <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                                         Category <span className="text-red-500">*</span>
                                     </label>
-                                    <Field
-                                        as="select"
+                                    <SearchableSelect
                                         name="category_id"
-                                        className={`w-full px-4 py-3 bg-white/80 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${errors.category_id && touched.category_id
-                                            ? "border-red-300 focus:border-red-500 bg-red-50/50"
-                                            : "border-slate-200 focus:border-indigo-500"
-                                            }`}
+                                        value={values.category_id}
+                                        onChange={(val) => {
+                                            setFieldValue("category_id", val);
+                                        }}
                                         onBlur={(e) => {
                                             handleBlur(e);
                                             setFieldTouched('category_id', true, false);
                                         }}
-                                    >
-                                        <option value="">Select Category</option>
-                                        {categories.map((cat) => (
-                                            <option key={cat.id} value={cat.id}>
-                                                {cat.name}
-                                            </option>
-                                        ))}
-                                    </Field>
+                                        options={categories.map((cat) => ({
+                                            value: cat.id,
+                                            label: cat.name,
+                                        }))}
+                                        placeholder="Select Category"
+                                        error={!!(errors.category_id && touched.category_id)}
+                                    />
                                     {errors.category_id && touched.category_id && (
                                         <div className="text-red-500 text-sm mt-1">{errors.category_id}</div>
                                     )}

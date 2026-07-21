@@ -2,6 +2,7 @@ import React from "react";
 import { FileDown, Calendar, Filter, Users } from "lucide-react";
 import { inputStyles, selectStyles } from "./reportFormStyles";
 import { Input } from "../../../components/ui/Input";
+import SearchableSelect from "../../../components/ui/SearchableSelect";
 import { useAuth } from "../../../context/AuthContext";
 
 const FeedbackReportCard = ({
@@ -94,24 +95,17 @@ const FeedbackReportCard = ({
               >
                 Topic
               </label>
-              <select
-                id="feedback-topic"
+              <SearchableSelect
                 value={filters.topic}
-                onChange={(e) =>
+                onChange={(val) =>
                   onFiltersChange({
                     ...filters,
-                    topic: e.target.value,
+                    topic: val,
                   })
                 }
-                className={`${selectStyles} cursor-pointer`}
-              >
-                <option value="">All Topics</option>
-                {filterOptions.topics.map((topic) => (
-                  <option key={topic} value={topic}>
-                    {topic}
-                  </option>
-                ))}
-              </select>
+                options={filterOptions.topics}
+                placeholder="All Topics"
+              />
             </div>
             <div>
               <label
@@ -120,24 +114,17 @@ const FeedbackReportCard = ({
               >
                 Manager
               </label>
-              <select
-                id="feedback-manager"
+              <SearchableSelect
                 value={filters.manager}
-                onChange={(e) =>
+                onChange={(val) =>
                   onFiltersChange({
                     ...filters,
-                    manager: e.target.value,
+                    manager: val,
                   })
                 }
-                className={`${selectStyles} cursor-pointer`}
-              >
-                <option value="">All Managers</option>
-                {filterOptions.managers.map((manager) => (
-                  <option key={manager} value={manager}>
-                    {manager}
-                  </option>
-                ))}
-              </select>
+                options={filterOptions.managers}
+                placeholder="All Managers"
+              />
             </div>
           </div>
         </div>
