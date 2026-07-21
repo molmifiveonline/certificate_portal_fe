@@ -1,6 +1,7 @@
 import React, { useState, createContext, useContext } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import SearchableSelect from "../ui/SearchableSelect";
 import {
   User,
   FileText,
@@ -116,6 +117,42 @@ const SelectField = ({
   );
 };
 
+const SearchableSelectField = ({
+  label,
+  name,
+  required,
+  options,
+  className,
+  placeholder = "Select...",
+}) => {
+  const { control, errors } = useContext(FormContext);
+  return (
+    <div className={`space-y-1 ${className}`}>
+      <label className="text-sm font-medium text-slate-700 block">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <Controller
+        name={name}
+        control={control}
+        rules={{ required: required ? `${label} is required` : false }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <SearchableSelect
+            options={options}
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+            placeholder={placeholder}
+            error={!!errors[name]}
+          />
+        )}
+      />
+      {errors[name] && (
+        <span className="text-red-500 text-xs">{errors[name]?.message}</span>
+      )}
+    </div>
+  );
+};
+
 const CandidateForm = ({
   onSubmit,
   defaultValues = {},
@@ -153,6 +190,7 @@ const CandidateForm = ({
     watch,
     setValue,
     trigger,
+    control,
     formState: { errors },
   } = useForm({
     defaultValues: formattedDefaultValues,
@@ -227,7 +265,7 @@ const CandidateForm = ({
   };
 
   return (
-    <FormContext.Provider value={{ register, errors, watch, trigger }}>
+    <FormContext.Provider value={{ register, errors, watch, trigger, control }}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="bg-white rounded-3xl border border-slate-200/60 shadow-xl p-8">
           {/* Employee Type Toggle */}
@@ -515,7 +553,7 @@ const CandidateForm = ({
                     })()}
                     className="md:col-span-2"
                   />
-                  <SelectField
+                  <SearchableSelectField
                     label="Nationality"
                     name="nationality"
                     required

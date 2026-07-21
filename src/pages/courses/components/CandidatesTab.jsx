@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Mail, Trash2, MapPin, Eye } from "lucide-react";
+import { Mail, Trash2, MapPin, Eye, Loader2 } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { formatDate } from "../../../lib/utils/dateUtils";
 
@@ -19,6 +19,26 @@ const CandidatesTab = ({
   courseStatus = "",
 }) => {
   const [selectedEmailCandidates, setSelectedEmailCandidates] = useState([]);
+  const [sendingEmailId, setSendingEmailId] = useState(null);
+  const [togglingObserverId, setTogglingObserverId] = useState(null);
+
+  const handleEmailClick = async (candidateId) => {
+    setSendingEmailId(candidateId);
+    try {
+      await onEmail(candidateId);
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
+  const handleObserverToggleClick = async (candidateId, isObserver) => {
+    setTogglingObserverId(candidateId);
+    try {
+      await onObserverToggle(candidateId, isObserver);
+    } finally {
+      setTogglingObserverId(null);
+    }
+  };
   const isOnlineCourse = typeOfLocation === "Online";
   const showBulkEmail = !isTrainerRole && isOnlineCourse;
 
@@ -145,7 +165,11 @@ const CandidatesTab = ({
               }
               className="gap-2"
             >
-              <Mail size={16} />
+              {bulkEmailLoading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Mail size={16} />
+              )}
               {bulkEmailLoading
                 ? "Sending..."
                 : `Send Online Mail (${selectedEmailCandidates.length})`}
@@ -327,23 +351,28 @@ const CandidatesTab = ({
                     </td>
                     <td className="px-4 py-3 text-center">
                       {(() => {
-                        const isObserverDisabled = !!candidate.certficate_generated || ["Certificate Generated", "Course Completed"].includes(courseStatus);
+                        const isObserverDisabled = !!candidate.certficate_generated || ["Certificate Generated", "Course Completed"].includes(courseStatus) || togglingObserverId === candidate.candidate_id;
                         return (
-                          <label className={`relative inline-flex items-center ${isObserverDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-                            <input
-                              type="checkbox"
-                              checked={!!candidate.is_observer}
-                              disabled={isObserverDisabled}
-                              onChange={(e) =>
-                                onObserverToggle(
-                                  candidate.candidate_id,
-                                  e.target.checked,
-                                )
-                              }
-                              className="sr-only peer"
-                            />
-                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                          </label>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <label className={`relative inline-flex items-center ${isObserverDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+                              <input
+                                type="checkbox"
+                                checked={!!candidate.is_observer}
+                                disabled={isObserverDisabled}
+                                onChange={(e) =>
+                                  handleObserverToggleClick(
+                                    candidate.candidate_id,
+                                    e.target.checked,
+                                  )
+                                }
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                            </label>
+                            {togglingObserverId === candidate.candidate_id && (
+                              <Loader2 size={14} className="animate-spin text-amber-600" />
+                            )}
+                          </div>
                         );
                       })()}
                     </td>
@@ -363,7 +392,8 @@ const CandidatesTab = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => onEmail(candidate.candidate_id)}
+                          onClick={() => handleEmailClick(candidate.candidate_id)}
+                          disabled={sendingEmailId === candidate.candidate_id}
                           title={
                             isOnlineCourse
                               ? "Send Online Welcome Letter"
@@ -371,14 +401,18 @@ const CandidatesTab = ({
                           }
                           className="h-8 w-8 p-0"
                         >
-                          <Mail
-                            size={16}
-                            className={
-                              candidate.candidate_email_status
-                                ? "text-green-500"
-                                : "text-slate-400"
-                            }
-                          />
+                          {sendingEmailId === candidate.candidate_id ? (
+                            <Loader2 size={16} className="animate-spin text-blue-600" />
+                          ) : (
+                            <Mail
+                              size={16}
+                              className={
+                                candidate.candidate_email_status
+                                  ? "text-green-500"
+                                  : "text-slate-400"
+                              }
+                            />
+                          )}
                         </Button>
 
                         <Button
