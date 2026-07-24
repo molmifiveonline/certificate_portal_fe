@@ -14,6 +14,7 @@ export const InputField = ({
   register,
   errors,
   defaultValue,
+  rows = 3,
   ...props
 }) => {
   const validation = getCommonFieldValidation({ label, name, type, required });
@@ -23,18 +24,38 @@ export const InputField = ({
       <label className="text-sm font-medium text-slate-700 block">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <Input
-        type={type}
-        {...(register ? register(name, validation.rules) : { name, defaultValue, onChange: props.onChange })}
-        {...validation.inputProps}
-        readOnly={readOnly}
-        placeholder={placeholder || (type === "date" ? "DD-MM-YYYY" : "")}
-        className={cn(
-          "bg-slate-50/50 border-slate-200",
-          readOnly && "bg-slate-100 cursor-not-allowed text-slate-500",
-        )}
-        {...props}
-      />
+      {type === "textarea" ? (
+        <textarea
+          name={name}
+          defaultValue={defaultValue}
+          value={props.value}
+          onChange={props.onChange}
+          rows={rows}
+          readOnly={readOnly}
+          disabled={props.disabled}
+          placeholder={placeholder}
+          className={cn(
+            "flex w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/10 focus-visible:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all resize-y",
+            "bg-slate-50/50 border-slate-200",
+            (readOnly || props.disabled) && "bg-slate-100 cursor-not-allowed text-slate-500",
+            props.className,
+          )}
+          {...props}
+        />
+      ) : (
+        <Input
+          type={type}
+          {...(register ? register(name, validation.rules) : { name, defaultValue, onChange: props.onChange })}
+          {...validation.inputProps}
+          readOnly={readOnly}
+          placeholder={placeholder || (type === "date" ? "DD-MM-YYYY" : "")}
+          className={cn(
+            "bg-slate-50/50 border-slate-200",
+            readOnly && "bg-slate-100 cursor-not-allowed text-slate-500",
+          )}
+          {...props}
+        />
+      )}
       {errors && errors[name] && (
         <p className="text-xs text-red-500 mt-1">{errors[name].message}</p>
       )}
