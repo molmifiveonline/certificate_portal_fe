@@ -435,12 +435,14 @@ const PreActiveCourseList = () => {
               variant="primary"
               size="sm"
               onClick={async () => {
+                const newWindow = window.open('about:blank', '_blank');
                 try {
                   setIsActionLoading(true);
                   const { token } =
                     await preActiveCourseService.getNominatorToken(row.id);
-                  window.open(`/nominate/${token}`, "_blank");
+                  newWindow.location.href = `/nominate/${token}`;
                 } catch (error) {
+                  newWindow.close();
                   toast.error(
                     getErrorMessage(
                       error,
@@ -642,11 +644,13 @@ const PreActiveCourseList = () => {
                       <Button
                         variant="primary"
                         onClick={async () => {
+                          const newWindow = window.open('about:blank', '_blank');
                           try {
                             setIsActionLoading(true);
                             const { token } = await preActiveCourseService.getNominatorToken(course.id);
-                            window.open(`/nominate/${token}`, "_blank");
+                            newWindow.location.href = `/nominate/${token}`;
                           } catch (error) {
+                            newWindow.close();
                             toast.error(getErrorMessage(error, "Failed to access nomination portal"));
                           } finally {
                             setIsActionLoading(false);
