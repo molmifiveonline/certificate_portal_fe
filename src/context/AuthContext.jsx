@@ -18,13 +18,14 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await api.post('/auth/login', { email, password });
+            const device_trust_token = localStorage.getItem('device_trust_token');
+            const response = await api.post('/auth/login', { email, password, device_trust_token });
+            
+            if (response.data.requiresOtp) {
+                return response.data;
+            }
+
             const { user, token } = response.data;
-
-            // Allow token to be available for axios interceptors immediately
-            // We might want to save token separately or part of user object
-            // based on how api.js expects it. api.js expects user.token
-
             const userData = { ...user, token };
             setUser(userData);
             localStorage.setItem('user', JSON.stringify(userData));
@@ -34,6 +35,25 @@ export const AuthProvider = ({ children }) => {
             throw error;
         }
     };
+
+    const verifyOtp = async (otpSessionId, otpCode) => {
+        try {
+            const response = await api.post('/auth/verify-otp', { otpSessionId, otpCode });
+            const { user, token, device_trust_token } = response.data;
+
+            const userData = { ...user, token };
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            if (device_trust_token) {
+                localStorage.setItem('device_trust_token', device_trust_token);
+            }
+            return userData;
+        } catch (error) {
+            console.error("OTP verification failed", error);
+            throw error;
+        }
+    };
+
 
     const logout = () => {
         setUser(null);
@@ -67,7 +87,7 @@ export const AuthProvider = ({ children }) => {
         Array.isArray(user?.adminRolePermissions);
 
     return (
-        <AuthContext.Provider value={{ user, token: user?.token, login, logout, loading, hasPermission, hasAnyPermission, isRestrictedAdmin }}>
+        <AuthContext.Provider value={{ user, token: user?.token, login, verifyOtp, logout, loading, hasPermission, hasAnyPermission, isRestrictedAdmin }}>
             {!loading && children}
         </AuthContext.Provider>
     );
