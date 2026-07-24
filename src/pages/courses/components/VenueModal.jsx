@@ -130,17 +130,21 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
             </select>
           </div>
           <InputField
-            label="Venue Name"
+            label="Hotel Name"
             name="venue_name"
             value={venueDetails.venue_name}
             onChange={handleFieldChange}
             placeholder="e.g. Hotel ..."
+            disabled
           />
           <InputField
             label="Venue Address"
             name="venue_address"
+            type="textarea"
+            rows={3}
             value={venueDetails.venue_address}
             onChange={handleFieldChange}
+            disabled
           />
           <div className="grid grid-cols-2 gap-4">
             <InputField
@@ -148,6 +152,7 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
               name="venue_contact"
               value={venueDetails.venue_contact}
               onChange={handleFieldChange}
+              disabled
             />
             <InputField
               label="Email"
@@ -161,6 +166,7 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
             name="venue_map_link"
             value={venueDetails.venue_map_link}
             onChange={handleFieldChange}
+            disabled
           />
 
           <div className="grid grid-cols-2 gap-4">
