@@ -173,7 +173,7 @@ const SubmissionDetail = () => {
                     {ans.image && (
                       <div className="mb-6 ml-14">
                         <img
-                          src={ans.image}
+                          src={`${process.env.REACT_APP_API_URL || ""}/${ans.image}`}
                           alt="Question"
                           className="w-1/4 h-auto rounded border border-slate-200"
                         />
@@ -230,7 +230,7 @@ const SubmissionDetail = () => {
                           >
                             {opt.img && (
                               <img
-                                src={opt.img}
+                                src={`${process.env.REACT_APP_API_URL || ""}/${opt.img}`}
                                 alt={`Option ${opt.label}`}
                                 className="w-1/4 h-auto mb-2 rounded border border-slate-200"
                               />
