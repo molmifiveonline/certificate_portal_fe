@@ -16,6 +16,7 @@ import {
   Clock,
   MapPin,
   Users,
+  FileSpreadsheet,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { useAuth } from "../../context/AuthContext";
 import Meta from "../../components/common/Meta";
 import CourseImportPreviewModal from "../../components/pre-active-courses/CourseImportPreviewModal";
+import ExcelUploadModal from "../../components/pre-active-courses/ExcelUploadModal";
 import { Card, CardContent } from "../../components/ui/Card";
 import { formatDate } from "../../lib/utils/dateUtils";
 
@@ -160,6 +162,7 @@ const PreActiveCourseList = () => {
   const [convertModalOpen, setConvertModalOpen] = useState(false);
   const [courseToConvert, setCourseToConvert] = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showExcelUploadModal, setShowExcelUploadModal] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const { hasPermission, isRestrictedAdmin } = useAuth();
@@ -533,6 +536,14 @@ const PreActiveCourseList = () => {
             <>
               <Button
                 variant="outline"
+                onClick={() => setShowExcelUploadModal(true)}
+                className="h-11 px-6 rounded-xl border border-green-200 bg-white/60 backdrop-blur-md shadow-sm hover:bg-white text-slate-700 font-bold flex items-center gap-2 active:scale-95 transition-all"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                Excel Upload
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => setShowPreviewModal(true)}
                 className="h-11 px-6 rounded-xl border bg-white/60 backdrop-blur-md shadow-sm hover:bg-white text-slate-700 font-bold flex items-center gap-2 active:scale-95 transition-all"
                 style={{ borderColor: "rgb(49 46 129 / 90%)" }}
@@ -736,6 +747,12 @@ const PreActiveCourseList = () => {
       <CourseImportPreviewModal
         isOpen={showPreviewModal}
         onClose={() => setShowPreviewModal(false)}
+        onImportSuccess={fetchCourses}
+      />
+
+      <ExcelUploadModal
+        isOpen={showExcelUploadModal}
+        onClose={() => setShowExcelUploadModal(false)}
         onImportSuccess={fetchCourses}
       />
     </div>
