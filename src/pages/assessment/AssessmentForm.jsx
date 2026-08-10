@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Save, Check, RefreshCcw } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import assessmentService from "../../services/assessmentService";
 import { toast } from "sonner";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
@@ -53,6 +53,8 @@ const SelectField = ({ label, value, onChange, options, loading, placeholder, re
 const AssessmentForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
+    const courseIdParam = searchParams.get('course_id');
     const isEdit = Boolean(id);
     const { user } = useAuth();
     const isTrainer = user?.role?.toLowerCase() === 'trainer';
@@ -60,7 +62,7 @@ const AssessmentForm = () => {
 
     const [formData, setFormData] = useState({
         title: "",
-        course_id: "",
+        course_id: courseIdParam || "",
         type_of_test: "3",
         candidate_ids: "",
         num_of_questions: "10",
@@ -131,13 +133,23 @@ const AssessmentForm = () => {
         }
     }, []);
 
-
     useEffect(() => {
         if (!isEdit) {
             loadCourses(formData.type_of_test);
+            
+            if (courseIdParam && formData.type_of_test) {
+                loadCandidates(courseIdParam);
+                loadQuestions(courseIdParam, formData.type_of_test).then(loadedQuestions => {
+                    const hasQuestions = loadedQuestions.length > 0;
+                    setAutoSelectionDisabled(!hasQuestions);
+                    setFormData((prev) => ({
+                        ...prev,
+                        questions_choice: hasQuestions ? "auto" : "manual",
+                    }));
+                });
+            }
         }
-    }, [isEdit, formData.type_of_test, loadCourses]);
-
+    }, [isEdit, formData.type_of_test, loadCourses, courseIdParam, loadCandidates, loadQuestions]);
 
     useEffect(() => {
         if (isEdit) {
