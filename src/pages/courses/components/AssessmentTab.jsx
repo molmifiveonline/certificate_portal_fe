@@ -155,7 +155,7 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
           <div className="flex gap-2">
             {!isTrainerRole && (
               <Button
-                onClick={() => navigate(`/assessments/new?course_id=${courseId}`)}
+                onClick={() => navigate(`/assessment/assessments/add?course_id=${courseId}`)}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm"
               >
                 Create Assessment
