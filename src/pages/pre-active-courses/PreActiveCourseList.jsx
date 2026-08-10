@@ -93,7 +93,6 @@ const getCloseAvailability = (course) => {
 
   const startDateLine = new Date(course.start_date);
   startDateLine.setHours(0, 0, 0, 0);
-  startDateLine.setDate(startDateLine.getDate() - 1);
 
   if (Number.isNaN(startDateLine.getTime())) {
     return {
@@ -112,7 +111,7 @@ const getCloseAvailability = (course) => {
   if (today > startDateLine) {
     return {
       disabled: true,
-      reason: "Cannot close: Deadline (1 day prior to start date) has passed.",
+      reason: "Cannot close: The start date has already passed.",
     };
   }
 
