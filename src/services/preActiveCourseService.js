@@ -82,8 +82,7 @@ const preActiveCourseService = {
     const response = await api.get(`/pre-active/${id}/token`);
     return response.data;
   },
-
-  // Public Endpoints
+  // Public Endpoints
   getCourseByToken: async (token) => {
     const response = await api.get(`/pre-active/public/token/${token}`);
     return response.data;
@@ -109,6 +108,33 @@ const preActiveCourseService = {
       `/pre-active/public/token/${token}/candidate-approval`,
       data,
     );
+    return response.data;
+  },
+
+  downloadExcelTemplate: async () => {
+    const response = await api.get("/pre-active/excel/sample-template", {
+      responseType: "blob",
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "pre_active_courses_template.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  },
+
+  uploadExcelPreview: async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await api.post("/pre-active/excel/upload-preview", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+
+  confirmExcelImport: async (data) => {
+    const response = await api.post("/pre-active/excel/confirm-import", data);
     return response.data;
   },
 
