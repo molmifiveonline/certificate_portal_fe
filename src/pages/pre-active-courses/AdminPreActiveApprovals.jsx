@@ -2,13 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Check, X, ShieldAlert, Loader2, Users } from "lucide-react";
+import { Check, X, ShieldAlert, Loader2, Users, Plus } from "lucide-react";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import Meta from "../../components/common/Meta";
 import BackButton from "../../components/common/BackButton";
 import { formatDate } from "../../lib/utils/dateUtils";
+import AdminAddCandidateModal from "./AdminAddCandidateModal";
 
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
@@ -41,6 +42,7 @@ const AdminPreActiveApprovals = () => {
     status: "",
   });
   const [adminRemark, setAdminRemark] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const fetchApprovals = useCallback(async () => {
     try {
@@ -110,18 +112,26 @@ const AdminPreActiveApprovals = () => {
             </p>
           </div>
         </div>
-        {approvals.length > 0 && (
-          <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-            {
-              approvals.filter(
-                (a) =>
-                  a.admin_approval_status === "Pending" &&
-                  a.candidate_approval_status !== "Pending",
-              ).length
-            }{" "}
-            Pending Review
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="h-9 bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 px-4 rounded-lg"
+          >
+            <Plus className="w-4 h-4" /> Add Candidate
+          </Button>
+          {approvals.length > 0 && (
+            <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+              {
+                approvals.filter(
+                  (a) =>
+                    a.admin_approval_status === "Pending" &&
+                    a.candidate_approval_status !== "Pending",
+                ).length
+              }{" "}
+              Pending Review
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="max-w-[1600px] mx-auto p-8">
@@ -357,6 +367,13 @@ const AdminPreActiveApprovals = () => {
           </div>
         </div>
       </Modal>
+
+      <AdminAddCandidateModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        courseId={id}
+        onSuccess={fetchApprovals}
+      />
     </div>
   );
 };

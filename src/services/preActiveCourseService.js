@@ -147,6 +147,16 @@ const preActiveCourseService = {
     const response = await api.post("/pre-active/confirm-bulk-import", data);
     return response.data;
   },
+
+  getAvailableOthersCandidatesByAdmin: async (id) => {
+    const response = await api.get(`/pre-active/${id}/available-candidates`);
+    return response.data;
+  },
+
+  adminAddCandidate: async (id, data) => {
+    const response = await api.post(`/pre-active/${id}/add-candidate`, data);
+    return response.data;
+  },
 };
 
 export default preActiveCourseService;
