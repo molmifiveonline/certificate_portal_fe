@@ -1,0 +1,356 @@
+import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Loader2, Plus, Users, X, Mail, Search } from "lucide-react";
+import preActiveCourseService from "../../services/preActiveCourseService";
+import { Input } from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
+import CandidateForm from "../../components/candidates/CandidateForm";
+import api from "../../lib/api";
+import { getErrorMessage } from "../../lib/utils/errorUtils";
+
+const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
+  const [activeTab, setActiveTab] = useState("pool"); // 'pool' or 'new'
+  const [poolCandidates, setPoolCandidates] = useState([]);
+  const [poolLoading, setPoolLoading] = useState(false);
+  const [poolSearch, setPoolSearch] = useState("");
+  const [selectedPoolIds, setSelectedPoolIds] = useState([]);
+  const [isAddingCandidate, setIsAddingCandidate] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && activeTab === "pool") {
+      fetchPool();
+    }
+  }, [isOpen, activeTab]);
+
+  const fetchPool = async () => {
+    try {
+      setPoolLoading(true);
+      const data = await preActiveCourseService.getAvailableOthersCandidatesByAdmin(courseId);
+      setPoolCandidates(data || []);
+    } catch (err) {
+      console.error("Failed to fetch pool:", err);
+      toast.error("Failed to load candidate pool.");
+    } finally {
+      setPoolLoading(false);
+    }
+  };
+
+  const handleAddFromPool = async () => {
+    const selectedFromPool = poolCandidates.filter((c) =>
+      selectedPoolIds.includes(c.id)
+    );
+
+    if (selectedFromPool.length === 0) {
+      toast.error("Please select at least one candidate.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const payload = selectedFromPool.map((c) => ({
+        candidate_id: c.id,
+        first_name: c.first_name,
+        last_name: c.last_name,
+        email: c.email,
+        mobile_no: c.mobile || "",
+        date_of_birth: c.dob ? new Date(c.dob).toISOString().split("T")[0] : "",
+        indos_number: c.indos_number || "",
+        registration_type: c.registration_type || "Others",
+      }));
+
+      await preActiveCourseService.adminAddCandidate(courseId, {
+        candidates: payload,
+      });
+
+      toast.success(`Successfully enrolled ${selectedFromPool.length} candidate(s).`);
+      onSuccess();
+      onClose();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to enroll candidates."));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAddNewCandidate = async (data) => {
+    setIsAddingCandidate(true);
+    try {
+      // Build payload — same as admin register, but always inactive (status: 0)
+      const payload = {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        middle_name: data.middleName,
+        email: data.email,
+        mobile: data.whatsapp,
+        prefix: data.prefix,
+        gender: data.gender,
+        dob: data.dob,
+        nationality: data.nationality,
+        passport_no: data.passportNumber,
+        employee_id: data.employeeId,
+        manager: data.manager,
+        other_manager: null,
+        rank: data.rank,
+        other_rank: null,
+        whatsapp_number: data.whatsapp,
+        alternate_mobile: data.alternateNumber,
+        indos_number: data.indosNo,
+        registration_type: data.employeeType || "Others",
+        designation: data.designation,
+        vessel_type: data.vesselType,
+        last_vessel_name: data.lastVesselName,
+        next_vessel_name: data.nextVesselName,
+        manning_company: data.manningCompany,
+        sign_on_date: data.signOnDate || null,
+        sign_off_date: data.signOffDate || null,
+        officer: data.officer,
+        seaman_book_no: data.seamanBookNo,
+        profile_image: data.profileImage,
+        status: 0, // Always inactive — admin must approve/activate
+      };
+
+      // 1. Register the candidate
+      await api.post("/auth/register/candidate", payload);
+
+      // 2. Enroll the candidate
+      const enrollPayload = [
+        {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email,
+          mobile_no: data.whatsapp || "",
+          date_of_birth: data.dob || "",
+          indos_number: data.indosNo || "",
+          registration_type: data.employeeType || "Others",
+        },
+      ];
+
+      await preActiveCourseService.adminAddCandidate(courseId, {
+        candidates: enrollPayload,
+      });
+
+      toast.success(`${data.firstName} ${data.lastName} registered and enrolled successfully.`);
+      onSuccess();
+      onClose();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to register and enroll candidate."));
+    } finally {
+      setIsAddingCandidate(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const filteredPool = poolCandidates.filter((c) => {
+    const search = poolSearch.toLowerCase();
+    return (
+      (c.first_name + " " + (c.last_name || "")).toLowerCase().includes(search) ||
+      c.email.toLowerCase().includes(search) ||
+      (c.indos_number && c.indos_number.toLowerCase().includes(search))
+    );
+  });
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-b border-slate-100">
+          <div>
+            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+              <Users size={18} className="text-blue-600" />
+              Add Candidate to Pre-Active Course
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Select existing candidate or register a new one.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-full hover:bg-slate-100"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-slate-200 bg-slate-50/50">
+          <button
+            onClick={() => {
+              setActiveTab("pool");
+              setSelectedPoolIds([]);
+            }}
+            className={`flex-1 py-3 text-sm font-semibold border-b-2 transition-all ${
+              activeTab === "pool"
+                ? "border-blue-600 text-blue-600 bg-white"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            Select from Pool
+          </button>
+          <button
+            onClick={() => setActiveTab("new")}
+            className={`flex-1 py-3 text-sm font-semibold border-b-2 transition-all ${
+              activeTab === "new"
+                ? "border-blue-600 text-blue-600 bg-white"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            Create New Candidate
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 bg-white min-h-[350px]">
+          {activeTab === "pool" ? (
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  placeholder="Search by name, email or INDoS..."
+                  value={poolSearch}
+                  onChange={(e) => setPoolSearch(e.target.value)}
+                  className="pl-10"
+                />
+                <Search size={16} className="absolute left-3.5 top-3.5 text-slate-400" />
+              </div>
+
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest border-b border-slate-200">
+                    <tr>
+                      <th className="px-6 py-3 w-16 text-center">
+                        <input
+                          type="checkbox"
+                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          checked={
+                            filteredPool.length > 0 &&
+                            selectedPoolIds.length === filteredPool.length
+                          }
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedPoolIds(filteredPool.map((c) => c.id));
+                            } else {
+                              setSelectedPoolIds([]);
+                            }
+                          }}
+                        />
+                      </th>
+                      <th className="px-6 py-3">Nominee Name</th>
+                      <th className="px-6 py-3">Email / Contact</th>
+                      <th className="px-6 py-3">INDoS Number</th>
+                      <th className="px-6 py-3">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {poolLoading ? (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-12 text-center text-slate-400">
+                          <div className="flex flex-col items-center gap-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                            <span>Loading pool...</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredPool.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-12 text-center text-slate-400">
+                          No candidates found in pool.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredPool.map((c) => (
+                        <tr
+                          key={c.id}
+                          className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+                          onClick={() => {
+                            if (selectedPoolIds.includes(c.id)) {
+                              setSelectedPoolIds(selectedPoolIds.filter((id) => id !== c.id));
+                            } else {
+                              setSelectedPoolIds([...selectedPoolIds, c.id]);
+                            }
+                          }}
+                        >
+                          <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={selectedPoolIds.includes(c.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedPoolIds([...selectedPoolIds, c.id]);
+                                } else {
+                                  setSelectedPoolIds(selectedPoolIds.filter((id) => id !== c.id));
+                                }
+                              }}
+                              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            />
+                          </td>
+                          <td className="px-6 py-4 font-semibold text-slate-800 text-sm">
+                            {c.first_name} {c.last_name || ""}
+                          </td>
+                          <td className="px-6 py-4 text-xs text-slate-600">{c.email}</td>
+                          <td className="px-6 py-4 text-xs text-slate-500 font-mono">
+                            {c.indos_number || "-"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-100">
+                              {c.registration_type || "Others"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <CandidateForm
+                onSubmit={handleAddNewCandidate}
+                isSubmitting={isAddingCandidate}
+                submitLabel="Register & Enroll Candidate"
+                showPassword={false}
+                isAdmin={false}
+                defaultValues={{ employeeType: "Others" }}
+                onCancel={onClose}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Footer for pool tab */}
+        {activeTab === "pool" && (
+          <div className="p-6 border-t border-slate-100 flex justify-between items-center bg-slate-50">
+            <p className="text-sm text-slate-500 font-medium">
+              {selectedPoolIds.length} candidate(s) selected
+            </p>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleAddFromPool}
+                disabled={selectedPoolIds.length === 0 || submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Enrolling...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Selected Candidates
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AdminAddCandidateModal;
