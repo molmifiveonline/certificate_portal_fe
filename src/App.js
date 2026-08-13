@@ -160,6 +160,9 @@ const QuestionBankList = lazyWithRetry(
 const QuestionBankForm = lazyWithRetry(
   () => import("./pages/assessment/QuestionBankForm"),
 );
+const AIQuestionGenerator = lazyWithRetry(
+  () => import("./pages/assessment/AIQuestionGenerator"),
+);
 
 const AssessmentList = lazyWithRetry(() => import("./pages/assessment/AssessmentList"));
 const AssessmentForm = lazyWithRetry(() => import("./pages/assessment/AssessmentForm"));
@@ -872,6 +875,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <QuestionBankForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessment/ai-question-generator"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <AIQuestionGenerator />
                   </PrivateRoute>
                 }
               />

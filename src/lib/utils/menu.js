@@ -16,6 +16,7 @@ import {
   Book,
   Award,
   Receipt,
+  Sparkles,
 } from "lucide-react";
 
 export const MenuItems = [
@@ -146,6 +147,12 @@ export const MenuItems = [
       {
         title: "Question Bank",
         url: "/assessment/question-bank",
+        permissionSlug: "view_questions",
+      },
+      {
+        title: "AI Question Generator",
+        url: "/assessment/ai-question-generator",
+        icon: Sparkles,
         permissionSlug: "view_questions",
       },
       {
