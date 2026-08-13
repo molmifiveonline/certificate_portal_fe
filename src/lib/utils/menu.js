@@ -234,6 +234,12 @@ export const MenuItems = [
     ],
   },
   {
+    title: "Study Material",
+    url: "/study-material",
+    icon: Book,
+    allowedRoles: ["admin", "superadmin"],
+  },
+  {
     title: "Log History",
     url: "/admin/log-history",
     icon: History,
