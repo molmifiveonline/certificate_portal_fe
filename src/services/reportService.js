@@ -67,6 +67,24 @@ const ReportService = {
     }
   },
 
+  getAiReportDataset: async (data) => {
+    try {
+      const response = await api.post(`/reports/ai/dataset`, data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  askReportAi: async (data) => {
+    try {
+      const response = await api.post(`/reports/ai/chat`, data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   bulkDownloadFeedbackPDFs: async (data) => {
     try {
       const response = await api.post(
