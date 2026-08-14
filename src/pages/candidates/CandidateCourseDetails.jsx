@@ -14,6 +14,7 @@ import { formatDate } from '../../lib/utils/dateUtils';
 import CandidateAttendanceTab from './tabs/CandidateAttendanceTab';
 import CandidateAssessmentTab from './tabs/CandidateAssessmentTab';
 import CandidateFeedbackTab from './tabs/CandidateFeedbackTab';
+import StudyMaterialViewer from '../../components/study-material/StudyMaterialViewer';
 
 const CandidateCourseDetails = () => {
     const { id } = useParams();
@@ -129,6 +130,12 @@ const CandidateCourseDetails = () => {
                     >
                         Feedback
                     </TabsTrigger>
+                    <TabsTrigger
+                        value="study-material"
+                        className="bg-transparent text-slate-500 hover:text-slate-800 px-2 py-3 text-sm font-semibold rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none"
+                    >
+                        Study Material
+                    </TabsTrigger>
                 </TabsList>
 
                 <div className="mt-8">
@@ -214,6 +221,12 @@ const CandidateCourseDetails = () => {
 
                     <TabsContent value="feedback">
                         <CandidateFeedbackTab courseId={id} course={course} />
+                    </TabsContent>
+
+                    <TabsContent value="study-material">
+                        <div className="bg-white/80 backdrop-blur-xl border border-white/60 shadow-sm rounded-2xl p-6">
+                            <StudyMaterialViewer masterCourseId={course.master_course_id} userType="candidate" />
+                        </div>
                     </TabsContent>
                 </div>
             </Tabs>
