@@ -149,12 +149,12 @@ export const MenuItems = [
         url: "/assessment/question-bank",
         permissionSlug: "view_questions",
       },
-      {
-        title: "AI Question Generator",
-        url: "/assessment/ai-question-generator",
-        icon: Sparkles,
-        permissionSlug: "view_questions",
-      },
+      // {
+      //   title: "AI Question Generator",
+      //   url: "/assessment/ai-question-generator",
+      //   icon: Sparkles,
+      //   permissionSlug: "view_questions",
+      // },
       {
         title: "Assessments",
         url: "/assessment/assessments",
