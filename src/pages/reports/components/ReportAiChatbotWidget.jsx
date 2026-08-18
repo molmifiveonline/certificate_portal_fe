@@ -502,7 +502,12 @@ const ReportAiChatbotWidget = ({
                     <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700">
                       <FileSpreadsheet className="h-3 w-3" />
                       <span>
-                        {msg.reportMeta.report_label || "Report Data"} ({msg.reportMeta.returned_row_count || 0} rows)
+                        {msg.reportMeta.report_label || "Report Data"}
+                        {msg.reportMeta.params?.year
+                          ? ` • ${msg.reportMeta.params.year}`
+                          : msg.reportMeta.params?.start_date && msg.reportMeta.params?.end_date
+                          ? ` • ${msg.reportMeta.params.start_date.slice(0, 7)} to ${msg.reportMeta.params.end_date.slice(0, 7)}`
+                          : ""} ({msg.reportMeta.returned_row_count || 0} rows)
                       </span>
                     </div>
                   )}
