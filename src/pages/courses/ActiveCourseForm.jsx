@@ -33,6 +33,7 @@ import MultiSelectInput from "./components/MultiSelectInput";
 import CandidatesTab from "./components/CandidatesTab";
 import AttendanceTab from "./components/AttendanceTab";
 import AssessmentTab from "./components/AssessmentTab";
+import StudyMaterialViewer from "../../components/study-material/StudyMaterialViewer";
 import FeedbackTab from "./components/FeedbackTab";
 import CertificateTab from "./components/CertificateTab";
 import CandidateDeleteModal from "./components/CandidateDeleteModal";
@@ -515,6 +516,7 @@ const ActiveCourseForm = () => {
     },
     { id: "feedbacks", label: "Feedbacks" },
     { id: "certificates", label: "Certificates" },
+    { id: "study-materials", label: "Study Materials" },
   ];
 
   if (isLoading)
@@ -1099,6 +1101,17 @@ const ActiveCourseForm = () => {
           {/* Certificates Tab */}
           {activeTab === "certificates" && (
             <CertificateTab courseId={id} isTrainerRole={isTrainerRole} />
+          )}
+
+          {/* Study Materials Tab */}
+          {activeTab === "study-materials" && (
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-6 text-lg font-bold text-slate-800">
+                <BookOpen size={20} className="text-blue-600" />
+                <h3>Study Materials</h3>
+              </div>
+              <StudyMaterialViewer masterCourseId={watch("topic")} userType="trainer" />
+            </div>
           )}
         </div>
 
