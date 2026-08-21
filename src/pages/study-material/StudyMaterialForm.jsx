@@ -3,7 +3,7 @@ import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Form, Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import SearchableSelect from "../../components/ui/SearchableSelect";
-import { Save, Upload, X, File, FileText } from "lucide-react";
+import { Save, Upload, X, File, FileText, Trash2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -446,6 +446,7 @@ const StudyMaterialForm = ({
                   onClick={onDelete}
                   disabled={isSubmitting}
                 >
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Delete Material
                 </Button>
               )}

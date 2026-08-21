@@ -508,6 +508,7 @@ const ActiveCourseForm = () => {
 
   const courseTabs = [
     { id: "details", label: "Details" },
+    { id: "study-materials", label: "Study Materials" },
     { id: "candidates", label: "Candidates" },
     { id: "attendance", label: "Attendance" },
     {
@@ -516,7 +517,6 @@ const ActiveCourseForm = () => {
     },
     { id: "feedbacks", label: "Feedbacks" },
     { id: "certificates", label: "Certificates" },
-    { id: "study-materials", label: "Study Materials" },
   ];
 
   if (isLoading)
