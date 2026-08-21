@@ -328,7 +328,7 @@ const StudyMaterialForm = ({
                   Click to upload or drag and drop
                 </p>
                 <p className="text-xs text-slate-500 text-center">
-                  PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG
+                  PDF, DOCX, XLSX, PPTX, Images (JPG/PNG), Videos (MP4/WebM), Audio, and more
                 </p>
                 <input
                   type="file"
@@ -336,7 +336,7 @@ const StudyMaterialForm = ({
                   onChange={handleFileSelect}
                   className="hidden"
                   multiple
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.webp,.gif,.svg,.mp4,.webm,.mkv,.mov,.avi,.mp3,.wav,.zip,.rar"
                 />
               </div>
 
