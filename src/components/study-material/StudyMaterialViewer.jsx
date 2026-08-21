@@ -48,12 +48,6 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
             })
           );
           setMaterials(detailedMaterials);
-
-          // Open the first category by default
-          if (detailedMaterials.length > 0) {
-            const firstCategory = detailedMaterials[0]?.category || "Uncategorized";
-            setOpenCategories({ [firstCategory]: true });
-          }
         }
       } catch (error) {
         console.error("Error fetching study materials for viewer:", error);

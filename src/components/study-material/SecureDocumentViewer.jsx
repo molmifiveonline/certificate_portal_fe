@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ShieldAlert } from "lucide-react";
 import { Button } from "../ui/Button";
 
@@ -57,7 +58,7 @@ const SecureDocumentViewer = ({ fileUrl, fileName, accessType, onClose }) => {
   // Check if file is image or PDF/other
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileUrl || "");
 
-  return (
+  return createPortal(
     <div 
       className="fixed inset-0 z-50 flex flex-col bg-slate-900/95 backdrop-blur-sm select-none"
       onContextMenu={handleContextMenu}
@@ -140,7 +141,8 @@ const SecureDocumentViewer = ({ fileUrl, fileName, accessType, onClose }) => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
