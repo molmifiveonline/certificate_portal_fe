@@ -6,10 +6,13 @@ import { FileText, Eye, Download, BookOpen, Clock, ChevronDown, Folder, Video, M
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import SecureDocumentViewer from "./SecureDocumentViewer";
+import { useAuth } from "../../context/AuthContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const StudyMaterialViewer = ({ masterCourseId, userType }) => {
+  const { user } = useAuth();
+  const userEmail = user?.email || user?.name || user?.first_name || "User";
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openCategories, setOpenCategories] = useState({});
@@ -277,6 +280,7 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
           fileName={activeFile.name}
           originalName={activeFile.originalName}
           accessType={activeFile.accessType}
+          userEmail={userEmail}
           onClose={() => setActiveFile(null)}
         />
       )}

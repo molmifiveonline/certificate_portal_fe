@@ -6,9 +6,10 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { renderAsync } from "docx-preview";
 
-const SecureDocumentViewer = ({ fileUrl, fileName, originalName, accessType, onClose }) => {
+const SecureDocumentViewer = ({ fileUrl, fileName, originalName, accessType, userEmail, onClose }) => {
   const isViewOnly = accessType === "view";
   const [isBlurred, setIsBlurred] = useState(false);
+  const clipboardIntervalRef = useRef(null);
 
   // Reliably determine file extension from originalName, fileUrl, or fileName
   const ext = useMemo(() => {
@@ -69,7 +70,10 @@ const SecureDocumentViewer = ({ fileUrl, fileName, originalName, accessType, onC
     if (!isViewOnly) return;
 
     const handleBlur = () => setIsBlurred(true);
-    const handleFocus = () => setIsBlurred(false);
+    const handleFocus = () => {
+      setIsBlurred(false);
+      try { navigator.clipboard?.writeText?.(""); } catch(e) {}
+    };
 
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
@@ -79,23 +83,46 @@ const SecureDocumentViewer = ({ fileUrl, fileName, originalName, accessType, onC
         setIsBlurred(true);
       } else {
         setIsBlurred(false);
+        try { navigator.clipboard?.writeText?.(""); } catch(e) {}
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     const handleKeyDown = (e) => {
+      // PrintScreen
       if (e.key === "PrintScreen") {
         navigator.clipboard?.writeText?.("");
+        setIsBlurred(true);
         alert("Screenshots are disabled for this document.");
       }
+      // Win+Shift+S (Snipping Tool)
+      if (e.key.toLowerCase() === "s" && e.shiftKey && e.metaKey) {
+        navigator.clipboard?.writeText?.("");
+        setIsBlurred(true);
+      }
+      // Ctrl+Shift+S
+      if (e.key.toLowerCase() === "s" && e.shiftKey && e.ctrlKey) {
+        navigator.clipboard?.writeText?.("");
+        setIsBlurred(true);
+      }
     };
-    window.addEventListener("keyup", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Continuous clipboard clearing
+    clipboardIntervalRef.current = setInterval(() => {
+      if (document.hasFocus()) {
+        try { navigator.clipboard?.writeText?.(""); } catch(e) {}
+      }
+    }, 1000);
 
     return () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("keyup", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
+      if (clipboardIntervalRef.current) {
+        clearInterval(clipboardIntervalRef.current);
+      }
     };
   }, [isViewOnly]);
 
@@ -260,6 +287,21 @@ const SecureDocumentViewer = ({ fileUrl, fileName, originalName, accessType, onC
             pointerEvents: isBlurred ? "none" : "auto",
           }}
         >
+          {/* Watermark Overlay for View Only */}
+          {isViewOnly && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 50, pointerEvents: 'none', overflow: 'hidden' }}>
+              {Array.from({ length: 30 }).map((_, i) => (
+                <div key={i} style={{
+                  position: 'absolute', transform: 'rotate(-35deg)', whiteSpace: 'nowrap',
+                  color: 'rgba(0,0,0,0.06)', fontSize: '14px', fontWeight: 600, userSelect: 'none',
+                  top: `${(i % 6) * 18}%`, left: `${Math.floor(i / 6) * 25 - 10}%`
+                }}>
+                  {userEmail} • CONFIDENTIAL • {new Date().toLocaleDateString()}
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Image */}
           {isImage && (
             <div className="w-full h-full flex items-center justify-center p-4 bg-slate-100 overflow-auto relative">
