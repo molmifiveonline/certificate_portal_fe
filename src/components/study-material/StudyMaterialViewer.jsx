@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { studyMaterialService } from "../../services/studyMaterialService";
 import { toast } from "sonner";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
-import { FileText, Eye, Download, BookOpen, Clock } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import { FileText, Eye, Download, BookOpen, Clock, ChevronDown, Folder } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import SecureDocumentViewer from "./SecureDocumentViewer";
@@ -13,6 +12,7 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 const StudyMaterialViewer = ({ masterCourseId, userType }) => {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openCategories, setOpenCategories] = useState({});
   
   // Viewer state
   const [activeFile, setActiveFile] = useState(null);
@@ -48,6 +48,12 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
             })
           );
           setMaterials(detailedMaterials);
+
+          // Open the first category by default
+          if (detailedMaterials.length > 0) {
+            const firstCategory = detailedMaterials[0]?.category || "Uncategorized";
+            setOpenCategories({ [firstCategory]: true });
+          }
         }
       } catch (error) {
         console.error("Error fetching study materials for viewer:", error);
@@ -59,6 +65,25 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
 
     fetchMaterials();
   }, [masterCourseId, userType]);
+
+  const groupedCategories = useMemo(() => {
+    const groups = {};
+    materials.forEach((material) => {
+      const category = material.category || "Uncategorized";
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(material);
+    });
+    return groups;
+  }, [materials]);
+
+  const toggleCategory = (category) => {
+    setOpenCategories((prev) => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
+  };
 
   const handleDownload = (fileUrl, originalName) => {
     // Standard trigger download
@@ -95,85 +120,144 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
   }
 
   return (
-    <div className="space-y-6">
-      {materials.map((material) => (
-        <Card key={material.id} className="border border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm overflow-hidden rounded-xl">
-          <CardHeader className="bg-slate-50/55 border-b border-slate-100 px-6 py-4 flex flex-row items-center justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-base font-semibold text-slate-800">
-                {material.category}
-              </CardTitle>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Clock className="w-3.5 h-3.5" />
-                <span>Uploaded: {new Date(material.created_at).toLocaleDateString()}</span>
+    <div className="space-y-4">
+      {Object.entries(groupedCategories).map(([category, catMaterials]) => {
+        const isOpen = !!openCategories[category];
+        const totalFiles = catMaterials.reduce(
+          (sum, m) => sum + (m.files ? m.files.length : 0),
+          0
+        );
+
+        return (
+          <div
+            key={category}
+            className="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden transition-all"
+          >
+            {/* Category Accordion Header */}
+            <button
+              type="button"
+              onClick={() => toggleCategory(category)}
+              className="w-full px-5 py-4 flex items-center justify-between bg-slate-50/75 hover:bg-slate-100/80 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <Folder className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-800">
+                    {category}
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    {totalFiles} {totalFiles === 1 ? "file" : "files"}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div>
-              <Badge variant={material.access_type === "view" ? "warning" : "success"}>
-                {material.access_type === "view" ? "View Only" : "View & Download"}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-3">
-              {material.files && material.files.length > 0 ? (
-                material.files.map((file) => {
-                  const fileUrl = `${API_URL}/uploads/study_material/${file.file_name}`;
-                  return (
-                    <div
-                      key={file.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-slate-100 rounded-xl bg-slate-50/30 hover:bg-slate-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-                          <FileText className="w-5 h-5 text-indigo-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-700 truncate" title={file.display_name}>
-                            {file.display_name}
-                          </p>
-                          <p className="text-xs text-slate-400 truncate">
-                            {file.file_original_name}
-                          </p>
-                        </div>
+              <ChevronDown
+                className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
+                  isOpen ? "rotate-180 text-slate-600" : ""
+                }`}
+              />
+            </button>
+
+            {/* Accordion Content */}
+            {isOpen && (
+              <div className="p-5 border-t border-slate-100 space-y-4 bg-white">
+                {catMaterials.map((material) => (
+                  <div key={material.id} className="space-y-3">
+                    <div className="flex items-center justify-between text-xs text-slate-500 pb-1 border-b border-slate-100">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>
+                          Uploaded: {new Date(material.created_at).toLocaleDateString()}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActiveFile({
-                            url: fileUrl,
-                            name: file.display_name || file.file_original_name,
-                            accessType: material.access_type
-                          })}
-                          className="text-xs font-semibold text-slate-600 hover:text-slate-800"
-                        >
-                          <Eye className="w-4 h-4 mr-1.5" />
-                          View
-                        </Button>
-                        
-                        {material.access_type === "view_download" && (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleDownload(fileUrl, file.file_original_name)}
-                            className="text-xs font-semibold"
-                          >
-                            <Download className="w-4 h-4 mr-1.5" />
-                            Download
-                          </Button>
-                        )}
-                      </div>
+                      <Badge
+                        variant={
+                          material.access_type === "view" ? "warning" : "success"
+                        }
+                      >
+                        {material.access_type === "view"
+                          ? "View Only"
+                          : "View & Download"}
+                      </Badge>
                     </div>
-                  );
-                })
-              ) : (
-                <p className="text-xs text-slate-400 italic">No files attached to this study material.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+
+                    <div className="space-y-2.5">
+                      {material.files && material.files.length > 0 ? (
+                        material.files.map((file) => {
+                          const fileUrl = `${API_URL}/uploads/study_material/${file.file_name}`;
+                          return (
+                            <div
+                              key={file.id}
+                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 border border-slate-100 rounded-lg bg-slate-50/40 hover:bg-slate-50 transition-colors"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+                                  <FileText className="w-4 h-4 text-indigo-600" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p
+                                    className="text-sm font-medium text-slate-700 truncate"
+                                    title={file.display_name}
+                                  >
+                                    {file.display_name}
+                                  </p>
+                                  <p className="text-xs text-slate-400 truncate">
+                                    {file.file_original_name}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    setActiveFile({
+                                      url: fileUrl,
+                                      name:
+                                        file.display_name || file.file_original_name,
+                                      accessType: material.access_type,
+                                    })
+                                  }
+                                  className="text-xs font-semibold text-slate-600 hover:text-slate-800"
+                                >
+                                  <Eye className="w-4 h-4 mr-1.5" />
+                                  View
+                                </Button>
+
+                                {material.access_type === "view_download" && (
+                                  <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleDownload(
+                                        fileUrl,
+                                        file.file_original_name
+                                      )
+                                    }
+                                    className="text-xs font-semibold"
+                                  >
+                                    <Download className="w-4 h-4 mr-1.5" />
+                                    Download
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-xs text-slate-400 italic py-2">
+                          No files attached to this study material.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
 
       {/* Render overlay viewer when a file is selected for viewing */}
       {activeFile && (
