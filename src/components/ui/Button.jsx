@@ -7,6 +7,7 @@ const buttonVariants = (variant = "default", size = "default") => {
     const variants = {
         default: "bg-gradient-to-r from-[#0060AA] to-[#004E8A] text-white hover:opacity-90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        danger: "bg-red-500 text-white hover:bg-red-600",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",

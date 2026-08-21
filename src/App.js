@@ -128,6 +128,16 @@ const SystemManualCategoryList = lazyWithRetry(
   () => import("./pages/system-manual/SystemManualCategoryList"),
 );
 
+const StudyMaterialList = lazyWithRetry(
+  () => import("./pages/study-material/StudyMaterialList"),
+);
+const CreateStudyMaterial = lazyWithRetry(
+  () => import("./pages/study-material/CreateStudyMaterial"),
+);
+const EditStudyMaterial = lazyWithRetry(
+  () => import("./pages/study-material/EditStudyMaterial"),
+);
+
 const NominatorList = lazyWithRetry(() => import("./pages/nominators/NominatorList"));
 const CreateNominator = lazyWithRetry(
   () => import("./pages/nominators/CreateNominator"),
@@ -718,6 +728,32 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
                     <SystemManualCategoryList />
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Study Material Routes */}
+              <Route
+                path="/study-material"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <StudyMaterialList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/study-material/add"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <CreateStudyMaterial />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/study-material/edit/:id"
+                element={
+                  <PrivateRoute allowedRoles={["SuperAdmin", "Admin", "admin"]}>
+                    <EditStudyMaterial />
                   </PrivateRoute>
                 }
               />
