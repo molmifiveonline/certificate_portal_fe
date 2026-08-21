@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { studyMaterialService } from "../../services/studyMaterialService";
 import { toast } from "sonner";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
-import { FileText, Eye, Download, BookOpen, Clock, ChevronDown, Folder } from "lucide-react";
+import { FileText, Eye, Download, BookOpen, Clock, ChevronDown, Folder, Video, Music, Image as ImageIcon, File } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import SecureDocumentViewer from "./SecureDocumentViewer";
@@ -180,14 +180,30 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
                       {material.files && material.files.length > 0 ? (
                         material.files.map((file) => {
                           const fileUrl = `${API_URL}/uploads/study_material/${file.file_name}`;
+                          const ext = (file.file_original_name || file.file_name || "").split(".").pop().toLowerCase();
+                          const isImg = ["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp"].includes(ext);
+                          const isVid = ["mp4", "webm", "mkv", "mov", "avi", "m4v"].includes(ext);
+                          const isAud = ["mp3", "wav", "ogg", "aac", "m4a", "flac"].includes(ext);
+                          const isPdf = ext === "pdf";
+
                           return (
                             <div
                               key={file.id}
                               className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 border border-slate-100 rounded-lg bg-slate-50/40 hover:bg-slate-50 transition-colors"
                             >
                               <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-                                  <FileText className="w-4 h-4 text-indigo-600" />
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                  isImg ? "bg-emerald-50 text-emerald-600" :
+                                  isVid ? "bg-purple-50 text-purple-600" :
+                                  isAud ? "bg-pink-50 text-pink-600" :
+                                  isPdf ? "bg-rose-50 text-rose-600" :
+                                  "bg-indigo-50 text-indigo-600"
+                                }`}>
+                                  {isImg ? <ImageIcon className="w-4 h-4" /> :
+                                   isVid ? <Video className="w-4 h-4" /> :
+                                   isAud ? <Music className="w-4 h-4" /> :
+                                   isPdf ? <FileText className="w-4 h-4" /> :
+                                   <File className="w-4 h-4" />}
                                 </div>
                                 <div className="min-w-0">
                                   <p
@@ -210,6 +226,7 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
                                       url: fileUrl,
                                       name:
                                         file.display_name || file.file_original_name,
+                                      originalName: file.file_original_name,
                                       accessType: material.access_type,
                                     })
                                   }
@@ -258,6 +275,7 @@ const StudyMaterialViewer = ({ masterCourseId, userType }) => {
         <SecureDocumentViewer
           fileUrl={activeFile.url}
           fileName={activeFile.name}
+          originalName={activeFile.originalName}
           accessType={activeFile.accessType}
           onClose={() => setActiveFile(null)}
         />
