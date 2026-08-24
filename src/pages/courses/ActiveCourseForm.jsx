@@ -33,7 +33,8 @@ import MultiSelectInput from "./components/MultiSelectInput";
 import CandidatesTab from "./components/CandidatesTab";
 import AttendanceTab from "./components/AttendanceTab";
 import AssessmentTab from "./components/AssessmentTab";
-import StudyMaterialViewer from "../../components/study-material/StudyMaterialViewer";
+// Temporarily hidden: Study Materials tab for admin/trainer.
+// import StudyMaterialViewer from "../../components/study-material/StudyMaterialViewer";
 import FeedbackTab from "./components/FeedbackTab";
 import CertificateTab from "./components/CertificateTab";
 import CandidateDeleteModal from "./components/CandidateDeleteModal";
@@ -101,6 +102,11 @@ const ActiveCourseForm = () => {
   const isTrainerCourseReadOnly = isTrainerRole && isTrainerCourseRoute;
 
   const typeOfLocation = watch("type_of_location");
+  const normalizedTypeOfLocation = String(typeOfLocation || "").toLowerCase();
+  const showOnlineMeetingFields =
+    normalizedTypeOfLocation === "online" ||
+    normalizedTypeOfLocation === "hybrid" ||
+    normalizedTypeOfLocation === "hybride";
   const selectedTopic = watch("topic");
   const startDate = watch("start_date");
   const endDate = watch("end_date");
@@ -508,7 +514,8 @@ const ActiveCourseForm = () => {
 
   const courseTabs = [
     { id: "details", label: "Details" },
-    { id: "study-materials", label: "Study Materials" },
+    // Temporarily hidden: Study Materials tab for admin/trainer.
+    // { id: "study-materials", label: "Study Materials" },
     { id: "candidates", label: "Candidates" },
     { id: "attendance", label: "Attendance" },
     {
@@ -802,42 +809,42 @@ const ActiveCourseForm = () => {
                           />
                         )}
 
-                        {typeOfLocation === "Online" && (
-                          <>
-                            <div className="grid grid-cols-2 gap-4">
-                              <InputField
-                                label="Zoom Link"
-                                name="zoom_link"
-                                disabled={isTrainerCourseReadOnly}
-                                register={register}
-                                errors={errors}
-                              />
-                              <InputField
-                                label="WhatsApp Group"
-                                name="whatsapp_link"
-                                required
-                                disabled={isTrainerCourseReadOnly}
-                                register={register}
-                                errors={errors}
-                              />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <InputField
-                                label="Zoom ID"
-                                name="zoom_username"
-                                disabled={isTrainerCourseReadOnly}
-                                register={register}
-                                errors={errors}
-                              />
-                              <InputField
-                                label="Zoom Password"
-                                name="zoom_password"
-                                disabled={isTrainerCourseReadOnly}
-                                register={register}
-                                errors={errors}
-                              />
-                            </div>
-                          </>
+                        <div className="grid grid-cols-2 gap-4">
+                          {showOnlineMeetingFields && (
+                            <InputField
+                              label="Zoom Link"
+                              name="zoom_link"
+                              disabled={isTrainerCourseReadOnly}
+                              register={register}
+                              errors={errors}
+                            />
+                          )}
+                          <InputField
+                            label="WhatsApp Group"
+                            name="whatsapp_link"
+                            required
+                            disabled={isTrainerCourseReadOnly}
+                            register={register}
+                            errors={errors}
+                          />
+                        </div>
+                        {showOnlineMeetingFields && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <InputField
+                              label="Zoom ID"
+                              name="zoom_username"
+                              disabled={isTrainerCourseReadOnly}
+                              register={register}
+                              errors={errors}
+                            />
+                            <InputField
+                              label="Zoom Password"
+                              name="zoom_password"
+                              disabled={isTrainerCourseReadOnly}
+                              register={register}
+                              errors={errors}
+                            />
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1103,7 +1110,7 @@ const ActiveCourseForm = () => {
             <CertificateTab courseId={id} isTrainerRole={isTrainerRole} />
           )}
 
-          {/* Study Materials Tab */}
+          {/* Temporarily hidden: Study Materials tab for admin/trainer.
           {activeTab === "study-materials" && (
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
               <div className="flex items-center gap-2 mb-6 text-lg font-bold text-slate-800">
@@ -1113,6 +1120,7 @@ const ActiveCourseForm = () => {
               <StudyMaterialViewer masterCourseId={watch("topic")} userType="trainer" />
             </div>
           )}
+          */}
         </div>
 
         {/* Modals */}

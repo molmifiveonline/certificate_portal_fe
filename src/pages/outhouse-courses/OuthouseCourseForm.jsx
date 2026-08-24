@@ -5,7 +5,6 @@ import {
   FileText,
   Mail,
   MapPin,
-  Plus,
   Save,
   ShieldCheck,
   Trash2,
@@ -18,6 +17,7 @@ import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import BackButton from "../../components/common/BackButton";
 import { Button } from "../../components/ui/Button";
+import { Checkbox } from "../../components/ui/Checkbox";
 import {
   Card,
   CardContent,
@@ -26,6 +26,7 @@ import {
 } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import SearchableSelect from "../../components/ui/SearchableSelect";
+import TablePagination from "../../components/ui/TablePagination";
 import {
   Tabs,
   TabsContent,
@@ -468,6 +469,9 @@ const OuthouseCourseForm = () => {
   const [courseCandidates, setCourseCandidates] = useState([]);
   const [candidateOptions, setCandidateOptions] = useState([]);
   const [candidateSearch, setCandidateSearch] = useState("");
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState([]);
+  const [candidateOptionPage, setCandidateOptionPage] = useState(1);
+  const [candidateOptionLimit, setCandidateOptionLimit] = useState(10);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
   const [addingCandidate, setAddingCandidate] = useState(false);
   const [sendingWelcomeId, setSendingWelcomeId] = useState(null);
@@ -754,6 +758,19 @@ const OuthouseCourseForm = () => {
   }, [candidateSearch]);
 
   useEffect(() => {
+    setCandidateOptionPage(1);
+  }, [debouncedCandidateSearch]);
+
+  useEffect(() => {
+    const enrolledCandidateIds = new Set(
+      courseCandidates.map((candidate) => candidate.id),
+    );
+    setSelectedCandidateIds((current) =>
+      current.filter((candidateId) => !enrolledCandidateIds.has(candidateId)),
+    );
+  }, [courseCandidates]);
+
+  useEffect(() => {
     if (!id || activeTab !== "candidates") return;
     loadCandidateOptions(debouncedCandidateSearch);
   }, [activeTab, debouncedCandidateSearch, id, loadCandidateOptions]);
@@ -917,25 +934,36 @@ const OuthouseCourseForm = () => {
     }
   };
 
-  const handleAddCandidate = async (candidateId) => {
+  const handleAddSelectedCandidates = async () => {
     if (!id) return toast.error("Save the course before adding candidates");
     if (!candidateModificationAllowed)
       return toast.error(
         "Candidates can be added only till the last day of course",
       );
-    if (!candidateId) return toast.error("Select a candidate first");
+    const enrolledCandidateIds = new Set(
+      courseCandidates.map((candidate) => candidate.id),
+    );
+    const candidateIds = selectedCandidateIds.filter(
+      (candidateId) => !enrolledCandidateIds.has(candidateId),
+    );
+    if (candidateIds.length === 0)
+      return toast.error("Select at least one candidate first");
+
     setAddingCandidate(true);
     try {
       await outhouseCourseService.addCandidates(id, {
-        candidateIds: [candidateId],
+        candidateIds,
       });
       if (onlineCourse) {
         toast.success(
-          "Candidate added. Welcome letter will be sent automatically.",
+          `${candidateIds.length} candidate${candidateIds.length === 1 ? "" : "s"} added. Welcome letter will be sent automatically.`,
         );
       } else {
-        toast.success("Candidate added");
+        toast.success(
+          `${candidateIds.length} candidate${candidateIds.length === 1 ? "" : "s"} added`,
+        );
       }
+      setSelectedCandidateIds([]);
       await Promise.all([
         loadCandidates(),
         loadCandidateOptions(debouncedCandidateSearch),
@@ -1033,18 +1061,18 @@ const OuthouseCourseForm = () => {
         current.map((candidate) =>
           candidate.id === venueState.candidateId
             ? {
-                ...candidate,
-                venue_details_completed: true,
-                venue_name: venueDetails.hotel_name || candidate.venue_name,
-                venue_address:
-                  venueDetails.hotel_address || candidate.venue_address,
-                venue_contact:
-                  venueDetails.hotel_contact || candidate.venue_contact,
-                venue_email: venueDetails.hotel_email || candidate.venue_email,
-                offline_date:
-                  venueDetails.offline_date || candidate.offline_date,
-                remarks: venueDetails.remarks || candidate.remarks,
-              }
+              ...candidate,
+              venue_details_completed: true,
+              venue_name: venueDetails.hotel_name || candidate.venue_name,
+              venue_address:
+                venueDetails.hotel_address || candidate.venue_address,
+              venue_contact:
+                venueDetails.hotel_contact || candidate.venue_contact,
+              venue_email: venueDetails.hotel_email || candidate.venue_email,
+              offline_date:
+                venueDetails.offline_date || candidate.offline_date,
+              remarks: venueDetails.remarks || candidate.remarks,
+            }
             : candidate,
         ),
       );
@@ -1060,12 +1088,12 @@ const OuthouseCourseForm = () => {
       current.map((row) =>
         row.candidate_id === candidateId
           ? {
-              ...row,
-              days: {
-                ...row.days,
-                [date]: { ...row.days[date], [key]: value },
-              },
-            }
+            ...row,
+            days: {
+              ...row.days,
+              [date]: { ...row.days[date], [key]: value },
+            },
+          }
           : row,
       ),
     );
@@ -1181,22 +1209,73 @@ const OuthouseCourseForm = () => {
     }
   };
 
-  const filteredCandidateOptions = candidateOptions.filter(
-    (candidate) =>
-      !courseCandidates.some((existing) => existing.id === candidate.id),
+  const filteredCandidateOptions = useMemo(
+    () =>
+      candidateOptions.filter(
+        (candidate) =>
+          !courseCandidates.some((existing) => existing.id === candidate.id),
+      ),
+    [candidateOptions, courseCandidates],
   );
+  const candidateOptionTotalPages = Math.max(
+    1,
+    Math.ceil(filteredCandidateOptions.length / candidateOptionLimit),
+  );
+  const paginatedCandidateOptions = useMemo(() => {
+    const start = (candidateOptionPage - 1) * candidateOptionLimit;
+    return filteredCandidateOptions.slice(
+      start,
+      start + candidateOptionLimit,
+    );
+  }, [candidateOptionLimit, candidateOptionPage, filteredCandidateOptions]);
+  const visibleCandidateIds = paginatedCandidateOptions
+    .map((candidate) => candidate.id)
+    .filter(Boolean);
+  const allVisibleCandidatesSelected =
+    visibleCandidateIds.length > 0 &&
+    visibleCandidateIds.every((candidateId) =>
+      selectedCandidateIds.includes(candidateId),
+    );
+
+  useEffect(() => {
+    if (candidateOptionPage > candidateOptionTotalPages) {
+      setCandidateOptionPage(candidateOptionTotalPages);
+    }
+  }, [candidateOptionPage, candidateOptionTotalPages]);
+
+  const handleCandidateSelection = (candidateId, checked) => {
+    if (!candidateId) return;
+    setSelectedCandidateIds((current) => {
+      if (checked) {
+        return current.includes(candidateId)
+          ? current
+          : [...current, candidateId];
+      }
+      return current.filter((id) => id !== candidateId);
+    });
+  };
+
+  const handleVisibleCandidateSelection = (checked) => {
+    setSelectedCandidateIds((current) => {
+      if (checked) {
+        return [...new Set([...current, ...visibleCandidateIds])];
+      }
+      const visibleIds = new Set(visibleCandidateIds);
+      return current.filter((candidateId) => !visibleIds.has(candidateId));
+    });
+  };
 
   const manualFeedbackRows =
     feedbackData.listing.length > 0
       ? feedbackData.listing
       : courseCandidates.map((candidate, index) => ({
-          sr_no: index + 1,
-          active_course_name: formData.course_name,
-          employee_id: candidate.empId,
-          employee_name: candidate.candidate_name,
-          average_rating: "-",
-          candidate_id: candidate.id,
-        }));
+        sr_no: index + 1,
+        active_course_name: formData.course_name,
+        employee_id: candidate.empId,
+        employee_name: candidate.candidate_name,
+        average_rating: "-",
+        candidate_id: candidate.id,
+      }));
 
   if (initialLoading) {
     return (
@@ -1241,12 +1320,18 @@ const OuthouseCourseForm = () => {
             </CardHeader>
             <CardContent className="space-y-6 p-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <InputField
-                  label="Course ID"
-                  value={formData.course_id || courseIdPreview}
-                  readOnly
-                  className="md:col-span-2"
+                <SelectField
+                  label="Master Course Name"
+                  required
+                  value={formData.master_course_id}
+                  onChange={(event) =>
+                    handleMasterCourseSelection(event.target.value)
+                  }
+                  options={masterCourseOptions}
+                  error={errors.master_course_id}
+                  placeholder="Select master course"
                 />
+
               </div>
 
               {formData.creation_mode === "conversion" ? (
@@ -1272,16 +1357,11 @@ const OuthouseCourseForm = () => {
                   onChange={handleFormChange}
                   error={errors.topic}
                 />
-                <SelectField
-                  label="Master Course Name"
-                  required
-                  value={formData.master_course_id}
-                  onChange={(event) =>
-                    handleMasterCourseSelection(event.target.value)
-                  }
-                  options={masterCourseOptions}
-                  error={errors.master_course_id}
-                  placeholder="Select master course"
+                <InputField
+                  label="Course ID"
+                  value={formData.course_id || courseIdPreview}
+                  readOnly
+                  className=""
                 />
                 <InputField
                   label="Course Name"
@@ -1581,29 +1661,65 @@ const OuthouseCourseForm = () => {
                 ) : null}
 
                 <div className="space-y-4">
-                  <div className="w-full lg:w-80">
-                    <FieldLabel label="Search Candidate" />
-                    <Input
-                      value={candidateSearch}
-                      onChange={(event) =>
-                        setCandidateSearch(event.target.value)
-                      }
-                      placeholder="Search employee id or candidate name"
-                      className="h-11 rounded-xl border-slate-200"
-                    />
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="w-full lg:w-80">
+                      <FieldLabel label="Search Candidate" />
+                      <Input
+                        value={candidateSearch}
+                        onChange={(event) =>
+                          setCandidateSearch(event.target.value)
+                        }
+                        placeholder="Search employee id or candidate name"
+                        className="h-11 rounded-xl border-slate-200"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <span className="text-sm font-medium text-slate-500">
+                        {selectedCandidateIds.length} selected
+                      </span>
+                      <Button
+                        type="button"
+                        className="gap-2"
+                        onClick={handleAddSelectedCandidates}
+                        disabled={
+                          !candidateModificationAllowed ||
+                          addingCandidate ||
+                          selectedCandidateIds.length === 0
+                        }
+                      >
+                        {addingCandidate ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Adding...
+                          </>
+                        ) : (
+                          <>Add Selected Candidates</>
+                        )}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="overflow-x-auto rounded-2xl border border-slate-200">
-                    <table className="w-full min-w-[1050px] text-left text-sm">
+                    <table className="w-full min-w-[980px] text-left text-sm">
                       <thead className="bg-slate-50 text-slate-600">
                         <tr>
+                          <th className="w-12 px-4 py-3">
+                            <Checkbox
+                              aria-label="Select visible candidates"
+                              checked={allVisibleCandidatesSelected}
+                              disabled={
+                                !candidateModificationAllowed ||
+                                visibleCandidateIds.length === 0
+                              }
+                              onCheckedChange={handleVisibleCandidateSelection}
+                            />
+                          </th>
                           <th className="px-4 py-3">Employee ID</th>
                           <th className="px-4 py-3">Candidate Name</th>
                           <th className="px-4 py-3">Passport</th>
                           <th className="px-4 py-3">Seaman No.</th>
                           <th className="px-4 py-3">Rank</th>
                           <th className="px-4 py-3">Manager</th>
-                          <th className="px-4 py-3 text-right">Add</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
@@ -1617,8 +1733,26 @@ const OuthouseCourseForm = () => {
                             </td>
                           </tr>
                         ) : (
-                          filteredCandidateOptions.map((candidate) => (
+                          paginatedCandidateOptions.map((candidate) => (
                             <tr key={candidate.id} className="bg-white">
+                              <td className="px-4 py-3">
+                                <Checkbox
+                                  aria-label={`Select ${candidate.candidate_name}`}
+                                  checked={selectedCandidateIds.includes(
+                                    candidate.id,
+                                  )}
+                                  disabled={
+                                    !candidateModificationAllowed ||
+                                    addingCandidate
+                                  }
+                                  onCheckedChange={(checked) =>
+                                    handleCandidateSelection(
+                                      candidate.id,
+                                      checked,
+                                    )
+                                  }
+                                />
+                              </td>
                               <td className="px-4 py-3 font-medium text-slate-700">
                                 {candidate.empId}
                               </td>
@@ -1633,29 +1767,25 @@ const OuthouseCourseForm = () => {
                               </td>
                               <td className="px-4 py-3">{candidate.rank}</td>
                               <td className="px-4 py-3">{candidate.manager}</td>
-                              <td className="px-4 py-3 text-right">
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  className="gap-2"
-                                  onClick={() =>
-                                    handleAddCandidate(candidate.id)
-                                  }
-                                  disabled={
-                                    !candidateModificationAllowed ||
-                                    addingCandidate
-                                  }
-                                >
-                                  <Plus className="h-4 w-4" />
-                                  {addingCandidate ? "Adding..." : "Add"}
-                                </Button>
-                              </td>
                             </tr>
                           ))
                         )}
                       </tbody>
                     </table>
                   </div>
+                  {filteredCandidateOptions.length > 0 ? (
+                    <TablePagination
+                      currentPage={candidateOptionPage}
+                      totalPages={candidateOptionTotalPages}
+                      totalCount={filteredCandidateOptions.length}
+                      limit={candidateOptionLimit}
+                      onPageChange={setCandidateOptionPage}
+                      onLimitChange={(newLimit) => {
+                        setCandidateOptionLimit(newLimit);
+                        setCandidateOptionPage(1);
+                      }}
+                    />
+                  ) : null}
                 </div>
 
                 <div className="overflow-x-auto rounded-2xl border border-slate-200">
