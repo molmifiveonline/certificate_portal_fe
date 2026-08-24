@@ -16,6 +16,7 @@ const getInitialVenueDetails = (data, courseDates = {}) => ({
   venue_map_link: data?.venue_map_link || "",
   from_date: formatDateInputValue(data?.from_date || courseDates.start_date),
   to_date: formatDateInputValue(data?.to_date || courseDates.end_date),
+  cost: data?.cost || "",
   remarks: data?.remarks || "",
 });
 
@@ -33,6 +34,20 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
     setSelectedHotelId("");
     setVenueDetails(getInitialVenueDetails(data, courseDates));
   }, [courseDates, data, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !data || hotels.length === 0) return;
+
+    const matchedHotel = hotels.find((hotel) => {
+      const sameName = hotel.venue_name === data.venue_name;
+      const sameAddress = !data.venue_address || hotel.venue_address === data.venue_address;
+      const sameContact = !data.venue_contact || hotel.venue_contact === data.venue_contact;
+      const sameEmail = !data.venue_email || hotel.email === data.venue_email;
+      return sameName && sameAddress && sameContact && sameEmail;
+    });
+
+    setSelectedHotelId(matchedHotel?.id || "");
+  }, [data, hotels, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -135,7 +150,7 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
             value={venueDetails.venue_name}
             onChange={handleFieldChange}
             placeholder="e.g. Hotel ..."
-            disabled
+            readOnly
           />
           <InputField
             label="Venue Address"
@@ -144,7 +159,7 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
             rows={3}
             value={venueDetails.venue_address}
             onChange={handleFieldChange}
-            disabled
+            readOnly
           />
           <div className="grid grid-cols-2 gap-4">
             <InputField
@@ -152,7 +167,7 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
               name="venue_contact"
               value={venueDetails.venue_contact}
               onChange={handleFieldChange}
-              disabled
+              readOnly
             />
             <InputField
               label="Email"
@@ -166,7 +181,7 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
             name="venue_map_link"
             value={venueDetails.venue_map_link}
             onChange={handleFieldChange}
-            disabled
+            readOnly
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -187,6 +202,14 @@ const VenueModal = ({ isOpen, onClose, onSubmit, data, courseDates }) => {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
+            <InputField
+              label="Cost"
+              name="cost"
+              type="number"
+              value={venueDetails.cost}
+              onChange={handleFieldChange}
+              placeholder="Enter cost"
+            />
             <InputField
               label="Remarks"
               name="remarks"
