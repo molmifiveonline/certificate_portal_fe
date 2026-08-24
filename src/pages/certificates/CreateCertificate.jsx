@@ -17,6 +17,8 @@ import { toast } from "sonner";
 const supportsStampLogo = (type) =>
   type === "DNV-ST0029" || type === "DNV-ST008";
 
+const CERTIFICATE_STATUS_POOL_OPTIONS = ["LNG", "LPG", "DRY", "TANKERS"];
+
 const getCertificateTypeHint = (type) => {
   if (type === "SIGTTO / LNG") {
     return "Certificate number is generated as MOLTC (Trainer Nation)- LNG(Year)-(Candidate Nation)-####.";
@@ -59,6 +61,7 @@ const CreateCertificate = () => {
     description1: "",
     show_logo: 1,
     status: 0,
+    status_pool: "",
     is_hidden: 0,
   });
 
@@ -582,6 +585,26 @@ const CreateCertificate = () => {
                   >
                     <option value={0}>Valid</option>
                     <option value={1}>Invalid</option>
+                  </select>
+                </div>
+
+                {/* Status Pool */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">
+                    Status Pool
+                  </label>
+                  <select
+                    name="status_pool"
+                    value={formData.status_pool}
+                    onChange={handleChange}
+                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                  >
+                    <option value="">Select Status Pool</option>
+                    {CERTIFICATE_STATUS_POOL_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
