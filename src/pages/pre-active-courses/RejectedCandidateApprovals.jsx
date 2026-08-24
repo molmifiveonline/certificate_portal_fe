@@ -270,12 +270,6 @@ const RejectedCandidateApprovals = () => {
       render: (value) => value || "N/A",
     },
     {
-      key: "previous_certificate_date",
-      label: "Certificate Date",
-      align: "center",
-      render: (value) => formatDate(value),
-    },
-    {
       key: "rejection_reason",
       label: "Rejection Reason",
       sortable: true,

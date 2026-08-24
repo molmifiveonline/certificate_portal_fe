@@ -200,9 +200,14 @@ const FeedbackCourseList = lazyWithRetry(
 
 
 
+const CandidateNominations = lazyWithRetry(
+  () => import("./pages/candidates/CandidateNominations"),
+);
+
 const CandidateCourseList = lazyWithRetry(
   () => import("./pages/candidates/CandidateCourseList"),
 );
+
 
 const CandidateCertificateList = lazyWithRetry(
   () => import("./pages/candidates/CandidateCertificateList"),
@@ -1119,6 +1124,14 @@ function App() {
               />
 
               <Route
+                path="/candidate-nominations"
+                element={
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                    <CandidateNominations />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/candidate-courses"
                 element={
                   <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
@@ -1126,6 +1139,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
+
               <Route
                 path="/candidate-course/:id"
                 element={

@@ -157,6 +157,22 @@ const preActiveCourseService = {
     const response = await api.post(`/pre-active/${id}/add-candidate`, data);
     return response.data;
   },
+
+  getCandidateNominations: async (params) => {
+    const response = await api.get("/pre-active/candidate/nominations", {
+      params,
+    });
+    return response.data;
+  },
+
+  submitCandidateNominationDecision: async (enrollmentId, data) => {
+    const response = await api.post(
+      `/pre-active/candidate/nomination/${enrollmentId}/decision`,
+      data,
+    );
+    return response.data;
+  },
 };
 
 export default preActiveCourseService;
+
