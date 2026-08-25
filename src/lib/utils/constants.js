@@ -41,11 +41,10 @@ export const COURSE_TYPES = [
 ];
 
 export const STATUS_POOL_OPTIONS = [
-  "Selected",
-  "Confirmed",
-  "Standby",
-  "Waitlisted",
-  "Completed",
+  "LNG",
+  "LPG",
+  "DRY",
+  "TANKERS",
 ];
 
 export const FEEDBACK_COURSE_MODE_OPTIONS = ["Online", "Offline"];

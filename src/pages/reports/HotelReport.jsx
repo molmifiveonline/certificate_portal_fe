@@ -163,21 +163,37 @@ const HotelReport = () => {
         ),
       },
       {
-        key: "course_dates",
-        label: "Course Dates",
+        key: "start_date",
+        label: "Start Date",
         render: (_val, row) => (
           <span className="text-slate-600 text-sm">
-            {row.start_date ? formatDate(row.start_date) : "-"} to{" "}
+            {row.start_date ? formatDate(row.start_date) : "-"}
+          </span>
+        ),
+      },
+      {
+        key: "end_date",
+        label: "End Date",
+        render: (_val, row) => (
+          <span className="text-slate-600 text-sm">
             {row.end_date ? formatDate(row.end_date) : "-"}
           </span>
         ),
       },
       {
-        key: "hotel_dates",
-        label: "Hotel Stay Dates",
+        key: "hotel_from_date",
+        label: "Hotel Check-in",
         render: (_val, row) => (
           <span className="text-sky-600 font-medium text-sm">
-            {row.hotel_from_date ? formatDate(row.hotel_from_date) : "-"} to{" "}
+            {row.hotel_from_date ? formatDate(row.hotel_from_date) : "-"}
+          </span>
+        ),
+      },
+      {
+        key: "hotel_to_date",
+        label: "Hotel Check-out",
+        render: (_val, row) => (
+          <span className="text-sky-600 font-medium text-sm">
             {row.hotel_to_date ? formatDate(row.hotel_to_date) : "-"}
           </span>
         ),
