@@ -70,6 +70,14 @@ const activeCourseService = {
     return response.data;
   },
 
+  updateLastVessel: async (id, candidateId, lastVessel) => {
+    const response = await api.put(
+      `/active-courses/${id}/candidates/${candidateId}/last-vessel`,
+      { lastVessel },
+    );
+    return response.data;
+  },
+
   updateObserverStatus: async (id, candidateId, isObserver) => {
     const response = await api.put(
       `/active-courses/${id}/candidates/${candidateId}/observer`,

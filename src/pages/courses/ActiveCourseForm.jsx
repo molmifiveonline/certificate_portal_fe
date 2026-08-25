@@ -102,11 +102,7 @@ const ActiveCourseForm = () => {
   const isTrainerCourseReadOnly = isTrainerRole && isTrainerCourseRoute;
 
   const typeOfLocation = watch("type_of_location");
-  const normalizedTypeOfLocation = String(typeOfLocation || "").toLowerCase();
-  const showOnlineMeetingFields =
-    normalizedTypeOfLocation === "online" ||
-    normalizedTypeOfLocation === "hybrid" ||
-    normalizedTypeOfLocation === "hybride";
+
   const selectedTopic = watch("topic");
   const startDate = watch("start_date");
   const endDate = watch("end_date");
@@ -195,6 +191,8 @@ const ActiveCourseForm = () => {
               : "",
             whatsapp_link: course.whatsapp_link || "",
             zoom_link: course.zoom_link || "",
+            zoom_username: course.zoom_username || "",
+            zoom_password: course.zoom_password || "",
             status: course.status || "Initiated",
             primary_trainer_id: course.primary_trainer_id || "",
             secondary_trainer_ids: course.secondary_trainer_ids
@@ -357,6 +355,20 @@ const ActiveCourseForm = () => {
       toast.success("Status pool updated");
     } catch (error) {
       toast.error(getErrorMessage(error, "Failed to update status pool"));
+    }
+  };
+
+  const handleLastVesselChange = async (candidateId, newLastVessel) => {
+    try {
+      await activeCourseService.updateLastVessel(id, candidateId, newLastVessel);
+      setEnrolledCandidates((prev) =>
+        prev.map((c) =>
+          c.candidate_id === candidateId ? { ...c, last_vessel: newLastVessel } : c,
+        ),
+      );
+      toast.success("Last vessel updated");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to update last vessel"));
     }
   };
 
@@ -810,15 +822,13 @@ const ActiveCourseForm = () => {
                         )}
 
                         <div className="grid grid-cols-2 gap-4">
-                          {showOnlineMeetingFields && (
-                            <InputField
-                              label="Zoom Link"
-                              name="zoom_link"
-                              disabled={isTrainerCourseReadOnly}
-                              register={register}
-                              errors={errors}
-                            />
-                          )}
+                          <InputField
+                            label="Zoom Link"
+                            name="zoom_link"
+                            disabled={isTrainerCourseReadOnly}
+                            register={register}
+                            errors={errors}
+                          />
                           <InputField
                             label="WhatsApp Group"
                             name="whatsapp_link"
@@ -828,24 +838,22 @@ const ActiveCourseForm = () => {
                             errors={errors}
                           />
                         </div>
-                        {showOnlineMeetingFields && (
-                          <div className="grid grid-cols-2 gap-4">
-                            <InputField
-                              label="Zoom ID"
-                              name="zoom_username"
-                              disabled={isTrainerCourseReadOnly}
-                              register={register}
-                              errors={errors}
-                            />
-                            <InputField
-                              label="Zoom Password"
-                              name="zoom_password"
-                              disabled={isTrainerCourseReadOnly}
-                              register={register}
-                              errors={errors}
-                            />
-                          </div>
-                        )}
+                        <div className="grid grid-cols-2 gap-4">
+                          <InputField
+                            label="Zoom ID"
+                            name="zoom_username"
+                            disabled={isTrainerCourseReadOnly}
+                            register={register}
+                            errors={errors}
+                          />
+                          <InputField
+                            label="Zoom Password"
+                            name="zoom_password"
+                            disabled={isTrainerCourseReadOnly}
+                            register={register}
+                            errors={errors}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -893,51 +901,61 @@ const ActiveCourseForm = () => {
                       </div>
                     </div>
 
-                    {id && (courseData?.trainer_material_link || (!isTrainerRole && (courseData?.candidate_material_link || courseData?.study_material_link))) && (
+                    {id && (
                       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                         <div className="flex items-center gap-2 mb-6 text-lg font-bold text-slate-800">
                           <BookOpen size={20} className="text-blue-600" />
                           <h3>Course Material Links</h3>
                         </div>
                         <div className="space-y-4">
-                          {courseData?.trainer_material_link && (
-                            <div>
-                              <span className="text-sm font-semibold text-slate-700 block">Trainer Material Link:</span>
+                          <div>
+                            <span className="text-sm font-semibold text-slate-700 block">Trainer Material Link:</span>
+                            {courseData?.trainer_material_link ? (
                               <a
-                                href={courseData.trainer_material_link}
+                                href={courseData.trainer_material_link.startsWith("http") ? courseData.trainer_material_link : `https://${courseData.trainer_material_link}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-sm text-blue-600 hover:underline break-all"
                               >
                                 {courseData.trainer_material_link}
                               </a>
-                            </div>
-                          )}
-                          {!isTrainerRole && courseData?.candidate_material_link && (
-                            <div>
-                              <span className="text-sm font-semibold text-slate-700 block">Candidate Material Link:</span>
-                              <a
-                                href={courseData.candidate_material_link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-blue-600 hover:underline break-all"
-                              >
-                                {courseData.candidate_material_link}
-                              </a>
-                            </div>
-                          )}
-                          {!isTrainerRole && courseData?.study_material_link && (
-                            <div>
-                              <span className="text-sm font-semibold text-slate-700 block">Study Material Link:</span>
-                              <a
-                                href={courseData.study_material_link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-blue-600 hover:underline break-all"
-                              >
-                                {courseData.study_material_link}
-                              </a>
-                            </div>
+                            ) : (
+                              <span className="text-sm text-slate-400">-</span>
+                            )}
+                          </div>
+                          {!isTrainerRole && (
+                            <>
+                              <div>
+                                <span className="text-sm font-semibold text-slate-700 block">Candidate Material Link:</span>
+                                {courseData?.candidate_material_link ? (
+                                  <a
+                                    href={courseData.candidate_material_link.startsWith("http") ? courseData.candidate_material_link : `https://${courseData.candidate_material_link}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-blue-600 hover:underline break-all"
+                                  >
+                                    {courseData.candidate_material_link}
+                                  </a>
+                                ) : (
+                                  <span className="text-sm text-slate-400">-</span>
+                                )}
+                              </div>
+                              <div>
+                                <span className="text-sm font-semibold text-slate-700 block">Study Material Link:</span>
+                                {courseData?.study_material_link ? (
+                                  <a
+                                    href={courseData.study_material_link.startsWith("http") ? courseData.study_material_link : `https://${courseData.study_material_link}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-blue-600 hover:underline break-all"
+                                  >
+                                    {courseData.study_material_link}
+                                  </a>
+                                ) : (
+                                  <span className="text-sm text-slate-400">-</span>
+                                )}
+                              </div>
+                            </>
                           )}
                         </div>
                       </div>
@@ -1080,6 +1098,7 @@ const ActiveCourseForm = () => {
                 setDeleteModal({ isOpen: true, candidateId: cid, remark: "" })
               }
               onStatusPoolChange={handleStatusPoolChange}
+              onLastVesselChange={handleLastVesselChange}
               onObserverToggle={handleObserverToggle}
               onBulkEmail={handleSendBulkOnlineEmail}
               isTrainerRole={isTrainerRole}

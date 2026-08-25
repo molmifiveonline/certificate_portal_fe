@@ -6,6 +6,7 @@ const buttonVariants = (variant = "default", size = "default") => {
 
     const variants = {
         default: "bg-gradient-to-r from-[#0060AA] to-[#004E8A] text-white hover:opacity-90",
+        primary: "bg-gradient-to-r from-[#0060AA] to-[#004E8A] text-white hover:opacity-90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         danger: "bg-red-500 text-white hover:bg-red-600",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
@@ -21,7 +22,7 @@ const buttonVariants = (variant = "default", size = "default") => {
         icon: "h-10 w-10",
     }
 
-    return cn(base, variants[variant], sizes[size])
+    return cn(base, variants[variant] || variants.default, sizes[size])
 }
 
 const Button = React.forwardRef(({ className, variant = "default", size = "default", ...props }, ref) => {
