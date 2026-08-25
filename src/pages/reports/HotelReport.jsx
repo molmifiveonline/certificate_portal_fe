@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import { Helmet } from "react-helmet-async";
 import PageHeader from "../../components/common/PageHeader";
-import { Search, Building2, SlidersHorizontal } from "lucide-react";
+import { Search, Building2, SlidersHorizontal, Download } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/Card";
 import { formatDate } from "../../lib/utils/dateUtils";
 import ReportService from "../../services/reportService";
@@ -14,6 +14,7 @@ import { debounce } from "lodash";
 const HotelReport = () => {
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState(""); // Hotel Name
@@ -80,9 +81,9 @@ const HotelReport = () => {
         limit: limit,
       });
 
-      setReportData(result.data);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
+      setReportData(result.data || []);
+      setTotalPages(result.totalPages || 1);
+      setTotalCount(result.totalCount ?? result.total ?? (result.data ? result.data.length : 0));
     } catch (error) {
       console.error("Error fetching hotel report:", error);
       toast.error(getErrorMessage(error, "Failed to load hotel report data"));
@@ -94,6 +95,31 @@ const HotelReport = () => {
   useEffect(() => {
     fetchReportData();
   }, [fetchReportData]);
+
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      const response = await ReportService.exportHotelReport({
+        hotel_name: debouncedHotel,
+        employee: debouncedEmployee,
+        course_name: debouncedCourse,
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Hotel_Report.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success("Hotel report exported successfully");
+    } catch (error) {
+      console.error("Export Error:", error);
+      toast.error(getErrorMessage(error, "Failed to export report"));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const columns = useMemo(
     () => [
@@ -146,6 +172,16 @@ const HotelReport = () => {
           </span>
         ),
       },
+      {
+        key: "hotel_dates",
+        label: "Hotel Stay Dates",
+        render: (_val, row) => (
+          <span className="text-sky-600 font-medium text-sm">
+            {row.hotel_from_date ? formatDate(row.hotel_from_date) : "-"} to{" "}
+            {row.hotel_to_date ? formatDate(row.hotel_to_date) : "-"}
+          </span>
+        ),
+      },
     ],
     [currentPage, limit],
   );
@@ -170,7 +206,7 @@ const HotelReport = () => {
         icon={Building2}
       />
 
-      <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-8 overflow-visible z-10">
+      <Card className="rounded-2xl border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm mb-6 overflow-visible z-10">
         <CardContent className="p-4 sm:p-6 space-y-4">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="relative w-full md:w-96">
@@ -183,13 +219,25 @@ const HotelReport = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-3 w-full md:w-auto">
+            <div className="flex gap-3 w-full md:w-auto items-center">
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${showFilters ? "bg-sky-50 border-sky-200 text-sky-700" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
                 title={showFilters ? "Hide Filters" : "Show Filters"}
               >
                 <SlidersHorizontal className="w-5 h-5" />
+              </button>
+              <button
+                onClick={handleExport}
+                disabled={exporting || reportData.length === 0}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-800 px-4 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
+              >
+                {exporting ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-white" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                Export
               </button>
             </div>
           </div>
@@ -230,6 +278,16 @@ const HotelReport = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Summary Count Above Table */}
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div className="text-sm font-medium text-slate-600 flex items-center gap-2">
+          <span>Total Allocations:</span>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
+            {totalCount} {totalCount === 1 ? "Record" : "Records"}
+          </span>
+        </div>
+      </div>
 
       {/* Table */}
       <DataTable

@@ -623,9 +623,9 @@ const NominatorPortal = () => {
 
       {/* Selection Pool Modal */}
       {isPoolModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
-            <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-b border-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh] my-auto">
+            <div className="bg-slate-50 px-4 sm:px-6 py-4 flex justify-between items-center border-b border-slate-100 shrink-0">
               <h3 className="font-bold text-slate-800 flex items-center gap-2">
                 <Users size={18} className="text-[#3a5f9e]" />
                 Select Candidates from Pool
@@ -638,28 +638,52 @@ const NominatorPortal = () => {
               </button>
             </div>
 
-            <div className="p-6 border-b border-slate-100 bg-white">
-              <div className="relative">
-                <Input
-                  placeholder="Search by name, email or INDoS..."
-                  value={poolSearch}
-                  onChange={(e) => setPoolSearch(e.target.value)}
-                  className="h-11 rounded-xl pl-10"
-                />
-                <Users
-                  size={16}
-                  className="absolute left-3.5 top-3.5 text-slate-300"
-                />
+            <div className="p-4 sm:p-6 border-b border-slate-100 bg-white shrink-0">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <div className="relative flex-1 min-w-[240px]">
+                  <Input
+                    placeholder="Search by name, email or INDoS..."
+                    value={poolSearch}
+                    onChange={(e) => setPoolSearch(e.target.value)}
+                    className="h-11 rounded-xl pl-10"
+                  />
+                  <Users
+                    size={16}
+                    className="absolute left-3.5 top-3.5 text-slate-300"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2.5 justify-between md:justify-end shrink-0">
+                  <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-2.5 rounded-xl border border-slate-200 shadow-sm whitespace-nowrap">
+                    {selectedPoolIds.length} selected
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closePoolModal}
+                    className="h-11 rounded-xl text-slate-500 font-semibold px-5"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleAddFromPool}
+                    disabled={selectedPoolIds.length === 0}
+                    className="h-11 rounded-xl bg-[#3a5f9e] hover:bg-blue-700 text-white font-semibold px-6"
+                  >
+                    Add Selected ({selectedPoolIds.length})
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-[300px]">
+            <div className="flex-1 overflow-y-auto min-h-0 overflow-x-auto">
               {poolLoading ? (
                 <div className="flex h-full items-center justify-center py-20">
                   <Loader2 className="h-8 w-8 animate-spin text-[#3a5f9e]" />
                 </div>
               ) : (
-                <table className="w-full text-left border-collapse">
+                <table className="w-full min-w-[600px] text-left border-collapse">
                   <thead className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest sticky top-0 z-10 border-b border-slate-100">
                     <tr>
                       <th className="px-8 py-4 w-16 text-center">
@@ -730,9 +754,9 @@ const NominatorPortal = () => {
                       <tr>
                         <td
                           colSpan="5"
-                          className="px-8 py-20 text-center text-slate-400"
+                          className="px-4 py-12 text-center text-slate-400 text-sm"
                         >
-                          No candidates found in pool.
+                          No candidates found matching the criteria.
                         </td>
                       </tr>
                     ) : (
@@ -751,21 +775,9 @@ const NominatorPortal = () => {
                         .map((c) => (
                           <tr
                             key={c.id}
-                            className="hover:bg-slate-50 transition-colors cursor-pointer"
-                            onClick={() => {
-                              if (selectedPoolIds.includes(c.id)) {
-                                setSelectedPoolIds(
-                                  selectedPoolIds.filter((id) => id !== c.id),
-                                );
-                              } else {
-                                setSelectedPoolIds([...selectedPoolIds, c.id]);
-                              }
-                            }}
+                            className="hover:bg-slate-50 transition-colors"
                           >
-                            <td
-                              className="px-8 py-4 text-center"
-                              onClick={(e) => e.stopPropagation()}
-                            >
+                            <td className="px-8 py-4 text-center">
                               <input
                                 type="checkbox"
                                 checked={selectedPoolIds.includes(c.id)}
@@ -809,30 +821,6 @@ const NominatorPortal = () => {
                   </tbody>
                 </table>
               )}
-            </div>
-
-            <div className="p-6 border-t border-slate-100 flex justify-between items-center bg-slate-50">
-              <p className="text-xs text-slate-500">
-                {selectedPoolIds.length} candidate(s) selected
-              </p>
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={closePoolModal}
-                  className="h-11 rounded-xl text-slate-400 font-bold px-6"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleAddFromPool}
-                  disabled={selectedPoolIds.length === 0}
-                  className="h-11 rounded-xl bg-[#3a5f9e] hover:bg-blue-700 text-white font-bold px-8"
-                >
-                  Add Selected
-                </Button>
-              </div>
             </div>
           </div>
         </div>
