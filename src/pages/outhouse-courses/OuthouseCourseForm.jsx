@@ -57,6 +57,7 @@ import {
 } from "../../lib/utils/constants";
 
 const emptyFormData = {
+  course_id: "",
   creation_mode: "manual",
   source_pre_active_id: "",
   topic: "",
@@ -530,6 +531,7 @@ const OuthouseCourseForm = () => {
   const hydrateForm = useCallback((course) => {
     setFormData((current) => ({
       ...current,
+      course_id: course?.course_id || "",
       creation_mode: course?.creation_mode || current.creation_mode,
       source_pre_active_id:
         course?.source_pre_active_id || course?.pre_active_course_id || "",
@@ -1295,7 +1297,8 @@ const OuthouseCourseForm = () => {
       />
 
       <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-[1600px] items-center gap-4">
+          <BackButton to="/outhouse-courses" />
           <div>
             <h1 className="text-xl font-bold text-slate-800">
               {isEditMode ? "Edit Outhouse Course" : "Create Outhouse Course"}
@@ -1305,7 +1308,6 @@ const OuthouseCourseForm = () => {
               attendance, feedback, and certificate workflows
             </p>
           </div>
-          <BackButton to="/outhouse-courses" />
         </div>
       </div>
 
