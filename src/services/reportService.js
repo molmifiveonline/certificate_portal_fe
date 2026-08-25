@@ -67,6 +67,17 @@ const ReportService = {
     }
   },
 
+  exportHotelReport: async (data) => {
+    try {
+      const response = await api.post(`/reports/hotel/export`, data, {
+        responseType: "blob",
+      });
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   bulkDownloadFeedbackPDFs: async (data) => {
     try {
       const response = await api.post(
