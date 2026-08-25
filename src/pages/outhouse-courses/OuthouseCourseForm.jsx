@@ -46,6 +46,7 @@ import candidateService from "../../services/candidateService";
 import locationService from "../../services/locationService";
 import outhouseCourseService from "../../services/outhouseCourseService";
 import preActiveCourseService from "../../services/preActiveCourseService";
+import VenueModal from "../courses/components/VenueModal";
 
 import {
   OUTHOUSE_COURSE_STATUSES as COURSE_STATUSES,
@@ -312,147 +313,7 @@ const CandidateDeleteModal = ({ state, onClose, onConfirm }) => {
   );
 };
 
-const VenueModal = ({ state, onClose, onSave }) => {
-  const [formState, setFormState] = useState({
-    hotel_name: "",
-    hotel_address: "",
-    hotel_contact: "",
-    hotel_email: "",
-    offline_date: "",
-    remarks: "",
-    files: null,
-  });
 
-  useEffect(() => {
-    setFormState({
-      hotel_name: state?.candidate?.venue_name || "",
-      hotel_address: state?.candidate?.venue_address || "",
-      hotel_contact: state?.candidate?.venue_contact || "",
-      hotel_email: state?.candidate?.venue_email || "",
-      offline_date: state?.candidate?.offline_date || "",
-      remarks: state?.candidate?.remarks || "",
-      files: null,
-    });
-  }, [state]);
-
-  if (!state?.open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-        <div className="border-b border-slate-100 px-6 py-4">
-          <h3 className="text-lg font-semibold text-slate-800">
-            Offline / Manual Welcome Details
-          </h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Add hotel details and supporting documents.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2">
-          <InputField
-            label="Hotel Name"
-            value={formState.hotel_name}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_name: event.target.value,
-              }))
-            }
-          />
-          <InputField
-            label="Hotel Contact"
-            value={formState.hotel_contact}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_contact: sanitizeNumericValue(event.target.value),
-              }))
-            }
-          />
-          <InputField
-            label="Hotel Email"
-            type="text"
-            value={formState.hotel_email}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_email: event.target.value,
-              }))
-            }
-          />
-          <InputField
-            label="Offline Date"
-            type="date"
-            value={formState.offline_date}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                offline_date: event.target.value,
-              }))
-            }
-          />
-          <TextareaField
-            label="Hotel Address"
-            className="md:col-span-2"
-            rows={3}
-            value={formState.hotel_address}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_address: event.target.value,
-              }))
-            }
-          />
-          <TextareaField
-            label="Remarks"
-            className="md:col-span-2"
-            rows={3}
-            value={formState.remarks}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                remarks: event.target.value,
-              }))
-            }
-          />
-          <div className="md:col-span-2">
-            <FieldLabel label="Documents" />
-            <input
-              type="file"
-              multiple
-              onChange={(event) => {
-                const files = Array.from(event.target.files);
-                for (const file of files) {
-                  if (
-                    file.type.startsWith("image/") &&
-                    file.size > 500 * 1024
-                  ) {
-                    toast.error(`Image "${file.name}" exceeds 500 KB limit.`);
-                    event.target.value = "";
-                    return;
-                  }
-                }
-                setFormState((current) => ({
-                  ...current,
-                  files: event.target.files,
-                }));
-              }}
-              className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
-        <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={() => onSave(formState)}>
-            Save Details
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const OuthouseCourseForm = () => {
   const navigate = useNavigate();
@@ -481,9 +342,9 @@ const OuthouseCourseForm = () => {
     candidateId: "",
   });
   const [venueState, setVenueState] = useState({
-    open: false,
-    candidateId: "",
-    candidate: null,
+    isOpen: false,
+    candidateId: null,
+    data: null,
   });
   const [attendanceRows, setAttendanceRows] = useState([]);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
@@ -1031,32 +892,25 @@ const OuthouseCourseForm = () => {
     }
   };
 
-  const handleVenueSave = async (venueDetails) => {
-    if (!isNumericOnly(venueDetails.hotel_contact)) {
+  const handleVenueSave = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    if (formData.get("venue_contact") && !isNumericOnly(formData.get("venue_contact"))) {
       toast.error("Hotel contact must contain digits only");
       return;
     }
 
-    if (!isValidEmail(venueDetails.hotel_email)) {
+    if (formData.get("venue_email") && !isValidEmail(formData.get("venue_email"))) {
       toast.error("Enter a valid hotel email address");
       return;
     }
 
     try {
-      const payload = new FormData();
-      payload.append("hotel_name", venueDetails.hotel_name || "");
-      payload.append("hotel_address", venueDetails.hotel_address || "");
-      payload.append("hotel_contact", venueDetails.hotel_contact || "");
-      payload.append("hotel_email", venueDetails.hotel_email || "");
-      payload.append("offline_date", venueDetails.offline_date || "");
-      payload.append("remarks", venueDetails.remarks || "");
-      Array.from(venueDetails.files || []).forEach((file) =>
-        payload.append("documents", file),
-      );
       await outhouseCourseService.updateVenueDetails(
         id,
         venueState.candidateId,
-        payload,
+        formData,
       );
       toast.success("Venue details saved");
       setCourseCandidates((current) =>
@@ -1065,20 +919,18 @@ const OuthouseCourseForm = () => {
             ? {
               ...candidate,
               venue_details_completed: true,
-              venue_name: venueDetails.hotel_name || candidate.venue_name,
-              venue_address:
-                venueDetails.hotel_address || candidate.venue_address,
-              venue_contact:
-                venueDetails.hotel_contact || candidate.venue_contact,
-              venue_email: venueDetails.hotel_email || candidate.venue_email,
-              offline_date:
-                venueDetails.offline_date || candidate.offline_date,
-              remarks: venueDetails.remarks || candidate.remarks,
+              venue_name: formData.get("venue_name") || candidate.venue_name,
+              venue_address: formData.get("venue_address") || candidate.venue_address,
+              venue_contact: formData.get("venue_contact") || candidate.venue_contact,
+              venue_email: formData.get("venue_email") || candidate.venue_email,
+              from_date: formData.get("from_date") || candidate.from_date,
+              to_date: formData.get("to_date") || candidate.to_date,
+              remarks: formData.get("remarks") || candidate.remarks,
             }
             : candidate,
         ),
       );
-      setVenueState({ open: false, candidateId: "", candidate: null });
+      setVenueState({ isOpen: false, candidateId: null, data: null });
       await loadCandidates();
     } catch (error) {
       toast.error("Failed to save venue details");
@@ -1876,9 +1728,9 @@ const OuthouseCourseForm = () => {
                                     size="sm"
                                     onClick={() =>
                                       setVenueState({
-                                        open: true,
+                                        isOpen: true,
                                         candidateId: candidate.id,
-                                        candidate,
+                                        data: candidate,
                                       })
                                     }
                                   >
@@ -2313,11 +2165,16 @@ const OuthouseCourseForm = () => {
         onConfirm={handleCandidateDelete}
       />
       <VenueModal
-        state={venueState}
+        isOpen={venueState.isOpen}
         onClose={() =>
-          setVenueState({ open: false, candidateId: "", candidate: null })
+          setVenueState({ isOpen: false, candidateId: null, data: null })
         }
-        onSave={handleVenueSave}
+        onSubmit={handleVenueSave}
+        data={venueState.data}
+        courseDates={{
+          start_date: formData.start_date,
+          end_date: formData.end_date,
+        }}
       />
     </div>
   );
