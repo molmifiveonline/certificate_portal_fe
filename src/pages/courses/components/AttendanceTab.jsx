@@ -59,27 +59,22 @@ const AttendanceTab = ({ courseId }) => {
     }
   };
 
-  const handleToggle = async (candidate, date) => {
+  const handleStatusChange = async (candidate, date, newStatus) => {
     const currentStatus = getStatus(candidate, date);
-    const nextStatus =
-      currentStatus === "absent"
-        ? "present"
-        : currentStatus === "present"
-          ? "holiday"
-          : "absent";
+    if (newStatus === currentStatus) return;
 
-    if (nextStatus === "absent" || nextStatus === "holiday") {
+    if (newStatus === "absent" || newStatus === "holiday") {
       setRemarkModal({
         open: true,
         candidate,
         date,
-        status: nextStatus,
+        status: newStatus,
       });
       return;
     }
 
     // status 'present' - save immediately
-    saveAttendance(candidate, date, nextStatus);
+    saveAttendance(candidate, date, newStatus);
   };
 
   const saveAttendance = async (candidate, date, status, reason = null) => {
@@ -160,10 +155,10 @@ const AttendanceTab = ({ courseId }) => {
           <Calendar size={20} className="text-blue-600" /> Attendance
         </h3>
         <p className="text-sm text-slate-500 mt-1">
-          Click cells to cycle:{" "}
-          <span className="text-red-500 font-medium">Absent</span> →{" "}
-          <span className="text-green-600 font-medium">Present</span> →{" "}
-          <span className="text-yellow-600 font-medium">Holiday</span>
+          Select attendance status:{" "}
+          <span className="text-red-500 font-medium">Absent (A)</span>,{" "}
+          <span className="text-green-600 font-medium">Present (P)</span>,{" "}
+          <span className="text-yellow-600 font-medium">Holiday (H)</span>
         </p>
       </div>
       <div className="overflow-x-auto">
@@ -211,31 +206,30 @@ const AttendanceTab = ({ courseId }) => {
                   {dates.map((date) => {
                     const status = getStatus(c, date);
                     const reason = getReason(c, date);
-                    const bg =
+                    const selectBg =
                       status === "present"
-                        ? "bg-green-100 text-green-700 hover:bg-green-200"
+                        ? "bg-green-50 text-green-700 border-green-200 font-semibold focus:ring-green-500"
                         : status === "holiday"
-                          ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                          : "bg-red-50 text-red-500 hover:bg-red-100";
-                    const label =
-                      status === "present"
-                        ? "P"
-                        : status === "holiday"
-                          ? "H"
-                          : "A";
+                          ? "bg-yellow-50 text-yellow-700 border-yellow-200 font-semibold focus:ring-yellow-500"
+                          : "bg-red-50 text-red-600 border-red-200 font-semibold focus:ring-red-500";
                     return (
-                      <td key={date} className="px-1 py-2 text-center">
-                        <div className="flex flex-col items-center">
-                          <button
-                            onClick={() => handleToggle(c, date)}
-                            className={`w-8 h-8 rounded-md text-xs font-bold transition-colors ${bg} flex items-center justify-center relative group`}
+                      <td key={date} className="px-2 py-2 text-center">
+                        <div className="flex flex-col items-center min-w-[70px]">
+                          <select
+                            value={status}
+                            onChange={(e) =>
+                              handleStatusChange(c, date, e.target.value)
+                            }
+                            className={`h-8 w-full rounded-md border text-xs px-1 text-center cursor-pointer transition-colors shadow-sm outline-none focus:ring-2 ${selectBg}`}
                             title={`${c.candidate_name} - ${formatDateDMY(date)} - ${status}${reason ? ": " + reason : ""}`}
                           >
-                            {label}
-                          </button>
+                            <option value="present" className="bg-white text-slate-800 font-normal">Present (P)</option>
+                            <option value="absent" className="bg-white text-slate-800 font-normal">Absent (A)</option>
+                            <option value="holiday" className="bg-white text-slate-800 font-normal">Holiday (H)</option>
+                          </select>
                           {reason && (
                             <span
-                              className="text-[10px] text-slate-400 mt-0.5 max-w-[40px] truncate"
+                              className="text-[10px] text-slate-400 mt-0.5 max-w-[70px] truncate"
                               title={reason}
                             >
                               {reason}

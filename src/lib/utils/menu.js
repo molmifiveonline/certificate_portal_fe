@@ -313,5 +313,6 @@ export const MenuItems = [
     url: "/reimbursements",
     icon: Receipt,
     allowedRoles: ["candidate"],
+    molmiCandidateOnly: true,
   },
 ];

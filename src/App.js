@@ -1159,7 +1159,10 @@ function App() {
               <Route
                 path="/reimbursements"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementList />
                   </PrivateRoute>
                 }
@@ -1167,7 +1170,10 @@ function App() {
               <Route
                 path="/reimbursements/create"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementForm />
                   </PrivateRoute>
                 }
@@ -1175,7 +1181,10 @@ function App() {
               <Route
                 path="/reimbursements/:id"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementDetails />
                   </PrivateRoute>
                 }
@@ -1183,7 +1192,10 @@ function App() {
               <Route
                 path="/reimbursements/:id/edit"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementForm />
                   </PrivateRoute>
                 }

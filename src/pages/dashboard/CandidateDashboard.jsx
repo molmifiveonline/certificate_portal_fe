@@ -11,13 +11,8 @@ import AnimatedCounter from "../../components/common/AnimatedCounter";
 import PageHeader from "../../components/common/PageHeader";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
-import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
 import { cn } from "../../lib/utils/utils";
-import {
-  buildLoggedInCandidateIdentity,
-  isCertificateOwnedByCandidate,
-} from "../../lib/utils/candidateUtils";
 import { formatDate } from "../../lib/utils/dateUtils";
 
 const StatsCard = ({
@@ -78,11 +73,6 @@ const StatsCard = ({
   );
 };
 
-const isActiveCourse = (course) => {
-  const status = course?.status?.toLowerCase?.() || "";
-  return status !== "completed" && status !== "cancelled";
-};
-
 const CandidateDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -100,33 +90,15 @@ const CandidateDashboard = () => {
       setLoading(true);
 
       try {
-        const loggedInCandidate = buildLoggedInCandidateIdentity(user);
-        const certificateRequest = loggedInCandidate?.id
-          ? certificateService.getCandidateCertificates(loggedInCandidate.id, {
-              limit: 1000,
-            })
-          : certificateService.getAllCertificates({ limit: 1000, is_hidden: 0 });
-
-        const [coursesRes, certsRes] = await Promise.all([
-          api.get("/active-courses"),
-          certificateRequest,
-        ]);
-
-        const courseRows = coursesRes.data?.data || [];
-        const certificateRows = Array.isArray(certsRes) ? certsRes : certsRes.data || [];
-        const visibleCertificates = certificateRows.filter(
-          (certificate) =>
-            Number(certificate.is_hidden) !== 1 &&
-            isCertificateOwnedByCandidate(certificate, loggedInCandidate, user),
-        );
+        const response = await api.get("/dashboard/candidate-stats");
 
         if (!isMounted) {
           return;
         }
 
         setStats({
-          activeCourses: courseRows.filter(isActiveCourse).length,
-          totalCertificates: visibleCertificates.length,
+          activeCourses: response.data?.activeCourses || 0,
+          totalCertificates: response.data?.totalCertificates || 0,
         });
       } catch (error) {
         console.error("Dashboard data fetch error:", error);
