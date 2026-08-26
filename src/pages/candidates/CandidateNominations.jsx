@@ -159,7 +159,7 @@ const CandidateNominations = () => {
       return;
     }
 
-    if (rejectModal.reason === "Not Available" && !rejectModal.availableDate) {
+    if (rejectModal.reason && !rejectModal.availableDate) {
       toast.error("Please select your next available date.");
       return;
     }
@@ -173,7 +173,7 @@ const CandidateNominations = () => {
           rejection_reason: rejectModal.reason,
           remark: rejectModal.remark.trim(),
           available_date:
-            rejectModal.reason === "Not Available"
+            rejectModal.reason
               ? rejectModal.availableDate
               : undefined,
         },
@@ -615,7 +615,7 @@ const CandidateNominations = () => {
                 </Select>
               </div>
 
-              {rejectModal.reason === "Not Available" && (
+              {rejectModal.reason && (
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                     Next Available Date <span className="text-rose-500">*</span>
