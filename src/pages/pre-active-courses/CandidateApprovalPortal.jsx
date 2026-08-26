@@ -68,7 +68,7 @@ const CandidateApprovalPortal = () => {
         toast.error("Please provide a remark for rejecting the nomination.");
         return;
       }
-      if (rejectionReason === "Not Available" && !availableDate) {
+      if (rejectionReason && !availableDate) {
         toast.error("Please select an available date.");
         return;
       }
@@ -83,7 +83,7 @@ const CandidateApprovalPortal = () => {
       };
       if (selectedStatus === "Rejected") {
         payload.rejection_reason = rejectionReason;
-        if (rejectionReason === "Not Available" && availableDate) {
+        if (rejectionReason && availableDate) {
           payload.available_date = availableDate;
         }
       }
@@ -238,10 +238,6 @@ const CandidateApprovalPortal = () => {
                       value={rejectionReason}
                       onValueChange={(val) => {
                         setRejectionReason(val);
-                        // Reset available date when switching reasons
-                        if (val !== "Not Available") {
-                          setAvailableDate("");
-                        }
                       }}
                     >
                       <SelectTrigger className="bg-white">
@@ -257,8 +253,8 @@ const CandidateApprovalPortal = () => {
                     </Select>
                   </div>
 
-                  {/* Available Date - only shown when "Not Available" is selected */}
-                  {rejectionReason === "Not Available" && (
+                  {/* Available Date - shown for all reasons */}
+                  {rejectionReason && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">
                         Available Date <span className="text-red-500">*</span>
