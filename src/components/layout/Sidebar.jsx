@@ -87,6 +87,14 @@ const Sidebar = () => {
       return false;
     }
 
+    if (item.molmiCandidateOnly && userRole === "candidate") {
+      const regType = user?.registration_type || user?.employeeType;
+      const isMolmi =
+        regType === "MOLMI Employee" ||
+        (typeof regType === "string" && regType.toLowerCase().includes("molmi"));
+      if (!isMolmi) return false;
+    }
+
     if (item.requiredPermission) {
       const userPermissions = user.permissions || [];
       return userPermissions.includes(item.requiredPermission);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
-import { Search, History } from "lucide-react";
+import { Search, History, FileDown, Loader2 } from "lucide-react";
 import api from "../../lib/api";
 import logService from "../../services/logService";
 import activeCourseService from "../../services/activeCourseService";
@@ -25,9 +25,11 @@ import Meta from "../../components/common/Meta";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import TablePagination from "../../components/ui/TablePagination";
 import { formatDateTime } from "../../lib/utils/dateUtils";
 import { debounce } from "lodash";
+import * as XLSX from "xlsx";
 
 const UUID_PATTERN =
   /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/i;
@@ -296,6 +298,7 @@ const LogHistory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -393,6 +396,107 @@ const LogHistory = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handleExportExcel = async () => {
+    if (totalLogs === 0) {
+      toast.info("No logs available to export");
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      // 1. Fetch all matching logs
+      const response = await logService.getLogs({
+        page: 1,
+        limit: 10000,
+        search: debouncedSearch || searchTerm,
+      });
+
+      const allLogs =
+        response?.data || (Array.isArray(response) ? response : []);
+
+      if (allLogs.length === 0) {
+        toast.info("No logs found to export");
+        return;
+      }
+
+      // 2. Identify unresolved resource references
+      const currentMap = { ...resolvedResourceNames };
+      const unresolved = [
+        ...new Map(
+          allLogs
+            .map(extractResourceRefFromLog)
+            .filter(Boolean)
+            .map((ref) => [getResourceCacheKey(ref), ref]),
+        ).values(),
+      ].filter((ref) => !(getResourceCacheKey(ref) in currentMap));
+
+      if (unresolved.length > 0) {
+        const results = await Promise.allSettled(
+          unresolved.map((ref) => resolveResourceName(ref)),
+        );
+        results.forEach((res, idx) => {
+          const ref = unresolved[idx];
+          currentMap[getResourceCacheKey(ref)] =
+            res.status === "fulfilled" ? res.value : null;
+        });
+        setResolvedResourceNames(currentMap);
+      }
+
+      // 3. Build data rows for Excel
+      const excelRows = allLogs.map((log, index) => {
+        const roleName =
+          log.admin_role_name ||
+          (log.role_name === "superadmin"
+            ? "Super Admin"
+            : log.role_name === "admin"
+              ? "Admin"
+              : log.role_name || (log.user_id ? "User" : "System"));
+
+        const userName =
+          log.user_name || (log.user_id ? "Unknown User" : "System");
+        const detailsText = formatLogDetails(log, currentMap);
+        const dateTimeText = log.created_at
+          ? formatDateTime(log.created_at)
+          : "-";
+
+        return {
+          "Sr. No.": index + 1,
+          "Date / Time": dateTimeText,
+          "Action": log.action || "-",
+          "Details": detailsText || "-",
+          "User": userName,
+          "Role": roleName,
+        };
+      });
+
+      // 4. Generate worksheet and workbook
+      const worksheet = XLSX.utils.json_to_sheet(excelRows);
+
+      worksheet["!cols"] = [
+        { wch: 8 },
+        { wch: 22 },
+        { wch: 28 },
+        { wch: 55 },
+        { wch: 25 },
+        { wch: 20 },
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Log History");
+
+      const dateStr = new Date().toISOString().split("T")[0];
+      const filename = `Log_History_${dateStr}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+
+      toast.success("Log history exported successfully");
+    } catch (error) {
+      console.error("Failed to export log history:", error);
+      toast.error(getErrorMessage(error, "Failed to export log history"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!logToDelete) return;
 
@@ -445,11 +549,23 @@ const LogHistory = () => {
               onChange={handleSearchChange}
             />
           </div>
-          <div className="flex gap-3 w-full md:w-auto">
+          <div className="flex flex-wrap gap-3 w-full md:w-auto items-center">
             <div className="h-10 px-4 bg-white/50 border border-slate-200/60 rounded-xl flex items-center gap-2 text-slate-500 text-sm font-medium">
               <History className="w-4 h-4" />
               <span>Total Logs: {totalLogs}</span>
             </div>
+            <Button
+              onClick={handleExportExcel}
+              disabled={isExporting || totalLogs === 0}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 px-4 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isExporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <FileDown className="w-4 h-4" />
+              )}
+              {isExporting ? "Exporting..." : "Export Excel"}
+            </Button>
           </div>
         </CardContent>
       </Card>

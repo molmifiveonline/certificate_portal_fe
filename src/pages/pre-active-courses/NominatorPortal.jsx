@@ -121,6 +121,34 @@ const NominatorPortal = () => {
     setPoolSearch("");
   };
 
+  const filterPoolCandidate = (c) => {
+    const search = poolSearch.toLowerCase().trim();
+    if (!search) return true;
+    const fullName = `${c.first_name || ""} ${c.last_name || ""}`.toLowerCase();
+    const email = (c.email || "").toLowerCase();
+    const indos = (c.indos_number || "").toLowerCase();
+    const rank = (c.rank || "").toLowerCase();
+    const passport = (c.cdc_passport || c.passport_no || "").toLowerCase();
+    const designation = (c.designation || "").toLowerCase();
+    const manager = (c.manager || c.manning_company || "").toLowerCase();
+    const seamanNo = (c.seaman_book_no || "").toLowerCase();
+    const empId = (c.empId || c.employee_id || "").toLowerCase();
+    const candidateId = (c.id ? String(c.id) : "").toLowerCase();
+
+    return (
+      fullName.includes(search) ||
+      email.includes(search) ||
+      indos.includes(search) ||
+      rank.includes(search) ||
+      passport.includes(search) ||
+      designation.includes(search) ||
+      manager.includes(search) ||
+      seamanNo.includes(search) ||
+      empId.includes(search) ||
+      candidateId.includes(search)
+    );
+  };
+
   const handleAddFromPool = () => {
     const selectedFromPool = poolCandidates.filter((c) =>
       selectedPoolIds.includes(c.id),
@@ -141,6 +169,15 @@ const NominatorPortal = () => {
         date_of_birth: c.dob ? new Date(c.dob).toISOString().split("T")[0] : "",
         indos_number: c.indos_number || "",
         registration_type: c.registration_type || "Others",
+        nationality: c.nationality || "",
+        cdc_passport: c.cdc_passport || c.passport_no || "",
+        rank: c.rank || "",
+        seaman_book_no: c.seaman_book_no || "",
+        designation: c.designation || "",
+        manager: c.manager || c.manning_company || "",
+        status_pool: c.status_pool || c.vessel_type || "",
+        last_vessel: c.last_vessel || c.last_vessel_name || "",
+        previous_certificate_date: c.previous_certificate_date || "",
       }));
 
     if (toAdd.length === 0 && selectedPoolIds.length > 0) {
@@ -624,7 +661,7 @@ const NominatorPortal = () => {
       {/* Selection Pool Modal */}
       {isPoolModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh] my-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh] my-auto">
             <div className="bg-slate-50 px-4 sm:px-6 py-4 flex justify-between items-center border-b border-slate-100 shrink-0">
               <h3 className="font-bold text-slate-800 flex items-center gap-2">
                 <Users size={18} className="text-[#3a5f9e]" />
@@ -642,7 +679,7 @@ const NominatorPortal = () => {
               <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
                 <div className="relative flex-1 min-w-[240px]">
                   <Input
-                    placeholder="Search by name, email or INDoS..."
+                    placeholder="Search by name, candidate ID, email, INDoS, rank, designation, passport..."
                     value={poolSearch}
                     onChange={(e) => setPoolSearch(e.target.value)}
                     className="h-11 rounded-xl pl-10"
@@ -677,52 +714,26 @@ const NominatorPortal = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-0 overflow-x-auto">
+            <div className="flex-1 overflow-auto min-h-0">
               {poolLoading ? (
                 <div className="flex h-full items-center justify-center py-20">
                   <Loader2 className="h-8 w-8 animate-spin text-[#3a5f9e]" />
                 </div>
               ) : (
-                <table className="w-full min-w-[600px] text-left border-collapse">
-                  <thead className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest sticky top-0 z-10 border-b border-slate-100">
+                <table className="w-full min-w-[1300px] text-left border-collapse">
+                  <thead className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-wider sticky top-0 z-10 border-b border-slate-200 shadow-sm">
                     <tr>
-                      <th className="px-8 py-4 w-16 text-center">
+                      <th className="w-10 px-2 py-2.5 text-center">
                         <input
                           type="checkbox"
                           className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                           checked={
                             selectedPoolIds.length > 0 &&
                             selectedPoolIds.length ===
-                              poolCandidates.filter((c) => {
-                                const search = poolSearch.toLowerCase();
-                                return (
-                                  (c.first_name + " " + c.last_name)
-                                    .toLowerCase()
-                                    .includes(search) ||
-                                  c.email.toLowerCase().includes(search) ||
-                                  (c.indos_number &&
-                                    c.indos_number
-                                      .toLowerCase()
-                                      .includes(search))
-                                );
-                              }).length
+                              poolCandidates.filter(filterPoolCandidate).length
                           }
                           onChange={(e) => {
-                            const currentFiltered = poolCandidates.filter(
-                              (c) => {
-                                const search = poolSearch.toLowerCase();
-                                return (
-                                  (c.first_name + " " + (c.last_name || ""))
-                                    .toLowerCase()
-                                    .includes(search) ||
-                                  c.email.toLowerCase().includes(search) ||
-                                  (c.indos_number &&
-                                    c.indos_number
-                                      .toLowerCase()
-                                      .includes(search))
-                                );
-                              },
-                            );
+                            const currentFiltered = poolCandidates.filter(filterPoolCandidate);
                             if (e.target.checked) {
                               setSelectedPoolIds(
                                 currentFiltered.map((c) => c.id),
@@ -733,27 +744,28 @@ const NominatorPortal = () => {
                           }}
                         />
                       </th>
-                      <th className="px-4 py-4">Nominee Name</th>
-                      <th className="px-4 py-4">Email / Contact</th>
-                      <th className="px-4 py-4">INDoS Number</th>
-                      <th className="px-4 py-4">Type</th>
+                      <th className="px-3 py-2.5 whitespace-nowrap min-w-[140px]">Nominee Name</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Emp ID</th>
+                      <th className="px-3 py-2.5 whitespace-nowrap min-w-[170px]">Email / Contact</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">DOB</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-28">Certificate Date</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Nationality</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-28">CDC / Passport</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-20">Rank</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Seaman No</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Designation</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[140px]">Manning co / Manager</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Status Pool</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Last Vessel</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">INDoS Number</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-20">Type</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {poolCandidates.filter((c) => {
-                      const search = poolSearch.toLowerCase();
-                      return (
-                        (c.first_name + " " + (c.last_name || ""))
-                          .toLowerCase()
-                          .includes(search) ||
-                        c.email.toLowerCase().includes(search) ||
-                        (c.indos_number &&
-                          c.indos_number.toLowerCase().includes(search))
-                      );
-                    }).length === 0 ? (
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {poolCandidates.filter(filterPoolCandidate).length === 0 ? (
                       <tr>
                         <td
-                          colSpan="5"
+                          colSpan="16"
                           className="px-4 py-12 text-center text-slate-400 text-sm"
                         >
                           No candidates found matching the criteria.
@@ -761,23 +773,13 @@ const NominatorPortal = () => {
                       </tr>
                     ) : (
                       poolCandidates
-                        .filter((c) => {
-                          const search = poolSearch.toLowerCase();
-                          return (
-                            (c.first_name + " " + (c.last_name || ""))
-                              .toLowerCase()
-                              .includes(search) ||
-                            c.email.toLowerCase().includes(search) ||
-                            (c.indos_number &&
-                              c.indos_number.toLowerCase().includes(search))
-                          );
-                        })
+                        .filter(filterPoolCandidate)
                         .map((c) => (
                           <tr
                             key={c.id}
                             className="hover:bg-slate-50 transition-colors"
                           >
-                            <td className="px-8 py-4 text-center">
+                            <td className="w-10 px-2 py-2 text-center">
                               <input
                                 type="checkbox"
                                 checked={selectedPoolIds.includes(c.id)}
@@ -797,20 +799,52 @@ const NominatorPortal = () => {
                                 className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                               />
                             </td>
-                            <td className="px-4 py-4">
-                              <p className="font-bold text-slate-800 text-sm">
-                                {c.first_name} {c.last_name}
-                              </p>
+                            <td className="px-3 py-2 font-semibold text-slate-800 text-xs whitespace-nowrap">
+                              {c.first_name} {c.last_name || ""}
                             </td>
-                            <td className="px-4 py-4 text-xs text-slate-600">
-                              {c.email}
+                            <td className="px-2 py-2 text-xs text-slate-600 font-mono whitespace-nowrap">
+                              {c.empId || c.employee_id || "-"}
                             </td>
-                            <td className="px-4 py-4">
-                              <span className="text-[10px] font-bold text-slate-400">
-                                {c.indos_number || "-"}
-                              </span>
+                            <td className="px-3 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              <div>{c.email}</div>
+                              {c.mobile && (
+                                <div className="text-[11px] text-slate-400">{c.mobile}</div>
+                              )}
                             </td>
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {formatDate(c.dob)}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {formatDate(c.previous_certificate_date)}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.nationality || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.cdc_passport || c.passport_no || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.rank || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.seaman_book_no || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.designation || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.manager || c.manning_company || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.status_pool || c.vessel_type || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                              {c.last_vessel || c.last_vessel_name || "-"}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-slate-600 font-mono whitespace-nowrap">
+                              {c.indos_number || "-"}
+                            </td>
+                            <td className="px-2 py-2 whitespace-nowrap">
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[9px] font-bold uppercase tracking-widest">
                                 {c.registration_type || "Others"}
                               </span>

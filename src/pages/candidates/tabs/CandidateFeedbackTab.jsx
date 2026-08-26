@@ -8,7 +8,15 @@ import {
 } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Badge } from "../../../components/ui/Badge";
-import { CheckCircle2, Send, Star, AlertCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Send,
+  Star,
+  AlertCircle,
+  Lock,
+  ArrowRight,
+  ClipboardCheck,
+} from "lucide-react";
 import api from "../../../lib/api";
 import SearchableSelect from "../../../components/ui/SearchableSelect";
 import { toast } from "sonner";
@@ -69,7 +77,7 @@ const normalizeFeedbackCategories = (form) => {
   }));
 };
 
-const CandidateFeedbackTab = ({ courseId }) => {
+const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formValues, setFormValues] = useState({});
@@ -272,6 +280,52 @@ const CandidateFeedbackTab = ({ courseId }) => {
             </CardContent>
           </Card>
         ))}
+      </div>
+    );
+  }
+
+  if (!status?.hasSubmitted && !status?.postAssessmentCompleted) {
+    const isAssessmentCreated = !!status?.postAssessmentExists;
+
+    return (
+      <div className="max-w-2xl mx-auto py-8">
+        <Card className="border-amber-200/80 bg-gradient-to-b from-amber-50/40 via-white to-white shadow-sm overflow-hidden rounded-2xl">
+          <CardHeader className="text-center pb-2 pt-8">
+            <div className="mx-auto w-14 h-14 rounded-full bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-600 mb-4 shadow-sm">
+              <Lock className="w-7 h-7" />
+            </div>
+            <CardTitle className="text-xl font-bold text-slate-800">
+              {isAssessmentCreated
+                ? "Post-Assessment Required"
+                : "Post-Assessment Not Available Yet"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-5 px-6 pb-8">
+            <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto">
+              {isAssessmentCreated
+                ? "Course feedback is only enabled after you have completed your Post-Course Assessment. Please complete the assessment to unlock the feedback form."
+                : "The post-course assessment for this course has not been created yet. Feedback will become available once the assessment is created and completed."}
+            </p>
+
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-medium">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>Feedback is locked until post-assessment is completed</span>
+            </div>
+
+            {isAssessmentCreated && onGoToAssessment && (
+              <div className="pt-2">
+                <Button
+                  onClick={onGoToAssessment}
+                  className="bg-primary hover:bg-primary/90 text-white font-semibold px-6 py-2.5 rounded-xl shadow-md shadow-primary/20 inline-flex items-center gap-2 group transition-all"
+                >
+                  <ClipboardCheck className="w-4 h-4" />
+                  <span>Go to Assessment</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     );
   }

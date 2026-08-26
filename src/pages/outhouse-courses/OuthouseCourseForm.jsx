@@ -5,6 +5,7 @@ import {
   FileText,
   Mail,
   MapPin,
+  Plus,
   Save,
   ShieldCheck,
   Trash2,
@@ -47,6 +48,7 @@ import locationService from "../../services/locationService";
 import outhouseCourseService from "../../services/outhouseCourseService";
 import preActiveCourseService from "../../services/preActiveCourseService";
 import VenueModal from "../courses/components/VenueModal";
+import CandidateSelectionModal from "../courses/components/CandidateSelectionModal";
 
 import {
   OUTHOUSE_COURSE_STATUSES as COURSE_STATUSES,
@@ -102,17 +104,6 @@ const buildDateRange = (startDate, endDate) => {
   return dates;
 };
 
-const makeCourseIdPreview = (topic, startDate) => {
-  const topicPart = (topic || "TOPIC")
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  const year = startDate
-    ? new Date(startDate).getFullYear()
-    : new Date().getFullYear();
-  return `${topicPart || "TOPIC"}/${year}/AUTO`;
-};
-
 const normalizeMasterCourse = (course) => ({
   id: course?.id || "",
   topic: course?.topic || course?.name || "",
@@ -122,22 +113,30 @@ const normalizeMasterCourse = (course) => ({
 });
 
 const normalizeCandidate = (candidate) => ({
+  ...candidate,
   id: candidate?.candidate_id || candidate?.user_id || candidate?.id || "",
   enrollment_id: candidate?.candidate_id ? candidate?.id || "" : "",
   empId: candidate?.empId || candidate?.employee_id || "-",
+  employee_id: candidate?.employee_id || candidate?.empId || "",
   candidate_name:
     candidate?.candidate_name ||
     [candidate?.first_name, candidate?.last_name].filter(Boolean).join(" ") ||
     "-",
+  first_name: candidate?.first_name || "",
+  last_name: candidate?.last_name || "",
   passport:
     candidate?.passport ||
     candidate?.passport_no ||
     candidate?.cdc_passport ||
     "-",
+  passport_no: candidate?.passport_no || candidate?.cdc_passport || "",
+  cdc_passport: candidate?.cdc_passport || candidate?.passport_no || "",
   seaman_no: candidate?.seaman_no || candidate?.seaman_book_no || "-",
+  seaman_book_no: candidate?.seaman_book_no || candidate?.seaman_no || "",
   rank: candidate?.rank || "-",
-  manager: candidate?.manager || "-",
-  status_pool: candidate?.status_pool || "",
+  manager: candidate?.manager || candidate?.manning_company || "-",
+  manning_company: candidate?.manning_company || candidate?.manager || "",
+  status_pool: candidate?.status_pool || candidate?.vessel_type || "",
   ack_status: candidate?.ack_status || "Pending",
   ack_date: candidate?.ack_date || null,
   candidate_email_status:
@@ -337,6 +336,7 @@ const OuthouseCourseForm = () => {
   const [loadingCandidates, setLoadingCandidates] = useState(false);
   const [addingCandidate, setAddingCandidate] = useState(false);
   const [sendingWelcomeId, setSendingWelcomeId] = useState(null);
+  const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
   const [deleteState, setDeleteState] = useState({
     open: false,
     candidateId: "",
@@ -362,10 +362,6 @@ const OuthouseCourseForm = () => {
     [formData.end_date, formData.start_date],
   );
   const daysCount = courseDates.length;
-  const courseIdPreview = makeCourseIdPreview(
-    formData.topic,
-    formData.start_date,
-  );
   const candidateModificationAllowed = useMemo(() => {
     if (!formData.end_date) return true;
     const today = new Date();
@@ -775,7 +771,6 @@ const OuthouseCourseForm = () => {
       const payload = {
         ...formData,
         days: daysCount,
-        course_id_preview: courseIdPreview,
       };
       if (isEditMode) {
         await outhouseCourseService.update(id, payload);
@@ -827,14 +822,30 @@ const OuthouseCourseForm = () => {
         );
       }
       setSelectedCandidateIds([]);
+      setIsCandidateModalOpen(false);
       await Promise.all([
         loadCandidates(),
-        loadCandidateOptions(debouncedCandidateSearch),
+        loadAttendance(),
       ]);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to add candidate");
     } finally {
       setAddingCandidate(false);
+    }
+  };
+
+  const openCandidateModal = async () => {
+    if (!id) {
+      toast.error("Save the course before adding candidates");
+      return;
+    }
+    try {
+      await loadCandidateOptions("");
+      setSelectedCandidateIds([]);
+      setCandidateSearch("");
+      setIsCandidateModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to load candidate options");
     }
   };
 
@@ -1211,12 +1222,13 @@ const OuthouseCourseForm = () => {
                   onChange={handleFormChange}
                   error={errors.topic}
                 />
-                <InputField
-                  label="Course ID"
-                  value={formData.course_id || courseIdPreview}
-                  readOnly
-                  className=""
-                />
+                {isEditMode && formData.course_id ? (
+                  <InputField
+                    label="Course ID"
+                    value={formData.course_id}
+                    readOnly
+                  />
+                ) : null}
                 <InputField
                   label="Course Name"
                   required
@@ -1492,18 +1504,26 @@ const OuthouseCourseForm = () => {
 
           <TabsContent value="candidates" className="mt-6 space-y-6">
             <Card className="rounded-3xl border-slate-200 shadow-sm">
-              <CardHeader className="border-b border-slate-100">
+              <CardHeader className="border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-orange-600" />
                   Candidates
                 </CardTitle>
+                <Button
+                  type="button"
+                  onClick={openCandidateModal}
+                  disabled={!candidateModificationAllowed || !id}
+                  className="bg-orange-600 hover:bg-orange-700 text-white gap-2 font-medium"
+                >
+                  <Plus className="h-4 w-4" /> Add Candidates
+                </Button>
               </CardHeader>
               <CardContent className="space-y-5 p-6">
                 {formData.creation_mode === "conversion" ? (
                   <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
                     Candidates from the selected pre-active course will appear
                     here when the backend returns converted enrollments. If none
-                    appear, add missing candidates from the search table below.
+                    appear, click <strong>Add Candidates</strong> above to enroll them.
                   </div>
                 ) : null}
 
@@ -1513,134 +1533,6 @@ const OuthouseCourseForm = () => {
                     end date has passed.
                   </div>
                 ) : null}
-
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="w-full lg:w-80">
-                      <FieldLabel label="Search Candidate" />
-                      <Input
-                        value={candidateSearch}
-                        onChange={(event) =>
-                          setCandidateSearch(event.target.value)
-                        }
-                        placeholder="Search employee id or candidate name"
-                        className="h-11 rounded-xl border-slate-200"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <span className="text-sm font-medium text-slate-500">
-                        {selectedCandidateIds.length} selected
-                      </span>
-                      <Button
-                        type="button"
-                        className="gap-2"
-                        onClick={handleAddSelectedCandidates}
-                        disabled={
-                          !candidateModificationAllowed ||
-                          addingCandidate ||
-                          selectedCandidateIds.length === 0
-                        }
-                      >
-                        {addingCandidate ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Adding...
-                          </>
-                        ) : (
-                          <>Add Selected Candidates</>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto rounded-2xl border border-slate-200">
-                    <table className="w-full min-w-[980px] text-left text-sm">
-                      <thead className="bg-slate-50 text-slate-600">
-                        <tr>
-                          <th className="w-12 px-4 py-3">
-                            <Checkbox
-                              aria-label="Select visible candidates"
-                              checked={allVisibleCandidatesSelected}
-                              disabled={
-                                !candidateModificationAllowed ||
-                                visibleCandidateIds.length === 0
-                              }
-                              onCheckedChange={handleVisibleCandidateSelection}
-                            />
-                          </th>
-                          <th className="px-4 py-3">Employee ID</th>
-                          <th className="px-4 py-3">Candidate Name</th>
-                          <th className="px-4 py-3">Passport</th>
-                          <th className="px-4 py-3">Seaman No.</th>
-                          <th className="px-4 py-3">Rank</th>
-                          <th className="px-4 py-3">Manager</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {filteredCandidateOptions.length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan="7"
-                              className="px-4 py-5 text-center text-slate-500"
-                            >
-                              No available candidates found.
-                            </td>
-                          </tr>
-                        ) : (
-                          paginatedCandidateOptions.map((candidate) => (
-                            <tr key={candidate.id} className="bg-white">
-                              <td className="px-4 py-3">
-                                <Checkbox
-                                  aria-label={`Select ${candidate.candidate_name}`}
-                                  checked={selectedCandidateIds.includes(
-                                    candidate.id,
-                                  )}
-                                  disabled={
-                                    !candidateModificationAllowed ||
-                                    addingCandidate
-                                  }
-                                  onCheckedChange={(checked) =>
-                                    handleCandidateSelection(
-                                      candidate.id,
-                                      checked,
-                                    )
-                                  }
-                                />
-                              </td>
-                              <td className="px-4 py-3 font-medium text-slate-700">
-                                {candidate.empId}
-                              </td>
-                              <td className="px-4 py-3">
-                                {candidate.candidate_name}
-                              </td>
-                              <td className="px-4 py-3">
-                                {candidate.passport}
-                              </td>
-                              <td className="px-4 py-3">
-                                {candidate.seaman_no}
-                              </td>
-                              <td className="px-4 py-3">{candidate.rank}</td>
-                              <td className="px-4 py-3">{candidate.manager}</td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                  {filteredCandidateOptions.length > 0 ? (
-                    <TablePagination
-                      currentPage={candidateOptionPage}
-                      totalPages={candidateOptionTotalPages}
-                      totalCount={filteredCandidateOptions.length}
-                      limit={candidateOptionLimit}
-                      onPageChange={setCandidateOptionPage}
-                      onLimitChange={(newLimit) => {
-                        setCandidateOptionLimit(newLimit);
-                        setCandidateOptionPage(1);
-                      }}
-                    />
-                  ) : null}
-                </div>
 
                 <div className="overflow-x-auto rounded-2xl border border-slate-200">
                   <table className="w-full min-w-[1200px] text-left text-sm">
@@ -2163,6 +2055,17 @@ const OuthouseCourseForm = () => {
         state={deleteState}
         onClose={() => setDeleteState({ open: false, candidateId: "" })}
         onConfirm={handleCandidateDelete}
+      />
+      <CandidateSelectionModal
+        isOpen={isCandidateModalOpen}
+        onClose={() => setIsCandidateModalOpen(false)}
+        availableCandidates={filteredCandidateOptions}
+        selectedCandidates={selectedCandidateIds}
+        setSelectedCandidates={setSelectedCandidateIds}
+        candidateSearch={candidateSearch}
+        setCandidateSearch={setCandidateSearch}
+        onAdd={handleAddSelectedCandidates}
+        isAdding={addingCandidate}
       />
       <VenueModal
         isOpen={venueState.isOpen}

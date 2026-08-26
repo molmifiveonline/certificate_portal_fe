@@ -23,6 +23,8 @@ const CandidateCourseDetails = () => {
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [activeTab, setActiveTab] = useState("details");
+
     useEffect(() => {
         const fetchCourseDetails = async () => {
             try {
@@ -105,7 +107,7 @@ const CandidateCourseDetails = () => {
             </div>
 
             {/* Content Tabs */}
-            <Tabs defaultValue="details" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="flex w-full justify-start space-x-6 bg-transparent border-b border-slate-200 rounded-none p-0 h-auto">
                     <TabsTrigger
                         value="details"
@@ -273,7 +275,11 @@ const CandidateCourseDetails = () => {
                     </TabsContent>
 
                     <TabsContent value="feedback">
-                        <CandidateFeedbackTab courseId={id} course={course} />
+                        <CandidateFeedbackTab
+                            courseId={id}
+                            course={course}
+                            onGoToAssessment={() => setActiveTab("assessment")}
+                        />
                     </TabsContent>
                 </div>
             </Tabs>

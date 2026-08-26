@@ -11,7 +11,26 @@ export const AuthProvider = ({ children }) => {
         // Check local storage for existing session
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
+                if (
+                    parsedUser?.role?.toLowerCase() === 'candidate' &&
+                    !parsedUser.registration_type
+                ) {
+                    api.get('/auth/me')
+                        .then((res) => {
+                            if (res?.data?.user) {
+                                const updated = { ...parsedUser, ...res.data.user };
+                                setUser(updated);
+                                localStorage.setItem('user', JSON.stringify(updated));
+                            }
+                        })
+                        .catch(() => {});
+                }
+            } catch (e) {
+                console.error("Failed to parse stored user", e);
+            }
         }
         setLoading(false);
     }, []);
@@ -86,8 +105,14 @@ export const AuthProvider = ({ children }) => {
         (user?.role || '').toLowerCase() === 'admin' &&
         Array.isArray(user?.adminRolePermissions);
 
+    const isMolmiCandidate =
+        (user?.role || '').toLowerCase() === 'candidate' &&
+        (user?.registration_type === 'MOLMI Employee' ||
+            (typeof user?.registration_type === 'string' &&
+                user.registration_type.toLowerCase().includes('molmi')));
+
     return (
-        <AuthContext.Provider value={{ user, token: user?.token, login, verifyOtp, logout, loading, hasPermission, hasAnyPermission, isRestrictedAdmin }}>
+        <AuthContext.Provider value={{ user, token: user?.token, login, verifyOtp, logout, loading, hasPermission, hasAnyPermission, isRestrictedAdmin, isMolmiCandidate }}>
             {!loading && children}
         </AuthContext.Provider>
     );
