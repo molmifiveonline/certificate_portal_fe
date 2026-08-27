@@ -10,6 +10,8 @@ import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
 import activeCourseService from "../../services/activeCourseService";
 import certificateService from "../../services/certificateService";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import { toast } from "sonner";
 
 const supportsStampLogo = (type) =>
@@ -608,13 +610,16 @@ const EditCertificate = () => {
               <label className="text-sm font-semibold text-slate-700">
                 Certificate Description
               </label>
-              <textarea
-                name="description1"
-                value={formData.description1}
-                onChange={handleChange}
-                rows={4}
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-              />
+              <div className="editor-container">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.description1 || ""}
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, description1: val }))
+                  }
+                  className="bg-white min-h-[200px] mb-12"
+                />
+              </div>
             </div>
 
             {/* Remarks */}
