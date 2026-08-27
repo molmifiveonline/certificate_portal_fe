@@ -322,16 +322,6 @@ const LngCertificateTemplate = ({
               />
             ) : null}
           </div>
-
-          <img
-            src="/images/GlobalMET-Logo.jpg"
-            alt="GlobalMET"
-            style={{
-              width: "160px",
-              height: "55px",
-              objectFit: "contain",
-            }}
-          />
         </div>
       </div>
     </div>

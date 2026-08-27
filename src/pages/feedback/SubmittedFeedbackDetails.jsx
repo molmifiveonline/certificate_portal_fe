@@ -179,9 +179,16 @@ const SubmittedFeedbackDetails = () => {
                                 answers.map((ans, index) => (
                                     <div key={ans.id} className="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                                         <div className="flex items-start justify-between gap-4 mb-2">
-                                            <h4 className="text-slate-800 font-medium leading-relaxed">
-                                                {index + 1}. {ans.question}
-                                            </h4>
+                                            <div className="min-w-0">
+                                                {ans.category_name && (
+                                                    <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+                                                        {ans.category_name}
+                                                    </div>
+                                                )}
+                                                <h4 className="text-slate-800 font-medium leading-relaxed">
+                                                    {index + 1}. {ans.question}
+                                                </h4>
+                                            </div>
                                             <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-semibold uppercase whitespace-nowrap">
                                                 {ans.type}
                                             </span>

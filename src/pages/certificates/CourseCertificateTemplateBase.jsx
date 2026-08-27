@@ -1087,10 +1087,11 @@ const CourseCertificateTemplateBase = ({
                                             {signatureUrl && (
                                               <img
                                                 src={signatureUrl}
-                                                height="20px"
-                                                width="80px"
                                                 alt="Trainer Signature"
                                                 style={{
+                                                  maxHeight: "70px",
+                                                  maxWidth: "200px",
+                                                  objectFit: "contain",
                                                   display: "block",
                                                   margin: "0 auto",
                                                 }}
@@ -1143,16 +1144,6 @@ const CourseCertificateTemplateBase = ({
                       <tbody>
                         <tr>
                           <td>
-                            <img
-                              src="/images/GlobalMET-Logo.jpg"
-                              alt="GlobalMET"
-                              style={{
-                                width: "300px",
-                                verticalAlign: "middle",
-                                border: "0",
-                                marginLeft: "-50px",
-                              }}
-                            />
                           </td>
                           <td
                             style={{
