@@ -7,6 +7,19 @@ import DnvSt0029CertificateTemplate from "./DnvSt0029CertificateTemplate";
 import DnvSt008CertificateTemplate from "./DnvSt008CertificateTemplate";
 import OtherCertificateTemplate from "./OtherCertificateTemplate";
 
+const getApiBaseUrl = () => {
+  const rawUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const normalizedUrl = rawUrl.replace(/\/+$/, "");
+  return /\/api$/i.test(normalizedUrl) ? normalizedUrl : `${normalizedUrl}/api`;
+};
+
+const buildUploadUrl = (path) => {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  const normalizedPath = String(path).replace(/^\/+/, "");
+  return `${getApiBaseUrl()}/${normalizedPath.replace(/^api\/+/i, "")}`;
+};
+
 const CertificatePrintView = () => {
   const { id } = useParams();
   const [certificate, setCertificate] = useState(null);
@@ -58,14 +71,13 @@ const CertificatePrintView = () => {
   const verifyLink = `${window.location.origin}/authenticity-verification/${certificate.id || id}`;
   const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(verifyLink)}&size=150`;
 
-  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
   const signatureUrl = certificate.digital_signature
-    ? `${apiUrl.replace("/api", "")}/uploads/trainer/${certificate.digital_signature}`
+    ? buildUploadUrl(`uploads/trainer/${certificate.digital_signature}`)
     : null;
   const candidatePhotoUrl = certificate.profile_image
     ? certificate.profile_image.startsWith("/uploads/")
-      ? `${apiUrl.replace("/api", "")}${certificate.profile_image}`
-      : `${apiUrl.replace("/api", "")}/uploads/candidate-profiles/${certificate.profile_image}`
+      ? buildUploadUrl(certificate.profile_image)
+      : buildUploadUrl(`uploads/candidate-profiles/${certificate.profile_image}`)
     : null;
 
   const courseTemplateProps = {
