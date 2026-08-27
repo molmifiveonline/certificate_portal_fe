@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
@@ -45,6 +45,34 @@ import VenueModal from "./components/VenueModal";
 // ==========================================
 // COURSE FORM COMPONENT
 // ==========================================
+
+const normalizeLookupValue = (value) =>
+  String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+const resolveMasterCourseId = (course = {}, masterCourses = []) => {
+  if (!course) return "";
+
+  const directId = String(course.master_course_id || "").trim();
+  if (directId && masterCourses.some((mc) => String(mc.id) === directId)) {
+    return directId;
+  }
+
+  const courseTopic = normalizeLookupValue(course.topic);
+  const courseMasterName = normalizeLookupValue(course.master_course_name);
+  const matchedCourse = masterCourses.find((mc) => {
+    const mcTopic = normalizeLookupValue(mc.topic);
+    const mcName = normalizeLookupValue(mc.master_course_name);
+    return (
+      (courseTopic && mcTopic === courseTopic) ||
+      (courseMasterName && mcName === courseMasterName)
+    );
+  });
+
+  return matchedCourse?.id || directId;
+};
 
 const ActiveCourseForm = () => {
   const { id } = useParams();
@@ -136,6 +164,30 @@ const ActiveCourseForm = () => {
 
   const progress = calculateProgress();
 
+  const topicOptions = useMemo(() => {
+    const options = masterCourses.map((mc) => ({
+      value: mc.id,
+      label: mc.topic,
+    }));
+
+    const resolvedId = resolveMasterCourseId(courseData, masterCourses);
+    if (
+      courseData &&
+      resolvedId &&
+      !options.some((option) => String(option.value) === String(resolvedId))
+    ) {
+      options.unshift({
+        value: resolvedId,
+        label:
+          courseData.topic ||
+          courseData.master_course_name ||
+          "Current Topic",
+      });
+    }
+
+    return options;
+  }, [courseData, masterCourses]);
+
   const isPastEndDate = () => {
     if (!endDate) return false;
     const end = new Date(endDate);
@@ -182,7 +234,7 @@ const ActiveCourseForm = () => {
           // Reset form
           reset({
             ...course,
-            topic: course.master_course_id || "",
+            topic: resolveMasterCourseId(course, masterCourses),
             start_date: course.start_date
               ? new Date(course.start_date).toISOString().split("T")[0]
               : "",
@@ -218,7 +270,16 @@ const ActiveCourseForm = () => {
       };
       fetchData();
     }
-  }, [id, navigate, reset, backRoute]);
+  }, [id, navigate, reset, backRoute, masterCourses]);
+
+  useEffect(() => {
+    if (id && courseData && masterCourses.length > 0) {
+      const resolvedTopic = resolveMasterCourseId(courseData, masterCourses);
+      if (resolvedTopic && String(selectedTopic || "") !== String(resolvedTopic)) {
+        setValue("topic", resolvedTopic);
+      }
+    }
+  }, [id, courseData, masterCourses, selectedTopic, setValue]);
 
   // Auto-populate from Master Course
   useEffect(() => {
@@ -638,10 +699,7 @@ const ActiveCourseForm = () => {
                             disabled={isTrainerCourseReadOnly}
                             register={register}
                             errors={errors}
-                            options={masterCourses.map((mc) => ({
-                              value: mc.id,
-                              label: mc.topic,
-                            }))}
+                            options={topicOptions}
                           />
                           <InputField
                             label="Course Name"
