@@ -64,7 +64,7 @@ const AssessmentList = () => {
         } finally {
             setLoading(false);
         }
-    }, [searchTerm, currentPage, limit]);
+    }, [debouncedSearch, currentPage, limit]);
 
     useEffect(() => {
         fetchAssessments();
