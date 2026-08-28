@@ -42,6 +42,8 @@ const CertificateList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState("issue_date");
+    const [sortOrder, setSortOrder] = useState("desc");
 
     // Filters
     const [statusFilter, setStatusFilter] = useState("");
@@ -55,6 +57,8 @@ const CertificateList = () => {
                 page: currentPage,
                 limit,
                 status: statusFilter,
+                sortBy,
+                sortOrder,
             };
             if (debouncedSearch.trim()) {
                 params.search = debouncedSearch.trim();
@@ -75,7 +79,17 @@ const CertificateList = () => {
             setLoading(false);
         }
 
-    }, [currentPage, limit, debouncedSearch, statusFilter]);
+    }, [currentPage, limit, debouncedSearch, statusFilter, sortBy, sortOrder]);
+
+    const handleSort = useCallback((key) => {
+        if (sortBy === key) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortBy(key);
+            setSortOrder("asc");
+        }
+        setCurrentPage(1);
+    }, [sortBy, sortOrder]);
 
     useEffect(() => {
         fetchCertificates();
@@ -298,6 +312,9 @@ const CertificateList = () => {
                 emptyMessage="No certificates found."
                 currentPage={currentPage}
                 limit={limit}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
             />
 
             <TablePagination
