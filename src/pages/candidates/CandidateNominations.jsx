@@ -14,7 +14,6 @@ import {
   Building,
   Loader2,
   MessageSquare,
-  HelpCircle,
 } from "lucide-react";
 import Meta from "../../components/common/Meta";
 import { toast } from "sonner";
