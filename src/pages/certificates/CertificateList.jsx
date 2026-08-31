@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce } from "lodash";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Meta from "../../components/common/Meta";
 import {
@@ -7,7 +7,6 @@ import {
     Award,
     Printer,
     Edit,
-    // Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../components/ui/Card";
