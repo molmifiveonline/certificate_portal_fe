@@ -11,6 +11,7 @@ const CandidatesTab = ({
   onAdd,
   onStatusPoolChange,
   onLastVesselChange,
+  onCcEmailChange,
   onObserverToggle,
   onBulkEmail,
   isTrainerRole = false,
@@ -261,6 +262,7 @@ const CandidatesTab = ({
                 <th className="px-4 py-3">Manning co / Manager</th>
                 <th className="px-4 py-3">Status Pool</th>
                 <th className="px-4 py-3">Last Vessel</th>
+                <th className="px-4 py-3">CC</th>
                 <th className="px-4 py-3 text-center">Observer</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -269,7 +271,7 @@ const CandidatesTab = ({
               {candidates.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={showBulkEmail ? 15 : 14}
+                    colSpan={showBulkEmail ? 16 : 15}
                     className="px-4 py-8 text-center text-slate-500"
                   >
                     No candidates enrolled yet.
@@ -359,6 +361,19 @@ const CandidatesTab = ({
                         onBlur={(e) => {
                           if (e.target.value !== (candidate.last_vessel || "")) {
                             onLastVesselChange(candidate.candidate_id, e.target.value);
+                          }
+                        }}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="text"
+                        defaultValue={candidate.cc_email || ""}
+                        placeholder="cc@example.com"
+                        className="h-9 px-3 rounded-lg border border-slate-200 text-sm focus:border-blue-500 outline-none w-36"
+                        onBlur={(e) => {
+                          if (e.target.value !== (candidate.cc_email || "")) {
+                            onCcEmailChange(candidate.candidate_id, e.target.value);
                           }
                         }}
                       />

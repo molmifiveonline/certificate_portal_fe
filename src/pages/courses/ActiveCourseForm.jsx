@@ -433,6 +433,20 @@ const ActiveCourseForm = () => {
     }
   };
 
+  const handleCcEmailChange = async (candidateId, newCcEmail) => {
+    try {
+      await activeCourseService.updateCcEmail(id, candidateId, newCcEmail);
+      setEnrolledCandidates((prev) =>
+        prev.map((c) =>
+          c.candidate_id === candidateId ? { ...c, cc_email: newCcEmail } : c,
+        ),
+      );
+      toast.success("CC email updated");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to update CC email"));
+    }
+  };
+
   const handleObserverToggle = async (candidateId, isObserver) => {
     const candidate = enrolledCandidates.find((c) => c.candidate_id === candidateId);
     const courseStatus = courseData?.status;
@@ -1157,6 +1171,7 @@ const ActiveCourseForm = () => {
               }
               onStatusPoolChange={handleStatusPoolChange}
               onLastVesselChange={handleLastVesselChange}
+              onCcEmailChange={handleCcEmailChange}
               onObserverToggle={handleObserverToggle}
               onBulkEmail={handleSendBulkOnlineEmail}
               isTrainerRole={isTrainerRole}
