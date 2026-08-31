@@ -78,6 +78,14 @@ const activeCourseService = {
     return response.data;
   },
 
+  updateCcEmail: async (id, candidateId, ccEmail) => {
+    const response = await api.put(
+      `/active-courses/${id}/candidates/${candidateId}/cc-email`,
+      { ccEmail },
+    );
+    return response.data;
+  },
+
   updateObserverStatus: async (id, candidateId, isObserver) => {
     const response = await api.put(
       `/active-courses/${id}/candidates/${candidateId}/observer`,
