@@ -12,7 +12,10 @@ const ReimbursementAttachments = ({
       {editable && (
         <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/80 px-4 py-6 text-sm font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-700">
           <UploadCloud className="h-5 w-5" />
-          Upload supporting attachments
+          <div className="flex flex-col">
+            <span>Upload supporting attachments</span>
+            <span className="text-xs text-slate-400 font-normal">Max size: 5MB per image</span>
+          </div>
           <input
             type="file"
             multiple
@@ -20,8 +23,8 @@ const ReimbursementAttachments = ({
             onChange={(event) => {
               const files = Array.from(event.target.files);
               for (const file of files) {
-                if (file.type.startsWith("image/") && file.size > 500 * 1024) {
-                  toast.error(`Image "${file.name}" exceeds 500 KB limit.`);
+                if (file.type.startsWith("image/") && file.size > 5 * 1024 * 1024) {
+                  toast.error(`Image "${file.name}" exceeds 5MB limit.`);
                   event.target.value = "";
                   return;
                 }
