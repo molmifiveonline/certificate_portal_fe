@@ -198,6 +198,15 @@ const HotelReport = () => {
           </span>
         ),
       },
+      {
+        key: "cost",
+        label: "Cost",
+        render: (val) => (
+          <span className="font-semibold text-slate-800">
+            {val !== null && val !== undefined ? `₹${val}` : "-"}
+          </span>
+        ),
+      },
     ],
     [currentPage, limit],
   );
