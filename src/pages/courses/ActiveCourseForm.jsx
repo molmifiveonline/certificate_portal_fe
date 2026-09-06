@@ -231,6 +231,19 @@ const ActiveCourseForm = () => {
           const course = await activeCourseService.getCourseById(id);
           setCourseData(course);
 
+          let resolvedLocationId = course.location_id || "";
+          if (resolvedLocationId && !resolvedLocationId.includes("-")) {
+            // Legacy name-based location_id. Resolve to UUID.
+            try {
+              const locRes = await api.get("/locations");
+              const locs = locRes.data?.data?.data || (Array.isArray(locRes.data) ? locRes.data : []);
+              const match = locs.find((l) => l.location_name === resolvedLocationId);
+              if (match) resolvedLocationId = match.id;
+            } catch (err) {
+              console.error("Failed to fetch locations for fallback resolution", err);
+            }
+          }
+
           // Reset form
           reset({
             ...course,
@@ -252,7 +265,7 @@ const ActiveCourseForm = () => {
               : [],
             no_of_days: course.no_of_days || "",
             type_of_location: course.type_of_location || "",
-            location_id: course.location_id || "",
+            location_id: resolvedLocationId,
             other_location: course.other_location || "",
           });
 
@@ -871,7 +884,7 @@ const ActiveCourseForm = () => {
                             errors={errors}
                             options={[
                               ...locations.map((loc) => ({
-                                value: loc.location_name,
+                                value: loc.id,
                                 label: loc.location_name,
                               })),
                               { value: "Other", label: "Other" },
