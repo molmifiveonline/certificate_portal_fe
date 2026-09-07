@@ -384,7 +384,7 @@ const CourseCertificateTemplateBase = ({
               border="0"
               cellPadding="0"
               cellSpacing="0"
-              style={{ width: "1050px", margin: "0 auto" }}
+              style={{ width: "900px", margin: "0 auto" }}
             >
               <tbody>
                 <tr>
@@ -394,7 +394,7 @@ const CourseCertificateTemplateBase = ({
                       border="0"
                       cellPadding="0"
                       cellSpacing="0"
-                      style={{ width: "1050px" }}
+                      style={{ width: "900px" }}
                     >
                       <tbody>
                         <tr>
@@ -580,7 +580,7 @@ const CourseCertificateTemplateBase = ({
               border="0"
               cellPadding="0"
               cellSpacing="0"
-              style={{ width: "750px", margin: "0 auto" }}
+              style={{ width: "900px", margin: "0 auto", tableLayout: "fixed" }}
             >
               <tbody>
                 <tr>
@@ -590,7 +590,7 @@ const CourseCertificateTemplateBase = ({
                       border="0"
                       cellPadding="0"
                       cellSpacing="0"
-                      style={{ width: "900px" }}
+                      style={{ width: "100%", tableLayout: "fixed" }}
                     >
                       <tbody>
                         <tr>
@@ -605,7 +605,7 @@ const CourseCertificateTemplateBase = ({
                               border="0"
                               cellPadding="0"
                               cellSpacing="0"
-                              style={{ width: "100%" }}
+                              style={{ width: "100%", tableLayout: "fixed" }}
                             >
                               <tbody>
                                 <tr>
@@ -615,6 +615,7 @@ const CourseCertificateTemplateBase = ({
                                       border="0"
                                       cellPadding="0"
                                       cellSpacing="0"
+                                      style={{ width: "100%" }}
                                     >
                                       <tbody>
                                         <tr>
@@ -653,6 +654,9 @@ const CourseCertificateTemplateBase = ({
                               letterSpacing: "0.4px",
                               height: "550px",
                               verticalAlign: "baseline",
+                              wordBreak: "break-word",
+                              overflowWrap: "break-word",
+                              whiteSpace: "pre-wrap",
                             }}
                             dangerouslySetInnerHTML={{
                               __html: certificate.description1,
