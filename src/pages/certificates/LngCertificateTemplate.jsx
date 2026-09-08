@@ -28,7 +28,24 @@ const LngCertificateTemplate = ({
       : "This training is the LNG carrier standard training course that is intended to apply to seafarers classifying as the Operational rank, which is certified by DNV as compliant with the LNG Shipping suggested competency standards issued by SIGTTO and includes the Cargo simulator training.";
 
   return (
-    <div
+    <>
+      <style>
+        {`
+          @media print {
+            .lng-cert-wrapper {
+              zoom: 0.95;
+              margin: 0 auto !important;
+              min-height: auto !important;
+              padding: 10mm 12mm 10mm !important;
+            }
+            .lng-cert-inner {
+              min-height: auto !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="lng-cert-wrapper"
       style={{
         backgroundColor: "#fff",
         color: "#000",
@@ -40,7 +57,7 @@ const LngCertificateTemplate = ({
         fontFamily: '"Times New Roman", serif',
       }}
     >
-      <div style={{ position: "relative", minHeight: "240mm" }}>
+      <div className="lng-cert-inner" style={{ position: "relative", minHeight: "240mm" }}>
         <img
           src="/mol-logo.png"
           alt="MOL"
@@ -324,7 +341,8 @@ const LngCertificateTemplate = ({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -20,7 +20,23 @@ const CourseCertificateTemplateBase = ({
   stampLogoSrc,
 }) => {
   return (
-    <table
+    <>
+      <style>
+        {`
+          @media print {
+            .course-cert-wrapper {
+              zoom: 0.70;
+              margin: 0 auto !important;
+              padding-top: 15px; /* small margin at top */
+            }
+            .course-cert-wrapper > table {
+              margin-top: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div className="course-cert-wrapper">
+        <table
       align="center"
       border="0"
       cellPadding="0"
@@ -652,7 +668,8 @@ const CourseCertificateTemplateBase = ({
                               textTransform: "uppercase",
                               fontSize: "18px",
                               letterSpacing: "0.4px",
-                              height: "550px",
+                              minHeight: "450px",
+                              height: "auto",
                               verticalAlign: "baseline",
                               wordBreak: "break-word",
                               overflowWrap: "break-word",
@@ -1198,6 +1215,8 @@ const CourseCertificateTemplateBase = ({
         </tr>
       </tbody>
     </table>
+      </div>
+    </>
   );
 };
 

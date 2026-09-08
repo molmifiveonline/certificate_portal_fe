@@ -123,19 +123,27 @@ const CertificatePrintView = () => {
           }
 
           @media print {
-            body { background: white !important; }
+            html, body {
+              width: 100%;
+              height: 100%;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: white !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              overflow: hidden !important;
+            }
             @page {
-              margin-left: 0.4in;
-              margin-right: 0.5in;
-              margin-top: ${
-                isLngCertificate
-                  ? "0.2in"
-                  : certificate.show_logo === 1
-                    ? "0.05in"
-                    : "0.2in"
-              };
-              margin-bottom: 0;
+              margin: 0;
               size: A4 portrait;
+            }
+            .cert-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              height: 100vh !important;
+              overflow: hidden !important;
+              page-break-after: avoid;
+              page-break-inside: avoid;
             }
             #printBtn {
               display: none !important;
