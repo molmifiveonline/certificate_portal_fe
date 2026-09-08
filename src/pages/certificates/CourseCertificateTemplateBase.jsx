@@ -25,12 +25,15 @@ const CourseCertificateTemplateBase = ({
         {`
           @media print {
             .course-cert-wrapper {
-              zoom: 0.70;
+              zoom: 0.72;
               margin: 0 auto !important;
-              padding-top: 15px; /* small margin at top */
+              padding: 0 !important;
             }
             .course-cert-wrapper > table {
               margin-top: 0 !important;
+            }
+            .cert-description-td {
+              height: 550px !important;
             }
           }
         `}
@@ -662,14 +665,14 @@ const CourseCertificateTemplateBase = ({
                         </tr>
                         <tr>
                           <td
+                            className="cert-description-td"
                             style={{
                               textAlign: "left",
                               color: "#202020",
                               textTransform: "uppercase",
                               fontSize: "18px",
                               letterSpacing: "0.4px",
-                              minHeight: "450px",
-                              height: "auto",
+                              height: "550px",
                               verticalAlign: "baseline",
                               wordBreak: "break-word",
                               overflowWrap: "break-word",
