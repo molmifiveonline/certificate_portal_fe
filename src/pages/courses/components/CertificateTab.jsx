@@ -178,7 +178,7 @@ const CertificateTab = ({ courseId }) => {
           <tbody className="divide-y divide-slate-100">
             {candidates.length === 0 ? (
               <tr>
-                <td colSpan="9" className="text-center py-8 text-slate-400">
+                <td colSpan="11" className="text-center py-8 text-slate-400">
                   No candidates enrolled
                 </td>
               </tr>
@@ -200,19 +200,37 @@ const CertificateTab = ({ courseId }) => {
                       {c.empId || "-"}
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-900">
-                      {c.candidate_name}
+                      <div className="flex items-center gap-2">
+                        <span>{c.candidate_name}</span>
+                        {c.post_score_attempt > 1 && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            Retest
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span
-                        className={cn(
-                          "px-2 py-0.5 rounded text-xs font-bold",
-                          c.post_score >= 60
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700",
+                      <div className="inline-flex flex-col items-center justify-center gap-1">
+                        <span
+                          className={cn(
+                            "px-2 py-0.5 rounded text-xs font-bold",
+                            (c.post_score_attempt > 1
+                              ? c.post_score >= 70
+                              : c.post_score >= 60)
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700",
+                          )}
+                        >
+                          {c.post_score !== null && c.post_score !== undefined
+                            ? `${c.post_score}%`
+                            : "-"}
+                        </span>
+                        {c.post_score_attempt > 1 && (
+                          <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            Retest {c.post_score_attempt > 2 ? `(#${c.post_score_attempt})` : ""}
+                          </span>
                         )}
-                      >
-                        {c.post_score ?? "-"}%
-                      </span>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
