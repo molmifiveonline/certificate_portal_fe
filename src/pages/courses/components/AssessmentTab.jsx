@@ -249,16 +249,25 @@ const AssessmentTab = ({ courseId, isTrainerRole = false }) => {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        {c.post_score !== null ? (
-                          <span className="font-bold text-green-600">
-                            {c.post_score}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                        <span className="text-slate-400 text-xs ml-1">
-                          /{c.post_total || 0}
-                        </span>
+                        <div className="inline-flex flex-col items-center justify-center">
+                          <div>
+                            {c.post_score !== null ? (
+                              <span className="font-bold text-green-600">
+                                {c.post_score}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">-</span>
+                            )}
+                            <span className="text-slate-400 text-xs ml-1">
+                              /{c.post_total || 0}
+                            </span>
+                          </div>
+                          {c.post_score_attempt > 1 && (
+                            <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-1">
+                              Retest {c.post_score_attempt > 2 ? `(#${c.post_score_attempt})` : ""}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 min-w-[200px]">
                         <input
