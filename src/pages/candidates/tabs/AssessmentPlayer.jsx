@@ -106,7 +106,9 @@ const AssessmentPlayer = ({ assessmentId, courseId, onClose }) => {
     );
 
   if (result) {
-    const isPassed = result.score >= 60;
+    const isRetest = (result.attempt_number || 1) > 1;
+    const requiredScore = isRetest ? 70 : 60;
+    const isPassed = result.score >= requiredScore;
     return (
       <div className="max-w-2xl mx-auto py-12 animate-in zoom-in-95 duration-300">
         <Card
@@ -155,7 +157,7 @@ const AssessmentPlayer = ({ assessmentId, courseId, onClose }) => {
               <p className="text-slate-600 leading-relaxed font-medium">
                 {isPassed
                   ? "Excellent! You have successfully passed the assessment and met the certification requirements."
-                  : "You didn't reach the required 60% pass mark. Please review the course materials and try again."}
+                  : `You didn't reach the required ${requiredScore}% pass mark. Please review the course materials and try again.`}
               </p>
             </div>
           </CardContent>
