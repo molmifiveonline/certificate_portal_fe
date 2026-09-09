@@ -284,8 +284,19 @@ const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
     );
   }
 
-  if (!status?.hasSubmitted && !status?.postAssessmentCompleted) {
+  if (
+    !status?.hasSubmitted &&
+    (!status?.postAssessmentCompleted || !status?.postAssessmentPassed)
+  ) {
     const isAssessmentCreated = !!status?.postAssessmentExists;
+    const isCompletedButFailed =
+      !!status?.postAssessmentCompleted && !status?.postAssessmentPassed;
+    const scoreMessage =
+      status?.postAssessmentScore !== null &&
+      status?.postAssessmentScore !== undefined &&
+      status?.requiredScore
+        ? `Your latest score is ${status.postAssessmentScore}%. Required score is ${status.requiredScore}%.`
+        : "Your latest post-assessment score is below the required passing score.";
 
     return (
       <div className="max-w-2xl mx-auto py-8">
@@ -295,24 +306,32 @@ const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
               <Lock className="w-7 h-7" />
             </div>
             <CardTitle className="text-xl font-bold text-slate-800">
-              {isAssessmentCreated
+              {isCompletedButFailed
+                ? "Post-Assessment Pass Required"
+                : isAssessmentCreated
                 ? "Post-Assessment Required"
                 : "Post-Assessment Not Available Yet"}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-5 px-6 pb-8">
             <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto">
-              {isAssessmentCreated
+              {isCompletedButFailed
+                ? `Course feedback is only enabled after you pass the Post-Course Assessment. ${scoreMessage}`
+                : isAssessmentCreated
                 ? "Course feedback is only enabled after you have completed your Post-Course Assessment. Please complete the assessment to unlock the feedback form."
                 : "The post-course assessment for this course has not been created yet. Feedback will become available once the assessment is created and completed."}
             </p>
 
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-medium">
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Feedback is locked until post-assessment is completed</span>
+              <span>
+                {isCompletedButFailed
+                  ? "Feedback is locked until post-assessment is passed"
+                  : "Feedback is locked until post-assessment is completed"}
+              </span>
             </div>
 
-            {isAssessmentCreated && onGoToAssessment && (
+            {isAssessmentCreated && !isCompletedButFailed && onGoToAssessment && (
               <div className="pt-2">
                 <Button
                   onClick={onGoToAssessment}
