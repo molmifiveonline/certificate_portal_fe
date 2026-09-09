@@ -33,19 +33,25 @@ const LngCertificateTemplate = ({
         {`
           @media print {
             .lng-cert-wrapper {
-              zoom: 0.95;
+              zoom: var(--certificate-print-scale, 0.9);
               margin: 0 auto !important;
-              min-height: auto !important;
+              min-height: var(--certificate-print-page-height, auto) !important;
               padding: 10mm 12mm 10mm !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+              page-break-after: avoid !important;
             }
             .lng-cert-inner {
               min-height: auto !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
             }
           }
         `}
       </style>
       <div
         className="lng-cert-wrapper"
+        data-certificate-print-surface="true"
       style={{
         backgroundColor: "#fff",
         color: "#000",

@@ -25,12 +25,20 @@ const CourseCertificateTemplateBase = ({
         {`
           @media print {
             .course-cert-wrapper {
-              zoom: 0.72;
+              zoom: var(--certificate-print-scale, 0.7);
               margin: 0 auto !important;
               padding: 0 !important;
+              width: 1000px !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+              page-break-after: avoid !important;
             }
             .course-cert-wrapper > table {
               margin-top: 0 !important;
+              height: var(--certificate-print-page-height, auto) !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+              page-break-after: avoid !important;
             }
             .cert-description-td {
               height: 550px !important;
@@ -40,6 +48,7 @@ const CourseCertificateTemplateBase = ({
       </style>
       <div className="course-cert-wrapper">
         <table
+      data-certificate-print-surface="true"
       align="center"
       border="0"
       cellPadding="0"

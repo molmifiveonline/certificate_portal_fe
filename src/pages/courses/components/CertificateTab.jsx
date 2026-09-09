@@ -200,14 +200,7 @@ const CertificateTab = ({ courseId }) => {
                       {c.empId || "-"}
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-900">
-                      <div className="flex items-center gap-2">
-                        <span>{c.candidate_name}</span>
-                        {c.post_score_attempt > 1 && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                            Retest
-                          </span>
-                        )}
-                      </div>
+                      {c.candidate_name}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="inline-flex flex-col items-center justify-center gap-1">
