@@ -59,7 +59,7 @@ const CandidateSelectionModal = ({
         <div className="p-4 border-b border-slate-100">
           <input
             type="text"
-            placeholder="Search by name, candidate ID, emp ID, email, passport, rank, designation..."
+            placeholder="Search by name, candidate ID, emp ID, email, passport, rank, position..."
             className="w-full px-4 py-2 border rounded-lg"
             value={candidateSearch}
             onChange={(e) => setCandidateSearch(e.target.value)}
@@ -96,7 +96,7 @@ const CandidateSelectionModal = ({
                 <th className="px-2 py-2.5 whitespace-nowrap w-28">CDC / Passport</th>
                 <th className="px-2 py-2.5 whitespace-nowrap w-20">Rank</th>
                 <th className="px-2 py-2.5 whitespace-nowrap w-24">Seaman No</th>
-                <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Designation</th>
+                <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Position</th>
                 <th className="px-2 py-2.5 whitespace-nowrap min-w-[140px]">Manning co / Manager</th>
                 <th className="px-2 py-2.5 whitespace-nowrap w-24">Status Pool</th>
                 <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Last Vessel</th>

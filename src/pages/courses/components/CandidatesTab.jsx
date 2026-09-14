@@ -102,7 +102,7 @@ const CandidatesTab = ({
       render: (candidate) => formatDate(candidate.previous_certificate_date),
     },
     {
-      label: "Designation",
+      label: "Position",
       render: (candidate) => getCandidateValue(candidate, "designation"),
     },
     {
@@ -258,7 +258,7 @@ const CandidatesTab = ({
                 <th className="px-4 py-3">CDC/Passport</th>
                 <th className="px-4 py-3">Rank</th>
                 <th className="px-4 py-3">Seaman No</th>
-                <th className="px-4 py-3">Designation</th>
+                <th className="px-4 py-3">Position</th>
                 <th className="px-4 py-3">Manning co / Manager</th>
                 <th className="px-4 py-3">Status Pool</th>
                 <th className="px-4 py-3">Last Vessel</th>
@@ -337,7 +337,7 @@ const CandidatesTab = ({
                     </td>
                     <td className="px-4 py-3">
                       <select
-                        value={candidate.status_pool || ""}
+                        value={(candidate.status_pool || "").toUpperCase().trim()}
                         onChange={(e) =>
                           onStatusPoolChange(
                             candidate.candidate_id,

@@ -18,6 +18,29 @@ import certificateService from "../../services/certificateService";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 
+const getApiBaseUrl = () => {
+    const rawUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const normalizedUrl = rawUrl.replace(/\/+$/, "");
+    return /\/api$/i.test(normalizedUrl) ? normalizedUrl : `${normalizedUrl}/api`;
+};
+
+const buildUploadUrl = (path) => {
+    if (!path) return null;
+    if (/^https?:\/\//i.test(path)) return path;
+    const normalizedPath = String(path).replace(/^\/+/, "");
+    return `${getApiBaseUrl()}/${normalizedPath.replace(/^api\/+/i, "")}`;
+};
+
+const getCertificateTypeLabel = (value) => {
+    const normalizedValue = String(value || "").trim();
+    return normalizedValue || "outhouse";
+};
+
+const isOuthouseCertificate = (certificate) =>
+    certificate?.certificate_source === "outhouse" ||
+    Number(certificate?.is_outhouse_certificate) === 1 ||
+    String(certificate?.type || "").trim().toLowerCase() === "outhouse";
+
 const CertificateList = () => {
     const { hasPermission } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
@@ -118,7 +141,7 @@ const CertificateList = () => {
                 headers.join(','),
                 ...certificates.map((cert) => [
                     cert.certificate_no,
-                    `"${cert.type || ''}"`,
+                    `"${getCertificateTypeLabel(cert.type)}"`,
                     `"${cert.candidate_name}"`,
                     `"${cert.topic}"`,
                     `"${cert.master_course_name}"`,
@@ -163,7 +186,7 @@ const CertificateList = () => {
             className: "whitespace-normal",
             render: (val) => (
                 <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                    {val || "-"}
+                    {getCertificateTypeLabel(val)}
                 </span>
             ),
         },
@@ -206,33 +229,43 @@ const CertificateList = () => {
             key: "actions",
             label: "Actions",
             align: "right",
-            render: (_val, row) => (
-                <div className="flex items-center justify-end gap-2">
-                    <button
-                        onClick={() => window.open(`/certificates/print/${row.id}`, '_blank')}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                        title="Print"
-                    >
-                        <Printer className="w-4 h-4" />
-                    </button>
-                    {hasPermission("manage_active_course_certificates") && (
-                        <button
-                            onClick={() => navigate(`/certificates/edit/${row.id}`)}
-                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-                            title="Edit"
+            render: (_val, row) => {
+                const outhouseCertificate = isOuthouseCertificate(row);
+                const certificateUrl = outhouseCertificate && row.file_url
+                    ? buildUploadUrl(row.file_url)
+                    : `/certificates/print/${row.id}`;
+                const canOpenCertificate = !outhouseCertificate || Boolean(row.file_url);
+
+                return (
+                    <div className="flex items-center justify-end gap-2">
+                        {canOpenCertificate && (
+                            <button
+                                onClick={() => window.open(certificateUrl, '_blank')}
+                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                                title={outhouseCertificate ? "View Certificate" : "Print"}
+                            >
+                                <Printer className="w-4 h-4" />
+                            </button>
+                        )}
+                        {hasPermission("manage_active_course_certificates") && !outhouseCertificate && (
+                            <button
+                                onClick={() => navigate(`/certificates/edit/${row.id}`)}
+                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                                title="Edit"
+                            >
+                                <Edit className="w-4 h-4" />
+                            </button>
+                        )}
+                        {/* <button
+                            onClick={() => handleDelete(row.id)}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                            title="Delete"
                         >
-                            <Edit className="w-4 h-4" />
-                        </button>
-                    )}
-                    {/* <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                        title="Delete"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button> */}
-                </div>
-            ),
+                            <Trash2 className="w-4 h-4" />
+                        </button> */}
+                    </div>
+                );
+            },
         },
     ];
 

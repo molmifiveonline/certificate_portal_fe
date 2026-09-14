@@ -100,9 +100,12 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
         registration_type: data.employeeType || "Others",
         designation: data.designation,
         vessel_type: data.vesselType,
+        status_pool: data.statusPool,
         last_vessel_name: data.lastVesselName,
         next_vessel_name: data.nextVesselName,
         manning_company: data.manningCompany,
+        manning_agent: data.manningAgent,
+        fg_global: data.fgGlobal,
         sign_on_date: data.signOnDate || null,
         sign_off_date: data.signOffDate || null,
         officer: data.officer,
@@ -230,7 +233,7 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
               <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div className="relative flex-1 min-w-[240px]">
                   <Input
-                    placeholder="Search by name, candidate ID, email, INDoS, rank, designation, passport..."
+                    placeholder="Search by name, candidate ID, email, INDoS, rank, position, passport..."
                     value={poolSearch}
                     onChange={(e) => setPoolSearch(e.target.value)}
                     className="pl-10 bg-white"
@@ -296,7 +299,7 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
                       <th className="px-2 py-2.5 whitespace-nowrap w-28">CDC / Passport</th>
                       <th className="px-2 py-2.5 whitespace-nowrap w-20">Rank</th>
                       <th className="px-2 py-2.5 whitespace-nowrap w-24">Seaman No</th>
-                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Designation</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Position</th>
                       <th className="px-2 py-2.5 whitespace-nowrap min-w-[140px]">Manning co / Manager</th>
                       <th className="px-2 py-2.5 whitespace-nowrap w-24">Status Pool</th>
                       <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Last Vessel</th>
@@ -384,7 +387,7 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
                             {c.manager || c.manning_company || "-"}
                           </td>
                           <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
-                            {c.status_pool || c.vessel_type || "-"}
+                            {c.status_pool || "-"}
                           </td>
                           <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
                             {c.last_vessel || c.last_vessel_name || "-"}

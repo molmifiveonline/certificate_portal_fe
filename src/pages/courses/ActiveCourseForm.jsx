@@ -167,7 +167,9 @@ const ActiveCourseForm = () => {
   const topicOptions = useMemo(() => {
     const options = masterCourses.map((mc) => ({
       value: mc.id,
-      label: mc.topic,
+      label: mc.master_course_name
+        ? `${mc.topic} (${mc.master_course_name})`
+        : mc.topic,
     }));
 
     const resolvedId = resolveMasterCourseId(courseData, masterCourses);
@@ -176,12 +178,12 @@ const ActiveCourseForm = () => {
       resolvedId &&
       !options.some((option) => String(option.value) === String(resolvedId))
     ) {
+      const fallbackLabel = courseData.master_course_name
+        ? `${courseData.topic || "Current Topic"} (${courseData.master_course_name})`
+        : courseData.topic || courseData.master_course_name || "Current Topic";
       options.unshift({
         value: resolvedId,
-        label:
-          courseData.topic ||
-          courseData.master_course_name ||
-          "Current Topic",
+        label: fallbackLabel,
       });
     }
 
