@@ -16,6 +16,24 @@ import {
   isCertificateOwnedByCandidate,
 } from "../../lib/utils/candidateUtils";
 
+const getApiBaseUrl = () => {
+  const rawUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const normalizedUrl = rawUrl.replace(/\/+$/, "");
+  return /\/api$/i.test(normalizedUrl) ? normalizedUrl : `${normalizedUrl}/api`;
+};
+
+const buildUploadUrl = (path) => {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  const normalizedPath = String(path).replace(/^\/+/, "");
+  return `${getApiBaseUrl()}/${normalizedPath.replace(/^api\/+/i, "")}`;
+};
+
+const isOuthouseCertificate = (certificate) =>
+  certificate?.certificate_source === "outhouse" ||
+  Number(certificate?.is_outhouse_certificate) === 1 ||
+  String(certificate?.type || "").trim().toLowerCase() === "outhouse";
+
 const CandidateCertificateList = () => {
   const { user } = useAuth();
 
@@ -157,18 +175,28 @@ const CandidateCertificateList = () => {
       key: "actions",
       label: "Actions",
       align: "right",
-      render: (_value, row) => (
-        <div className="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => window.open(`/certificates/print/${row.id}`, "_blank")}
-            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
-            title="View"
-          >
-            <Printer className="h-4 w-4" />
-          </button>
-        </div>
-      ),
+      render: (_value, row) => {
+        const outhouseCertificate = isOuthouseCertificate(row);
+        const viewUrl = outhouseCertificate && row.file_url
+          ? buildUploadUrl(row.file_url)
+          : `/certificates/print/${row.id}`;
+        const canOpenCertificate = !outhouseCertificate || Boolean(row.file_url);
+
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {canOpenCertificate && (
+              <button
+                type="button"
+                onClick={() => window.open(viewUrl, "_blank")}
+                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-all"
+                title="View"
+              >
+                <Printer className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 

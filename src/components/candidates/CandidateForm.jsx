@@ -391,6 +391,14 @@ const CandidateForm = ({
                         className="col-span-2"
                       />
                     )}
+                    <InputField
+                      label="Manning Agent"
+                      name="manningAgent"
+                    />
+                    <InputField
+                      label="FG Global"
+                      name="fgGlobal"
+                    />
                   </div>
                 </div>
               </div>
