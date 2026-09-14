@@ -40,6 +40,7 @@ const AddCandidate = () => {
                 registration_type: data.employeeType,
                 designation: data.designation,
                 vessel_type: data.vesselType,
+                status_pool: data.statusPool,
                 last_vessel_name: data.lastVesselName,
                 next_vessel_name: data.nextVesselName,
                 manning_company: data.manningCompany,

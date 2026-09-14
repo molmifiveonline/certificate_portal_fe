@@ -21,6 +21,7 @@ import {
   CANDIDATE_NATIONALITY_OPTIONS,
   RANK_LAST_SERVED_OPTIONS,
 } from "../../lib/constants";
+import { STATUS_POOL_OPTIONS } from "../../lib/utils/constants";
 import { getCommonFieldValidation } from "../../lib/utils/validation";
 
 const FormContext = createContext();
@@ -184,6 +185,10 @@ const CandidateForm = ({
     formattedDefaultValues.nationality,
     CANDIDATE_NATIONALITY_OPTIONS,
   );
+  
+  if (formattedDefaultValues.statusPool) {
+    formattedDefaultValues.statusPool = formattedDefaultValues.statusPool.toUpperCase().trim();
+  }
 
   if (
     formattedDefaultValues.manager &&
@@ -634,12 +639,18 @@ const CandidateForm = ({
               <div>
                 <SectionHeader title="Vessel & Experience" icon={Briefcase} />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputField label="Designation" name="designation" />
+                  <InputField label="Position" name="designation" />
                   <InputField label="Vessel Type" name="vesselType" />
+                  <SelectField
+                    label="Status Pool"
+                    name="statusPool"
+                    options={STATUS_POOL_OPTIONS.map(opt => ({ value: opt, label: opt }))}
+                    placeholder="Select Status Pool"
+                  />
                   <InputField label="Last Vessel Name" name="lastVesselName" />
                   <InputField label="Next Vessel Name" name="nextVesselName" />
                   <InputField label="Manning Company" name="manningCompany" />
-                  <InputField label="Officer" name="officer" required />
+                  <InputField label="Officer" name="officer" />
                   <InputField
                     label="Sign On Date"
                     name="signOnDate"
