@@ -119,6 +119,36 @@ const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
     fetchStatus();
   }, [fetchStatus]);
 
+  const feedbackCategories = normalizeFeedbackCategories(status?.form);
+
+  const isQuestionRequired = (qInfo, categoryId) => {
+    if (qInfo.type !== "text") return true;
+
+    const qTextLower = (qInfo.question || "").toLowerCase();
+    if (
+      qTextLower.includes("benefits earned") ||
+      qTextLower.includes("improvement")
+    ) {
+      return true;
+    }
+
+    const categoryAnswers = Object.values(formValues).filter(
+      (ans) => ans.category_id === categoryId
+    );
+    
+    return categoryAnswers.some((ans) => {
+      const catQInfo = feedbackCategories
+        .find((c) => c.id === categoryId)
+        ?.questions.find((q) => q.id === ans.question_id);
+
+      if (catQInfo && catQInfo.type === "rating") {
+        const ratingVal = Number(ans.answer);
+        return !isNaN(ratingVal) && ratingVal <= 7 && ratingVal > 0;
+      }
+      return false;
+    });
+  };
+
   const handleRatingChange = (qId, option) => {
     const answer = option.value || option.option_text || "";
     setFormValues((prev) => ({
@@ -143,10 +173,24 @@ const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
   };
 
   const handleSubmit = async () => {
-    // Validation: simple check if all questions are answered
-    const unanswered = Object.values(formValues).some((v) => !v.answer);
+    const unanswered = Object.values(formValues).some((v) => {
+      if (v.answer && v.answer.trim() !== "") return false;
+
+      let qInfo = null;
+      for (const cat of feedbackCategories) {
+        const found = cat.questions.find((q) => q.id === v.question_id);
+        if (found) {
+          qInfo = found;
+          break;
+        }
+      }
+
+      if (!qInfo) return true;
+      return isQuestionRequired(qInfo, v.category_id);
+    });
+
     if (unanswered) {
-      toast.warning("Please answer all questions before submitting.");
+      toast.warning("Please answer all required questions before submitting.");
       return;
     }
 
@@ -173,7 +217,7 @@ const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
       </div>
     );
 
-  const feedbackCategories = normalizeFeedbackCategories(status?.form);
+  
 
   if (status?.hasSubmitted) {
     const groupedAnswers = {};
@@ -393,6 +437,9 @@ const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
                 <p className="text-slate-700 font-medium mb-6 flex gap-3">
                   <span className="text-slate-300 font-bold">{idx + 1}.</span>
                   {question.question}
+                  {isQuestionRequired(question, category.id) && (
+                    <span className="text-red-500">*</span>
+                  )}
                 </p>
 
                 {question.type === "rating" ? (
