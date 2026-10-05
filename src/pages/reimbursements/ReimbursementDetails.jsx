@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
-import { Edit, Loader2, ReceiptText } from "lucide-react";
+import { Download, Edit, Loader2, ReceiptText } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import PageHeader from "../../components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 import reimbursementService from "../../services/reimbursementService";
 import { formatDate, formatDateTime } from "../../lib/utils/dateUtils";
+import { buildUploadUrl, downloadFile } from "../../lib/utils/fileUtils";
 import ReimbursementAttachments from "../../components/reimbursements/ReimbursementAttachments";
 import ReimbursementRemarksPanel from "../../components/reimbursements/ReimbursementRemarksPanel";
 import ReimbursementStatusBadge from "../../components/reimbursements/ReimbursementStatusBadge";
-import { canCandidateEditReimbursement } from "../../lib/utils/reimbursementUtils";
+import {
+  canCandidateEditReimbursement,
+  REIMBURSEMENT_STATUS,
+} from "../../lib/utils/reimbursementUtils";
 
 const DetailRow = ({ label, value }) => (
   <div className="rounded-2xl border border-slate-200 bg-white/80 p-4">
@@ -66,15 +71,35 @@ const ReimbursementDetails = () => {
         icon={ReceiptText}
         backTo="/reimbursements"
         actions={
-          canCandidateEditReimbursement(reimbursement.status) && (
-            <Link
-              to={`/reimbursements/${reimbursement.id}/edit`}
-              className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
-            >
-              <Edit className="h-4 w-4" />
-              Edit
-            </Link>
-          )
+          <div className="flex flex-wrap items-center gap-2">
+            {reimbursement.status === REIMBURSEMENT_STATUS.APPROVED &&
+              reimbursement.approved_pdf_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    downloadFile(
+                      buildUploadUrl(reimbursement.approved_pdf_url),
+                      `${reimbursement.claim_number || "claim"}-approval.pdf`,
+                    )
+                  }
+                  className="gap-2 rounded-xl"
+                  title="Download Approval PDF"
+                >
+                  <Download className="h-4 w-4" />
+                  Approval PDF
+                </Button>
+              )}
+            {canCandidateEditReimbursement(reimbursement.status) && (
+              <Link
+                to={`/reimbursements/${reimbursement.id}/edit`}
+                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
+              >
+                <Edit className="h-4 w-4" />
+                Edit
+              </Link>
+            )}
+          </div>
         }
       />
 

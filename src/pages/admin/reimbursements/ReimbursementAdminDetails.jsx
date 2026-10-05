@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import {
   CheckCircle2,
+  Download,
   Loader2,
   Mail,
   ReceiptText,
@@ -22,6 +23,7 @@ import {
   REIMBURSEMENT_STATUS,
 } from "../../../lib/utils/reimbursementUtils";
 import { formatDate, formatDateTime } from "../../../lib/utils/dateUtils";
+import { buildUploadUrl, downloadFile } from "../../../lib/utils/fileUtils";
 import ReimbursementAttachments from "../../../components/reimbursements/ReimbursementAttachments";
 import ReimbursementRemarksPanel from "../../../components/reimbursements/ReimbursementRemarksPanel";
 import ReimbursementStatusBadge from "../../../components/reimbursements/ReimbursementStatusBadge";
@@ -187,19 +189,38 @@ const ReimbursementAdminDetails = () => {
           backTo="/admin/reimbursements"
           actions={
             reimbursement.status === REIMBURSEMENT_STATUS.APPROVED && (
-              <Button
-                type="button"
-                onClick={handleResendEmail}
-                disabled={actionLoading}
-                className="gap-2 rounded-xl"
-              >
-                {actionLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Mail className="h-4 w-4" />
+              <div className="flex flex-wrap items-center gap-2">
+                {reimbursement.approved_pdf_url && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      downloadFile(
+                        buildUploadUrl(reimbursement.approved_pdf_url),
+                        `${reimbursement.claim_number || "claim"}-approval.pdf`,
+                      )
+                    }
+                    className="gap-2 rounded-xl"
+                    title="Download Approval PDF"
+                  >
+                    <Download className="h-4 w-4" />
+                    Approval PDF
+                  </Button>
                 )}
-                Resend to Accounts
-              </Button>
+                <Button
+                  type="button"
+                  onClick={handleResendEmail}
+                  disabled={actionLoading}
+                  className="gap-2 rounded-xl"
+                >
+                  {actionLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4" />
+                  )}
+                  Resend to Accounts
+                </Button>
+              </div>
             )
           }
         />
