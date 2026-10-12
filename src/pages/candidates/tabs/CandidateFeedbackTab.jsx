@@ -45,12 +45,37 @@ const normalizeQuestionOptions = (question) => {
   });
 };
 
+const isVenueCategory = (categoryName) => {
+  const normalized = String(categoryName || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, " ");
+  return (
+    normalized.includes("training course venue") ||
+    normalized.includes("classroom venue")
+  );
+};
+
 const normalizeFeedbackCategories = (form) => {
   if (!form) return [];
 
+  let categories = [];
   if (Array.isArray(form.categories)) {
-    return form.categories.map((category) => ({
+    categories = form.categories.map((category) => ({
       id: category.id,
+      category_name: category.category_name || category.name,
+      questions: (category.questions || []).map((question) => ({
+        id: question.id,
+        question: question.question || question.question_text || "",
+        type: String(
+          question.type || question.question_type || "text",
+        ).toLowerCase(),
+        options: normalizeQuestionOptions(question),
+      })),
+    }));
+  } else {
+    categories = Object.entries(form.questions || {}).map(([categoryId, category]) => ({
+      id: categoryId,
       category_name: category.category_name || category.name,
       questions: (category.questions || []).map((question) => ({
         id: question.id,
@@ -63,18 +88,7 @@ const normalizeFeedbackCategories = (form) => {
     }));
   }
 
-  return Object.entries(form.questions || {}).map(([categoryId, category]) => ({
-    id: categoryId,
-    category_name: category.category_name || category.name,
-    questions: (category.questions || []).map((question) => ({
-      id: question.id,
-      question: question.question || question.question_text || "",
-      type: String(
-        question.type || question.question_type || "text",
-      ).toLowerCase(),
-      options: normalizeQuestionOptions(question),
-    })),
-  }));
+  return categories.filter((cat) => !isVenueCategory(cat.category_name));
 };
 
 const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
@@ -224,6 +238,7 @@ const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
     if (status?.answers) {
       status.answers.forEach((ans) => {
         const catName = ans.category_name || "General";
+        if (isVenueCategory(catName)) return;
         if (!groupedAnswers[catName]) {
           groupedAnswers[catName] = [];
         }
