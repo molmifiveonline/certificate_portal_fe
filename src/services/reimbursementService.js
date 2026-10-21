@@ -38,6 +38,13 @@ const reimbursementService = {
     return response.data;
   },
 
+  deleteAttachment: async (reimbursementId, attachmentId) => {
+    const response = await api.delete(
+      `/reimbursements/${reimbursementId}/attachments/${attachmentId}`,
+    );
+    return response.data;
+  },
+
   getAdminReimbursements: async (params) => {
     const response = await api.get("/admin/reimbursements", { params });
     return response.data;

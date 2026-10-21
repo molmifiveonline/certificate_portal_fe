@@ -88,6 +88,11 @@ export const toMultipartFormData = (values, attachments = []) => {
     formData.append(key, value);
   });
 
+  const retainedAttachmentIds = attachments
+    .filter((file) => file && file.id && !(file instanceof File))
+    .map((file) => file.id);
+  formData.append("retained_attachment_ids", JSON.stringify(retainedAttachmentIds));
+
   attachments.forEach((file) => {
     if (file instanceof File) {
       formData.append("attachments", file);

@@ -136,10 +136,10 @@ const ReimbursementAttachments = ({
                       </button>
                     </>
                   )}
-                  {editable && !isUploaded && (
+                  {editable && (
                     <button
                       type="button"
-                      onClick={() => onRemoveFile?.(index)}
+                      onClick={() => onRemoveFile?.(index, attachment)}
                       className="rounded-lg p-2 text-rose-600 transition-colors hover:bg-rose-50"
                       title="Remove attachment"
                     >
