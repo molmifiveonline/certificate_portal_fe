@@ -16,6 +16,7 @@ import Meta from "../../../components/common/Meta";
 import PageHeader from "../../../components/common/PageHeader";
 import { Button } from "../../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { Input } from "../../../components/ui/Input";
 import { Textarea } from "../../../components/ui/Textarea";
 import reimbursementService from "../../../services/reimbursementService";
 import {
@@ -43,6 +44,9 @@ const ActionModal = ({
   confirmText,
   remarks,
   setRemarks,
+  showCcField,
+  ccEmails,
+  setCcEmails,
   onClose,
   onConfirm,
   loading,
@@ -69,6 +73,23 @@ const ActionModal = ({
             className="min-h-[140px]"
             placeholder="Enter remarks"
           />
+
+          {showCcField && (
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-600">
+                CC Email (optional)
+              </label>
+              <Input
+                value={ccEmails}
+                onChange={(e) => setCcEmails(e.target.value)}
+                placeholder="e.g. person1@molgroup.com, person2@molgroup.com"
+                className="bg-white/80 border-slate-200"
+              />
+              <p className="text-xs text-slate-400">
+                Comma-separated. These addresses will be CC'd on the approval email.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
@@ -92,6 +113,7 @@ const ReimbursementAdminDetails = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [modalState, setModalState] = useState({ type: "", open: false });
   const [remarks, setRemarks] = useState("");
+  const [ccEmails, setCcEmails] = useState("");
 
   const loadReimbursement = useCallback(async () => {
     try {
@@ -113,11 +135,13 @@ const ReimbursementAdminDetails = () => {
   const closeModal = () => {
     setModalState({ type: "", open: false });
     setRemarks("");
+    setCcEmails("");
   };
 
   const openModal = (type) => {
     setModalState({ type, open: true });
     setRemarks("");
+    setCcEmails("");
   };
 
   const handleAction = async () => {
@@ -125,7 +149,7 @@ const ReimbursementAdminDetails = () => {
       setActionLoading(true);
 
       if (modalState.type === "approve") {
-        await reimbursementService.approveReimbursement(id, { remarks });
+        await reimbursementService.approveReimbursement(id, { remarks, cc_emails: ccEmails });
         toast.success("Claim approved and sent to accounts workflow");
       }
 
@@ -357,6 +381,9 @@ const ReimbursementAdminDetails = () => {
         }
         remarks={remarks}
         setRemarks={setRemarks}
+        showCcField={modalState.type === "approve"}
+        ccEmails={ccEmails}
+        setCcEmails={setCcEmails}
         onClose={closeModal}
         onConfirm={handleAction}
         loading={actionLoading}
