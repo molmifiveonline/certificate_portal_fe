@@ -45,7 +45,10 @@ export const downloadFile = async (url, fileName) => {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(blobUrl);
   } catch (error) {
-    console.error("Direct download failed, falling back to open in new tab:", error);
-    window.open(url, "_blank", "noopener,noreferrer");
+    console.error("Direct download failed:", error);
+    if (!error.message?.includes("404") && !error.message?.includes("403")) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+    throw error;
   }
 };

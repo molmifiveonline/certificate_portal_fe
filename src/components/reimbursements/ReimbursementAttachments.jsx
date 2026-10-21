@@ -35,7 +35,11 @@ const ReimbursementAttachments = ({
       await downloadFile(fileUrl, fileName);
     } catch (error) {
       console.error("Failed to download attachment:", error);
-      toast.error("Failed to download attachment");
+      toast.error(
+        error?.message?.includes("404")
+          ? "Attachment file not found on server"
+          : "Failed to download attachment",
+      );
     } finally {
       setDownloadingIndex(null);
     }
