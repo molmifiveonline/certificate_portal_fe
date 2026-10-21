@@ -72,9 +72,10 @@ const reimbursementService = {
     return response.data;
   },
 
-  resendApprovedEmail: async (id) => {
+  resendApprovedEmail: async (id, payload = {}) => {
     const response = await api.post(
       `/admin/reimbursements/${id}/resend-approved-email`,
+      payload,
     );
     return response.data;
   },
