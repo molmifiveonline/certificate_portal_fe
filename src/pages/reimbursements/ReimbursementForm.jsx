@@ -120,7 +120,18 @@ const ReimbursementForm = () => {
     setAttachments((prev) => [...prev, ...files]);
   };
 
-  const handleRemoveFile = (index) => {
+  const handleRemoveFile = async (index, attachment) => {
+    const item = attachment || attachments[index];
+    if (id && item?.id && !(item instanceof File)) {
+      try {
+        await reimbursementService.deleteAttachment(id, item.id);
+        toast.success(`Removed "${item.file_name || "attachment"}"`);
+      } catch (error) {
+        console.error("Failed to delete attachment:", error);
+        toast.error(getErrorMessage(error, "Failed to remove attachment"));
+        return;
+      }
+    }
     setAttachments((prev) => prev.filter((_, current) => current !== index));
   };
 

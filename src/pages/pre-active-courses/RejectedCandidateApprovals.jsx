@@ -84,6 +84,27 @@ const ActionModal = ({
             </div>
           </div>
 
+          {candidate?.candidate_remark && (
+            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs space-y-1">
+              <div className="font-semibold text-amber-800 flex items-center justify-between">
+                <span>Candidate Response:</span>
+                {candidate.candidate_rejection_reason && (
+                  <span className="px-2 py-0.5 rounded bg-amber-200/60 text-amber-900 font-medium">
+                    {candidate.candidate_rejection_reason}
+                  </span>
+                )}
+              </div>
+              <p className="text-amber-900 italic whitespace-pre-wrap">
+                "{candidate.candidate_remark}"
+              </p>
+              {candidate.candidate_available_date && (
+                <p className="text-amber-700">
+                  Available Date: {formatDate(candidate.candidate_available_date)}
+                </p>
+              )}
+            </div>
+          )}
+
           <Input
             label={`Admin Remark ${actionStatus === "Rejected" ? "(Required)" : "(Optional)"}`}
             value={adminRemark}
@@ -142,6 +163,7 @@ const RejectedCandidateApprovals = () => {
     status: "",
   });
   const [adminRemark, setAdminRemark] = useState("");
+  const [viewRemarkModal, setViewRemarkModal] = useState(null);
 
   const { hasPermission } = useAuth();
   const canEditApproval = hasPermission("edit_pre_active_approval");
@@ -293,12 +315,52 @@ const RejectedCandidateApprovals = () => {
     {
       key: "candidate_remark",
       label: "Candidate Remark",
-      className: "min-w-[220px] max-w-[260px]",
-      render: (value) => (
-        <div className="truncate text-slate-500" title={value}>
-          {value || "-"}
-        </div>
-      ),
+      className: "min-w-[220px] max-w-[280px]",
+      render: (value, row) =>
+        value ? (
+          <div>
+            <p
+              className="text-xs text-slate-700 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+              onClick={() =>
+                setViewRemarkModal({
+                  candidateName:
+                    `${row.first_name || ""} ${row.last_name || ""}`.trim() ||
+                    row.candidate_name,
+                  email: row.email || row.candidate_email,
+                  reason: row.candidate_rejection_reason,
+                  availableDate: row.candidate_available_date,
+                  remark: value,
+                  status: "Rejected",
+                })
+              }
+              title="Click to view full remark"
+            >
+              {value}
+            </p>
+            {value.length > 30 && (
+              <button
+                type="button"
+                onClick={() =>
+                  setViewRemarkModal({
+                    candidateName:
+                      `${row.first_name || ""} ${row.last_name || ""}`.trim() ||
+                      row.candidate_name,
+                    email: row.email || row.candidate_email,
+                    reason: row.candidate_rejection_reason,
+                    availableDate: row.candidate_available_date,
+                    remark: value,
+                    status: "Rejected",
+                  })
+                }
+                className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline mt-0.5 inline-flex items-center gap-1"
+              >
+                View full remark
+              </button>
+            )}
+          </div>
+        ) : (
+          <span className="text-slate-400">-</span>
+        ),
     },
     {
       key: "admin_status",
@@ -459,6 +521,82 @@ const RejectedCandidateApprovals = () => {
         onRemarkChange={setAdminRemark}
         onConfirm={confirmAction}
       />
+
+      {/* View Candidate Remark Modal */}
+      {viewRemarkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <h3 className="font-semibold text-slate-800">
+                Candidate Response & Remarks
+              </h3>
+              <button
+                onClick={() => setViewRemarkModal(null)}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="rounded-xl bg-slate-50 p-4 border border-slate-100 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    Candidate
+                  </span>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700">
+                    {viewRemarkModal.status}
+                  </span>
+                </div>
+                <p className="font-bold text-slate-800 text-base">
+                  {viewRemarkModal.candidateName}
+                </p>
+                {viewRemarkModal.email && (
+                  <p className="text-xs text-slate-500">
+                    {viewRemarkModal.email}
+                  </p>
+                )}
+              </div>
+
+              {viewRemarkModal.reason && (
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                    Rejection Reason
+                  </label>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
+                    {viewRemarkModal.reason}
+                  </span>
+                  {viewRemarkModal.availableDate && (
+                    <p className="text-xs text-slate-500 mt-1.5">
+                      Available Date:{" "}
+                      <strong>
+                        {formatDate(viewRemarkModal.availableDate)}
+                      </strong>
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                  Candidate Remark
+                </label>
+                <div className="rounded-xl bg-amber-50/70 border border-amber-200/90 p-4 text-sm text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[250px] overflow-y-auto">
+                  {viewRemarkModal.remark || "No remark provided."}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => setViewRemarkModal(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
