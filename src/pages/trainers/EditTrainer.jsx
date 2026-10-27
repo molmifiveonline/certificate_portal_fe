@@ -154,9 +154,16 @@ const EditTrainer = () => {
           .join(" ");
 
         setValue("trainer_name", trainerName);
-        setValue("prefix", trainer.prefix || "");
+        const matchedPrefix = PREFIX_OPTIONS.find(
+          (opt) => opt.value.toLowerCase() === (trainer.prefix || "").toLowerCase()
+        );
+        setValue("prefix", matchedPrefix ? matchedPrefix.value : trainer.prefix || "");
         setValue("email", trainer.email || "");
-        setValue("nationality", trainer.nationality || "");
+
+        const matchedNationality = TRAINER_NATIONALITY_OPTIONS.find(
+          (opt) => opt.value.toLowerCase() === (trainer.nationality || "").toLowerCase()
+        );
+        setValue("nationality", matchedNationality ? matchedNationality.value : trainer.nationality || "");
         setValue("designation", trainer.designation || "");
         setValue("rank", trainer.rank || "");
         setValue("officer", trainer.officer || "");

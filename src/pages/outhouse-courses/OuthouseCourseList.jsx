@@ -135,7 +135,7 @@ const OuthouseCourseList = () => {
       sortable: true,
       render: (value) => (
         <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-mono text-xs font-semibold text-slate-700">
-          {value || "Auto"}
+          {value || "-"}
         </span>
       ),
     },

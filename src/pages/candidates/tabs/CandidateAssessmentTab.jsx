@@ -100,7 +100,9 @@ const CandidateAssessmentTab = ({ courseId }) => {
             const score = assessment.latest_score;
             const attempts = assessment.attempts || 0;
             const hasAttempted = score != null;
-            const isPassed = hasAttempted && score >= 60;
+            const isRetest = attempts > 1;
+            const requiredScore = isRetest ? 70 : 60;
+            const isPassed = hasAttempted && score >= requiredScore;
             const typeLabel =
               { 1: "Pre Course", 2: "Post Course", 3: "Daily" }[
                 String(assessment.type_of_test)

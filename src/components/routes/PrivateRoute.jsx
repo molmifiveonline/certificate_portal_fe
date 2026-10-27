@@ -20,6 +20,7 @@ const PrivateRoute = ({
     requiredPermission,
     requiredAnyPermissions,
     allowRestrictedAdminWithoutPermissions = false,
+    molmiCandidateOnly = false,
 }) => {
     const { user, loading, hasPermission, hasAnyPermission, isRestrictedAdmin } = useAuth();
     const location = useLocation();
@@ -41,6 +42,17 @@ const PrivateRoute = ({
     if (allowedRoles && !allowedRoles.some(role => role.toLowerCase() === user.role.toLowerCase())) {
         const userDashboard = getDashboardByRole(user);
         return <Navigate to={userDashboard} replace />;
+    }
+
+    // MOLMI Candidate only check
+    if (molmiCandidateOnly && (user?.role || '').toLowerCase() === 'candidate') {
+        const regType = user?.registration_type || user?.employeeType;
+        const isMolmi =
+            regType === 'MOLMI Employee' ||
+            (typeof regType === 'string' && regType.toLowerCase().includes('molmi'));
+        if (!isMolmi) {
+            return <Navigate to="/dashboard/candidate" replace />;
+        }
     }
 
     if (isRestrictedAdmin) {

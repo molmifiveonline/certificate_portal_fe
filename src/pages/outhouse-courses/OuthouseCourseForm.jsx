@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import Meta from "../../components/common/Meta";
 import BackButton from "../../components/common/BackButton";
 import { Button } from "../../components/ui/Button";
+import { Checkbox } from "../../components/ui/Checkbox";
 import {
   Card,
   CardContent,
@@ -26,6 +27,7 @@ import {
 } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import SearchableSelect from "../../components/ui/SearchableSelect";
+import TablePagination from "../../components/ui/TablePagination";
 import {
   Tabs,
   TabsContent,
@@ -45,6 +47,8 @@ import candidateService from "../../services/candidateService";
 import locationService from "../../services/locationService";
 import outhouseCourseService from "../../services/outhouseCourseService";
 import preActiveCourseService from "../../services/preActiveCourseService";
+import VenueModal from "../courses/components/VenueModal";
+import CandidateSelectionModal from "../courses/components/CandidateSelectionModal";
 
 import {
   OUTHOUSE_COURSE_STATUSES as COURSE_STATUSES,
@@ -56,6 +60,7 @@ import {
 } from "../../lib/utils/constants";
 
 const emptyFormData = {
+  course_id: "",
   creation_mode: "manual",
   source_pre_active_id: "",
   topic: "",
@@ -99,17 +104,6 @@ const buildDateRange = (startDate, endDate) => {
   return dates;
 };
 
-const makeCourseIdPreview = (topic, startDate) => {
-  const topicPart = (topic || "TOPIC")
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  const year = startDate
-    ? new Date(startDate).getFullYear()
-    : new Date().getFullYear();
-  return `${topicPart || "TOPIC"}/${year}/AUTO`;
-};
-
 const normalizeMasterCourse = (course) => ({
   id: course?.id || "",
   topic: course?.topic || course?.name || "",
@@ -119,22 +113,30 @@ const normalizeMasterCourse = (course) => ({
 });
 
 const normalizeCandidate = (candidate) => ({
+  ...candidate,
   id: candidate?.candidate_id || candidate?.user_id || candidate?.id || "",
   enrollment_id: candidate?.candidate_id ? candidate?.id || "" : "",
   empId: candidate?.empId || candidate?.employee_id || "-",
+  employee_id: candidate?.employee_id || candidate?.empId || "",
   candidate_name:
     candidate?.candidate_name ||
     [candidate?.first_name, candidate?.last_name].filter(Boolean).join(" ") ||
     "-",
+  first_name: candidate?.first_name || "",
+  last_name: candidate?.last_name || "",
   passport:
     candidate?.passport ||
     candidate?.passport_no ||
     candidate?.cdc_passport ||
     "-",
+  passport_no: candidate?.passport_no || candidate?.cdc_passport || "",
+  cdc_passport: candidate?.cdc_passport || candidate?.passport_no || "",
   seaman_no: candidate?.seaman_no || candidate?.seaman_book_no || "-",
+  seaman_book_no: candidate?.seaman_book_no || candidate?.seaman_no || "",
   rank: candidate?.rank || "-",
-  manager: candidate?.manager || "-",
-  status_pool: candidate?.status_pool || "",
+  manager: candidate?.manager || candidate?.manning_company || "-",
+  manning_company: candidate?.manning_company || candidate?.manager || "",
+  status_pool: candidate?.status_pool || candidate?.vessel_type || "",
   ack_status: candidate?.ack_status || "Pending",
   ack_date: candidate?.ack_date || null,
   candidate_email_status:
@@ -310,147 +312,7 @@ const CandidateDeleteModal = ({ state, onClose, onConfirm }) => {
   );
 };
 
-const VenueModal = ({ state, onClose, onSave }) => {
-  const [formState, setFormState] = useState({
-    hotel_name: "",
-    hotel_address: "",
-    hotel_contact: "",
-    hotel_email: "",
-    offline_date: "",
-    remarks: "",
-    files: null,
-  });
 
-  useEffect(() => {
-    setFormState({
-      hotel_name: state?.candidate?.venue_name || "",
-      hotel_address: state?.candidate?.venue_address || "",
-      hotel_contact: state?.candidate?.venue_contact || "",
-      hotel_email: state?.candidate?.venue_email || "",
-      offline_date: state?.candidate?.offline_date || "",
-      remarks: state?.candidate?.remarks || "",
-      files: null,
-    });
-  }, [state]);
-
-  if (!state?.open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-        <div className="border-b border-slate-100 px-6 py-4">
-          <h3 className="text-lg font-semibold text-slate-800">
-            Offline / Manual Welcome Details
-          </h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Add hotel details and supporting documents.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2">
-          <InputField
-            label="Hotel Name"
-            value={formState.hotel_name}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_name: event.target.value,
-              }))
-            }
-          />
-          <InputField
-            label="Hotel Contact"
-            value={formState.hotel_contact}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_contact: sanitizeNumericValue(event.target.value),
-              }))
-            }
-          />
-          <InputField
-            label="Hotel Email"
-            type="text"
-            value={formState.hotel_email}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_email: event.target.value,
-              }))
-            }
-          />
-          <InputField
-            label="Offline Date"
-            type="date"
-            value={formState.offline_date}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                offline_date: event.target.value,
-              }))
-            }
-          />
-          <TextareaField
-            label="Hotel Address"
-            className="md:col-span-2"
-            rows={3}
-            value={formState.hotel_address}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                hotel_address: event.target.value,
-              }))
-            }
-          />
-          <TextareaField
-            label="Remarks"
-            className="md:col-span-2"
-            rows={3}
-            value={formState.remarks}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                remarks: event.target.value,
-              }))
-            }
-          />
-          <div className="md:col-span-2">
-            <FieldLabel label="Documents" />
-            <input
-              type="file"
-              multiple
-              onChange={(event) => {
-                const files = Array.from(event.target.files);
-                for (const file of files) {
-                  if (
-                    file.type.startsWith("image/") &&
-                    file.size > 500 * 1024
-                  ) {
-                    toast.error(`Image "${file.name}" exceeds 500 KB limit.`);
-                    event.target.value = "";
-                    return;
-                  }
-                }
-                setFormState((current) => ({
-                  ...current,
-                  files: event.target.files,
-                }));
-              }}
-              className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
-        <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={() => onSave(formState)}>
-            Save Details
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const OuthouseCourseForm = () => {
   const navigate = useNavigate();
@@ -468,17 +330,21 @@ const OuthouseCourseForm = () => {
   const [courseCandidates, setCourseCandidates] = useState([]);
   const [candidateOptions, setCandidateOptions] = useState([]);
   const [candidateSearch, setCandidateSearch] = useState("");
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState([]);
+  const [candidateOptionPage, setCandidateOptionPage] = useState(1);
+  const [candidateOptionLimit, setCandidateOptionLimit] = useState(10);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
   const [addingCandidate, setAddingCandidate] = useState(false);
   const [sendingWelcomeId, setSendingWelcomeId] = useState(null);
+  const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
   const [deleteState, setDeleteState] = useState({
     open: false,
     candidateId: "",
   });
   const [venueState, setVenueState] = useState({
-    open: false,
-    candidateId: "",
-    candidate: null,
+    isOpen: false,
+    candidateId: null,
+    data: null,
   });
   const [attendanceRows, setAttendanceRows] = useState([]);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
@@ -496,10 +362,6 @@ const OuthouseCourseForm = () => {
     [formData.end_date, formData.start_date],
   );
   const daysCount = courseDates.length;
-  const courseIdPreview = makeCourseIdPreview(
-    formData.topic,
-    formData.start_date,
-  );
   const candidateModificationAllowed = useMemo(() => {
     if (!formData.end_date) return true;
     const today = new Date();
@@ -526,6 +388,7 @@ const OuthouseCourseForm = () => {
   const hydrateForm = useCallback((course) => {
     setFormData((current) => ({
       ...current,
+      course_id: course?.course_id || "",
       creation_mode: course?.creation_mode || current.creation_mode,
       source_pre_active_id:
         course?.source_pre_active_id || course?.pre_active_course_id || "",
@@ -754,6 +617,19 @@ const OuthouseCourseForm = () => {
   }, [candidateSearch]);
 
   useEffect(() => {
+    setCandidateOptionPage(1);
+  }, [debouncedCandidateSearch]);
+
+  useEffect(() => {
+    const enrolledCandidateIds = new Set(
+      courseCandidates.map((candidate) => candidate.id),
+    );
+    setSelectedCandidateIds((current) =>
+      current.filter((candidateId) => !enrolledCandidateIds.has(candidateId)),
+    );
+  }, [courseCandidates]);
+
+  useEffect(() => {
     if (!id || activeTab !== "candidates") return;
     loadCandidateOptions(debouncedCandidateSearch);
   }, [activeTab, debouncedCandidateSearch, id, loadCandidateOptions]);
@@ -895,7 +771,6 @@ const OuthouseCourseForm = () => {
       const payload = {
         ...formData,
         days: daysCount,
-        course_id_preview: courseIdPreview,
       };
       if (isEditMode) {
         await outhouseCourseService.update(id, payload);
@@ -917,33 +792,60 @@ const OuthouseCourseForm = () => {
     }
   };
 
-  const handleAddCandidate = async (candidateId) => {
+  const handleAddSelectedCandidates = async () => {
     if (!id) return toast.error("Save the course before adding candidates");
     if (!candidateModificationAllowed)
       return toast.error(
         "Candidates can be added only till the last day of course",
       );
-    if (!candidateId) return toast.error("Select a candidate first");
+    const enrolledCandidateIds = new Set(
+      courseCandidates.map((candidate) => candidate.id),
+    );
+    const candidateIds = selectedCandidateIds.filter(
+      (candidateId) => !enrolledCandidateIds.has(candidateId),
+    );
+    if (candidateIds.length === 0)
+      return toast.error("Select at least one candidate first");
+
     setAddingCandidate(true);
     try {
       await outhouseCourseService.addCandidates(id, {
-        candidateIds: [candidateId],
+        candidateIds,
       });
       if (onlineCourse) {
         toast.success(
-          "Candidate added. Welcome letter will be sent automatically.",
+          `${candidateIds.length} candidate${candidateIds.length === 1 ? "" : "s"} added. Welcome letter will be sent automatically.`,
         );
       } else {
-        toast.success("Candidate added");
+        toast.success(
+          `${candidateIds.length} candidate${candidateIds.length === 1 ? "" : "s"} added`,
+        );
       }
+      setSelectedCandidateIds([]);
+      setIsCandidateModalOpen(false);
       await Promise.all([
         loadCandidates(),
-        loadCandidateOptions(debouncedCandidateSearch),
+        loadAttendance(),
       ]);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to add candidate");
     } finally {
       setAddingCandidate(false);
+    }
+  };
+
+  const openCandidateModal = async () => {
+    if (!id) {
+      toast.error("Save the course before adding candidates");
+      return;
+    }
+    try {
+      await loadCandidateOptions("");
+      setSelectedCandidateIds([]);
+      setCandidateSearch("");
+      setIsCandidateModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to load candidate options");
     }
   };
 
@@ -1001,54 +903,45 @@ const OuthouseCourseForm = () => {
     }
   };
 
-  const handleVenueSave = async (venueDetails) => {
-    if (!isNumericOnly(venueDetails.hotel_contact)) {
+  const handleVenueSave = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    if (formData.get("venue_contact") && !isNumericOnly(formData.get("venue_contact"))) {
       toast.error("Hotel contact must contain digits only");
       return;
     }
 
-    if (!isValidEmail(venueDetails.hotel_email)) {
+    if (formData.get("venue_email") && !isValidEmail(formData.get("venue_email"))) {
       toast.error("Enter a valid hotel email address");
       return;
     }
 
     try {
-      const payload = new FormData();
-      payload.append("hotel_name", venueDetails.hotel_name || "");
-      payload.append("hotel_address", venueDetails.hotel_address || "");
-      payload.append("hotel_contact", venueDetails.hotel_contact || "");
-      payload.append("hotel_email", venueDetails.hotel_email || "");
-      payload.append("offline_date", venueDetails.offline_date || "");
-      payload.append("remarks", venueDetails.remarks || "");
-      Array.from(venueDetails.files || []).forEach((file) =>
-        payload.append("documents", file),
-      );
       await outhouseCourseService.updateVenueDetails(
         id,
         venueState.candidateId,
-        payload,
+        formData,
       );
       toast.success("Venue details saved");
       setCourseCandidates((current) =>
         current.map((candidate) =>
           candidate.id === venueState.candidateId
             ? {
-                ...candidate,
-                venue_details_completed: true,
-                venue_name: venueDetails.hotel_name || candidate.venue_name,
-                venue_address:
-                  venueDetails.hotel_address || candidate.venue_address,
-                venue_contact:
-                  venueDetails.hotel_contact || candidate.venue_contact,
-                venue_email: venueDetails.hotel_email || candidate.venue_email,
-                offline_date:
-                  venueDetails.offline_date || candidate.offline_date,
-                remarks: venueDetails.remarks || candidate.remarks,
-              }
+              ...candidate,
+              venue_details_completed: true,
+              venue_name: formData.get("venue_name") || candidate.venue_name,
+              venue_address: formData.get("venue_address") || candidate.venue_address,
+              venue_contact: formData.get("venue_contact") || candidate.venue_contact,
+              venue_email: formData.get("venue_email") || candidate.venue_email,
+              from_date: formData.get("from_date") || candidate.from_date,
+              to_date: formData.get("to_date") || candidate.to_date,
+              remarks: formData.get("remarks") || candidate.remarks,
+            }
             : candidate,
         ),
       );
-      setVenueState({ open: false, candidateId: "", candidate: null });
+      setVenueState({ isOpen: false, candidateId: null, data: null });
       await loadCandidates();
     } catch (error) {
       toast.error("Failed to save venue details");
@@ -1060,12 +953,12 @@ const OuthouseCourseForm = () => {
       current.map((row) =>
         row.candidate_id === candidateId
           ? {
-              ...row,
-              days: {
-                ...row.days,
-                [date]: { ...row.days[date], [key]: value },
-              },
-            }
+            ...row,
+            days: {
+              ...row.days,
+              [date]: { ...row.days[date], [key]: value },
+            },
+          }
           : row,
       ),
     );
@@ -1181,22 +1074,73 @@ const OuthouseCourseForm = () => {
     }
   };
 
-  const filteredCandidateOptions = candidateOptions.filter(
-    (candidate) =>
-      !courseCandidates.some((existing) => existing.id === candidate.id),
+  const filteredCandidateOptions = useMemo(
+    () =>
+      candidateOptions.filter(
+        (candidate) =>
+          !courseCandidates.some((existing) => existing.id === candidate.id),
+      ),
+    [candidateOptions, courseCandidates],
   );
+  const candidateOptionTotalPages = Math.max(
+    1,
+    Math.ceil(filteredCandidateOptions.length / candidateOptionLimit),
+  );
+  const paginatedCandidateOptions = useMemo(() => {
+    const start = (candidateOptionPage - 1) * candidateOptionLimit;
+    return filteredCandidateOptions.slice(
+      start,
+      start + candidateOptionLimit,
+    );
+  }, [candidateOptionLimit, candidateOptionPage, filteredCandidateOptions]);
+  const visibleCandidateIds = paginatedCandidateOptions
+    .map((candidate) => candidate.id)
+    .filter(Boolean);
+  const allVisibleCandidatesSelected =
+    visibleCandidateIds.length > 0 &&
+    visibleCandidateIds.every((candidateId) =>
+      selectedCandidateIds.includes(candidateId),
+    );
+
+  useEffect(() => {
+    if (candidateOptionPage > candidateOptionTotalPages) {
+      setCandidateOptionPage(candidateOptionTotalPages);
+    }
+  }, [candidateOptionPage, candidateOptionTotalPages]);
+
+  const handleCandidateSelection = (candidateId, checked) => {
+    if (!candidateId) return;
+    setSelectedCandidateIds((current) => {
+      if (checked) {
+        return current.includes(candidateId)
+          ? current
+          : [...current, candidateId];
+      }
+      return current.filter((id) => id !== candidateId);
+    });
+  };
+
+  const handleVisibleCandidateSelection = (checked) => {
+    setSelectedCandidateIds((current) => {
+      if (checked) {
+        return [...new Set([...current, ...visibleCandidateIds])];
+      }
+      const visibleIds = new Set(visibleCandidateIds);
+      return current.filter((candidateId) => !visibleIds.has(candidateId));
+    });
+  };
 
   const manualFeedbackRows =
     feedbackData.listing.length > 0
       ? feedbackData.listing
       : courseCandidates.map((candidate, index) => ({
-          sr_no: index + 1,
-          active_course_name: formData.course_name,
-          employee_id: candidate.empId,
-          employee_name: candidate.candidate_name,
-          average_rating: "-",
-          candidate_id: candidate.id,
-        }));
+        sr_no: index + 1,
+        active_course_name: formData.course_name,
+        employee_id: candidate.empId,
+        employee_name: candidate.candidate_name,
+        average_rating: "-",
+        candidate_id: candidate.id,
+      }));
 
   if (initialLoading) {
     return (
@@ -1216,7 +1160,8 @@ const OuthouseCourseForm = () => {
       />
 
       <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-[1600px] items-center gap-4">
+          <BackButton to="/outhouse-courses" />
           <div>
             <h1 className="text-xl font-bold text-slate-800">
               {isEditMode ? "Edit Outhouse Course" : "Create Outhouse Course"}
@@ -1226,7 +1171,6 @@ const OuthouseCourseForm = () => {
               attendance, feedback, and certificate workflows
             </p>
           </div>
-          <BackButton to="/outhouse-courses" />
         </div>
       </div>
 
@@ -1241,12 +1185,18 @@ const OuthouseCourseForm = () => {
             </CardHeader>
             <CardContent className="space-y-6 p-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <InputField
-                  label="Course ID"
-                  value={formData.course_id || courseIdPreview}
-                  readOnly
-                  className="md:col-span-2"
+                <SelectField
+                  label="Master Course Name"
+                  required
+                  value={formData.master_course_id}
+                  onChange={(event) =>
+                    handleMasterCourseSelection(event.target.value)
+                  }
+                  options={masterCourseOptions}
+                  error={errors.master_course_id}
+                  placeholder="Select master course"
                 />
+
               </div>
 
               {formData.creation_mode === "conversion" ? (
@@ -1272,17 +1222,13 @@ const OuthouseCourseForm = () => {
                   onChange={handleFormChange}
                   error={errors.topic}
                 />
-                <SelectField
-                  label="Master Course Name"
-                  required
-                  value={formData.master_course_id}
-                  onChange={(event) =>
-                    handleMasterCourseSelection(event.target.value)
-                  }
-                  options={masterCourseOptions}
-                  error={errors.master_course_id}
-                  placeholder="Select master course"
-                />
+                {isEditMode && formData.course_id ? (
+                  <InputField
+                    label="Course ID"
+                    value={formData.course_id}
+                    readOnly
+                  />
+                ) : null}
                 <InputField
                   label="Course Name"
                   required
@@ -1558,18 +1504,26 @@ const OuthouseCourseForm = () => {
 
           <TabsContent value="candidates" className="mt-6 space-y-6">
             <Card className="rounded-3xl border-slate-200 shadow-sm">
-              <CardHeader className="border-b border-slate-100">
+              <CardHeader className="border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-orange-600" />
                   Candidates
                 </CardTitle>
+                <Button
+                  type="button"
+                  onClick={openCandidateModal}
+                  disabled={!candidateModificationAllowed || !id}
+                  className="bg-orange-600 hover:bg-orange-700 text-white gap-2 font-medium"
+                >
+                  <Plus className="h-4 w-4" /> Add Candidates
+                </Button>
               </CardHeader>
               <CardContent className="space-y-5 p-6">
                 {formData.creation_mode === "conversion" ? (
                   <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
                     Candidates from the selected pre-active course will appear
                     here when the backend returns converted enrollments. If none
-                    appear, add missing candidates from the search table below.
+                    appear, click <strong>Add Candidates</strong> above to enroll them.
                   </div>
                 ) : null}
 
@@ -1579,84 +1533,6 @@ const OuthouseCourseForm = () => {
                     end date has passed.
                   </div>
                 ) : null}
-
-                <div className="space-y-4">
-                  <div className="w-full lg:w-80">
-                    <FieldLabel label="Search Candidate" />
-                    <Input
-                      value={candidateSearch}
-                      onChange={(event) =>
-                        setCandidateSearch(event.target.value)
-                      }
-                      placeholder="Search employee id or candidate name"
-                      className="h-11 rounded-xl border-slate-200"
-                    />
-                  </div>
-
-                  <div className="overflow-x-auto rounded-2xl border border-slate-200">
-                    <table className="w-full min-w-[1050px] text-left text-sm">
-                      <thead className="bg-slate-50 text-slate-600">
-                        <tr>
-                          <th className="px-4 py-3">Employee ID</th>
-                          <th className="px-4 py-3">Candidate Name</th>
-                          <th className="px-4 py-3">Passport</th>
-                          <th className="px-4 py-3">Seaman No.</th>
-                          <th className="px-4 py-3">Rank</th>
-                          <th className="px-4 py-3">Manager</th>
-                          <th className="px-4 py-3 text-right">Add</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {filteredCandidateOptions.length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan="7"
-                              className="px-4 py-5 text-center text-slate-500"
-                            >
-                              No available candidates found.
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredCandidateOptions.map((candidate) => (
-                            <tr key={candidate.id} className="bg-white">
-                              <td className="px-4 py-3 font-medium text-slate-700">
-                                {candidate.empId}
-                              </td>
-                              <td className="px-4 py-3">
-                                {candidate.candidate_name}
-                              </td>
-                              <td className="px-4 py-3">
-                                {candidate.passport}
-                              </td>
-                              <td className="px-4 py-3">
-                                {candidate.seaman_no}
-                              </td>
-                              <td className="px-4 py-3">{candidate.rank}</td>
-                              <td className="px-4 py-3">{candidate.manager}</td>
-                              <td className="px-4 py-3 text-right">
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  className="gap-2"
-                                  onClick={() =>
-                                    handleAddCandidate(candidate.id)
-                                  }
-                                  disabled={
-                                    !candidateModificationAllowed ||
-                                    addingCandidate
-                                  }
-                                >
-                                  <Plus className="h-4 w-4" />
-                                  {addingCandidate ? "Adding..." : "Add"}
-                                </Button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
 
                 <div className="overflow-x-auto rounded-2xl border border-slate-200">
                   <table className="w-full min-w-[1200px] text-left text-sm">
@@ -1744,9 +1620,9 @@ const OuthouseCourseForm = () => {
                                     size="sm"
                                     onClick={() =>
                                       setVenueState({
-                                        open: true,
+                                        isOpen: true,
                                         candidateId: candidate.id,
-                                        candidate,
+                                        data: candidate,
                                       })
                                     }
                                   >
@@ -2180,12 +2056,28 @@ const OuthouseCourseForm = () => {
         onClose={() => setDeleteState({ open: false, candidateId: "" })}
         onConfirm={handleCandidateDelete}
       />
+      <CandidateSelectionModal
+        isOpen={isCandidateModalOpen}
+        onClose={() => setIsCandidateModalOpen(false)}
+        availableCandidates={filteredCandidateOptions}
+        selectedCandidates={selectedCandidateIds}
+        setSelectedCandidates={setSelectedCandidateIds}
+        candidateSearch={candidateSearch}
+        setCandidateSearch={setCandidateSearch}
+        onAdd={handleAddSelectedCandidates}
+        isAdding={addingCandidate}
+      />
       <VenueModal
-        state={venueState}
+        isOpen={venueState.isOpen}
         onClose={() =>
-          setVenueState({ open: false, candidateId: "", candidate: null })
+          setVenueState({ isOpen: false, candidateId: null, data: null })
         }
-        onSave={handleVenueSave}
+        onSubmit={handleVenueSave}
+        data={venueState.data}
+        courseDates={{
+          start_date: formData.start_date,
+          end_date: formData.end_date,
+        }}
       />
     </div>
   );

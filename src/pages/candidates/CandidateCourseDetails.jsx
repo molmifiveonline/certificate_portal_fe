@@ -14,13 +14,16 @@ import { formatDate } from '../../lib/utils/dateUtils';
 import CandidateAttendanceTab from './tabs/CandidateAttendanceTab';
 import CandidateAssessmentTab from './tabs/CandidateAssessmentTab';
 import CandidateFeedbackTab from './tabs/CandidateFeedbackTab';
-import StudyMaterialViewer from '../../components/study-material/StudyMaterialViewer';
+// Temporarily hidden: Study Material tab for candidates.
+// import StudyMaterialViewer from '../../components/study-material/StudyMaterialViewer';
 
 const CandidateCourseDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const [activeTab, setActiveTab] = useState("details");
 
     useEffect(() => {
         const fetchCourseDetails = async () => {
@@ -104,7 +107,7 @@ const CandidateCourseDetails = () => {
             </div>
 
             {/* Content Tabs */}
-            <Tabs defaultValue="details" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="flex w-full justify-start space-x-6 bg-transparent border-b border-slate-200 rounded-none p-0 h-auto">
                     <TabsTrigger
                         value="details"
@@ -112,12 +115,14 @@ const CandidateCourseDetails = () => {
                     >
                         Details
                     </TabsTrigger>
+                    {/* Temporarily hidden: Study Material tab for candidates.
                     <TabsTrigger
                         value="study-material"
                         className="bg-transparent text-slate-500 hover:text-slate-800 px-2 py-3 text-sm font-semibold rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none"
                     >
                         Study Material
                     </TabsTrigger>
+                    */}
                     <TabsTrigger
                         value="attendance"
                         className="bg-transparent text-slate-500 hover:text-slate-800 px-2 py-3 text-sm font-semibold rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none"
@@ -180,42 +185,86 @@ const CandidateCourseDetails = () => {
                                         <div className="w-2 h-2 rounded-full bg-primary mr-3" />
                                         <span>Venue: {course.venue_name || 'TBD'}</span>
                                     </div>
-                                    {course.candidate_material_link && (
-                                        <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
-                                            <span className="font-semibold text-slate-700 mb-1">Candidate Material:</span>
+                                    <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                        <span className="font-semibold text-slate-700 mb-1">Zoom Link:</span>
+                                        {course.zoom_link ? (
                                             <a
-                                                href={course.candidate_material_link}
+                                                href={course.zoom_link.startsWith("http") ? course.zoom_link : `https://${course.zoom_link}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-primary hover:underline break-all"
+                                            >
+                                                {course.zoom_link}
+                                            </a>
+                                        ) : (
+                                            <span className="text-slate-400">-</span>
+                                        )}
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                        <span className="font-semibold text-slate-700 mb-1">WhatsApp Group:</span>
+                                        {course.whatsapp_link ? (
+                                            <a
+                                                href={course.whatsapp_link.startsWith("http") ? course.whatsapp_link : `https://${course.whatsapp_link}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-primary hover:underline break-all"
+                                            >
+                                                {course.whatsapp_link}
+                                            </a>
+                                        ) : (
+                                            <span className="text-slate-400">-</span>
+                                        )}
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                        <span className="font-semibold text-slate-700 mb-1">Zoom ID:</span>
+                                        <span className="text-slate-700 break-all">{course.zoom_username || "-"}</span>
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                        <span className="font-semibold text-slate-700 mb-1">Zoom Password:</span>
+                                        <span className="text-slate-700 break-all">{course.zoom_password || "-"}</span>
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                        <span className="font-semibold text-slate-700 mb-1">Candidate Material Link:</span>
+                                        {course.candidate_material_link ? (
+                                            <a
+                                                href={course.candidate_material_link.startsWith("http") ? course.candidate_material_link : `https://${course.candidate_material_link}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-primary hover:underline break-all"
                                             >
                                                 {course.candidate_material_link}
                                             </a>
-                                        </div>
-                                    )}
-                                    {course.study_material_link && (
-                                        <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
-                                            <span className="font-semibold text-slate-700 mb-1">Study Material Link:</span>
+                                        ) : (
+                                            <span className="text-slate-400">-</span>
+                                        )}
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-100 flex flex-col text-sm">
+                                        <span className="font-semibold text-slate-700 mb-1">Study Material Link:</span>
+                                        {course.study_material_link ? (
                                             <a
-                                                href={course.study_material_link}
+                                                href={course.study_material_link.startsWith("http") ? course.study_material_link : `https://${course.study_material_link}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-primary hover:underline break-all"
                                             >
                                                 {course.study_material_link}
                                             </a>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <span className="text-slate-400">-</span>
+                                        )}
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
                     </TabsContent>
 
+                    {/* Temporarily hidden: Study Material tab for candidates.
                     <TabsContent value="study-material">
                         <div className="bg-white/80 backdrop-blur-xl border border-white/60 shadow-sm rounded-2xl p-6">
                             <StudyMaterialViewer masterCourseId={course.master_course_id} userType="candidate" />
                         </div>
                     </TabsContent>
+                    */}
 
                     <TabsContent value="attendance">
                         <CandidateAttendanceTab courseId={id} />
@@ -226,7 +275,11 @@ const CandidateCourseDetails = () => {
                     </TabsContent>
 
                     <TabsContent value="feedback">
-                        <CandidateFeedbackTab courseId={id} course={course} />
+                        <CandidateFeedbackTab
+                            courseId={id}
+                            course={course}
+                            onGoToAssessment={() => setActiveTab("assessment")}
+                        />
                     </TabsContent>
                 </div>
             </Tabs>
@@ -235,5 +288,3 @@ const CandidateCourseDetails = () => {
 };
 
 export default CandidateCourseDetails;
-
-

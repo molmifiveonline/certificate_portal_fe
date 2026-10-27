@@ -20,7 +20,35 @@ const CourseCertificateTemplateBase = ({
   stampLogoSrc,
 }) => {
   return (
-    <table
+    <>
+      <style>
+        {`
+          @media print {
+            .course-cert-wrapper {
+              zoom: var(--certificate-print-scale, 0.7);
+              margin: 0 auto !important;
+              padding: 0 !important;
+              width: 1000px !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+              page-break-after: avoid !important;
+            }
+            .course-cert-wrapper > table {
+              margin-top: 0 !important;
+              height: var(--certificate-print-page-height, auto) !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+              page-break-after: avoid !important;
+            }
+            .cert-description-td {
+              height: 550px !important;
+            }
+          }
+        `}
+      </style>
+      <div className="course-cert-wrapper">
+        <table
+      data-certificate-print-surface="true"
       align="center"
       border="0"
       cellPadding="0"
@@ -384,7 +412,7 @@ const CourseCertificateTemplateBase = ({
               border="0"
               cellPadding="0"
               cellSpacing="0"
-              style={{ width: "1050px", margin: "0 auto" }}
+              style={{ width: "900px", margin: "0 auto" }}
             >
               <tbody>
                 <tr>
@@ -394,7 +422,7 @@ const CourseCertificateTemplateBase = ({
                       border="0"
                       cellPadding="0"
                       cellSpacing="0"
-                      style={{ width: "1050px" }}
+                      style={{ width: "900px" }}
                     >
                       <tbody>
                         <tr>
@@ -580,7 +608,7 @@ const CourseCertificateTemplateBase = ({
               border="0"
               cellPadding="0"
               cellSpacing="0"
-              style={{ width: "750px", margin: "0 auto" }}
+              style={{ width: "900px", margin: "0 auto", tableLayout: "fixed" }}
             >
               <tbody>
                 <tr>
@@ -590,7 +618,7 @@ const CourseCertificateTemplateBase = ({
                       border="0"
                       cellPadding="0"
                       cellSpacing="0"
-                      style={{ width: "900px" }}
+                      style={{ width: "100%", tableLayout: "fixed" }}
                     >
                       <tbody>
                         <tr>
@@ -605,7 +633,7 @@ const CourseCertificateTemplateBase = ({
                               border="0"
                               cellPadding="0"
                               cellSpacing="0"
-                              style={{ width: "100%" }}
+                              style={{ width: "100%", tableLayout: "fixed" }}
                             >
                               <tbody>
                                 <tr>
@@ -615,6 +643,7 @@ const CourseCertificateTemplateBase = ({
                                       border="0"
                                       cellPadding="0"
                                       cellSpacing="0"
+                                      style={{ width: "100%" }}
                                     >
                                       <tbody>
                                         <tr>
@@ -645,6 +674,7 @@ const CourseCertificateTemplateBase = ({
                         </tr>
                         <tr>
                           <td
+                            className="cert-description-td"
                             style={{
                               textAlign: "left",
                               color: "#202020",
@@ -653,6 +683,9 @@ const CourseCertificateTemplateBase = ({
                               letterSpacing: "0.4px",
                               height: "550px",
                               verticalAlign: "baseline",
+                              wordBreak: "break-word",
+                              overflowWrap: "break-word",
+                              whiteSpace: "pre-wrap",
                             }}
                             dangerouslySetInnerHTML={{
                               __html: certificate.description1,
@@ -1087,10 +1120,11 @@ const CourseCertificateTemplateBase = ({
                                             {signatureUrl && (
                                               <img
                                                 src={signatureUrl}
-                                                height="20px"
-                                                width="80px"
                                                 alt="Trainer Signature"
                                                 style={{
+                                                  maxHeight: "70px",
+                                                  maxWidth: "200px",
+                                                  objectFit: "contain",
                                                   display: "block",
                                                   margin: "0 auto",
                                                 }}
@@ -1143,16 +1177,6 @@ const CourseCertificateTemplateBase = ({
                       <tbody>
                         <tr>
                           <td>
-                            <img
-                              src="/images/GlobalMET-Logo.jpg"
-                              alt="GlobalMET"
-                              style={{
-                                width: "300px",
-                                verticalAlign: "middle",
-                                border: "0",
-                                marginLeft: "-50px",
-                              }}
-                            />
                           </td>
                           <td
                             style={{
@@ -1203,6 +1227,8 @@ const CourseCertificateTemplateBase = ({
         </tr>
       </tbody>
     </table>
+      </div>
+    </>
   );
 };
 

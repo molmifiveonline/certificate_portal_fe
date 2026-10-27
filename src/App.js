@@ -203,9 +203,14 @@ const FeedbackCourseList = lazyWithRetry(
 
 
 
+const CandidateNominations = lazyWithRetry(
+  () => import("./pages/candidates/CandidateNominations"),
+);
+
 const CandidateCourseList = lazyWithRetry(
   () => import("./pages/candidates/CandidateCourseList"),
 );
+
 
 const CandidateCertificateList = lazyWithRetry(
   () => import("./pages/candidates/CandidateCertificateList"),
@@ -1130,6 +1135,14 @@ function App() {
               />
 
               <Route
+                path="/candidate-nominations"
+                element={
+                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                    <CandidateNominations />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/candidate-courses"
                 element={
                   <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
@@ -1137,6 +1150,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
+
               <Route
                 path="/candidate-course/:id"
                 element={
@@ -1156,7 +1170,10 @@ function App() {
               <Route
                 path="/reimbursements"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementList />
                   </PrivateRoute>
                 }
@@ -1164,7 +1181,10 @@ function App() {
               <Route
                 path="/reimbursements/create"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementForm />
                   </PrivateRoute>
                 }
@@ -1172,7 +1192,10 @@ function App() {
               <Route
                 path="/reimbursements/:id"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementDetails />
                   </PrivateRoute>
                 }
@@ -1180,7 +1203,10 @@ function App() {
               <Route
                 path="/reimbursements/:id/edit"
                 element={
-                  <PrivateRoute allowedRoles={CANDIDATE_ROLES}>
+                  <PrivateRoute
+                    allowedRoles={CANDIDATE_ROLES}
+                    molmiCandidateOnly={true}
+                  >
                     <ReimbursementForm />
                   </PrivateRoute>
                 }

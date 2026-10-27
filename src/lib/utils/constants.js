@@ -41,11 +41,10 @@ export const COURSE_TYPES = [
 ];
 
 export const STATUS_POOL_OPTIONS = [
-  "Selected",
-  "Confirmed",
-  "Standby",
-  "Waitlisted",
-  "Completed",
+  "LNG",
+  "LPG",
+  "DRY",
+  "TANKERS",
 ];
 
 export const FEEDBACK_COURSE_MODE_OPTIONS = ["Online", "Offline"];
@@ -123,7 +122,7 @@ export const CANDIDATE_FIELD_LABELS = {
   alternate_mobile: "Alternate Mobile",
   indos_number: "INDOS Number",
   registration_type: "Registration Type",
-  designation: "Designation",
+  designation: "Position",
   vessel_type: "Vessel Type",
   last_vessel_name: "Last Vessel Name",
   next_vessel_name: "Next Vessel Name",

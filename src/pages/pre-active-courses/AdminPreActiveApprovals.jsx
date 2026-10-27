@@ -43,6 +43,7 @@ const AdminPreActiveApprovals = () => {
   });
   const [adminRemark, setAdminRemark] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [viewRemarkModal, setViewRemarkModal] = useState(null);
 
   const fetchApprovals = useCallback(async () => {
     try {
@@ -230,12 +231,46 @@ const AdminPreActiveApprovals = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <div
-                          className="max-w-[200px] truncate text-slate-500"
-                          title={appr.candidate_remark}
-                        >
-                          {appr.candidate_remark || "-"}
-                        </div>
+                        {appr.candidate_remark ? (
+                          <div className="max-w-[260px]">
+                            <p
+                              className="text-slate-700 text-xs line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+                              onClick={() =>
+                                setViewRemarkModal({
+                                  candidateName: `${appr.first_name} ${appr.last_name || ""}`,
+                                  email: appr.email,
+                                  reason: appr.candidate_rejection_reason,
+                                  availableDate: appr.candidate_available_date,
+                                  remark: appr.candidate_remark,
+                                  status: appr.candidate_approval_status,
+                                })
+                              }
+                              title="Click to view full remark"
+                            >
+                              {appr.candidate_remark}
+                            </p>
+                            {appr.candidate_remark.length > 30 && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setViewRemarkModal({
+                                    candidateName: `${appr.first_name} ${appr.last_name || ""}`,
+                                    email: appr.email,
+                                    reason: appr.candidate_rejection_reason,
+                                    availableDate: appr.candidate_available_date,
+                                    remark: appr.candidate_remark,
+                                    status: appr.candidate_approval_status,
+                                  })
+                                }
+                                className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline mt-0.5 inline-flex items-center gap-1"
+                              >
+                                View full remark
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <span
@@ -338,6 +373,27 @@ const AdminPreActiveApprovals = () => {
             </div>
           </div>
 
+          {actionModal.data?.candidate_remark && (
+            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs space-y-1">
+              <div className="font-semibold text-amber-800 flex items-center justify-between">
+                <span>Candidate Response ({actionModal.data.candidate_approval_status || "Rejected"}):</span>
+                {actionModal.data.candidate_rejection_reason && (
+                  <span className="px-2 py-0.5 rounded bg-amber-200/60 text-amber-900 font-medium">
+                    {actionModal.data.candidate_rejection_reason}
+                  </span>
+                )}
+              </div>
+              <p className="text-amber-900 italic whitespace-pre-wrap">
+                "{actionModal.data.candidate_remark}"
+              </p>
+              {actionModal.data.candidate_available_date && (
+                <p className="text-amber-700">
+                  Available Date: {formatDate(actionModal.data.candidate_available_date)}
+                </p>
+              )}
+            </div>
+          )}
+
           <div>
             <Input
               label={`Admin Remark ${actionModal.status === "Rejected" ? "(Required)" : "(Optional)"}`}
@@ -363,6 +419,72 @@ const AdminPreActiveApprovals = () => {
               disabled={actionLoading}
             >
               {actionLoading ? "Saving..." : `Confirm ${actionModal.status}`}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* View Candidate Remark Modal */}
+      <Modal
+        isOpen={Boolean(viewRemarkModal)}
+        onClose={() => setViewRemarkModal(null)}
+        title="Candidate Response & Remarks"
+      >
+        <div className="space-y-4">
+          <div className="rounded-xl bg-slate-50 p-4 border border-slate-100 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                Candidate
+              </span>
+              <span
+                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                  viewRemarkModal?.status === "Approved"
+                    ? "bg-green-100 text-green-700"
+                    : viewRemarkModal?.status === "Rejected"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-amber-100 text-amber-700"
+                }`}
+              >
+                {viewRemarkModal?.status || "Rejected"}
+              </span>
+            </div>
+            <p className="font-bold text-slate-800 text-base">
+              {viewRemarkModal?.candidateName}
+            </p>
+            {viewRemarkModal?.email && (
+              <p className="text-xs text-slate-500">{viewRemarkModal?.email}</p>
+            )}
+          </div>
+
+          {viewRemarkModal?.reason && (
+            <div>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                Rejection Reason
+              </label>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
+                {viewRemarkModal.reason}
+              </span>
+              {viewRemarkModal.availableDate && (
+                <p className="text-xs text-slate-500 mt-1.5">
+                  Available Date:{" "}
+                  <strong>{formatDate(viewRemarkModal.availableDate)}</strong>
+                </p>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+              Candidate Remark
+            </label>
+            <div className="rounded-xl bg-amber-50/70 border border-amber-200/90 p-4 text-sm text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[250px] overflow-y-auto font-normal">
+              {viewRemarkModal?.remark || "No remark provided."}
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button variant="secondary" onClick={() => setViewRemarkModal(null)}>
+              Close
             </Button>
           </div>
         </div>

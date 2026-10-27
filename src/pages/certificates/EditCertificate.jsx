@@ -10,10 +10,14 @@ import api from "../../lib/api";
 import candidateService from "../../services/candidateService";
 import activeCourseService from "../../services/activeCourseService";
 import certificateService from "../../services/certificateService";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import { toast } from "sonner";
 
 const supportsStampLogo = (type) =>
   type === "DNV-ST0029" || type === "DNV-ST008";
+
+const CERTIFICATE_STATUS_POOL_OPTIONS = ["LNG", "LPG", "DRY", "TANKERS"];
 
 const getCertificateTypeHint = (type) => {
   if (type === "SIGTTO / LNG") {
@@ -58,6 +62,7 @@ const EditCertificate = () => {
     show_logo: 1,
     sample_cert: 0,
     status: 0,
+    status_pool: "",
     certificate_no: "",
     is_hidden: 0,
   });
@@ -384,6 +389,26 @@ const EditCertificate = () => {
                   </select>
                 </div>
 
+                {/* Status Pool */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">
+                    Status Pool
+                  </label>
+                  <select
+                    name="status_pool"
+                    value={formData.status_pool || ""}
+                    onChange={handleChange}
+                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                  >
+                    <option value="">Select Status Pool</option>
+                    {CERTIFICATE_STATUS_POOL_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Topic */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">
@@ -585,13 +610,16 @@ const EditCertificate = () => {
               <label className="text-sm font-semibold text-slate-700">
                 Certificate Description
               </label>
-              <textarea
-                name="description1"
-                value={formData.description1}
-                onChange={handleChange}
-                rows={4}
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-              />
+              <div className="editor-container">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.description1 || ""}
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, description1: val }))
+                  }
+                  className="bg-white min-h-[200px] mb-12"
+                />
+              </div>
             </div>
 
             {/* Remarks */}

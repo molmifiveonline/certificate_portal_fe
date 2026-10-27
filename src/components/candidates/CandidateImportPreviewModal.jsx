@@ -7,7 +7,10 @@ import { toast } from "sonner";
 import candidateService from "../../services/candidateService";
 import { formatDate, getCurrentDateForInput } from "../../lib/utils/dateUtils";
 
-import { CANDIDATE_LAST_SYNC_STORAGE_KEY } from "../../lib/utils/constants";
+import {
+    CANDIDATE_LAST_SYNC_STORAGE_KEY,
+    CANDIDATE_SYNC_HISTORY_DAYS,
+} from "../../lib/utils/constants";
 
 const normalizeDateInputValue = (value) => {
     if (!value) return "";
@@ -50,26 +53,37 @@ const extractLastSyncDate = (payload) => {
     const possibleDates = [
         payload?.lastSyncedDate,
         payload?.last_synced_date,
-        payload?.lastSyncDate,
-        payload?.syncDate,
-        payload?.sync_date,
+        payload?.syncedAt,
+        payload?.synced_at,
+        payload?.completedAt,
+        payload?.completed_at,
         payload?.meta?.lastSyncedDate,
         payload?.meta?.last_synced_date,
-        payload?.meta?.lastSyncDate,
-        payload?.meta?.syncDate,
-        payload?.meta?.sync_date,
+        payload?.meta?.syncedAt,
+        payload?.meta?.synced_at,
+        payload?.meta?.completedAt,
+        payload?.meta?.completed_at,
         payload?.stats?.lastSyncedDate,
         payload?.stats?.last_synced_date,
-        payload?.stats?.syncDate,
-        payload?.stats?.sync_date,
+        payload?.stats?.syncedAt,
+        payload?.stats?.synced_at,
         nestedPayload?.lastSyncedDate,
         nestedPayload?.last_synced_date,
-        nestedPayload?.lastSyncDate,
-        nestedPayload?.syncDate,
-        nestedPayload?.sync_date,
+        nestedPayload?.syncedAt,
+        nestedPayload?.synced_at,
+        nestedPayload?.completedAt,
+        nestedPayload?.completed_at,
     ];
 
     return possibleDates.map(normalizeDateInputValue).find(Boolean) || "";
+};
+
+const extractLatestHistorySyncDate = (payload) => {
+    const rows = extractPreviewData(payload);
+    return rows
+        .map((row) => row?.created_at)
+        .map(normalizeDateInputValue)
+        .find(Boolean) || "";
 };
 
 const extractPreviewData = (payload) => {
@@ -91,23 +105,13 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
 
-    const fetchPreview = React.useCallback(async (dateToFetch, options = {}) => {
-        const { updateInputDate = false } = options;
+    const fetchPreview = React.useCallback(async (dateToFetch) => {
         setLoading(true);
         try {
             const result = await candidateService.fetchExternalPreview(dateToFetch);
             const previewRows = extractPreviewData(result);
-            const resolvedLastSyncedDate = extractLastSyncDate(result);
 
             setPreviewData(previewRows);
-            if (resolvedLastSyncedDate) {
-                setLastSyncedDate(resolvedLastSyncedDate);
-                persistLastSyncDate(resolvedLastSyncedDate);
-
-                if (updateInputDate) {
-                    setSyncDate(resolvedLastSyncedDate);
-                }
-            }
             setCurrentPage(1); // Reset to first page on new fetch
         } catch (error) {
             console.error("Preview fetch error:", error);
@@ -119,12 +123,43 @@ const CandidateImportPreviewModal = ({ isOpen, onClose, onImportSuccess }) => {
 
     useEffect(() => {
         if (isOpen) {
-            const storedLastSyncDate = readStoredLastSyncDate();
-            const initialSyncDate = storedLastSyncDate || getCurrentDateForInput();
+            let isMounted = true;
 
-            setLastSyncedDate(storedLastSyncDate);
-            setSyncDate(initialSyncDate);
-            fetchPreview(initialSyncDate, { updateInputDate: true });
+            const loadInitialPreview = async () => {
+                const storedLastSyncDate = readStoredLastSyncDate();
+                let initialSyncDate = storedLastSyncDate || getCurrentDateForInput();
+
+                setLastSyncedDate(storedLastSyncDate);
+                setSyncDate(initialSyncDate);
+
+                try {
+                    const historyResult = await candidateService.getSyncHistory({
+                        page: 1,
+                        limit: 1,
+                        days: CANDIDATE_SYNC_HISTORY_DAYS,
+                    });
+                    const latestHistorySyncDate = extractLatestHistorySyncDate(historyResult);
+
+                    if (isMounted && latestHistorySyncDate) {
+                        initialSyncDate = latestHistorySyncDate;
+                        setLastSyncedDate(latestHistorySyncDate);
+                        setSyncDate(latestHistorySyncDate);
+                        persistLastSyncDate(latestHistorySyncDate);
+                    }
+                } catch (error) {
+                    console.error("Failed to load latest candidate sync date:", error);
+                }
+
+                if (isMounted) {
+                    fetchPreview(initialSyncDate);
+                }
+            };
+
+            loadInitialPreview();
+
+            return () => {
+                isMounted = false;
+            };
         }
     }, [isOpen, fetchPreview]);
 

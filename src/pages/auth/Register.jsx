@@ -43,6 +43,8 @@ const Register = () => {
                 last_vessel_name: data.lastVesselName,
                 next_vessel_name: data.nextVesselName,
                 manning_company: data.manningCompany,
+                manning_agent: data.manningAgent,
+                fg_global: data.fgGlobal,
                 sign_on_date: data.signOnDate || null,
                 sign_off_date: data.signOffDate || null,
                 officer: data.officer,

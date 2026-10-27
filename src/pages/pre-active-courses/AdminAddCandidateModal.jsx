@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/Button";
 import CandidateForm from "../../components/candidates/CandidateForm";
 import api from "../../lib/api";
 import { getErrorMessage } from "../../lib/utils/errorUtils";
+import { formatDate } from "../../lib/utils/dateUtils";
 
 const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
   const [activeTab, setActiveTab] = useState("pool"); // 'pool' or 'new'
@@ -99,9 +100,12 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
         registration_type: data.employeeType || "Others",
         designation: data.designation,
         vessel_type: data.vesselType,
+        status_pool: data.statusPool,
         last_vessel_name: data.lastVesselName,
         next_vessel_name: data.nextVesselName,
         manning_company: data.manningCompany,
+        manning_agent: data.manningAgent,
+        fg_global: data.fgGlobal,
         sign_on_date: data.signOnDate || null,
         sign_off_date: data.signOffDate || null,
         officer: data.officer,
@@ -142,20 +146,41 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
 
   if (!isOpen) return null;
 
-  const filteredPool = poolCandidates.filter((c) => {
-    const search = poolSearch.toLowerCase();
+  const filterPoolCandidate = (c) => {
+    const search = poolSearch.toLowerCase().trim();
+    if (!search) return true;
+    const fullName = `${c.first_name || ""} ${c.last_name || ""}`.toLowerCase();
+    const email = (c.email || "").toLowerCase();
+    const indos = (c.indos_number || "").toLowerCase();
+    const rank = (c.rank || "").toLowerCase();
+    const passport = (c.cdc_passport || c.passport_no || "").toLowerCase();
+    const designation = (c.designation || "").toLowerCase();
+    const manager = (c.manager || c.manning_company || "").toLowerCase();
+    const seamanNo = (c.seaman_book_no || "").toLowerCase();
+    const empId = (c.empId || c.employee_id || "").toLowerCase();
+    const candidateId = (c.id ? String(c.id) : "").toLowerCase();
+
     return (
-      (c.first_name + " " + (c.last_name || "")).toLowerCase().includes(search) ||
-      c.email.toLowerCase().includes(search) ||
-      (c.indos_number && c.indos_number.toLowerCase().includes(search))
+      fullName.includes(search) ||
+      email.includes(search) ||
+      indos.includes(search) ||
+      rank.includes(search) ||
+      passport.includes(search) ||
+      designation.includes(search) ||
+      manager.includes(search) ||
+      seamanNo.includes(search) ||
+      empId.includes(search) ||
+      candidateId.includes(search)
     );
-  });
+  };
+
+  const filteredPool = poolCandidates.filter(filterPoolCandidate);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh] my-auto">
         {/* Header */}
-        <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-b border-slate-100">
+        <div className="bg-slate-50 px-4 sm:px-6 py-4 flex justify-between items-center border-b border-slate-100 shrink-0">
           <div>
             <h3 className="font-bold text-slate-800 flex items-center gap-2">
               <Users size={18} className="text-blue-600" />
@@ -174,7 +199,7 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 bg-slate-50/50">
+        <div className="flex border-b border-slate-200 bg-slate-50/50 shrink-0">
           <button
             onClick={() => {
               setActiveTab("pool");
@@ -201,24 +226,54 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-white min-h-[350px]">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-white min-h-0">
           {activeTab === "pool" ? (
             <div className="space-y-4">
-              <div className="relative">
-                <Input
-                  placeholder="Search by name, email or INDoS..."
-                  value={poolSearch}
-                  onChange={(e) => setPoolSearch(e.target.value)}
-                  className="pl-10"
-                />
-                <Search size={16} className="absolute left-3.5 top-3.5 text-slate-400" />
+              {/* Top Search & Actions Bar */}
+              <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div className="relative flex-1 min-w-[240px]">
+                  <Input
+                    placeholder="Search by name, candidate ID, email, INDoS, rank, position, passport..."
+                    value={poolSearch}
+                    onChange={(e) => setPoolSearch(e.target.value)}
+                    className="pl-10 bg-white"
+                  />
+                  <Search size={16} className="absolute left-3.5 top-3 text-slate-400" />
+                </div>
+
+                <div className="flex items-center gap-2.5 justify-between md:justify-end shrink-0">
+                  <span className="text-xs font-semibold text-slate-600 bg-white px-2.5 py-2 rounded-lg border border-slate-200 shadow-sm whitespace-nowrap">
+                    {selectedPoolIds.length} selected
+                  </span>
+                  <Button variant="secondary" onClick={onClose} size="sm">
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={handleAddFromPool}
+                    disabled={selectedPoolIds.length === 0 || submitting}
+                    size="sm"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                        Enrolling...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-1.5" />
+                        Add Selected Candidates ({selectedPoolIds.length})
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
 
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                  <thead className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest border-b border-slate-200">
+              <div className="border border-slate-200 rounded-xl overflow-auto max-h-[60vh]">
+                <table className="w-full min-w-[1300px] text-left border-collapse">
+                  <thead className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-wider sticky top-0 border-b border-slate-200 shadow-sm">
                     <tr>
-                      <th className="px-6 py-3 w-16 text-center">
+                      <th className="w-10 px-2 py-2.5 text-center">
                         <input
                           type="checkbox"
                           className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
@@ -235,16 +290,27 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
                           }}
                         />
                       </th>
-                      <th className="px-6 py-3">Nominee Name</th>
-                      <th className="px-6 py-3">Email / Contact</th>
-                      <th className="px-6 py-3">INDoS Number</th>
-                      <th className="px-6 py-3">Type</th>
+                      <th className="px-3 py-2.5 whitespace-nowrap min-w-[140px]">Nominee Name</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Emp ID</th>
+                      <th className="px-3 py-2.5 whitespace-nowrap min-w-[170px]">Email / Contact</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">DOB</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-28">Certificate Date</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Nationality</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-28">CDC / Passport</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-20">Rank</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Seaman No</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Position</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[140px]">Manning co / Manager</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">Status Pool</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap min-w-[120px]">Last Vessel</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-24">INDoS Number</th>
+                      <th className="px-2 py-2.5 whitespace-nowrap w-20">Type</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 bg-white">
                     {poolLoading ? (
                       <tr>
-                        <td colSpan="5" className="px-6 py-12 text-center text-slate-400">
+                        <td colSpan="16" className="px-4 py-12 text-center text-slate-400">
                           <div className="flex flex-col items-center gap-3">
                             <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                             <span>Loading pool...</span>
@@ -253,7 +319,7 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
                       </tr>
                     ) : filteredPool.length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="px-6 py-12 text-center text-slate-400">
+                        <td colSpan="16" className="px-4 py-12 text-center text-slate-400">
                           No candidates found in pool.
                         </td>
                       </tr>
@@ -270,7 +336,7 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
                             }
                           }}
                         >
-                          <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                          <td className="w-10 px-2 py-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <input
                               type="checkbox"
                               checked={selectedPoolIds.includes(c.id)}
@@ -284,15 +350,53 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
                               className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                             />
                           </td>
-                          <td className="px-6 py-4 font-semibold text-slate-800 text-sm">
+                          <td className="px-3 py-2 font-semibold text-slate-800 text-xs whitespace-nowrap">
                             {c.first_name} {c.last_name || ""}
                           </td>
-                          <td className="px-6 py-4 text-xs text-slate-600">{c.email}</td>
-                          <td className="px-6 py-4 text-xs text-slate-500 font-mono">
+                          <td className="px-2 py-2 text-xs text-slate-600 font-mono whitespace-nowrap">
+                            {c.empId || c.employee_id || "-"}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            <div>{c.email}</div>
+                            {c.mobile && (
+                              <div className="text-[11px] text-slate-400">{c.mobile}</div>
+                            )}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {formatDate(c.dob)}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {formatDate(c.previous_certificate_date)}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.nationality || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.cdc_passport || c.passport_no || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.rank || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.seaman_book_no || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.designation || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.manager || c.manning_company || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.status_pool || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">
+                            {c.last_vessel || c.last_vessel_name || "-"}
+                          </td>
+                          <td className="px-2 py-2 text-xs text-slate-500 font-mono whitespace-nowrap">
                             {c.indos_number || "-"}
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-100">
+                          <td className="px-2 py-2 whitespace-nowrap">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-100">
                               {c.registration_type || "Others"}
                             </span>
                           </td>
@@ -317,37 +421,6 @@ const AdminAddCandidateModal = ({ isOpen, onClose, courseId, onSuccess }) => {
             </div>
           )}
         </div>
-
-        {/* Footer for pool tab */}
-        {activeTab === "pool" && (
-          <div className="p-6 border-t border-slate-100 flex justify-between items-center bg-slate-50">
-            <p className="text-sm text-slate-500 font-medium">
-              {selectedPoolIds.length} candidate(s) selected
-            </p>
-            <div className="flex gap-3">
-              <Button variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleAddFromPool}
-                disabled={selectedPoolIds.length === 0 || submitting}
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Enrolling...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Selected Candidates
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

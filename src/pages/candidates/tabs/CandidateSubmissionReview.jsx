@@ -78,7 +78,9 @@ const CandidateSubmissionReview = ({ resultId, onClose }) => {
     result.total_questions > 0
       ? Math.round((result.correct_answers / result.total_questions) * 100)
       : 0;
-  const isPassed = percentage >= 60;
+  const isRetest = (result.attempt_number || 1) > 1;
+  const requiredScore = isRetest ? 70 : 60;
+  const isPassed = percentage >= requiredScore;
   const canDownload = result.type_of_test === 2 || result.type_of_test === "2";
 
   return (

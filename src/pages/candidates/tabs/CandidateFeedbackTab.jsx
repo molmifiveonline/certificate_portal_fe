@@ -8,7 +8,15 @@ import {
 } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Badge } from "../../../components/ui/Badge";
-import { CheckCircle2, Send, Star, AlertCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Send,
+  Star,
+  AlertCircle,
+  Lock,
+  ArrowRight,
+  ClipboardCheck,
+} from "lucide-react";
 import api from "../../../lib/api";
 import SearchableSelect from "../../../components/ui/SearchableSelect";
 import { toast } from "sonner";
@@ -37,12 +45,37 @@ const normalizeQuestionOptions = (question) => {
   });
 };
 
+const isVenueCategory = (categoryName) => {
+  const normalized = String(categoryName || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, " ");
+  return (
+    normalized.includes("training course venue") ||
+    normalized.includes("classroom venue")
+  );
+};
+
 const normalizeFeedbackCategories = (form) => {
   if (!form) return [];
 
+  let categories = [];
   if (Array.isArray(form.categories)) {
-    return form.categories.map((category) => ({
+    categories = form.categories.map((category) => ({
       id: category.id,
+      category_name: category.category_name || category.name,
+      questions: (category.questions || []).map((question) => ({
+        id: question.id,
+        question: question.question || question.question_text || "",
+        type: String(
+          question.type || question.question_type || "text",
+        ).toLowerCase(),
+        options: normalizeQuestionOptions(question),
+      })),
+    }));
+  } else {
+    categories = Object.entries(form.questions || {}).map(([categoryId, category]) => ({
+      id: categoryId,
       category_name: category.category_name || category.name,
       questions: (category.questions || []).map((question) => ({
         id: question.id,
@@ -55,21 +88,10 @@ const normalizeFeedbackCategories = (form) => {
     }));
   }
 
-  return Object.entries(form.questions || {}).map(([categoryId, category]) => ({
-    id: categoryId,
-    category_name: category.category_name || category.name,
-    questions: (category.questions || []).map((question) => ({
-      id: question.id,
-      question: question.question || question.question_text || "",
-      type: String(
-        question.type || question.question_type || "text",
-      ).toLowerCase(),
-      options: normalizeQuestionOptions(question),
-    })),
-  }));
+  return categories.filter((cat) => !isVenueCategory(cat.category_name));
 };
 
-const CandidateFeedbackTab = ({ courseId }) => {
+const CandidateFeedbackTab = ({ courseId, onGoToAssessment }) => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formValues, setFormValues] = useState({});
@@ -111,6 +133,36 @@ const CandidateFeedbackTab = ({ courseId }) => {
     fetchStatus();
   }, [fetchStatus]);
 
+  const feedbackCategories = normalizeFeedbackCategories(status?.form);
+
+  const isQuestionRequired = (qInfo, categoryId) => {
+    if (qInfo.type !== "text") return true;
+
+    const qTextLower = (qInfo.question || "").toLowerCase();
+    if (
+      qTextLower.includes("benefits earned") ||
+      qTextLower.includes("improvement")
+    ) {
+      return true;
+    }
+
+    const categoryAnswers = Object.values(formValues).filter(
+      (ans) => ans.category_id === categoryId
+    );
+    
+    return categoryAnswers.some((ans) => {
+      const catQInfo = feedbackCategories
+        .find((c) => c.id === categoryId)
+        ?.questions.find((q) => q.id === ans.question_id);
+
+      if (catQInfo && catQInfo.type === "rating") {
+        const ratingVal = Number(ans.answer);
+        return !isNaN(ratingVal) && ratingVal <= 7 && ratingVal > 0;
+      }
+      return false;
+    });
+  };
+
   const handleRatingChange = (qId, option) => {
     const answer = option.value || option.option_text || "";
     setFormValues((prev) => ({
@@ -135,10 +187,24 @@ const CandidateFeedbackTab = ({ courseId }) => {
   };
 
   const handleSubmit = async () => {
-    // Validation: simple check if all questions are answered
-    const unanswered = Object.values(formValues).some((v) => !v.answer);
+    const unanswered = Object.values(formValues).some((v) => {
+      if (v.answer && v.answer.trim() !== "") return false;
+
+      let qInfo = null;
+      for (const cat of feedbackCategories) {
+        const found = cat.questions.find((q) => q.id === v.question_id);
+        if (found) {
+          qInfo = found;
+          break;
+        }
+      }
+
+      if (!qInfo) return true;
+      return isQuestionRequired(qInfo, v.category_id);
+    });
+
     if (unanswered) {
-      toast.warning("Please answer all questions before submitting.");
+      toast.warning("Please answer all required questions before submitting.");
       return;
     }
 
@@ -165,13 +231,14 @@ const CandidateFeedbackTab = ({ courseId }) => {
       </div>
     );
 
-  const feedbackCategories = normalizeFeedbackCategories(status?.form);
+  
 
   if (status?.hasSubmitted) {
     const groupedAnswers = {};
     if (status?.answers) {
       status.answers.forEach((ans) => {
         const catName = ans.category_name || "General";
+        if (isVenueCategory(catName)) return;
         if (!groupedAnswers[catName]) {
           groupedAnswers[catName] = [];
         }
@@ -276,6 +343,71 @@ const CandidateFeedbackTab = ({ courseId }) => {
     );
   }
 
+  if (
+    !status?.hasSubmitted &&
+    (!status?.postAssessmentCompleted || !status?.postAssessmentPassed)
+  ) {
+    const isAssessmentCreated = !!status?.postAssessmentExists;
+    const isCompletedButFailed =
+      !!status?.postAssessmentCompleted && !status?.postAssessmentPassed;
+    const scoreMessage =
+      status?.postAssessmentScore !== null &&
+      status?.postAssessmentScore !== undefined &&
+      status?.requiredScore
+        ? `Your latest score is ${status.postAssessmentScore}%. Required score is ${status.requiredScore}%.`
+        : "Your latest post-assessment score is below the required passing score.";
+
+    return (
+      <div className="max-w-2xl mx-auto py-8">
+        <Card className="border-amber-200/80 bg-gradient-to-b from-amber-50/40 via-white to-white shadow-sm overflow-hidden rounded-2xl">
+          <CardHeader className="text-center pb-2 pt-8">
+            <div className="mx-auto w-14 h-14 rounded-full bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-600 mb-4 shadow-sm">
+              <Lock className="w-7 h-7" />
+            </div>
+            <CardTitle className="text-xl font-bold text-slate-800">
+              {isCompletedButFailed
+                ? "Post-Assessment Pass Required"
+                : isAssessmentCreated
+                ? "Post-Assessment Required"
+                : "Post-Assessment Not Available Yet"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-5 px-6 pb-8">
+            <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto">
+              {isCompletedButFailed
+                ? `Course feedback is only enabled after you pass the Post-Course Assessment. ${scoreMessage}`
+                : isAssessmentCreated
+                ? "Course feedback is only enabled after you have completed your Post-Course Assessment. Please complete the assessment to unlock the feedback form."
+                : "The post-course assessment for this course has not been created yet. Feedback will become available once the assessment is created and completed."}
+            </p>
+
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-medium">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>
+                {isCompletedButFailed
+                  ? "Feedback is locked until post-assessment is passed"
+                  : "Feedback is locked until post-assessment is completed"}
+              </span>
+            </div>
+
+            {isAssessmentCreated && !isCompletedButFailed && onGoToAssessment && (
+              <div className="pt-2">
+                <Button
+                  onClick={onGoToAssessment}
+                  className="bg-primary hover:bg-primary/90 text-white font-semibold px-6 py-2.5 rounded-xl shadow-md shadow-primary/20 inline-flex items-center gap-2 group transition-all"
+                >
+                  <ClipboardCheck className="w-4 h-4" />
+                  <span>Go to Assessment</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!status?.form) {
     return (
       <Card className="max-w-2xl mx-auto border-dashed">
@@ -320,6 +452,9 @@ const CandidateFeedbackTab = ({ courseId }) => {
                 <p className="text-slate-700 font-medium mb-6 flex gap-3">
                   <span className="text-slate-300 font-bold">{idx + 1}.</span>
                   {question.question}
+                  {isQuestionRequired(question, category.id) && (
+                    <span className="text-red-500">*</span>
+                  )}
                 </p>
 
                 {question.type === "rating" ? (

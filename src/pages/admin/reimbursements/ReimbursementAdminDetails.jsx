@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getErrorMessage } from "../../../lib/utils/errorUtils";
 import {
   CheckCircle2,
+  Download,
   Loader2,
   Mail,
   ReceiptText,
@@ -15,6 +16,7 @@ import Meta from "../../../components/common/Meta";
 import PageHeader from "../../../components/common/PageHeader";
 import { Button } from "../../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { Input } from "../../../components/ui/Input";
 import { Textarea } from "../../../components/ui/Textarea";
 import reimbursementService from "../../../services/reimbursementService";
 import {
@@ -22,6 +24,7 @@ import {
   REIMBURSEMENT_STATUS,
 } from "../../../lib/utils/reimbursementUtils";
 import { formatDate, formatDateTime } from "../../../lib/utils/dateUtils";
+import { buildUploadUrl, downloadFile } from "../../../lib/utils/fileUtils";
 import ReimbursementAttachments from "../../../components/reimbursements/ReimbursementAttachments";
 import ReimbursementRemarksPanel from "../../../components/reimbursements/ReimbursementRemarksPanel";
 import ReimbursementStatusBadge from "../../../components/reimbursements/ReimbursementStatusBadge";
@@ -41,6 +44,9 @@ const ActionModal = ({
   confirmText,
   remarks,
   setRemarks,
+  showCcField,
+  ccEmails,
+  setCcEmails,
   onClose,
   onConfirm,
   loading,
@@ -67,6 +73,23 @@ const ActionModal = ({
             className="min-h-[140px]"
             placeholder="Enter remarks"
           />
+
+          {showCcField && (
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-600">
+                CC Email (optional)
+              </label>
+              <Input
+                value={ccEmails}
+                onChange={(e) => setCcEmails(e.target.value)}
+                placeholder="e.g. person1@molgroup.com, person2@molgroup.com"
+                className="bg-white/80 border-slate-200"
+              />
+              <p className="text-xs text-slate-400">
+                Comma-separated. These addresses will be CC'd on the approval email.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
@@ -90,6 +113,7 @@ const ReimbursementAdminDetails = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [modalState, setModalState] = useState({ type: "", open: false });
   const [remarks, setRemarks] = useState("");
+  const [ccEmails, setCcEmails] = useState("");
 
   const loadReimbursement = useCallback(async () => {
     try {
@@ -111,11 +135,13 @@ const ReimbursementAdminDetails = () => {
   const closeModal = () => {
     setModalState({ type: "", open: false });
     setRemarks("");
+    setCcEmails("");
   };
 
   const openModal = (type) => {
     setModalState({ type, open: true });
     setRemarks("");
+    setCcEmails("");
   };
 
   const handleAction = async () => {
@@ -123,7 +149,7 @@ const ReimbursementAdminDetails = () => {
       setActionLoading(true);
 
       if (modalState.type === "approve") {
-        await reimbursementService.approveReimbursement(id, { remarks });
+        await reimbursementService.approveReimbursement(id, { remarks, cc_emails: ccEmails });
         toast.success("Claim approved and sent to accounts workflow");
       }
 
@@ -187,19 +213,38 @@ const ReimbursementAdminDetails = () => {
           backTo="/admin/reimbursements"
           actions={
             reimbursement.status === REIMBURSEMENT_STATUS.APPROVED && (
-              <Button
-                type="button"
-                onClick={handleResendEmail}
-                disabled={actionLoading}
-                className="gap-2 rounded-xl"
-              >
-                {actionLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Mail className="h-4 w-4" />
+              <div className="flex flex-wrap items-center gap-2">
+                {reimbursement.approved_pdf_url && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      downloadFile(
+                        buildUploadUrl(reimbursement.approved_pdf_url),
+                        `${reimbursement.claim_number || "claim"}-approval.pdf`,
+                      )
+                    }
+                    className="gap-2 rounded-xl"
+                    title="Download Approval PDF"
+                  >
+                    <Download className="h-4 w-4" />
+                    Approval PDF
+                  </Button>
                 )}
-                Resend to Accounts
-              </Button>
+                <Button
+                  type="button"
+                  onClick={handleResendEmail}
+                  disabled={actionLoading}
+                  className="gap-2 rounded-xl"
+                >
+                  {actionLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4" />
+                  )}
+                  Resend to Accounts
+                </Button>
+              </div>
             )
           }
         />
@@ -336,6 +381,9 @@ const ReimbursementAdminDetails = () => {
         }
         remarks={remarks}
         setRemarks={setRemarks}
+        showCcField={modalState.type === "approve"}
+        ccEmails={ccEmails}
+        setCcEmails={setCcEmails}
         onClose={closeModal}
         onConfirm={handleAction}
         loading={actionLoading}

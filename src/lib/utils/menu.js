@@ -128,6 +128,19 @@ export const MenuItems = [
     icon: Building,
     allowedRoles: ["admin", "superadmin"],
     permissionSlug: "view_hotels",
+    permissionSlugsAny: ["view_hotels", "view_reports"],
+    subItems: [
+      {
+        title: "Hotel List",
+        url: "/hotel-details",
+        permissionSlug: "view_hotels",
+      },
+      {
+        title: "Hotel Allocations",
+        url: "/reports/hotel",
+        permissionSlug: "view_reports",
+      },
+    ],
   },
 
   {
@@ -307,5 +320,6 @@ export const MenuItems = [
     url: "/reimbursements",
     icon: Receipt,
     allowedRoles: ["candidate"],
+    molmiCandidateOnly: true,
   },
 ];

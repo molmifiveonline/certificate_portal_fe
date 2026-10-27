@@ -18,12 +18,28 @@ import {
   MANAGER_OPTIONS,
   PREFIX_OPTIONS,
   GENDER_OPTIONS,
-  TRAINER_NATIONALITY_OPTIONS,
+  CANDIDATE_NATIONALITY_OPTIONS,
   RANK_LAST_SERVED_OPTIONS,
 } from "../../lib/constants";
+import { STATUS_POOL_OPTIONS } from "../../lib/utils/constants";
 import { getCommonFieldValidation } from "../../lib/utils/validation";
 
 const FormContext = createContext();
+
+const normalizeOptionValue = (value) =>
+  String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toUpperCase();
+
+const matchOptionValue = (value, options) => {
+  const normalizedValue = normalizeOptionValue(value);
+  if (!normalizedValue) return "";
+  const matchedOption = options.find(
+    (option) => normalizeOptionValue(option.value ?? option) === normalizedValue,
+  );
+  return matchedOption ? String(matchedOption.value ?? matchedOption) : value;
+};
 
 const SectionHeader = ({ title, icon: Icon }) => (
   <div className="flex items-center space-x-2 border-b pb-2 mb-6 mt-2 relative">
@@ -165,6 +181,15 @@ const CandidateForm = ({
 }) => {
   // Pre-process defaultValues for Manager "Others" case
   const formattedDefaultValues = { status: false, ...defaultValues };
+  formattedDefaultValues.nationality = matchOptionValue(
+    formattedDefaultValues.nationality,
+    CANDIDATE_NATIONALITY_OPTIONS,
+  );
+  
+  if (formattedDefaultValues.statusPool) {
+    formattedDefaultValues.statusPool = formattedDefaultValues.statusPool.toUpperCase().trim();
+  }
+
   if (
     formattedDefaultValues.manager &&
     !MANAGER_OPTIONS.some((o) => o.value === formattedDefaultValues.manager)
@@ -366,6 +391,14 @@ const CandidateForm = ({
                         className="col-span-2"
                       />
                     )}
+                    <InputField
+                      label="Manning Agent"
+                      name="manningAgent"
+                    />
+                    <InputField
+                      label="FG Global"
+                      name="fgGlobal"
+                    />
                   </div>
                 </div>
               </div>
@@ -557,7 +590,7 @@ const CandidateForm = ({
                     label="Nationality"
                     name="nationality"
                     required
-                    options={TRAINER_NATIONALITY_OPTIONS}
+                    options={CANDIDATE_NATIONALITY_OPTIONS}
                     className="md:col-span-2"
                   />
                   <InputField
@@ -614,12 +647,18 @@ const CandidateForm = ({
               <div>
                 <SectionHeader title="Vessel & Experience" icon={Briefcase} />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputField label="Designation" name="designation" />
+                  <InputField label="Position" name="designation" />
                   <InputField label="Vessel Type" name="vesselType" />
+                  <SelectField
+                    label="Status Pool"
+                    name="statusPool"
+                    options={STATUS_POOL_OPTIONS.map(opt => ({ value: opt, label: opt }))}
+                    placeholder="Select Status Pool"
+                  />
                   <InputField label="Last Vessel Name" name="lastVesselName" />
                   <InputField label="Next Vessel Name" name="nextVesselName" />
                   <InputField label="Manning Company" name="manningCompany" />
-                  <InputField label="Officer" name="officer" required />
+                  <InputField label="Officer" name="officer" />
                   <InputField
                     label="Sign On Date"
                     name="signOnDate"

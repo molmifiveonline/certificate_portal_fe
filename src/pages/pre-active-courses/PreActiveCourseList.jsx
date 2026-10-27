@@ -272,8 +272,9 @@ const PreActiveCourseList = () => {
         response?.target_type ||
         response?.targetType ||
         getConversionTargetLabel(courseToConvert);
+      const courseIdSuffix = response?.course_id ? ` (${response.course_id})` : "";
       toast.success(
-        response?.message || `Closed and converted to ${targetLabel}`,
+        response?.message || `Closed and converted to ${targetLabel}${courseIdSuffix}`,
       );
       setConvertModalOpen(false);
       fetchCourses();

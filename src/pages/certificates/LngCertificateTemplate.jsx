@@ -28,7 +28,30 @@ const LngCertificateTemplate = ({
       : "This training is the LNG carrier standard training course that is intended to apply to seafarers classifying as the Operational rank, which is certified by DNV as compliant with the LNG Shipping suggested competency standards issued by SIGTTO and includes the Cargo simulator training.";
 
   return (
-    <div
+    <>
+      <style>
+        {`
+          @media print {
+            .lng-cert-wrapper {
+              zoom: var(--certificate-print-scale, 0.9);
+              margin: 0 auto !important;
+              min-height: var(--certificate-print-page-height, auto) !important;
+              padding: 10mm 12mm 10mm !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+              page-break-after: avoid !important;
+            }
+            .lng-cert-inner {
+              min-height: auto !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="lng-cert-wrapper"
+        data-certificate-print-surface="true"
       style={{
         backgroundColor: "#fff",
         color: "#000",
@@ -40,7 +63,7 @@ const LngCertificateTemplate = ({
         fontFamily: '"Times New Roman", serif',
       }}
     >
-      <div style={{ position: "relative", minHeight: "240mm" }}>
+      <div className="lng-cert-inner" style={{ position: "relative", minHeight: "240mm" }}>
         <img
           src="/mol-logo.png"
           alt="MOL"
@@ -322,19 +345,10 @@ const LngCertificateTemplate = ({
               />
             ) : null}
           </div>
-
-          <img
-            src="/images/GlobalMET-Logo.jpg"
-            alt="GlobalMET"
-            style={{
-              width: "160px",
-              height: "55px",
-              objectFit: "contain",
-            }}
-          />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
