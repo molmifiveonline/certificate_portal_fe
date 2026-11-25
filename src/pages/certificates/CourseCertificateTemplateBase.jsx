@@ -23,6 +23,26 @@ const CourseCertificateTemplateBase = ({
     <>
       <style>
         {`
+          .cert-description-td ol {
+            list-style-type: decimal;
+            padding-left: 28px;
+            margin: 0;
+          }
+          .cert-description-td ul {
+            list-style-type: disc;
+            padding-left: 28px;
+            margin: 0;
+          }
+          .cert-description-td li {
+            display: list-item;
+            margin-bottom: 4px;
+          }
+          .cert-description-td li[data-list="bullet"] {
+            list-style-type: disc;
+          }
+          .cert-description-td li[data-list="ordered"] {
+            list-style-type: decimal;
+          }
           @media print {
             .course-cert-wrapper {
               zoom: var(--certificate-print-scale, 0.7);
